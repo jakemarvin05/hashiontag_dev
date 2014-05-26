@@ -39,7 +39,7 @@ router.get('/', function (req, res) {
 router.get('/', function (req, res) {
   sys.puts(sys.inspect(req));
   res.render('index', { title: 'Hashiontag', 
-                        someVariable: 'This is a variable'
+                        someVariable: 'This is a variable passed from node.js'
   });
 });
 
