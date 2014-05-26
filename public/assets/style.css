@@ -15,19 +15,25 @@ II. All other media queries
 /*-------------------------------------------------
 1. Example
 -------------------------------------------------*/
-
 body {
-    background-color: #f6f6f3;
+    background-color: #131313;
 }
 #header {
-    background-color: #fff;
+    background-color: #2A333B;
+    position: fixed;
+    min-width: 100%;
+    height: 53px;
+    min-height: 53px;
 }
 #logo {
-    width: 160px;
+    width: 69px;
+    position:relative;
+    top:5px;
 }
 #nav_full {
+    display:none;
     text-align:center;
-    border-top: 6px solid #dcd2b0;
+    /*border-top: 6px solid #dcd2b0;*/
     border-bottom: 1px solid #ddd;
     background-color: #fff;
     padding: 10px;
@@ -35,8 +41,11 @@ body {
 #nav_full span {
     margin: 0px 10px 0px 10px;
 }
-
+.header_compensate {
+    padding-top: 53px;
+}
 .left_col_block, .main_col_block, .right_menu {
+    /*
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     -o-border-radius: 4px;
@@ -45,9 +54,44 @@ body {
     -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
     -o-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
     box-shadow: 0 1px 1px rgba(0,0,0,0.31);
+    overflow:hidden;*/
     background-color: #fff;
-    width:95%;
+    width:98%;
     margin: 10px auto 10px auto;
+}
+/* generic block elements */
+.block_title {
+    text-align: center;
+    color: #fff;
+}
+.block_inner {
+    padding: 10px;
+}
+.block_inner p, h2, h3 {
+    margin: 0px;
+}
+/* block top */
+.block_top {
+}
+.block_top img {
+    width: 60px;
+    height: 60px;
+    border-radius: 60px;
+}
+.block_user_holder {
+    height: 60px;
+    width: 60px;
+    float:left;
+    padding: 0px 10px 10px 0px;
+} 
+.block_text_holder {
+    float: left;
+    padding-top:10px;
+}
+.block_username { 
+}
+.block_timelapse {
+    color: #ccc;
 }
 .left_col_block {
 }
@@ -57,7 +101,7 @@ body {
 }
 #footer {
     background-color: #fff;
-    border-top: 1px solid #ddd;
+    text-align:center;
 }
 
 
@@ -172,7 +216,7 @@ I. Responsive grid @ media queries
             display: none;
         }
         /* all the full width elements */
-        header, nav, footer, .global_wrapper {
+        header#main_header, nav, footer, .global_wrapper {
             min-width: 640px;
         }
     }
@@ -218,7 +262,7 @@ I. Responsive grid @ media queries
             display: block;
             min-width: 230px;
         }
-        header, nav, footer, .global_wrapper {
+        header#main_header, nav, footer, .global_wrapper {
             min-width: 960px;
         }
     }
