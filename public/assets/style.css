@@ -16,6 +16,49 @@ II. All other media queries
 1. Example
 -------------------------------------------------*/
 
+body {
+    background-color: #f6f6f3;
+}
+#header {
+    background-color: #fff;
+}
+#logo {
+    width: 160px;
+}
+#nav_full {
+    text-align:center;
+    border-top: 6px solid #dcd2b0;
+    border-bottom: 1px solid #ddd;
+    background-color: #fff;
+    padding: 10px;
+}
+#nav_full span {
+    margin: 0px 10px 0px 10px;
+}
+
+.left_col_block, .main_col_block, .right_menu {
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -o-border-radius: 4px;
+    border-radius: 4px;
+    -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
+    -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
+    -o-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
+    box-shadow: 0 1px 1px rgba(0,0,0,0.31);
+    background-color: #fff;
+    width:95%;
+    margin: 10px auto 10px auto;
+}
+.left_col_block {
+}
+.main_col_block {
+}
+.right_menu {
+}
+#footer {
+    background-color: #fff;
+    border-top: 1px solid #ddd;
+}
 
 
 /*-------------------------------------------------
@@ -33,9 +76,6 @@ I. Responsive grid @ media queries
     -webkit-background-clip:padding-box !important;
     background-clip:padding-box !important;
 }
-
-
-
     /* 1. 1 Column Grid 0px - 480px 
     ----------------------------------------------------------------------------- 
     1) Display only center column.
@@ -44,18 +84,15 @@ I. Responsive grid @ media queries
 
     Span 1:    100%
     Span 2:    Hidden
-    Span all:  100%
-
-
-    
+    Span all:  100% 
     ----------------------------------------------------------------------------- */
 
     @media screen and (min-width: 0px) and (max-width: 480px) {
         
-        .col {
-            /* margin-left:2%; */
+        /*.col {
+            margin-left:2%;
             padding:0 1.5%;
-        }
+        } */
         
         .row .col:first-child {
             margin-left:0;
@@ -85,7 +122,7 @@ I. Responsive grid @ media queries
             display: none;
         }
         #main {
-
+            min-width: 320px;
         }
         #right_col {
             display: none;
@@ -99,16 +136,16 @@ I. Responsive grid @ media queries
     3) Minified toggle for right col becomes available.
 
     Span 1:    49.0%
-    Span all:    100%
-    
+    Span all:    100%   
     ----------------------------------------------------------------------------- */
 
     @media screen and (min-width: 481px) and (max-width: 640px) {
         
-        .col {
-            /* margin-left:2%; */
+        /*.col {
+            margin-left:2%;
             padding:0 1.5%;
         }
+        */
         
         .row .col:first-child {
             margin-left:0;
@@ -126,12 +163,17 @@ I. Responsive grid @ media queries
 
         #left_col {
             display: block;
+            min-width: 313px;
         }
         #main {
-
+            min-width: 314px;
         }
         #right_col {
             display: none;
+        }
+        /* all the full width elements */
+        header, nav, footer, .global_wrapper {
+            min-width: 640px;
         }
     }
 
@@ -141,16 +183,15 @@ I. Responsive grid @ media queries
 
     Span 1:    37.5%
     Span 2:    24.0%
-    Span all:  100%
-    
+    Span all:  100%   
     ----------------------------------------------------------------------------- */
 
     @media screen and (min-width: 641px) {
         
-        .col {
-         /* margin-left:2%; */
+        /*.col {
+         margin-left:2%; 
             padding:0 1.5%;
-        }
+        } */
         
         .row .col:first-child {
             margin-left:0;
@@ -166,15 +207,19 @@ I. Responsive grid @ media queries
             margin-left:0;
             width:100%;
         }
-
         #left_col {
             display: block;
+            min-width: 360px;
         }
         #main {
-
+            min-width: 360px;
         }
         #right_col {
             display: block;
+            min-width: 230px;
+        }
+        header, nav, footer, .global_wrapper {
+            min-width: 960px;
         }
     }
 /*-------------------------------------------------
@@ -187,7 +232,9 @@ II. All other media queries
 @media (min-width:481px) { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */ 
 
 }
-@media (min-width:641px) { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */ }
+@media (min-width:641px) { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */ 
+
+}
 @media (min-width:961px) { /* tablet, landscape iPad, lo-res laptops ands desktops */ 
 
 }

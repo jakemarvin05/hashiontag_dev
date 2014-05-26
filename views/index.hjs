@@ -1,13 +1,13 @@
 <!--<!DOCTYPE html>
 <html>
   <head>
-    <title>{{ title }}</title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+  <title>{{ title }}</title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <h1>{{ title }}</h1>
-    <p>Welcome to {{ title }}</p>
-    <p>{{ onlineCount }} user(s) online.</p>
+  <h1>{{ title }}</h1>
+  <p>Welcome to {{ title }}</p>
+  <p>{{ onlineCount }} user(s) online.</p>
   </body>
 </html>-->
 
@@ -20,176 +20,156 @@
 <!--[if IE 9 ]><html lang="en" class="no-js ie ie9"><![endif]-->
 <!--[if (gt IE 9)|!(IE)]><!--><html lang="en" class="no-js" ><!--<![endif]-->
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>{{ title }}</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>{{ title }}</title>
 
-    <meta name="description" content="Description.">
-    <meta name="keywords" content="">
-    <meta name="author" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Description.">
+  <meta name="keywords" content="">
+  <meta name="author" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- START Social media metas -->
+  <!-- START Social media metas -->
 
-    <!-- Google Authorship and Publisher Markup 
-    <link rel="author" href="https://plus.google.com/[Google+_Profile]/posts">
-    <link rel="publisher" href="https://plus.google.com/[Google+_Page_Profile]">
-    -->
+  <!-- Google Authorship and Publisher Markup 
+  <link rel="author" href="https://plus.google.com/[Google+_Profile]/posts">
+  <link rel="publisher" href="https://plus.google.com/[Google+_Page_Profile]">
+  -->
 
-    <!-- Open graph 
-    <meta property="og:title" content="Title">
-    <meta property="og:description" content="Description">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="">
-    <meta property="og:image" content="">
-    -->
+  <!-- Open graph 
+  <meta property="og:title" content="Title">
+  <meta property="og:description" content="Description">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+  -->
 
-    <!-- Twitter Card data
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@publisher_handle">
-    <meta name="twitter:title" content="Page Title">
-    <meta name="twitter:description" content="Page description less than 200 characters">
-    <meta name="twitter:creator" content="@author_handle">
-    -->
-    <!-- Twitter summary card with large image must be at least 280x150px 
-    <meta name="twitter:image:src" content="http://www.example.com/image.html">
-    -->
+  <!-- Twitter Card data
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@publisher_handle">
+  <meta name="twitter:title" content="Page Title">
+  <meta name="twitter:description" content="Page description less than 200 characters">
+  <meta name="twitter:creator" content="@author_handle">
+  -->
+  <!-- Twitter summary card with large image must be at least 280x150px 
+  <meta name="twitter:image:src" content="http://www.example.com/image.html">
+  -->
 
-    <!-- END Social media metas -->
+  <!-- END Social media metas -->
 
-    <!-- CSS -->
-    <link href="assets/style.css" rel="stylesheet"> 
-    
-    <!-- jQuery and UI -->
-    <script src="assets/jquery-1.10.1.min.js"></script>
-    <script src="assets/jquery-ui-1.10.4/js/jquery-ui-1.10.4.min.js"></script>
-    <link href="assets/jquery-ui-1.10.4/css/ui-lightness/jquery-ui-1.10.4.min.css" rel="stylesheet">
+  <!-- CSS -->
+  <link href="assets/style.css" rel="stylesheet"> 
+  
+  <!-- jQuery and UI -->
+  <script src="assets/jquery-1.10.1.min.js"></script>
+  <script src="assets/jquery-ui-1.10.4/js/jquery-ui-1.10.4.min.js"></script>
+  <link href="assets/jquery-ui-1.10.4/css/ui-lightness/jquery-ui-1.10.4.min.css" rel="stylesheet">
 
-    <!-- fancyBox image gallery -->
-    <link rel="stylesheet" href="assets/fancybox/source/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen" />
-    <script type="text/javascript" src="assets/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  <!-- fancyBox image gallery -->
+  <link rel="stylesheet" href="assets/fancybox/source/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen" />
+  <script type="text/javascript" src="assets/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
 
-    <!-- Optionally add helpers - button, thumbnail and/or media -->
-    <link rel="stylesheet" href="assets/fancybox/source/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen" />
-    <script type="text/javascript" src="assets/fancybox/source/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+  <!-- Optionally add helpers - button, thumbnail and/or media -->
+  <link rel="stylesheet" href="assets/fancybox/source/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen" />
+  <script type="text/javascript" src="assets/fancybox/source/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
 
-    <!-- fancyBox helpers not used 
-    <link rel="stylesheet" href="assets/fancybox/source/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen" />
-    <script type="text/javascript" src="assets/fancybox/source/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
-    <script type="text/javascript" src="assets/fancybox/source/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
-    -->
+  <!-- fancyBox helpers not used 
+  <link rel="stylesheet" href="assets/fancybox/source/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen" />
+  <script type="text/javascript" src="assets/fancybox/source/helpers/jquery.fancybox-buttons.js?v=1.0.5"></script>
+  <script type="text/javascript" src="assets/fancybox/source/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+  -->
 
-    <!-- HTML5 shiv for below IE10 compatibility -->
-    <script src="assets/html5shiv-printshiv.min.js"></script>
-    <script src="assets/respond.min.js"></script>
+  <!-- HTML5 shiv for below IE10 compatibility -->
+  <!--[if lt IE 9]>
+  <script src="assets/html5shiv-printshiv.min.js"></script>
+  <script src="assets/respond.min.js"></script>
+  <![endif]-->
+
 </head>
 
 
-<body style="background: url('images/40x40-striped-3percent.png') repeat; background-color:#cccccc">
+<body>
 
 <!-- HTML5 structural block -->
-    <header>
-        <div class-"col span_all">
-            <img src="images/logo.png">
-        </div>
-    </header>
+<header class="col span_all" >
+    <div id="header">
+      <img src="images/logo.png" id="logo">
+    </div>
+</header>
 
-    <nav>
-        <!-- navigation menu goes in here -->
-    </nav>
+<nav class="col span_all" >
+    <div id="nav_full">
+      <span>Home</span>
+      <span></span>
+</nav>
 
-    <section id="left_col">
-        <div class="col span_1" style="background-color: white;">
-            <h1>This is the left col</h1>
-            <p>1) jQuery 1.10.1</p>
-            <p>2) jQuery UI 1.10.4</p>
-            <p>3) fancyBox 2.1.5</p>
-            <p>4) bootstrap 3.1.1</p>
-            <p>5) HTML5 shiv</p>           
+<div class="global_wrapper">
+  <section id="left_col" class="col span_1">
+    <div class="left_col_block">
+      <a rel="group" class="fancybox" href="images/miranda_kerr.jpg">
+        <img src="images/miranda_kerr.jpg" width="100%">
+      </a>
+      <p></p>
+    </div>
+  </section><!-- left_col -->
 
-            <h1>fancyBox check</h1>
-            <a rel="group" class="fancybox" href="http://www.myfilmviews.com/wp-content/uploads/2012/12/scarlett_johansson.jpg">
-            <img src="http://www.myfilmviews.com/wp-content/uploads/2012/12/scarlett_johansson.jpg" width="100%">
-            </a>
-            <p></p>
-        </div>
-    </section>
+  <section id="main" class="col span_1">
+    <div class="main_col_block">
+        <article id="about">
+          <a rel="group" class="fancybox" href="images/scarlett_johansson.jpg">
+            <img src="images/scarlett_johansson.jpg" width="100%">
+          </a>
+          <p></p>
+          <p></p>
+        </article>
+    </div>
+  </section><!-- main -->
 
-    <section id="main">
-        <div class="col span_1" style="background-color: white;">
-            <article id="about">
-            <h1>This template contains:</h1>
-            <p>1) jQuery 1.10.1</p>
-            <p>2) jQuery UI 1.10.4</p>
-            <p>3) fancyBox 2.1.5</p>
-            <p>4) bootstrap 3.1.1</p>
-            <p>5) HTML5 shiv</p>           
+  <aside id="right_col" class="col span_2">
+    <div class="right_menu">
+      <h2>{{ someVariable }}</h2>
+      <p>1) jQuery 1.10.1</p>
+      <p>2) jQuery UI 1.10.4</p>
+      <p>3) fancyBox 2.1.5</p>
+      <p>4) respond.js</p>
+      <p>5) HTML5 shiv</p>           
+    </div>
+  </aside><!-- right_col -->
+</div><!-- .global_wrapper -->
 
-            <h1>fancyBox check</h1>
-            <a rel="group" class="fancybox" href="http://www.myfilmviews.com/wp-content/uploads/2012/12/scarlett_johansson.jpg">
-            <img src="http://www.myfilmviews.com/wp-content/uploads/2012/12/scarlett_johansson.jpg" width="100%">
-            </a>
-            <p></p>
-            </article>
-        </div>
-    
-    </section>
-
-    <aside id="right_col">
-        <div class="col span_2" style="background-color: white;">
-            <h1>{{ someVariable }}</h1>
-            <p>1) jQuery 1.10.1</p>
-            <p>2) jQuery UI 1.10.4</p>
-            <p>3) fancyBox 2.1.5</p>
-            <p>4) bootstrap 3.1.1</p>
-            <p>5) HTML5 shiv</p>           
-
-            <h1>fancyBox check</h1>
-            <a rel="group" class="fancybox" href="http://www.myfilmviews.com/wp-content/uploads/2012/12/scarlett_johansson.jpg">
-            <img src="http://www.myfilmviews.com/wp-content/uploads/2012/12/scarlett_johansson.jpg" width="100%">
-            </a>
-            <p></p>
-        </div>
-    </aside>
-
-    <footer id="footer">
-        <div class="col span_all" style="background-color: white;">
-            <h1>This is the footer</h1>
-            <p>1) jQuery 1.10.1</p>
-            <p>2) jQuery UI 1.10.4</p>
-            <p>3) fancyBox 2.1.5</p>
-            <p>4) bootstrap 3.1.1</p>
-            <p>5) HTML5 shiv</p>           
-            <p></p>
-        </div>
-    </footer>
+  <footer id="footer" class="col span_all">
+    <div>
+      <h1>This is the footer This is the footer This is the footer This is the footer This is the footer</h1>         
+      <p></p>
+    </div>
+  </footer>
 
 
 
 
-    <!-- All JS goes here -->
-    <!-- Bootstrap JS 
-    <script src="assets/bootstrap-3.1.1/js/bootstrap.min.js"></script>-->
-    <!--<script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>-->
+  <!-- All JS goes here -->
+  <!-- Bootstrap JS 
+  <script src="assets/bootstrap-3.1.1/js/bootstrap.min.js"></script>-->
+  <!--<script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>-->
 
-    <!-- fancyBox init -->
-    <script>
-    $( document ).ready( function () {
-        $(".fancybox").fancybox();
-    });
-    </script>
+  <!-- fancyBox init -->
+  <script>
+  $( document ).ready( function () {
+    $(".fancybox").fancybox();
+  });
+  </script>
 
-    <!-- Gridpak *FOR DEV ONLY*
-    <script src="assets/gridpak.js"></script>-->
-    <script>
-    $(document).keyup(function(e) {
-        if (e.keyCode == 71) {
-            $( 'div' ).css('outline', '1px dotted red');
-        }
-        if (e.keyCode == 72) {
-            $( 'div' ).css('outline', '0px');
-        }
-    });
-    </script>
+  <!-- Gridpak *FOR DEV ONLY*
+  <script src="assets/gridpak.js"></script>-->
+  <script>
+  $(document).keyup(function(e) {
+    if (e.keyCode == 71) {
+      $( 'div' ).css('outline', '1px dotted red');
+    }
+    if (e.keyCode == 72) {
+      $( 'div' ).css('outline', '0px');
+    }
+  });
+  </script>
 </body>
 </html>

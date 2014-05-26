@@ -38,7 +38,7 @@ router.get('/', function (req, res) {
 // Render my homepage variables
 router.get('/', function (req, res) {
   sys.puts(sys.inspect(req));
-  res.render('index', { title: 'Hashionable', 
+  res.render('index', { title: 'Hashiontag', 
                         someVariable: 'This is a variable'
   });
 });
