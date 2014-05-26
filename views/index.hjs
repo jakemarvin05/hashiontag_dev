@@ -137,7 +137,7 @@
 
     <aside id="right_col">
         <div class="col span_2" style="background-color: white;">
-            <h1>{{ onlineCount }} users online.</h1>
+            <h1>{{ someVariable }}</h1>
             <p>1) jQuery 1.10.1</p>
             <p>2) jQuery UI 1.10.4</p>
             <p>3) fancyBox 2.1.5</p>

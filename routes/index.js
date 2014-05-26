@@ -7,6 +7,7 @@ var sys = require('sys');
 module.exports = router;
 
 //online users-online app
+/* redis server crashed on Heroku. Not sure how to fix it.
 var redis = require('redis');
 var db = redis.createClient();
 
@@ -32,8 +33,15 @@ router.get('/', function (req, res) {
                         onlineCount: req.online.length
   });
 });
+*/
 
-
+// Render my homepage variables
+router.get('/', function (req, res) {
+  sys.puts(sys.inspect(req));
+  res.render('index', { title: 'Hashionable', 
+                        someVariable: 'This is a variable'
+  });
+});
 
 /* GET home page. */
 // router.get('/', function(req, res) {
