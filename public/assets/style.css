@@ -18,6 +18,27 @@ II. All other media queries
 body {
     background-color: #131313;
 }
+p {
+    font-family: 'Droid Sans';
+    font-size: 13px;
+    font-weight: 400;
+}
+h1, h2 {
+    font-family: Georgia, sans-serif;
+}
+h1 {
+    font-size: 20px;
+}
+h2 {
+    font-size: 18px;
+}
+h3 {
+    font-family: 'Droid Sans';
+    font-size: 14px;
+}
+.shop_name {
+    color: #aaa;
+}
 #header {
     background-color: #2A333B;
     position: fixed;
@@ -26,7 +47,7 @@ body {
     min-height: 53px;
 }
 #logo {
-    width: 69px;
+    height: 44px;
     position:relative;
     top:5px;
 }
@@ -43,6 +64,12 @@ body {
 }
 .header_compensate {
     padding-top: 53px;
+}
+#word_hot {
+    color: #e83d3d;
+}
+#word_stream {
+    color: #2889c6;
 }
 .left_col_block, .main_col_block, .right_menu {
     /*
@@ -65,7 +92,7 @@ body {
     color: #fff;
 }
 .block_inner {
-    padding: 10px;
+    padding: 8px;
 }
 .block_inner p, h2, h3 {
     margin: 0px;
@@ -74,26 +101,57 @@ body {
 .block_top {
 }
 .block_top img {
-    width: 60px;
-    height: 60px;
-    border-radius: 60px;
+    width: 40px;
+    height: 40px;
+    border-radius: 40px;
 }
 .block_user_holder {
-    height: 60px;
-    width: 60px;
+    height: 40px;
+    width: 40px;
     float:left;
-    padding: 0px 10px 10px 0px;
+    padding: 0px 8px 8px 0px;
 } 
 .block_text_holder {
     float: left;
-    padding-top:10px;
+    padding-top:6px;
 }
 .block_username { 
+    font-family: 'Droid Sans';
+    font-weight: 700;
+    font-size: 13px;
 }
 .block_timelapse {
+    font-family: 'Droid Sans';
+    font-weight: 400;
+    font-size: 12px;
     color: #ccc;
 }
 .left_col_block {
+}
+#left_col h2 {
+    font-size: 20px;
+}
+#left_col h3 {
+    font-family: 'Droid Sans';
+    font-size: 12px;
+}
+#left_col .block_text_holder {
+    float: left;
+    padding-top:8px;
+}
+#left_col .block_username { 
+    font-family: 'Droid Sans';
+    font-weight: 700;
+    font-size: 11px;
+}
+#left_col .block_timelapse {
+    font-family: 'Droid Sans';
+    font-weight: 400;
+    font-size: 10px;
+    color: #ccc;
+}
+#left_col p {
+    font-size: 10px;
 }
 .main_col_block {
 }
@@ -166,7 +224,6 @@ I. Responsive grid @ media queries
             display: none;
         }
         #main {
-            min-width: 320px;
         }
         #right_col {
             display: none;
@@ -179,7 +236,8 @@ I. Responsive grid @ media queries
     2) Right column is hidden.
     3) Minified toggle for right col becomes available.
 
-    Span 1:    49.0%
+    Span 1:    69.0%
+    Span 2:    30.0%
     Span all:    100%   
     ----------------------------------------------------------------------------- */
 
@@ -198,7 +256,10 @@ I. Responsive grid @ media queries
         
         
         .span_1 {
-            width:49.0%;
+            width:69.0%;
+        }
+        .span_2 {
+            width:30.0%;
         }
         .span_all {
             margin-left:0;
@@ -207,17 +268,14 @@ I. Responsive grid @ media queries
 
         #left_col {
             display: block;
-            min-width: 313px;
         }
         #main {
-            min-width: 314px;
         }
         #right_col {
             display: none;
         }
         /* all the full width elements */
         header#main_header, nav, footer, .global_wrapper {
-            min-width: 640px;
         }
     }
 
@@ -225,8 +283,9 @@ I. Responsive grid @ media queries
     ----------------------------------------------------------------------------- 
     1) Display everything
 
-    Span 1:    37.5%
-    Span 2:    24.0%
+    Span 1:    69.0%
+    Span 2:    15.0%
+    Span 3:    15.0%
     Span all:  100%   
     ----------------------------------------------------------------------------- */
 
@@ -242,10 +301,13 @@ I. Responsive grid @ media queries
         }
         
         .span_1 {
-            width:37.5%;
+            width:59.0%;
         }
         .span_2 {
-            width:24.0%;
+            width:25.0%;
+        }
+        .span_3 {
+            width:15.0%;
         }
         .span_all {
             margin-left:0;
@@ -253,17 +315,13 @@ I. Responsive grid @ media queries
         }
         #left_col {
             display: block;
-            min-width: 360px;
         }
         #main {
-            min-width: 360px;
         }
         #right_col {
             display: block;
-            min-width: 230px;
         }
         header#main_header, nav, footer, .global_wrapper {
-            min-width: 960px;
         }
     }
 /*-------------------------------------------------

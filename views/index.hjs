@@ -59,6 +59,9 @@
 
   <!-- CSS -->
   <link href="assets/style.css" rel="stylesheet"> 
+
+  <!-- fonts -->
+  <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
   
   <!-- jQuery and UI -->
   <script src="assets/jquery-1.10.1.min.js"></script>
@@ -93,7 +96,7 @@
 <!-- HTML5 structural block -->
 <header class="col span_all" id="main_header">
     <div id="header">
-      <img src="images/logo2.png" id="logo">
+      <img src="images/logo3.png" id="logo">
     </div>
 </header>
 
@@ -105,9 +108,9 @@
 
 <div class="global_wrapper header_compensate">
 
-  <section id="left_col" class="col span_1">
+  <section id="left_col" class="col span_2">
     <div class="block_title">
-        <h1>What's Hot</h1>
+        <h1>What's <span id="word_hot">Hot</span></h1>
     </div>
 
     <!-- start hot stream -->
@@ -118,7 +121,7 @@
           <div class="block_user_holder"><img src="images/bloggerpics/blogger_Vivian.jpg">
           </div>
           <div class="block_text_holder">
-            <div class="block_username">Verlyn liked</div>
+            <div class="block_username">Vivian liked</div>
             <div class="block_timelapse">2 days ago</div>
           </div>
         </div>
@@ -126,9 +129,9 @@
           <img src="images/dress2.jpg" width="100%">
         </a>
         <header class="block_inner">
-          <h2>Black dress</h2>
-          <h2>Love Bonito</h2>
-          <h3>$89.00</h3>
+          <h2 class="item_name" itemprop="item">Black dress</h2>
+          <h2 class="shop_name" itemprop="shop">Love Bonito</h2>
+          <h3 class="price" itemprop="price">$89.00</h3>
           <p>#black #lovebonito</p>
           <p>234 comments</p>
           <p>[I want this!] [FaceBook] [Twitter]</p>
@@ -141,7 +144,7 @@
 
   <section id="main" class="col span_1">
       <div class="block_title">
-        <h1>Your Stream</h1>
+        <h1>Your <span id="word_stream">Stream</span></h1>
       </div>
 
     <!-- start your stream -->
@@ -160,9 +163,9 @@
           <img src="images/dress1.jpg" width="100%">
         </a>
         <header class="block_inner">
-          <h2>Pink dress</h2>
-          <h2>Klarra</h2>
-          <h3>$99.00</h3>
+          <h2 class="item_name" itemprop="item">Pink dress</h2>
+          <h2 class="shop_name" itemprop="shop">Klarra</h2>
+          <h3 class="price" itemprop="price">$95.00</h3>
           <p>#pink #pinkdress #klarra #under100</p>
           <p>2 comments</p>
           <p>[I want this!] [FaceBook] [Twitter]</p>
@@ -173,8 +176,8 @@
     <!-- end your stream -->
   </section><!-- main -->
 
-  <aside id="right_col" class="col span_2">
-    <div class="right_menu">
+  <aside id="right_col" class="col span_3">
+    <div class="right_menu block_inner">
       <h2>{{ someVariable }}</h2>
       <p>1) jQuery 1.10.1</p>
       <p>2) jQuery UI 1.10.4</p>
