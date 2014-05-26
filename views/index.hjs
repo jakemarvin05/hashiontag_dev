@@ -59,9 +59,6 @@
 
     <!-- CSS -->
     <link href="assets/style.css" rel="stylesheet"> 
-
-    <!-- HTML5 shiv for below IE10 compatibility -->
-    <script src="assets/html5shiv-printshiv.min.js"></script>
     
     <!-- jQuery and UI -->
     <script src="assets/jquery-1.10.1.min.js"></script>
@@ -82,6 +79,9 @@
     <script type="text/javascript" src="assets/fancybox/source/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
     -->
 
+    <!-- HTML5 shiv for below IE10 compatibility -->
+    <script src="assets/html5shiv-printshiv.min.js"></script>
+    <script src="assets/respond.min.js"></script>
 </head>
 
 
@@ -170,7 +170,7 @@
     <!-- All JS goes here -->
     <!-- Bootstrap JS 
     <script src="assets/bootstrap-3.1.1/js/bootstrap.min.js"></script>-->
-    <script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>
+    <!--<script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>-->
 
     <!-- fancyBox init -->
     <script>
