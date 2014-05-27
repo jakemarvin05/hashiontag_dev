@@ -157,6 +157,28 @@
           <p><span class="glyphicon glyphicon-heart"></span> I want this! | <span class="glyphicon glyphicon-share-alt"></span> Share</p>
         </header>
       </article>
+
+      <article id="stream_002">
+        <div class="block_top block_inner">
+          <div class="block_user_holder"><img src="images/bloggerpics/blogger_Verlyn.jpg">
+          </div>
+          <div class="block_text_holder">
+            <div class="block_username">Verlyn liked</div>
+            <div class="block_timelapse">30 minutes ago</div>
+          </div>
+        </div>
+        <a rel="group" class="fancybox" href="images/dress3.jpg">
+          <img src="images/dress3.jpg" width="100%">
+        </a>
+        <header class="block_inner">
+          <h2 class="item_name" itemprop="item">White dress</h2>
+          <h2 class="shop_name" itemprop="shop">Kiss Jane</h2>
+          <h3 class="price" itemprop="price">$34.00</h3>
+          <p>#white #dress #kissjane</p>
+          <p>10 <span class="glyphicon glyphicon-heart"></span>, 5 <span class="glyphicon glyphicon-share-alt"></span>, 1 comments</p>
+          <p><span class="glyphicon glyphicon-heart"></span> I want this! | <span class="glyphicon glyphicon-share-alt"></span> Share</p>
+        </header>
+      </article>
     </div>
 
     <!-- end your stream -->

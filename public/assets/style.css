@@ -93,8 +93,10 @@ h3 {
     -o-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
     box-shadow: 0 1px 1px rgba(0,0,0,0.31);
     overflow:hidden;*/
-    background-color: #fff;
     width:98%;
+}
+.left_col_block article, .main_col_block article {
+    background-color: #fff;
     margin: 10px auto 10px auto;
 }
 /* generic block elements */
@@ -143,31 +145,7 @@ h3 {
 /* left_col specifics */
 .left_col_block {
 }
-#left_col h2 {
-    font-size: 20px;
-}
-#left_col h3 {
-    font-family: 'Droid Sans';
-    font-size: 12px;
-}
-#left_col .block_text_holder {
-    float: left;
-    padding-top:8px;
-}
-#left_col .block_username { 
-    font-family: 'Droid Sans';
-    font-weight: 700;
-    font-size: 11px;
-}
-#left_col .block_timelapse {
-    font-family: 'Droid Sans';
-    font-weight: 400;
-    font-size: 10px;
-    color: #ccc;
-}
-#left_col p {
-    font-size: 10px;
-}
+
 .main_col_block {
 }
 
@@ -344,6 +322,48 @@ I. Responsive grid @ media queries
             display: block;
         }
         header#main_header, nav, footer, .global_wrapper {
+        }
+    }
+    /* smaller fonts for left_col until >1024px */
+    @media (min-width: 0px) and (max-width: 1024px) {
+        #left_col h2 {
+            font-size: 20px;
+        }
+        #left_col h3 {
+            font-family: 'Droid Sans';
+            font-size: 12px;
+        }
+        #left_col .block_text_holder {
+            float: left;
+            padding-top:8px;
+        }
+        #left_col .block_username { 
+            font-family: 'Droid Sans';
+            font-weight: 700;
+            font-size: 11px;
+        }
+        #left_col .block_timelapse {
+            font-family: 'Droid Sans';
+            font-weight: 400;
+            font-size: 10px;
+            color: #ccc;
+        }
+        #left_col p {
+            font-size: 10px;
+        }
+    }
+    /* make center into 2 column format at 1025px and above */
+    @media (min-width:1025px) {
+        .main_col_block article {
+            width: 293px;
+            float: left;
+        }
+        .main_col_block article:nth-child(2n){
+            margin-left: 5px;
+        }
+        /* correct top spacing after floating article block */
+        .main_col_block {
+            margin-top: -10px;
         }
     }
 /*-------------------------------------------------
