@@ -4,7 +4,7 @@ html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:1
 
 /* Stylesheet content lists
 ===================================================
-1. Body, p, h1-h3
+1. Body, p, h1-h3, other globals
 2. Heading, nav
 3. Block headings, block styles
 4. Right menu
@@ -15,7 +15,7 @@ II. All other media queries
 =================================================*/
 
 /*-------------------------------------------------
-1. Body, p, h1-h3
+1. Body, p, h1-h3, other globals
 -------------------------------------------------*/
 body {
     background-color: #131313;
@@ -38,14 +38,18 @@ h3 {
     font-family: 'Droid Sans';
     font-size: 14px;
 }
-
+.global_wrapper {
+    max-width: 1025px;
+    margin: auto;
+}
 /*-------------------------------------------------
 2. Header, nav
 -------------------------------------------------*/
-#header {
-    background-color: #2A333B;
+#main_header {
     position: fixed;
-    min-width: 100%;
+    background-color: #2A333B;
+}
+#header {
     height: 53px;
     min-height: 53px;
 }
@@ -345,3 +349,22 @@ I. Responsive grid @ media queries
 /*-------------------------------------------------
 II. All other media queries
 -------------------------------------------------*/
+
+@media (min-width:320px) { /* smartphones, iPhone, portrait 480x320 phones */ 
+
+}
+@media (min-width:481px) { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */ 
+
+}
+@media (min-width:641px) {  portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones  
+
+}
+@media (min-width:961px) { /* tablet, landscape iPad, lo-res laptops ands desktops */ 
+
+}
+@media (min-width:1025px) { /* big landscape tablets, laptops, and desktops */ 
+
+}
+@media (min-width:1281px) { /* hi-res laptops and desktops */ 
+
+}

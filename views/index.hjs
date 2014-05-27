@@ -12,7 +12,7 @@
   <meta name="description" content="Description.">
   <meta name="keywords" content="">
   <meta name="author" content="">
-  <meta name="viewport" content="initial-scale = 1.0,maximum-scale = 1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0;">
 
   <!-- START Social media metas -->
 
@@ -45,8 +45,9 @@
   <!-- CSS -->
   <link href="assets/style.css" rel="stylesheet"> 
 
-  <!-- fonts -->
+  <!-- fonts, glyphicons -->
   <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
+  <link href="/assets/bootstrap-glyphicons.css" rel="stylesheet">
   
   <!-- jQuery and UI -->
   <script src="assets/jquery-1.10.1.min.js"></script>
@@ -80,7 +81,7 @@
 
 <!-- HTML5 structural block -->
 <header class="col span_all" id="main_header">
-    <div id="header">
+    <div id="header" class="global_wrapper">
       <img src="images/logo3.png" id="logo">
     </div>
 </header>
@@ -118,8 +119,8 @@
           <h2 class="shop_name" itemprop="shop">Love Bonito</h2>
           <h3 class="price" itemprop="price">$89.00</h3>
           <p>#black #lovebonito</p>
-          <p>234 comments</p>
-          <p>[I want this!] [FaceBook] [Twitter]</p>
+          <p>982 <span class="glyphicon glyphicon-heart"></span>, 203 <span class="glyphicon glyphicon-share-alt"></span>, 2 comments</p>
+          <p><span class="glyphicon glyphicon-heart"></span> I want this! | <span class="glyphicon glyphicon-share-alt"></span> Share</p>
         </header>
       </article>
     </div>
@@ -152,8 +153,8 @@
           <h2 class="shop_name" itemprop="shop">Klarra</h2>
           <h3 class="price" itemprop="price">$95.00</h3>
           <p>#pink #pinkdress #klarra #under100</p>
-          <p>2 comments</p>
-          <p>[I want this!] [FaceBook] [Twitter]</p>
+          <p>31 <span class="glyphicon glyphicon-heart"></span>, 12 <span class="glyphicon glyphicon-share-alt"></span>, 2 comments</p>
+          <p><span class="glyphicon glyphicon-heart"></span> I want this! | <span class="glyphicon glyphicon-share-alt"></span> Share</p>
         </header>
       </article>
     </div>
