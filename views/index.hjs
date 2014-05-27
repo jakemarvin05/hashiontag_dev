@@ -46,7 +46,7 @@
   <link href="assets/style.css" rel="stylesheet"> 
 
   <!-- fonts, glyphicons -->
-  <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:400,200|Droid+Sans:400,700' rel='stylesheet' type='text/css'>
   <link href="/assets/bootstrap-glyphicons.css" rel="stylesheet">
   
   <!-- jQuery and UI -->
@@ -85,22 +85,28 @@
 <header class="col span_all" id="main_header">
     <div id="header" class="global_wrapper">
       <img src="images/logo3.png" id="logo">
-      <!-- inline css to force <HTML5 compatibility -->
-      <nav style="display:inline;" id="nav_normal"> 
+
+      <nav id="nav_normal"> 
         <span class="nav_buttons nav_selected">Home</span>
         <span class="nav_buttons">Following</span>
         <span class="nav_buttons">Followers</span>
         <span class="nav_buttons">Explore</span>
       </nav>
+
+      <nav id="nav_condensed">
+        <span class="nav_buttons"><span class="glyphicon glyphicon-th-list"></span></span>
+        <div class="zero_space_hack">
+          <span id="nav_dropdown">
+            <span class="nav_buttons_condensed nav_selected">Home</span>
+            <span class="nav_buttons_condensed">Following</span>
+            <span class="nav_buttons_condensed">Followers</span>
+            <span class="nav_buttons_condensed">Explore</span>
+          </span>
+        </div>
+    </nav>
+
       <span class="nav_search_field"><input type="text" id="nav_search_input"><span class="glyphicon glyphicon-search"></span></span>
     </div>
-    <nav style="display:inline;" id="nav_condensed">
-      <span class="nav_buttons"><span class="glyphicon glyphicon-th-list"></span></span>
-      <span class="nav_buttons_condensed selected">Home</span>
-      <span class="nav_buttons_condensed">Following</span>
-      <span class="nav_buttons_condensed">Followers</span>
-      <span class="nav_buttons_condensed">Explore</span>
-    </nav>
 </header>
 
 <div class="global_wrapper header_compensate">
@@ -246,7 +252,9 @@
 
   <!-- condensed navigation -->
   <script>
-    var x = $( 'nav' ).html();
+    $( '#nav_condensed .nav_buttons').click( function () {
+      $( '#nav_dropdown' ).slideToggle( 'slow' );
+    });
   </script>
 </body>
 </html>
