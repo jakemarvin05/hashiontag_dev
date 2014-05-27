@@ -52,22 +52,79 @@ h3 {
 #header {
     height: 53px;
     min-height: 53px;
+    color: #ccc; /* nav glyphicon color */
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
 }
 #logo {
     height: 44px;
-    position:relative;
+    position: relative;
     top:5px;
+    margin: 0px 20px 0px 15px;
 }
-#nav_full {
-    display:none;
-    text-align:center;
-    /*border-top: 6px solid #dcd2b0;*/
-    border-bottom: 1px solid #ddd;
-    background-color: #fff;
-    padding: 10px;
+.nav_buttons, .nav_buttons_condensed{
+    background-color: #0b8d9d;
+    color: white;
+    font-family: 'Droid Sans';
+    font-weight: 400;
 }
-#nav_full span {
-    margin: 0px 10px 0px 10px;
+.nav_buttons {
+    padding: 17px 10px 17px 10px;
+    position:relative;
+    top:-12px;
+    margin-left: 0px;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+}
+.nav_buttons:hover, .nav_buttons_condensed:hover {
+    background-color: #08616c;
+    cursor: pointer;
+}
+.nav_selected {
+    background-color: #08616c!important;
+}
+/*#nav_normal {
+    display:none!important;
+}*/
+.nav_selected:hover{
+    cursor: default !important;
+}
+.nav_selected {
+    background-color: #08616c;
+}
+#nav_condensed { /* FIX THIS!! */
+    display:none!important;
+}
+#nav_condensed .nav_buttons {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+.nav_buttons_condensed { /* FIX THIS!! */
+    display:none!important;
+    padding: 5px;
+    display: block;
+    width: 100px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+    position: absolute;
+    left: 108px;
+    top: 100px;
+    height: 1000px;
+}
+#nav_search_input {
+    background-color: #ccc;
+    border: 3px solid #08616c;
+    border-radius: 5px;
+    height: 25px;
+    width: 300px;
+    position: relative;
+    top:-12px;
+    margin-left: 10px;
+    margin-right: 5px;
+}
+.nav_search_field .glyphicon {
+    position: relative;
+    top: -9px;
 }
 .header_compensate {
     padding-top: 53px;
@@ -357,9 +414,16 @@ I. Responsive grid @ media queries
         .main_col_block article {
             width: 293px;
             float: left;
+            margin-right: 5px;
         }
-        .main_col_block article:nth-child(2n){
-            margin-left: 5px;
+        /* left margin hack */
+        /* max-width of #main will crop away unwanted margin */
+        #main {
+            max-width: 605px;
+            overflow: hidden;
+        }
+        .main_col_block {
+            min-width: 610px;
         }
         /* correct top spacing after floating article block */
         .main_col_block {

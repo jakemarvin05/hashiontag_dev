@@ -80,17 +80,28 @@
 <body>
 
 <!-- HTML5 structural block -->
+
+<!-- nav responsive controlled by a condenser script below -->
 <header class="col span_all" id="main_header">
     <div id="header" class="global_wrapper">
       <img src="images/logo3.png" id="logo">
+      <!-- inline css to force <HTML5 compatibility -->
+      <nav style="display:inline;" id="nav_normal"> 
+        <span class="nav_buttons nav_selected">Home</span>
+        <span class="nav_buttons">Following</span>
+        <span class="nav_buttons">Followers</span>
+        <span class="nav_buttons">Explore</span>
+      </nav>
+      <span class="nav_search_field"><input type="text" id="nav_search_input"><span class="glyphicon glyphicon-search"></span></span>
     </div>
+    <nav style="display:inline;" id="nav_condensed">
+      <span class="nav_buttons"><span class="glyphicon glyphicon-th-list"></span></span>
+      <span class="nav_buttons_condensed selected">Home</span>
+      <span class="nav_buttons_condensed">Following</span>
+      <span class="nav_buttons_condensed">Followers</span>
+      <span class="nav_buttons_condensed">Explore</span>
+    </nav>
 </header>
-
-<nav class="col span_all" >
-    <div id="nav_full">
-      <span>Home</span>
-      <span></span>
-</nav>
 
 <div class="global_wrapper header_compensate">
 
@@ -231,6 +242,11 @@
       $( 'span' ).css('outline', '0px');
     }
   });
+  </script>
+
+  <!-- condensed navigation -->
+  <script>
+    var x = $( 'nav' ).html();
   </script>
 </body>
 </html>
