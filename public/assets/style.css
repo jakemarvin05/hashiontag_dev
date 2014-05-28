@@ -254,6 +254,10 @@ I. Responsive grid @ media queries
     -webkit-background-clip:padding-box !important;
     background-clip:padding-box !important;
 }
+/* all the full width elements never go below 320px */
+header#main_header, footer, .global_wrapper {
+    min-width: 320px;
+}
     /* 1. 1 Column Grid 0px - 480px 
     ----------------------------------------------------------------------------- 
     1) Display only center column.
@@ -344,9 +348,6 @@ I. Responsive grid @ media queries
         }
         #right_col {
             display: none;
-        }
-        /* all the full width elements */
-        header#main_header, nav, footer, .global_wrapper {
         }
         #nav_normal {
             display: none!important;
