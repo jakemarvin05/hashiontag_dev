@@ -151,6 +151,8 @@ h3 {
     color: #2889c6;
 }
 .left_col_block, .main_col_block, .right_menu {
+    width:98%;
+    margin:auto;
     /*
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -161,7 +163,6 @@ h3 {
     -o-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
     box-shadow: 0 1px 1px rgba(0,0,0,0.31);
     overflow:hidden;*/
-    width:98%;
 }
 .left_col_block article, .main_col_block article {
     background-color: #fff;
