@@ -441,7 +441,7 @@ I. Responsive grid @ media queries
     /* smaller fonts for left_col until >1024px */
     @media (min-width: 0px) and (max-width: 1024px) {
         #left_col h2 {
-            font-size: 20px;
+            font-size: 16px;
         }
         #left_col h3 {
             font-family: 'Droid Sans';
