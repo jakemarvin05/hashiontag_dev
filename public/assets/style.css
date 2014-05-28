@@ -292,6 +292,9 @@ I. Responsive grid @ media queries
         #nav_condensed {
             display: inline !important;
         }
+        .nav_search_field .glyphicon {
+            display:none;
+        }
     }
 
     /* 2. 2 Column Grid 481px - 640px 
