@@ -130,6 +130,8 @@ h3 {
     top:-12px;
     margin-left: 10px;
     margin-right: 5px;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
 }
 .nav_search_field .glyphicon {
     position: relative;
@@ -294,6 +296,10 @@ I. Responsive grid @ media queries
         }
         .nav_search_field .glyphicon {
             display:none;
+        }
+        #nav_condensed .nav_buttons {
+            padding-left: 15px;
+            padding-right: 15px;
         }
     }
 
