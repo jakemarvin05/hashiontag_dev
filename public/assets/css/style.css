@@ -1,1 +1,651 @@
-/*! normalize.css v3.0.1 | MIT License | git.io/normalize */html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block}audio,canvas,progress,video{display:inline-block;vertical-align:baseline}audio:not([controls]){display:none;height:0}[hidden],template{display:none}a{background:transparent}a:active,a:hover{outline:0}abbr[title]{border-bottom:1px dotted}b,strong{font-weight:bold}dfn{font-style:italic}h1{font-size:2em;margin:.67em 0}mark{background:#ff0;color:#000}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sup{top:-0.5em}sub{bottom:-0.25em}img{border:0}svg:not(:root){overflow:hidden}figure{margin:1em 40px}hr{-moz-box-sizing:content-box;box-sizing:content-box;height:0}pre{overflow:auto}code,kbd,pre,samp{font-family:monospace,monospace;font-size:1em}button,input,optgroup,select,textarea{color:inherit;font:inherit;margin:0}button{overflow:visible}button,select{text-transform:none}button,html input[type="button"],input[type="reset"],input[type="submit"]{-webkit-appearance:button;cursor:pointer}button[disabled],html input[disabled]{cursor:default}button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}input{line-height:normal}input[type="checkbox"],input[type="radio"]{box-sizing:border-box;padding:0}input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{height:auto}input[type="search"]{-webkit-appearance:textfield;-moz-box-sizing:content-box;-webkit-box-sizing:content-box;box-sizing:content-box}input[type="search"]::-webkit-search-cancel-button,input[type="search"]::-webkit-search-decoration{-webkit-appearance:none}fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}legend{border:0;padding:0}textarea{overflow:auto}optgroup{font-weight:bold}table{border-collapse:collapse;border-spacing:0}td,th{padding:0}body{background-color:#f6f6f3}p{font-family:'Droid Sans';font-size:13px;font-weight:400}h1,h2{font-family:Georgia,sans-serif}h1{font-size:20px}h2{font-size:18px}h3{font-family:'Droid Sans';font-size:14px}.global_wrapper{max-width:1025px;margin:auto}.zero_space_hack{max-height:0px;max-width:0px;position:absolute}#main_header{position:fixed;background-color:#2A333B;z-index:9999}#header{height:53px;min-height:53px;color:#ccc;-webkit-transition:0.5s;transition:0.5s}#logo{height:44px;position:relative;top:5px;margin:0px 20px 0px 15px}#nav_normal{display:inline}.nav_buttons,.nav_buttons_condensed{background-color:#0b8d9d;color:white;font-family:'Yanone Kaffeesatz';font-weight:200;font-size:17px;letter-spacing:3px}.nav_buttons{padding:17px 10px 17px 10px;position:relative;top:-11px;margin-left:0px;-webkit-transition:0.5s;transition:0.5s}.nav_buttons:hover,.nav_buttons_condensed:hover{background-color:#08616c;cursor:pointer}.nav_selected{background-color:#08616c!important}.nav_selected:hover{cursor:default !important}.nav_selected{background-color:#08616c}#nav_dropdown{display:none;position:relative;left:108px;top:-3px}#nav_condensed .nav_buttons{padding-left:20px;padding-right:20px}#nav_condensed{display:none}.nav_buttons_condensed{padding:10px 0px 10px 0px;display:block;width:100px;text-align:center;border-bottom:1px solid #2A333B}#nav_search_input{background-color:#ccc;border:3px solid #08616c;border-radius:5px;height:25px;width:240px;position:relative;top:-12px;margin-left:10px;margin-right:5px;-webkit-transition:0.5s;transition:0.5s}.nav_search_field .glyphicon{position:relative;top:-9px}.header_compensate{padding-top:53px}#word_hot{color:#e83d3d}#word_stream{color:#2889c6}.left_col_block,.main_col_block,.right_menu{width:98%;margin:auto}.left_col_block article,.main_col_block article{background-color:#fff;margin:10px auto 10px auto;-moz-box-shadow:0 1px 1px rgba(0,0,0,0.31);-webkit-box-shadow:0 1px 1px rgba(0,0,0,0.31);-o-box-shadow:0 1px 1px rgba(0,0,0,0.31);box-shadow:0 1px 1px rgba(0,0,0,0.31)}.block_title{text-align:center;color:#000}.block_title h1{font-family:'Yanone Kaffeesatz';font-size:30px}.block_inner{padding:8px}.block_inner p,h2,h3{margin:0px}.block_top img{width:40px;height:40px;border-radius:40px}.block_user_holder{height:40px;width:40px;float:left;padding:0px 8px 8px 0px}.block_text_holder{float:left;padding-top:6px}.block_username{font-family:'Droid Sans';font-weight:700;font-size:13px}.block_timelapse{font-family:'Droid Sans';font-weight:400;font-size:12px;color:#ccc}.shop_name{color:#aaa}#footer{background-color:#fff;text-align:center}.col{border:0 solid rgba(0,0,0,0);float:left;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;-moz-background-clip:padding-box !important;-webkit-background-clip:padding-box !important;background-clip:padding-box !important}header#main_header,footer,.global_wrapper{min-width:320px}@media (min-width:0) and (max-width:480px){.row .col:first-child{margin-left:0}.span_1{margin-left:0;width:100%}.span_all{margin-left:0;width:100%}#left_col{display:none}#right_col{display:none}#nav_normal{display:none!important}#nav_search_input{width:120px}#nav_condensed{display:inline !important}.nav_search_field .glyphicon{display:none}#nav_condensed .nav_buttons{padding-left:15px;padding-right:15px}}@media (min-width:481px) and (max-width:640px){.row .col:first-child{margin-left:0}.span_1{width:69.0%}.span_2{width:30.0%}.span_all{margin-left:0;width:100%}#left_col{display:block}#right_col{display:none}#nav_normal{display:none!important}#nav_condensed{display:inline !important}}@media (min-width:641px){.row .col:first-child{margin-left:0}.span_1{width:59.0%}.span_2{width:25.0%}.span_3{width:15.0%}.span_all{margin-left:0;width:100%}#left_col{display:block}#right_col{display:block}}@media (min-width:641px) and (max-width:768px){#nav_normal{display:none !important}#nav_condensed{display:inline!important}}@media (min-width:769px) and (max-width:1024px){.nav_buttons{letter-spacing:0px!important}#nav_normal{display:inline !important}}@media (min-width:1025px){.main_col_block article{width:293px;float:left;margin-right:5px}#main{max-width:605px;overflow:hidden}.main_col_block{min-width:610px}.main_col_block{margin-top:-10px}}@media (min-width:0) and (max-width:1024px){#left_col h2{font-size:16px}#left_col h3{font-family:'Droid Sans';font-size:12px}#left_col .block_text_holder{float:left;padding-top:8px}#left_col .block_username{font-family:'Droid Sans';font-weight:700;font-size:11px}#left_col .block_timelapse{font-family:'Droid Sans';font-weight:400;font-size:10px;color:#ccc}#left_col p{font-size:10px}}
+/*! normalize.css v3.0.1 | MIT License | git.io/normalize */
+html {
+  font-family: sans-serif;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+}
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+nav,
+section,
+summary {
+  display: block;
+}
+audio,
+canvas,
+progress,
+video {
+  display: inline-block;
+  vertical-align: baseline;
+}
+audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+[hidden],
+template {
+  display: none;
+}
+a {
+  background: transparent;
+}
+a:active,
+a:hover {
+  outline: 0;
+}
+abbr[title] {
+  border-bottom: 1px dotted;
+}
+b,
+strong {
+  font-weight: bold;
+}
+dfn {
+  font-style: italic;
+}
+h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+mark {
+  background: #ff0;
+  color: #000000;
+}
+small {
+  font-size: 80%;
+}
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+sup {
+  top: -0.5em;
+}
+sub {
+  bottom: -0.25em;
+}
+img {
+  border: 0;
+}
+svg:not(:root) {
+  overflow: hidden;
+}
+figure {
+  margin: 1em 40px;
+}
+hr {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 0;
+}
+pre {
+  overflow: auto;
+}
+code,
+kbd,
+pre,
+samp {
+  font-family: monospace,monospace;
+  font-size: 1em;
+}
+button,
+input,
+optgroup,
+select,
+textarea {
+  color: inherit;
+  font: inherit;
+  margin: 0;
+}
+button {
+  overflow: visible;
+}
+button,
+select {
+  text-transform: none;
+}
+button,
+html input[type="button"],
+input[type="reset"],
+input[type="submit"] {
+  -webkit-appearance: button;
+  cursor: pointer;
+}
+button[disabled],
+html input[disabled] {
+  cursor: default;
+}
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+input {
+  line-height: normal;
+}
+input[type="checkbox"],
+input[type="radio"] {
+  box-sizing: border-box;
+  padding: 0;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+input[type="search"] {
+  -webkit-appearance: textfield;
+  -moz-box-sizing: content-box;
+  -webkit-box-sizing: content-box;
+  box-sizing: content-box;
+}
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+fieldset {
+  border: 1px solid silver;
+  margin: 0 2px;
+  padding: 0.35em 0.625em 0.75em;
+}
+legend {
+  border: 0;
+  padding: 0;
+}
+textarea {
+  overflow: auto;
+}
+optgroup {
+  font-weight: bold;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+td,
+th {
+  padding: 0;
+}
+/* end normalize.css *//* Stylesheet content lists
+===================================================
+1. Body, p, h1-h3, other globals
+2. Heading, nav
+3. Block headings, block styles
+4. Right menu
+5. Footer
+I. Responsive grid @ media queries
+II. All other media queries
+
+=================================================*/
+/*-------------------------------------------------
+1. Body, p, h1-h3, other globals
+-------------------------------------------------*/
+body {
+  background-color: #f6f6f3;
+}
+p {
+  font-family: 'Droid Sans';
+  font-size: 13px;
+  font-weight: 400;
+}
+h1,
+h2 {
+  font-family: Georgia, sans-serif;
+}
+h1 {
+  font-size: 20px;
+}
+h2 {
+  font-size: 18px;
+}
+h3 {
+  font-family: 'Droid Sans';
+  font-size: 14px;
+}
+.global_wrapper {
+  max-width: 1025px;
+  margin: auto;
+}
+.zero_space_hack {
+  max-height: 0px;
+  max-width: 0px;
+  position: absolute;
+}
+/*-------------------------------------------------
+2. Header, nav
+-------------------------------------------------*/
+#main_header {
+  position: fixed;
+  background-color: #2A333B;
+  z-index: 9999;
+}
+#header {
+  height: 53px;
+  min-height: 53px;
+  color: #ccc;
+  /* nav glyphicon color */
+
+  -webkit-transition: 0.5s;
+  transition: 0.5s;
+}
+#logo {
+  height: 44px;
+  position: relative;
+  top: 5px;
+  margin: 0px 20px 0px 15px;
+}
+#nav_normal {
+  display: inline;
+}
+.nav_buttons,
+.nav_buttons_condensed {
+  background-color: #0b8d9d;
+  color: white;
+  font-family: 'Yanone Kaffeesatz';
+  font-weight: 200;
+  font-size: 17px;
+  letter-spacing: 3px;
+}
+.nav_buttons {
+  padding: 17px 10px 17px 10px;
+  position: relative;
+  top: -11px;
+  margin-left: 0px;
+  -webkit-transition: 0.5s;
+  transition: 0.5s;
+}
+.nav_buttons:hover,
+.nav_buttons_condensed:hover {
+  background-color: #08616c;
+  cursor: pointer;
+}
+.nav_selected {
+  background-color: #08616c!important;
+}
+.nav_selected:hover {
+  cursor: default !important;
+}
+.nav_selected {
+  background-color: #08616c;
+}
+#nav_dropdown {
+  display: none;
+  position: relative;
+  left: 108px;
+  top: -3px;
+}
+#nav_condensed .nav_buttons {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+#nav_condensed {
+  display: none;
+}
+.nav_buttons_condensed {
+  padding: 10px 0px 10px 0px;
+  display: block;
+  width: 100px;
+  text-align: center;
+  border-bottom: 1px solid #2A333B;
+}
+#nav_search_input {
+  background-color: #ccc;
+  border: 3px solid #08616c;
+  border-radius: 5px;
+  height: 25px;
+  width: 240px;
+  position: relative;
+  top: -12px;
+  margin-left: 10px;
+  margin-right: 5px;
+  -webkit-transition: 0.5s;
+  transition: 0.5s;
+}
+.nav_search_field .glyphicon {
+  position: relative;
+  top: -9px;
+}
+.header_compensate {
+  padding-top: 53px;
+}
+/*-------------------------------------------------
+3. Block headings, blocks styles.
+-------------------------------------------------*/
+#word_hot {
+  color: #e83d3d;
+}
+#word_stream {
+  color: #2889c6;
+}
+.left_col_block,
+.main_col_block,
+.right_menu {
+  width: 98%;
+  margin: auto;
+  /*
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -o-border-radius: 4px;
+    border-radius: 4px;
+    -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
+    -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
+    -o-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
+    box-shadow: 0 1px 1px rgba(0,0,0,0.31);
+    overflow:hidden;*/
+
+}
+.left_col_block article,
+.main_col_block article {
+  background-color: #fff;
+  margin: 10px auto 10px auto;
+  -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
+  -o-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
+}
+/* generic block elements */
+.block_title {
+  text-align: center;
+  color: #000;
+}
+.block_title h1 {
+  font-family: 'Yanone Kaffeesatz';
+  font-size: 30px;
+}
+.block_inner {
+  padding: 8px;
+}
+.block_inner p,
+h2,
+h3 {
+  margin: 0px;
+}
+/* block top */
+.block_top img {
+  width: 40px;
+  height: 40px;
+  border-radius: 40px;
+}
+.block_user_holder {
+  height: 40px;
+  width: 40px;
+  float: left;
+  padding: 0px 8px 8px 0px;
+}
+.block_text_holder {
+  float: left;
+  padding-top: 6px;
+}
+.block_username {
+  font-family: 'Droid Sans';
+  font-weight: 700;
+  font-size: 13px;
+}
+.block_timelapse {
+  font-family: 'Droid Sans';
+  font-weight: 400;
+  font-size: 12px;
+  color: #ccc;
+}
+.shop_name {
+  color: #aaa;
+}
+/* left_col specifics */
+/*-------------------------------------------------
+4. Right_menu
+-------------------------------------------------*/
+/*-------------------------------------------------
+5. footer
+-------------------------------------------------*/
+#footer {
+  background-color: #fff;
+  text-align: center;
+}
+/*-------------------------------------------------
+I. Responsive grid @ media queries
+-------------------------------------------------*/
+/* Reusable column setup */
+.col {
+  border: 0px solid rgba(0, 0, 0, 0);
+  float: left;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -moz-background-clip: padding-box !important;
+  -webkit-background-clip: padding-box !important;
+  background-clip: padding-box !important;
+}
+/* all the full width elements never go below 320px */
+header#main_header,
+footer,
+.global_wrapper {
+  min-width: 320px;
+}
+/* 1. 1 Column Grid 0px - 480px 
+    ----------------------------------------------------------------------------- 
+    1) Display only center column.
+    2) Slide toggle to switch between left and center col available.
+    3) Minified toggle for right col remains.
+
+    Span 1:    100%
+    Span 2:    Hidden
+    Span all:  100% 
+    ----------------------------------------------------------------------------- */
+@media (min-width: 0px) and (max-width: 480px) {
+  .row .col:first-child {
+    margin-left: 0;
+  }
+  .span_1 {
+    margin-left: 0;
+    width: 100%;
+  }
+  .span_all {
+    margin-left: 0;
+    width: 100%;
+  }
+  #left_col {
+    display: none;
+  }
+  #right_col {
+    display: none;
+  }
+  #nav_normal {
+    display: none!important;
+  }
+  #nav_search_input {
+    width: 120px;
+  }
+  #nav_condensed {
+    display: inline !important;
+  }
+  .nav_search_field .glyphicon {
+    display: none;
+  }
+  #nav_condensed .nav_buttons {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+/* 2. 2 Column Grid 481px - 640px 
+    ----------------------------------------------------------------------------- 
+    1) Display only left and center column.
+    2) Right column is hidden.
+    3) Minified toggle for right col becomes available.
+
+    Span 1:    69.0%
+    Span 2:    30.0%
+    Span all:    100%   
+    ----------------------------------------------------------------------------- */
+@media (min-width: 481px) and (max-width: 640px) {
+  /*.col {
+              margin-left:2%;
+              padding:0 1.5%;
+          }
+          */
+  .row .col:first-child {
+    margin-left: 0;
+  }
+  .span_1 {
+    width: 69.0%;
+  }
+  .span_2 {
+    width: 30.0%;
+  }
+  .span_all {
+    margin-left: 0;
+    width: 100%;
+  }
+  #left_col {
+    display: block;
+  }
+  #right_col {
+    display: none;
+  }
+  #nav_normal {
+    display: none!important;
+  }
+  #nav_condensed {
+    display: inline !important;
+  }
+}
+/* 3. 3 Column Grid 640px onwards
+    ----------------------------------------------------------------------------- 
+    1) Display everything
+
+    Span 1:    69.0%
+    Span 2:    15.0%
+    Span 3:    15.0%
+    Span all:  100%   
+    ----------------------------------------------------------------------------- */
+@media (min-width: 641px) {
+  .row .col:first-child {
+    margin-left: 0;
+  }
+  .span_1 {
+    width: 59.0%;
+  }
+  .span_2 {
+    width: 25.0%;
+  }
+  .span_3 {
+    width: 15.0%;
+  }
+  .span_all {
+    margin-left: 0;
+    width: 100%;
+  }
+  #left_col {
+    display: block;
+  }
+  #right_col {
+    display: block;
+  }
+}
+/* 4. Navigation 641px to 768px
+    ----------------------------------------------------------------------------- 
+
+    ----------------------------------------------------------------------------- */@media (min-width: 641px) and (max-width: 768px) {
+  #nav_normal {
+    display: none !important;
+  }
+  #nav_condensed {
+    display: inline!important;
+  }
+}
+/* 5. 769px to 1024px
+    ----------------------------------------------------------------------------- 
+        - Navigation
+    ----------------------------------------------------------------------------- */@media (min-width: 769px) and (max-width: 1024px) {
+  .nav_buttons {
+    letter-spacing: 0px!important;
+  }
+  #nav_normal {
+    display: inline !important;
+  }
+}
+/* 5. Navigation 961px to 1024px
+    ----------------------------------------------------------------------------- 
+        - Center column: split into 2
+        - Full navigation
+    ----------------------------------------------------------------------------- */@media (min-width: 1025px) {
+  /* make center into 2 column format at 1025px and above */
+  .main_col_block article {
+    width: 293px;
+    float: left;
+    margin-right: 5px;
+  }
+  /* left margin hack */
+  /* max-width of #main will crop away unwanted margin */
+  #main {
+    max-width: 605px;
+    overflow: hidden;
+  }
+  .main_col_block {
+    min-width: 610px;
+  }
+  /* correct top spacing after floating article block */
+  .main_col_block {
+    margin-top: -10px;
+  }
+}
+/* smaller fonts for left_col until >1024px */
+@media (min-width: 0px) and (max-width: 1024px) {
+  #left_col h2 {
+    font-size: 16px;
+  }
+  #left_col h3 {
+    font-family: 'Droid Sans';
+    font-size: 12px;
+  }
+  #left_col .block_text_holder {
+    float: left;
+    padding-top: 8px;
+  }
+  #left_col .block_username {
+    font-family: 'Droid Sans';
+    font-weight: 700;
+    font-size: 11px;
+  }
+  #left_col .block_timelapse {
+    font-family: 'Droid Sans';
+    font-weight: 400;
+    font-size: 10px;
+    color: #ccc;
+  }
+  #left_col p {
+    font-size: 10px;
+  }
+}
+/*-------------------------------------------------
+II. All other media queries
+-------------------------------------------------*/
+@media (min-width: 320px) {
+  /* smartphones, iPhone, portrait 480x320 phones */
+}
+@media (min-width: 481px) {
+  /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */
+}
+@media (min-width: 641px) {
+  /*portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */
+}
+@media (min-width: 961px) {
+  /* tablet, landscape iPad, lo-res laptops ands desktops */
+}
+@media (min-width: 1025px) {
+  /* big landscape tablets, laptops, and desktops */
+}
+@media (min-width: 1281px) {
+  /* hi-res laptops and desktops */
+}
