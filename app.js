@@ -12,16 +12,18 @@ var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hjs');
+app.set('view engine', 'ejs');
 
 app.use(favicon());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
+
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
+//routing
 app.use('/', routes);
 app.use('/users', users);
 
@@ -56,23 +58,10 @@ app.use(function(err, req, res, next) {
     });
 });
 
-// testing1
-// app.get('/', function(req, res, next) {
-//       sys.puts(sys.inspect(req));
-//   var parts = req.url.split('/'),
-//       op = parts[1],
-//       a = parts[2],
-//       b = parts[3];
-//     res.send("Hello World!");
-// });
-
-
 module.exports = app;
-
-
-// my code starts here.
 
 //start the server
 var server = app.listen(3000, function() {
     console.log('Listening on port %d', server.address().port);
 });
+
