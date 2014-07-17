@@ -95,11 +95,9 @@
   <aside id="right_col" class="col span_3">
     <div class="right_menu block_inner">
       <h2>{someVariable}</h2>
-      <p>1) jQuery 1.10.1</p>
-      <p>2) jQuery UI 1.10.4</p>
-      <p>3) fancyBox 2.1.5</p>
-      <p>4) respond.js</p>
-      <p>5) HTML5 shiv</p>           
+      <p>1) Web app: Express</p>
+      <p>2) Template engine: LinkedIn's Dust</p>
+      <p>3) DB: Postgres</p>        
     </div>
   </aside><!-- right_col -->
 </div><!-- .global_wrapper -->
