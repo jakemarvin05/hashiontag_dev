@@ -37,7 +37,7 @@ h3 {
     font-size: 14px;
 }
 .global_wrapper {
-    max-width: 1025px;
+    max-width: 768px;
     margin: auto;
 }
 .zero_space_hack {
@@ -67,9 +67,14 @@ h3 {
     margin: 0px 20px 0px 15px;
 }
 #nav_normal {
-    display: inline;
+    @media (min-width: 0px) and (max-width: 767px) {
+       display: none;
+    } 
+    @media (min-width: 768px) {
+        display: inline ;
+    }
 }
-.nav_buttons, .nav_buttons_condensed{
+.nav_buttons, .nav_buttons_condensed {
     background-color: #0b8d9d;
     color: white;
     font-family: 'Yanone Kaffeesatz';
@@ -78,12 +83,22 @@ h3 {
     letter-spacing: 3px;
 }
 .nav_buttons {
-    padding: 17px 10px 17px 10px;
     position:relative;
     top:-11px;
     margin-left: 0px;
     -webkit-transition: 0.5s;
     transition: 0.5s;
+}
+.nav_buttons {
+    @media (min-width: 0px) and (max-width: 480px) {
+        padding: 17px 15px;
+    }
+    @media (min-width: 481px) {
+        padding: 17px 10px 17px 10px;
+    }
+    @media (min-width: 767px) and (max-width: 1024px) {
+       letter-spacing: 0px!important;
+    }
 }
 .nav_buttons:hover, .nav_buttons_condensed:hover {
     background-color: #08616c;
@@ -109,7 +124,16 @@ h3 {
     padding-right: 20px;
 }
 #nav_condensed {
-    display: none;
+    @media (min-width: 0px) and (max-width: 767px) {
+        display: inline;
+    }
+    @media (min-width: 0px) and (max-width: 480px) {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    @media (min-width: 768px) {
+        display: none;
+    }
 }
 .nav_buttons_condensed {
     padding: 10px 0px 10px 0px;
@@ -123,7 +147,6 @@ h3 {
     border: 3px solid #08616c;
     border-radius: 5px;
     height: 25px;
-    width: 240px;
     position: relative;
     top:-12px;
     margin-left: 10px;
@@ -131,9 +154,22 @@ h3 {
     -webkit-transition: 0.5s;
     transition: 0.5s;
 }
+#nav_search_input {
+    @media (min-width: 0px) and (max-width: 480px) {
+        width: 120px;
+    }
+    @media (min-width: 481px) {
+        width: 240px;
+    }
+}
 .nav_search_field .glyphicon {
     position: relative;
     top: -9px;
+}
+.nav_search_field .glyphicon {
+    @media (min-width: 0px) and (max-width: 480px) {
+        display:none;
+    }
 }
 .header_compensate {
     padding-top: 53px;
@@ -225,12 +261,6 @@ h3 {
 }
 
 /*-------------------------------------------------
-4. Right_menu
--------------------------------------------------*/
-.right_menu {
-}
-
-/*-------------------------------------------------
 5. footer
 -------------------------------------------------*/
 #footer {
@@ -239,13 +269,12 @@ h3 {
 }
 
 /*-------------------------------------------------
-I. Responsive grid @ media queries
+I. Responsive grid
 -------------------------------------------------*/
 
 /* Reusable column setup */
 .col {
-    border:0px solid rgba(0,0,0,0);
-    float:left;
+    float: left;
     -webkit-box-sizing:border-box;
     -moz-box-sizing:border-box;
     box-sizing:border-box;
@@ -269,9 +298,7 @@ header#main_header, footer, .global_wrapper {
     ----------------------------------------------------------------------------- */
 
     @media (min-width: 0px) and (max-width: 480px) {    
-        .row .col:first-child {
-            margin-left:0;
-        }       
+     
         .span_1 {
             margin-left:0;
             width:100%;
@@ -288,22 +315,7 @@ header#main_header, footer, .global_wrapper {
         #right_col {
             display: none;
         }
-        #nav_normal {
-            display: none!important;
-        }
-        #nav_search_input {
-            width: 120px;
-        }
-        #nav_condensed {
-            display: inline !important;
-        }
-        .nav_search_field .glyphicon {
-            display:none;
-        }
-        #nav_condensed .nav_buttons {
-            padding-left: 15px;
-            padding-right: 15px;
-        }
+
     }
 
     /* 2. 2 Column Grid 481px - 640px 
@@ -318,17 +330,7 @@ header#main_header, footer, .global_wrapper {
     ----------------------------------------------------------------------------- */
 
     @media (min-width: 481px) and (max-width: 640px) {
-        
-        /*.col {
-            margin-left:2%;
-            padding:0 1.5%;
-        }
-        */
-        
-        .row .col:first-child {
-            margin-left:0;
-        }
-         
+
         .span_1 {
             width:69.0%;
         }
@@ -348,37 +350,25 @@ header#main_header, footer, .global_wrapper {
         #right_col {
             display: none;
         }
-        #nav_normal {
-            display: none!important;
-        }
-        #nav_condensed {
-            display: inline !important;
-        }
+
     }
 
     /* 3. 3 Column Grid 640px onwards
     ----------------------------------------------------------------------------- 
     1) Display everything
 
-    Span 1:    69.0%
-    Span 2:    15.0%
-    Span 3:    15.0%
+    Span 1:    60.0%
+    Span 2:    40.0%
     Span all:  100%   
     ----------------------------------------------------------------------------- */
 
-    @media (min-width: 641px) {
-        .row .col:first-child {
-            margin-left:0;
-        }
-        
+    @media (min-width: 641px) and (max-width: 768px) {
+
         .span_1 {
-            width:59.0%;
+            width:60.0%;
         }
         .span_2 {
-            width:25.0%;
-        }
-        .span_3 {
-            width:15.0%;
+            width:40.0%;
         }
         .span_all {
             margin-left:0;
@@ -395,105 +385,35 @@ header#main_header, footer, .global_wrapper {
         header#main_header, nav, footer, .global_wrapper {
         }
     }
-    /* 4. Navigation 641px to 768px
+    /* 4. Grid 769px onwards
     ----------------------------------------------------------------------------- 
+    1) Display everything
 
-    ----------------------------------------------------------------------------- */   
-    @media (min-width: 641px) and (max-width:768px)  {
-        #nav_normal {
-            display: none !important;
-        }
-        #nav_condensed {
-            display: inline!important;
-        }
-    }
-    /* 5. 769px to 1024px
-    ----------------------------------------------------------------------------- 
-        - Navigation
-    ----------------------------------------------------------------------------- */     
-    @media (min-width: 769px) and (max-width: 1024px) {
-        .nav_buttons {
-           letter-spacing: 0px!important;
-        }
-        #nav_normal {
-            display: inline !important;
-        }
+    Span 1:    60.0% * 768
+    Span 2:    40.0% * 768
+    Span all:  100%   
+    ----------------------------------------------------------------------------- */
 
-    }
-    /* 5. Navigation 961px to 1024px
-    ----------------------------------------------------------------------------- 
-        - Center column: split into 2
-        - Full navigation
-    ----------------------------------------------------------------------------- */   
- 
-    @media (min-width:1025px) {
-        /* make center into 2 column format at 1025px and above */
-        .main_col_block article {
-            width: 293px;
-            float: left;
-            margin-right: 5px;
+    @media (min-width: 769px) {
+
+        .span_1 {
+            width:(768px*0.6);
         }
-        /* left margin hack */
-        /* max-width of #main will crop away unwanted margin */
+        .span_2 {
+            width:(768px*0.4);
+        }
+        .span_all {
+            margin-left:0;
+            width:100%;
+        }
+        #left_col {
+            display: block;
+        }
         #main {
-            max-width: 605px;
-            overflow: hidden;
         }
-        .main_col_block {
-            min-width: 610px;
+        #right_col {
+            display: block;
         }
-        /* correct top spacing after floating article block */
-        .main_col_block {
-            margin-top: -10px;
+        header#main_header, nav, footer, .global_wrapper {
         }
     }
-    /* smaller fonts for left_col until >1024px */
-    @media (min-width: 0px) and (max-width: 1024px) {
-        #left_col h2 {
-            font-size: 16px;
-        }
-        #left_col h3 {
-            font-family: 'Droid Sans';
-            font-size: 12px;
-        }
-        #left_col .block_text_holder {
-            float: left;
-            padding-top:8px;
-        }
-        #left_col .block_username { 
-            font-family: 'Droid Sans';
-            font-weight: 700;
-            font-size: 11px;
-        }
-        #left_col .block_timelapse {
-            font-family: 'Droid Sans';
-            font-weight: 400;
-            font-size: 10px;
-            color: #ccc;
-        }
-        #left_col p {
-            font-size: 10px;
-        }
-    }
-/*-------------------------------------------------
-II. All other media queries
--------------------------------------------------*/
-
-@media (min-width:320px) { /* smartphones, iPhone, portrait 480x320 phones */ 
-
-}
-@media (min-width:481px) { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */ 
-
-}
-@media (min-width:641px) {  /*portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */ 
-
-}
-@media (min-width:961px) { /* tablet, landscape iPad, lo-res laptops ands desktops */ 
-
-}
-@media (min-width:1025px) { /* big landscape tablets, laptops, and desktops */ 
-
-}
-@media (min-width:1281px) { /* hi-res laptops and desktops */ 
-
-}

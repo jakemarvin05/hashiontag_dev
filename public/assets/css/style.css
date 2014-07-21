@@ -215,7 +215,7 @@ h3 {
   font-size: 14px;
 }
 .global_wrapper {
-  max-width: 1025px;
+  max-width: 768px;
   margin: auto;
 }
 .zero_space_hack {
@@ -246,8 +246,15 @@ h3 {
   top: 5px;
   margin: 0px 20px 0px 15px;
 }
-#nav_normal {
-  display: inline;
+@media (min-width: 0px) and (max-width: 767px) {
+  #nav_normal {
+    display: none;
+  }
+}
+@media (min-width: 768px) {
+  #nav_normal {
+    display: inline ;
+  }
 }
 .nav_buttons,
 .nav_buttons_condensed {
@@ -259,12 +266,26 @@ h3 {
   letter-spacing: 3px;
 }
 .nav_buttons {
-  padding: 17px 10px 17px 10px;
   position: relative;
   top: -11px;
   margin-left: 0px;
   -webkit-transition: 0.5s;
   transition: 0.5s;
+}
+@media (min-width: 0px) and (max-width: 480px) {
+  .nav_buttons {
+    padding: 17px 15px;
+  }
+}
+@media (min-width: 481px) {
+  .nav_buttons {
+    padding: 17px 10px 17px 10px;
+  }
+}
+@media (min-width: 767px) and (max-width: 1024px) {
+  .nav_buttons {
+    letter-spacing: 0px!important;
+  }
 }
 .nav_buttons:hover,
 .nav_buttons_condensed:hover {
@@ -290,8 +311,21 @@ h3 {
   padding-left: 20px;
   padding-right: 20px;
 }
-#nav_condensed {
-  display: none;
+@media (min-width: 0px) and (max-width: 767px) {
+  #nav_condensed {
+    display: inline;
+  }
+}
+@media (min-width: 0px) and (max-width: 480px) {
+  #nav_condensed {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+@media (min-width: 768px) {
+  #nav_condensed {
+    display: none;
+  }
 }
 .nav_buttons_condensed {
   padding: 10px 0px 10px 0px;
@@ -305,7 +339,6 @@ h3 {
   border: 3px solid #08616c;
   border-radius: 5px;
   height: 25px;
-  width: 240px;
   position: relative;
   top: -12px;
   margin-left: 10px;
@@ -313,9 +346,24 @@ h3 {
   -webkit-transition: 0.5s;
   transition: 0.5s;
 }
+@media (min-width: 0px) and (max-width: 480px) {
+  #nav_search_input {
+    width: 120px;
+  }
+}
+@media (min-width: 481px) {
+  #nav_search_input {
+    width: 240px;
+  }
+}
 .nav_search_field .glyphicon {
   position: relative;
   top: -9px;
+}
+@media (min-width: 0px) and (max-width: 480px) {
+  .nav_search_field .glyphicon {
+    display: none;
+  }
 }
 .header_compensate {
   padding-top: 53px;
@@ -404,9 +452,6 @@ h3 {
 }
 /* left_col specifics */
 /*-------------------------------------------------
-4. Right_menu
--------------------------------------------------*/
-/*-------------------------------------------------
 5. footer
 -------------------------------------------------*/
 #footer {
@@ -414,11 +459,10 @@ h3 {
   text-align: center;
 }
 /*-------------------------------------------------
-I. Responsive grid @ media queries
+I. Responsive grid
 -------------------------------------------------*/
 /* Reusable column setup */
 .col {
-  border: 0px solid rgba(0, 0, 0, 0);
   float: left;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -444,9 +488,6 @@ footer,
     Span all:  100% 
     ----------------------------------------------------------------------------- */
 @media (min-width: 0px) and (max-width: 480px) {
-  .row .col:first-child {
-    margin-left: 0;
-  }
   .span_1 {
     margin-left: 0;
     width: 100%;
@@ -461,22 +502,6 @@ footer,
   #right_col {
     display: none;
   }
-  #nav_normal {
-    display: none!important;
-  }
-  #nav_search_input {
-    width: 120px;
-  }
-  #nav_condensed {
-    display: inline !important;
-  }
-  .nav_search_field .glyphicon {
-    display: none;
-  }
-  #nav_condensed .nav_buttons {
-    padding-left: 15px;
-    padding-right: 15px;
-  }
 }
 /* 2. 2 Column Grid 481px - 640px 
     ----------------------------------------------------------------------------- 
@@ -489,14 +514,6 @@ footer,
     Span all:    100%   
     ----------------------------------------------------------------------------- */
 @media (min-width: 481px) and (max-width: 640px) {
-  /*.col {
-              margin-left:2%;
-              padding:0 1.5%;
-          }
-          */
-  .row .col:first-child {
-    margin-left: 0;
-  }
   .span_1 {
     width: 69.0%;
   }
@@ -513,34 +530,21 @@ footer,
   #right_col {
     display: none;
   }
-  #nav_normal {
-    display: none!important;
-  }
-  #nav_condensed {
-    display: inline !important;
-  }
 }
 /* 3. 3 Column Grid 640px onwards
     ----------------------------------------------------------------------------- 
     1) Display everything
 
-    Span 1:    69.0%
-    Span 2:    15.0%
-    Span 3:    15.0%
+    Span 1:    60.0%
+    Span 2:    40.0%
     Span all:  100%   
     ----------------------------------------------------------------------------- */
-@media (min-width: 641px) {
-  .row .col:first-child {
-    margin-left: 0;
-  }
+@media (min-width: 641px) and (max-width: 768px) {
   .span_1 {
-    width: 59.0%;
+    width: 60.0%;
   }
   .span_2 {
-    width: 25.0%;
-  }
-  .span_3 {
-    width: 15.0%;
+    width: 40.0%;
   }
   .span_all {
     margin-left: 0;
@@ -553,99 +557,29 @@ footer,
     display: block;
   }
 }
-/* 4. Navigation 641px to 768px
+/* 4. Grid 769px onwards
     ----------------------------------------------------------------------------- 
+    1) Display everything
 
-    ----------------------------------------------------------------------------- */@media (min-width: 641px) and (max-width: 768px) {
-  #nav_normal {
-    display: none !important;
+    Span 1:    60.0% * 768
+    Span 2:    40.0% * 768
+    Span all:  100%   
+    ----------------------------------------------------------------------------- */
+@media (min-width: 769px) {
+  .span_1 {
+    width: 460.79999999999995px;
   }
-  #nav_condensed {
-    display: inline!important;
+  .span_2 {
+    width: 307.20000000000005px;
   }
-}
-/* 5. 769px to 1024px
-    ----------------------------------------------------------------------------- 
-        - Navigation
-    ----------------------------------------------------------------------------- */@media (min-width: 769px) and (max-width: 1024px) {
-  .nav_buttons {
-    letter-spacing: 0px!important;
+  .span_all {
+    margin-left: 0;
+    width: 100%;
   }
-  #nav_normal {
-    display: inline !important;
+  #left_col {
+    display: block;
   }
-}
-/* 5. Navigation 961px to 1024px
-    ----------------------------------------------------------------------------- 
-        - Center column: split into 2
-        - Full navigation
-    ----------------------------------------------------------------------------- */@media (min-width: 1025px) {
-  /* make center into 2 column format at 1025px and above */
-  .main_col_block article {
-    width: 293px;
-    float: left;
-    margin-right: 5px;
+  #right_col {
+    display: block;
   }
-  /* left margin hack */
-  /* max-width of #main will crop away unwanted margin */
-  #main {
-    max-width: 605px;
-    overflow: hidden;
-  }
-  .main_col_block {
-    min-width: 610px;
-  }
-  /* correct top spacing after floating article block */
-  .main_col_block {
-    margin-top: -10px;
-  }
-}
-/* smaller fonts for left_col until >1024px */
-@media (min-width: 0px) and (max-width: 1024px) {
-  #left_col h2 {
-    font-size: 16px;
-  }
-  #left_col h3 {
-    font-family: 'Droid Sans';
-    font-size: 12px;
-  }
-  #left_col .block_text_holder {
-    float: left;
-    padding-top: 8px;
-  }
-  #left_col .block_username {
-    font-family: 'Droid Sans';
-    font-weight: 700;
-    font-size: 11px;
-  }
-  #left_col .block_timelapse {
-    font-family: 'Droid Sans';
-    font-weight: 400;
-    font-size: 10px;
-    color: #ccc;
-  }
-  #left_col p {
-    font-size: 10px;
-  }
-}
-/*-------------------------------------------------
-II. All other media queries
--------------------------------------------------*/
-@media (min-width: 320px) {
-  /* smartphones, iPhone, portrait 480x320 phones */
-}
-@media (min-width: 481px) {
-  /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */
-}
-@media (min-width: 641px) {
-  /*portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */
-}
-@media (min-width: 961px) {
-  /* tablet, landscape iPad, lo-res laptops ands desktops */
-}
-@media (min-width: 1025px) {
-  /* big landscape tablets, laptops, and desktops */
-}
-@media (min-width: 1281px) {
-  /* hi-res laptops and desktops */
 }

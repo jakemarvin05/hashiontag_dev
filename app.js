@@ -9,6 +9,15 @@ var cons = require('consolidate');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
+var passport = require('passport');
+//require('./config/passport.js')(passport);
+
+var flash = require('connect-flash');
+var session = require('express-session');
+
+//filesystem middleware
+//var fs = require('fs');
+
 var app = express();
 
 // view engine setup
@@ -29,7 +38,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/users', users);
 
-var fs = require('fs');
+
 
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {

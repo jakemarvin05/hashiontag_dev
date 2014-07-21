@@ -91,15 +91,7 @@
 
     <!-- end your stream -->
   </section><!-- main -->
-
-  <aside id="right_col" class="col span_3">
-    <div class="right_menu block_inner">
-      <h2>{someVariable}</h2>
-      <p>1) Web app: Express</p>
-      <p>2) Template engine: LinkedIn's Dust</p>
-      <p>3) DB: Postgres</p>        
-    </div>
-  </aside><!-- right_col -->
+  
 </div><!-- .global_wrapper -->
 
 {>blockFooter/}
