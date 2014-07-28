@@ -362,7 +362,7 @@ a {
 }
 @media (min-width: 481px) {
   #navSearchInput {
-    width: 240px;
+    width: 190px;
   }
 }
 .navSearchField .glyphicon {
