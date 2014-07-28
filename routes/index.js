@@ -1,26 +1,89 @@
 var express = require('express');
 var router = express.Router();
 //var sys = require('sys');
-var db = require('../apps/db.js');
+var meta = require('../apps/meta.js');
 
+//passport
+var passport = require('passport');
+require('../apps/passport/passport_cfg.js')(passport);
+var isLoggedIn = require('../apps/passport/isLoggedIn.js');
+
+// sequelize
+var db = require('../models');
+
+// paths
+var globalJSON = {
+  paths: {
+    home: '/',
+    login: '/login',
+    logout: '/logout',
+    signup: '/signup'
+  }
+}
 
 module.exports = router;
 
 // Homepage
-router.get('/', function (req, res) {
+router.get('/', function(req, res) {
   //sys.puts(sys.inspect(req));
+
+  //res.send(stream)
   res.render('index', { 
-    title: 'Hashiontag', 
-    someVariable: 'We are using:'
+    title: meta.header(),
+    isLoggedIn: isLoggedIn(req),
+    gJSON: globalJSON,
+    p: globalJSON.paths,
+    streamJSON: ''
+  });
+
+});
+
+/* signup, LOGINS LOGOUTS */
+router.get('/signup', function(req, res) {
+  res.render('signup', { 
+    title: meta.header(),
+    gJSON: globalJSON,
+    p: globalJSON.paths,
+    message: req.flash('signupMessage')
   });
 });
 
-router.get('/dbtest', function (req, res) {
+router.post('/signup', 
+  passport.authenticate('local-signup', {
+    successRedirect : '/login', // redirect to the secure profile section
+    failureRedirect : '/signup', // redirect back to the signup page if there is an error
+    failureFlash : true // allow flash messages
+  })
+);
 
-  //sz is my sequelize shorthand
-  var sz = db.init();
+router.get('/login', function(req, res) {
+  res.render('login', { 
+    title: meta.header(),
+    gJSON: globalJSON,
+    p: globalJSON.paths,
+    message: req.flash('loginMessage')
+  });
+});
+
+router.post('/login', 
+  passport.authenticate('local-login', {
+    successRedirect : '/', // redirect to the secure profile section
+    failureRedirect : '/login', // redirect back to the signup page if there is an error
+    failureFlash : true // allow flash messages
+  })
+);
+
+router.get('/logout', function(req, res) {
+
+  req.logout();
+  res.redirect('/');
+
+});
+
+//dev routes
+router.get('/dbtest', function(req, res) {
      
-  sz.authenticate().complete(function(err) {
+  db.sequelize.authenticate().complete(function(err) {
     if (!!err) {
       console.log('Unable to connect to the database:', err);
       res.send(err);

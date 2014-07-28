@@ -84,29 +84,41 @@
 <!-- HTML5 structural block -->
 
 <!-- nav responsive controlled by a condenser script below -->
-<header class="col span_all" id="main_header">
-    <div id="header" class="global_wrapper">
-      <img src="images/logo3.png" id="logo">
+<div class="spanAll navWrapper">
+  <div id="navBar" class="globalWrapper">
+    <img src="images/logo3.png" id="logo">
 
-      <nav id="nav_normal"> 
-        <span class="nav_buttons nav_selected">Home</span>
-        <span class="nav_buttons">Following</span>
-        <span class="nav_buttons">Followers</span>
-        <span class="nav_buttons">Explore</span>
-      </nav>
+    <nav id="navNormal"> 
+      <a href="{#p}{home}{/p}"><span class="navButtons navSelected">Home</span></a>
+      {?isLoggedIn}
+      <span class="navButtons">Following</span>
+      <span class="navButtons">Followers</span>
+      <span class="navButtons">Explore</span>
+      <a href="{#p}{logout}{/p}"><span class="navButtons">Logout</span></a>
+      {:else}
+      <a href="{#p}{login}{/p}"><span class="navButtons">Login</span></a>
+      <a href="{#p}{signup}{/p}"><span class="navButtons">Signup</span></a>
+      {/isLoggedIn}
+    </nav>
 
-      <nav id="nav_condensed">
-        <span class="nav_buttons"><span class="glyphicon glyphicon-th-list"></span></span>
-        <div class="zero_space_hack">
-          <span id="nav_dropdown">
-            <span class="nav_buttons_condensed nav_selected">Home</span>
-            <span class="nav_buttons_condensed">Following</span>
-            <span class="nav_buttons_condensed">Followers</span>
-            <span class="nav_buttons_condensed">Explore</span>
-          </span>
-        </div>
-      </nav>
+    <nav id="navCondensed">
+      <span class="navButtons"><span class="glyphicon glyphicon-th-list"></span></span>
+        <span id="navDropdown">
+          <a href="{#p}{home}{/p}"><span class="navButtonsCondensed navSelected">Home</span></a>
+          {?isLoggedIn}
+          <span class="navButtonsCondensed">Following</span>
+          <span class="navButtonsCondensed">Followers</span>
+          <span class="navButtonsCondensed">Explore</span>
+          <a href="{#p}{logout}{/p}"><span class="navButtonsCondensed">Logout</span></a>
+          {:else}
+          <a href="{#p}{logout}{/p}"><span class="navButtonsCondensed">Login</span></a>
+          <a href="{#p}{signup}{/p}"><span class="navButtonsCondensed">Signup</span></a>
+          {/isLoggedIn}
+        </span>
+    </nav>
 
-      <span class="nav_search_field"><input type="text" id="nav_search_input"><span class="glyphicon glyphicon-search"></span></span>
-    </div>
-</header>
+    <span class="navSearchField"><input type="text" id="navSearchInput"><span class="glyphicon glyphicon-search"></span></span>
+  </div>
+</div><!-- gloabal_wrapper -->
+
+<div class="globalWrapper headerCompensate">

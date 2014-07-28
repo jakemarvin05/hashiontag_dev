@@ -1,0 +1,42 @@
+{>blockHeader/}
+
+
+
+
+  <section id="leftCol" class="col span2">
+    <div class="blockTitle">
+        <h1>Login</h1>
+    </div>
+
+  </section><!-- left_col -->
+
+  <section id="main" class="col span1">
+
+    <div class="mainColBlock">
+    {?message}
+      {message}
+    {/message}
+      <form method="post">
+        <p>
+          Username or email: <input type="text" id="user" name="user">
+        </p>
+        <p>
+          Password: <input type="text" id="password" name="password">
+        </p>
+        <p>
+          <button type="submit">Login</button>
+        </p>
+        <p>
+          <a href="{#p}{signup}{/p}">Don't have an account? Sign up! </a>
+        </p>
+    </div>
+
+    <!-- end your stream -->
+  </section><!-- main -->
+  
+
+
+
+{>blockFooter/}
+
+{>blockFooterScripts/}

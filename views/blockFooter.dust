@@ -1,37 +1,9 @@
-  <footer id="footer" class="col span_all">
-    <div>
-      <h1>This is the footer.</h1>         
-      <p></p>
-    </div>
-  </footer>
 
-  <!-- fancyBox init -->
-  <script>
-  $( document ).ready( function () {
-    $(".fancybox").fancybox();
-  });
-  </script>
+</div><!-- .global_wrapper -->
 
-  <!-- Gridpak *FOR DEV ONLY*
-  <script src="assets/gridpak.js"></script>-->
-  <script>
-  $(document).keyup(function(e) {
-    if (e.keyCode == 71) {
-      $( 'div' ).css('outline', '1px dotted red');
-      $( 'span' ).css('outline', '1px dotted red');
-    }
-    if (e.keyCode == 72) {
-      $( 'div' ).css('outline', '0px');
-      $( 'span' ).css('outline', '0px');
-    }
-  });
-  </script>
-
-  <!-- condensed navigation -->
-  <script>
-    $( '#nav_condensed .nav_buttons').click( function () {
-      $( '#nav_dropdown' ).slideToggle( 'slow' );
-    });
-  </script>
-</body>
-</html>
+<footer id="footer" class="col spanAll">
+  <div>
+    <h1>Hashiontag 2014</h1>         
+    <p></p>
+  </div>
+</footer>

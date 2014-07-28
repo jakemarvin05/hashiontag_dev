@@ -214,24 +214,23 @@ h3 {
   font-family: 'Droid Sans';
   font-size: 14px;
 }
-.global_wrapper {
+a {
+  text-decoration: none;
+}
+.globalWrapper {
   max-width: 768px;
   margin: auto;
-}
-.zero_space_hack {
-  max-height: 0px;
-  max-width: 0px;
-  position: absolute;
 }
 /*-------------------------------------------------
 2. Header, nav
 -------------------------------------------------*/
-#main_header {
-  position: fixed;
+.navWrapper {
   background-color: #2A333B;
-  z-index: 9999;
+  height: 53px;
+  position: fixed;
 }
-#header {
+#navBar {
+  z-index: 9999;
   height: 53px;
   min-height: 53px;
   color: #ccc;
@@ -246,18 +245,28 @@ h3 {
   top: 5px;
   margin: 0px 20px 0px 15px;
 }
+@media (min-width: 768px) {
+  #logo {
+    margin: 0px 20px 0px 15px;
+  }
+}
+@media (max-width: 767px) {
+  #logo {
+    margin: 0px 15px 0px 10px;
+  }
+}
 @media (min-width: 0px) and (max-width: 767px) {
-  #nav_normal {
+  #navNormal {
     display: none;
   }
 }
 @media (min-width: 768px) {
-  #nav_normal {
+  #navNormal {
     display: inline ;
   }
 }
-.nav_buttons,
-.nav_buttons_condensed {
+.navButtons,
+.navButtonsCondensed {
   background-color: #0b8d9d;
   color: white;
   font-family: 'Yanone Kaffeesatz';
@@ -265,7 +274,7 @@ h3 {
   font-size: 17px;
   letter-spacing: 3px;
 }
-.nav_buttons {
+.navButtons {
   position: relative;
   top: -11px;
   margin-left: 0px;
@@ -273,68 +282,68 @@ h3 {
   transition: 0.5s;
 }
 @media (min-width: 0px) and (max-width: 480px) {
-  .nav_buttons {
+  .navButtons {
     padding: 17px 15px;
   }
 }
 @media (min-width: 481px) {
-  .nav_buttons {
+  .navButtons {
     padding: 17px 10px 17px 10px;
   }
 }
 @media (min-width: 767px) and (max-width: 1024px) {
-  .nav_buttons {
+  .navButtons {
     letter-spacing: 0px!important;
   }
 }
-.nav_buttons:hover,
-.nav_buttons_condensed:hover {
+.navButtons:hover,
+.navButtonsCondensed:hover {
   background-color: #08616c;
   cursor: pointer;
 }
-.nav_selected {
+.navSelected {
   background-color: #08616c!important;
 }
-.nav_selected:hover {
+.navSelected:hover {
   cursor: default !important;
 }
-.nav_selected {
+.navSelected {
   background-color: #08616c;
 }
-#nav_dropdown {
+#navDropdown {
   display: none;
-  position: relative;
-  left: 108px;
-  top: -3px;
+  position: absolute;
+  top: 53px;
+  margin-left: -60px;
 }
-#nav_condensed .nav_buttons {
+#navCondensed .navButtons {
   padding-left: 20px;
   padding-right: 20px;
 }
 @media (min-width: 0px) and (max-width: 767px) {
-  #nav_condensed {
+  #navCondensed {
     display: inline;
   }
 }
 @media (min-width: 0px) and (max-width: 480px) {
-  #nav_condensed {
+  #navCondensed {
     padding-left: 15px;
     padding-right: 15px;
   }
 }
 @media (min-width: 768px) {
-  #nav_condensed {
+  #navCondensed {
     display: none;
   }
 }
-.nav_buttons_condensed {
+.navButtonsCondensed {
   padding: 10px 0px 10px 0px;
   display: block;
   width: 100px;
   text-align: center;
   border-bottom: 1px solid #2A333B;
 }
-#nav_search_input {
+#navSearchInput {
   background-color: #ccc;
   border: 3px solid #08616c;
   border-radius: 5px;
@@ -347,39 +356,39 @@ h3 {
   transition: 0.5s;
 }
 @media (min-width: 0px) and (max-width: 480px) {
-  #nav_search_input {
+  #navSearchInput {
     width: 120px;
   }
 }
 @media (min-width: 481px) {
-  #nav_search_input {
+  #navSearchInput {
     width: 240px;
   }
 }
-.nav_search_field .glyphicon {
+.navSearchField .glyphicon {
   position: relative;
   top: -9px;
 }
 @media (min-width: 0px) and (max-width: 480px) {
-  .nav_search_field .glyphicon {
+  .navSearchField .glyphicon {
     display: none;
   }
 }
-.header_compensate {
+.headerCompensate {
   padding-top: 53px;
 }
 /*-------------------------------------------------
 3. Block headings, blocks styles.
 -------------------------------------------------*/
-#word_hot {
+#wordHot {
   color: #e83d3d;
 }
-#word_stream {
+#wordStream {
   color: #2889c6;
 }
-.left_col_block,
-.main_col_block,
-.right_menu {
+.leftColBlock,
+.mainColBlock,
+.rightMenu {
   width: 98%;
   margin: auto;
   /*
@@ -394,8 +403,8 @@ h3 {
     overflow:hidden;*/
 
 }
-.left_col_block article,
-.main_col_block article {
+.leftColBlock article,
+.mainColBlock article {
   background-color: #fff;
   margin: 10px auto 10px auto;
   -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
@@ -404,53 +413,53 @@ h3 {
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
 }
 /* generic block elements */
-.block_title {
+.blockTitle {
   text-align: center;
   color: #000;
 }
-.block_title h1 {
+.blockTitle h1 {
   font-family: 'Yanone Kaffeesatz';
   font-size: 30px;
 }
-.block_inner {
+.blockInner {
   padding: 8px;
 }
-.block_inner p,
+.blockInner p,
 h2,
 h3 {
   margin: 0px;
 }
 /* block top */
-.block_top img {
+.blockTop img {
   width: 40px;
   height: 40px;
   border-radius: 40px;
 }
-.block_user_holder {
+.blockUserHolder {
   height: 40px;
   width: 40px;
   float: left;
   padding: 0px 8px 8px 0px;
 }
-.block_text_holder {
+.blockTextHolder {
   float: left;
   padding-top: 6px;
 }
-.block_username {
+.blockUsername {
   font-family: 'Droid Sans';
   font-weight: 700;
   font-size: 13px;
 }
-.block_timelapse {
+.blockTimelapse {
   font-family: 'Droid Sans';
   font-weight: 400;
   font-size: 12px;
   color: #ccc;
 }
-.shop_name {
+.shopName {
   color: #aaa;
 }
-/* left_col specifics */
+/* leftCol specifics */
 /*-------------------------------------------------
 5. footer
 -------------------------------------------------*/
@@ -472,9 +481,8 @@ I. Responsive grid
   background-clip: padding-box !important;
 }
 /* all the full width elements never go below 320px */
-header#main_header,
 footer,
-.global_wrapper {
+.globalWrapper {
   min-width: 320px;
 }
 /* 1. 1 Column Grid 0px - 480px 
@@ -488,18 +496,18 @@ footer,
     Span all:  100% 
     ----------------------------------------------------------------------------- */
 @media (min-width: 0px) and (max-width: 480px) {
-  .span_1 {
+  .span1 {
     margin-left: 0;
     width: 100%;
   }
-  .span_all {
+  .spanAll {
     margin-left: 0;
     width: 100%;
   }
-  #left_col {
+  #leftCol {
     display: none;
   }
-  #right_col {
+  #rightCol {
     display: none;
   }
 }
@@ -514,20 +522,20 @@ footer,
     Span all:    100%   
     ----------------------------------------------------------------------------- */
 @media (min-width: 481px) and (max-width: 640px) {
-  .span_1 {
+  .span1 {
     width: 69.0%;
   }
-  .span_2 {
+  .span2 {
     width: 30.0%;
   }
-  .span_all {
+  .spanAll {
     margin-left: 0;
     width: 100%;
   }
-  #left_col {
+  #leftCol {
     display: block;
   }
-  #right_col {
+  #rightCol {
     display: none;
   }
 }
@@ -540,20 +548,20 @@ footer,
     Span all:  100%   
     ----------------------------------------------------------------------------- */
 @media (min-width: 641px) and (max-width: 768px) {
-  .span_1 {
+  .span1 {
     width: 60.0%;
   }
-  .span_2 {
+  .span2 {
     width: 40.0%;
   }
-  .span_all {
+  .spanAll {
     margin-left: 0;
     width: 100%;
   }
-  #left_col {
+  #leftCol {
     display: block;
   }
-  #right_col {
+  #rightCol {
     display: block;
   }
 }
@@ -566,20 +574,20 @@ footer,
     Span all:  100%   
     ----------------------------------------------------------------------------- */
 @media (min-width: 769px) {
-  .span_1 {
+  .span1 {
     width: 460.79999999999995px;
   }
-  .span_2 {
+  .span2 {
     width: 307.20000000000005px;
   }
-  .span_all {
+  .spanAll {
     margin-left: 0;
     width: 100%;
   }
-  #left_col {
+  #leftCol {
     display: block;
   }
-  #right_col {
+  #rightCol {
     display: block;
   }
 }

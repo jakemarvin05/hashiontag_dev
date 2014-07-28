@@ -1,30 +1,30 @@
 {>blockHeader/}
 
-<div class="global_wrapper header_compensate">
 
-  <section id="left_col" class="col span_2">
-    <div class="block_title">
-        <h1>What's <span id="word_hot">Hot</span></h1>
+
+  <section id="leftCol" class="col span2">
+    <div class="blockTitle">
+        <h1>What's <span id="wordHot">Hot</span></h1>
     </div>
 
     <!-- start hot stream -->
 
-    <div class="left_col_block">
+    <div class="leftColBlock">
       <article id="trend_001">
-        <div class="block_top block_inner">
-          <div class="block_user_holder"><img src="images/bloggerpics/blogger_Vivian.jpg">
+        <div class="blockTop blockInner">
+          <div class="blockUserHolder"><img src="images/bloggerpics/blogger_Vivian.jpg">
           </div>
-          <div class="block_text_holder">
-            <div class="block_username">Vivian liked</div>
-            <div class="block_timelapse">2 days ago</div>
+          <div class="blockTextHolder">
+            <div class="blockUsername">Vivian liked</div>
+            <div class="blockTimelapse">2 days ago</div>
           </div>
         </div>
         <a rel="group" class="fancybox" href="images/dress2.jpg">
           <img src="images/dress2.jpg" width="100%">
         </a>
-        <header class="block_inner">
-          <h2 class="item_name" itemprop="item">Black dress</h2>
-          <h2 class="shop_name" itemprop="shop">Love Bonito</h2>
+        <header class="blockInner">
+          <h2 class="itemName" itemprop="item">Black dress</h2>
+          <h2 class="shopName" itemprop="shop">Love Bonito</h2>
           <h3 class="price" itemprop="price">$89.00</h3>
           <p>#black #lovebonito</p>
           <p>982 <span class="glyphicon glyphicon-heart"></span>, 203 <span class="glyphicon glyphicon-share-alt"></span>, 2 comments</p>
@@ -34,31 +34,31 @@
     </div>
 
     <!-- end hot stream -->
-  </section><!-- left_col -->
+  </section><!-- leftCol -->
 
-  <section id="main" class="col span_1">
-      <div class="block_title">
-        <h1>Your <span id="word_stream">Stream</span></h1>
+  <section id="main" class="col span1">
+      <div class="blockTitle">
+        <h1>Your <span id="wordStream">Stream</span></h1>
       </div>
 
     <!-- start your stream -->
 
-    <div class="main_col_block">
+    <div class="mainColBlock">
       <article id="stream_001">
-        <div class="block_top block_inner">
-          <div class="block_user_holder"><img src="images/bloggerpics/blogger_Verlyn.jpg">
+        <div class="blockTop blockInner">
+          <div class="blockUserHolder"><img src="images/bloggerpics/blogger_Verlyn.jpg">
           </div>
-          <div class="block_text_holder">
-            <div class="block_username">Verlyn liked</div>
-            <div class="block_timelapse">4 minutes ago</div>
+          <div class="blockTextHolder">
+            <div class="blockUsername">Verlyn liked</div>
+            <div class="blockTimelapse">4 minutes ago</div>
           </div>
         </div>
         <a rel="group" class="fancybox" href="images/dress1.jpg">
           <img src="images/dress1.jpg" width="100%">
         </a>
-        <header class="block_inner">
-          <h2 class="item_name" itemprop="item">Pink dress</h2>
-          <h2 class="shop_name" itemprop="shop">Klarra</h2>
+        <header class="blockInner">
+          <h2 class="itemName" itemprop="item">Pink dress</h2>
+          <h2 class="shopName" itemprop="shop">Klarra</h2>
           <h3 class="price" itemprop="price">$95.00</h3>
           <p>#pink #pinkdress #klarra #under100</p>
           <p>31 <span class="glyphicon glyphicon-heart"></span>, 12 <span class="glyphicon glyphicon-share-alt"></span>, 2 comments</p>
@@ -67,20 +67,20 @@
       </article>
 
       <article id="stream_002">
-        <div class="block_top block_inner">
-          <div class="block_user_holder"><img src="images/bloggerpics/blogger_Verlyn.jpg">
+        <div class="blockTop blockInner">
+          <div class="blockUserHolder"><img src="images/bloggerpics/blogger_Verlyn.jpg">
           </div>
-          <div class="block_text_holder">
-            <div class="block_username">Verlyn liked</div>
-            <div class="block_timelapse">30 minutes ago</div>
+          <div class="blockTextHolder">
+            <div class="blockUsername">Verlyn liked</div>
+            <div class="blockTimelapse">30 minutes ago</div>
           </div>
         </div>
         <a rel="group" class="fancybox" href="images/dress3.jpg">
           <img src="images/dress3.jpg" width="100%">
         </a>
-        <header class="block_inner">
-          <h2 class="item_name" itemprop="item">White dress</h2>
-          <h2 class="shop_name" itemprop="shop">Kiss Jane</h2>
+        <header class="blockInner">
+          <h2 class="itemName" itemprop="item">White dress</h2>
+          <h2 class="shopName" itemprop="shop">Kiss Jane</h2>
           <h3 class="price" itemprop="price">$34.00</h3>
           <p>#white #dress #kissjane</p>
           <p>10 <span class="glyphicon glyphicon-heart"></span>, 5 <span class="glyphicon glyphicon-share-alt"></span>, 1 comments</p>
@@ -92,6 +92,16 @@
     <!-- end your stream -->
   </section><!-- main -->
   
-</div><!-- .global_wrapper -->
+
+
 
 {>blockFooter/}
+
+{! The stream comes in here !}
+{?streamJSON}
+  <script>
+  {streamJSON}
+  </script>
+{/streamJSON}
+
+{>blockFooterScripts/}

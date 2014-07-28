@@ -6,14 +6,19 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 //var sys = require('sys');
 var cons = require('consolidate');
+
+/* sequelize */
+var db = require('./models'); 
+
+/* passport and its friends */
+var passport = require('passport');
+var flash = require('connect-flash');
+var session = require('express-session');
+
+/* routes */
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
-var passport = require('passport');
-//require('./config/passport.js')(passport);
-
-var flash = require('connect-flash');
-var session = require('express-session');
 
 //filesystem middleware
 //var fs = require('fs');
@@ -29,16 +34,18 @@ app.use(favicon());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
-app.use(cookieParser());
-
+app.use(cookieParser('hashionhashion'));
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(session({ secret: 'hashionhashion' })); // session secret
+app.use(passport.initialize());
+app.use(passport.session()); // persistent login sessions
+app.use(flash()); // use connect-flash for flash messages stored in session
 
 //routing
 app.use('/', routes);
 app.use('/users', users);
-
-
 
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -75,6 +82,6 @@ module.exports = app;
 
 //start the server
 var server = app.listen(3000, function() {
-    console.log('Listening on port %d', server.address().port);
+    console.log('Congrats, nothing broke!! Listening on port %d', server.address().port);
 });
 
