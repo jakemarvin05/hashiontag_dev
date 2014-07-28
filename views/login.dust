@@ -16,7 +16,7 @@
     {?message}
       {message}
     {/message}
-      <form method="post">
+      <form id="login" method="post">
         <p>
           Username or email: <input type="text" id="user" name="user">
         </p>

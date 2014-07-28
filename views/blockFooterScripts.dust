@@ -24,5 +24,14 @@ $(document).keyup(function(e) {
     $( '#navDropdown' ).slideToggle( 'fast' );
   });
 </script>
+
+{?sValidator}
+<script src="{#p}{js}{/p}jquery.validate.min.js"></script>
+{/sValidator}
+
+{?sSignup}
+<script src="{#p}{js}{/p}signUpCode.js"></script>
+{/sSignup}
+
 </body>
 </html>

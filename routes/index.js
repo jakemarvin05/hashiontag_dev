@@ -11,15 +11,9 @@ var isLoggedIn = require('../apps/passport/isLoggedIn.js');
 // sequelize
 var db = require('../models');
 
-// paths
-var globalJSON = {
-  paths: {
-    home: '/',
-    login: '/login',
-    logout: '/logout',
-    signup: '/signup'
-  }
-}
+// globalJSON
+var gJSON = require('../apps/globalJSON.js');
+gJSON = gJSON(); //compile the object.
 
 module.exports = router;
 
@@ -31,8 +25,8 @@ router.get('/', function(req, res) {
   res.render('index', { 
     title: meta.header(),
     isLoggedIn: isLoggedIn(req),
-    gJSON: globalJSON,
-    p: globalJSON.paths,
+    gJSON: gJSON,
+    p: gJSON.paths,
     streamJSON: ''
   });
 
@@ -42,9 +36,13 @@ router.get('/', function(req, res) {
 router.get('/signup', function(req, res) {
   res.render('signup', { 
     title: meta.header(),
-    gJSON: globalJSON,
-    p: globalJSON.paths,
-    message: req.flash('signupMessage')
+    gJSON: gJSON,
+    p: gJSON.paths,
+    message: req.flash('signupMessage'),
+    
+    //scripts required
+    sValidator: true,
+    sSignup: true
   });
 });
 
@@ -59,8 +57,8 @@ router.post('/signup',
 router.get('/login', function(req, res) {
   res.render('login', { 
     title: meta.header(),
-    gJSON: globalJSON,
-    p: globalJSON.paths,
+    gJSON: gJSON,
+    p: gJSON.paths,
     message: req.flash('loginMessage')
   });
 });

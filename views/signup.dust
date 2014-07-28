@@ -16,19 +16,23 @@
     {?message}
       {message}
     {/message}
-      <form method="post">
+      <form id="signup" method="post">
         <p>
-          Username: <input type="text" id="username" name="username">
+          Username: <input type="text" id="username" name="username" required>
         </p>
         <p>
-          Email: <input type="text" id="email" name="email">
+          Email: <input type="text" id="email" name="email" required>
         </p>
         <p>
-          Password: <input type="text" id="password" name="password">
+          Password: <input type="password" id="password" name="password" required>
+        </p>
+        <p>
+          Re-type password: <input type="password" id="passwordR" name="passwordR" required>
         </p>
         <p>
           <button type="submit">Signup</button>
         </p>
+      </form>
     </div>
 
     <!-- end your stream -->
