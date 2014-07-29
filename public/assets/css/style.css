@@ -225,7 +225,7 @@ a {
 2. Header, nav
 -------------------------------------------------*/
 .navWrapper {
-  background-color: #2A333B;
+  background-color: #cdcccc;
   height: 53px;
   position: fixed;
 }
@@ -240,8 +240,9 @@ a {
   transition: 0.5s;
 }
 #logo {
-  height: 44px;
+  height: 28px;
   position: relative;
+  padding: 8px;
   top: 5px;
   margin: 0px 20px 0px 15px;
 }
@@ -262,12 +263,12 @@ a {
 }
 @media (min-width: 768px) {
   #navNormal {
-    display: inline ;
+    display: inline-block;
   }
 }
 .navButtons,
 .navButtonsCondensed {
-  background-color: #0b8d9d;
+  background-color: #58585b;
   color: white;
   font-family: 'Yanone Kaffeesatz';
   font-weight: 200;
@@ -298,17 +299,17 @@ a {
 }
 .navButtons:hover,
 .navButtonsCondensed:hover {
-  background-color: #08616c;
+  background-color: #939598;
   cursor: pointer;
 }
 .navSelected {
-  background-color: #08616c!important;
+  background-color: #939598 !important;
 }
 .navSelected:hover {
   cursor: default !important;
 }
 .navSelected {
-  background-color: #08616c;
+  background-color: #939598;
 }
 #navDropdown {
   display: none;
@@ -336,16 +337,19 @@ a {
     display: none;
   }
 }
+.navSearchField {
+  color: #58585b;
+}
 .navButtonsCondensed {
   padding: 10px 0px 10px 0px;
   display: block;
   width: 100px;
   text-align: center;
-  border-bottom: 1px solid #2A333B;
+  border-bottom: 1px solid #cdcccc;
 }
 #navSearchInput {
   background-color: #ccc;
-  border: 3px solid #08616c;
+  border: 3px solid #939598;
   border-radius: 5px;
   height: 25px;
   position: relative;

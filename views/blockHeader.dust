@@ -45,24 +45,24 @@
   <!-- END Social media metas -->
 
   <!-- CSS -->
-  <link href="{#p}{css}{/p}style.css" rel="stylesheet"> 
+  <link href="{#p}{css}{/p}/style.css" rel="stylesheet"> 
 
   <!-- fonts, glyphicons -->
   <link href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:400,200|Droid+Sans:400,700' rel='stylesheet' type='text/css'>
-  <link href="{#p}{css}{/p}bootstrap-glyphicons.css" rel="stylesheet">
+  <link href="{#p}{css}{/p}/bootstrap-glyphicons.css" rel="stylesheet">
   
   <!-- jQuery and UI -->
-  <script src="{#p}{js}{/p}jquery-1.10.1.min.js"></script>
-  <script src="{#p}{js}{/p}jquery-ui-1.10.4/js/jquery-ui-1.10.4.min.js"></script>
-  <link href="{#p}{js}{/p}jquery-ui-1.10.4/css/ui-lightness/jquery-ui-1.10.4.min.css" rel="stylesheet">
+  <script src="{#p}{js}{/p}/jquery-1.10.1.min.js"></script>
+  <script src="{#p}{js}{/p}/jquery-ui-1.10.4/js/jquery-ui-1.10.4.min.js"></script>
+  <link href="{#p}{js}{/p}/jquery-ui-1.10.4/css/ui-lightness/jquery-ui-1.10.4.min.css" rel="stylesheet">
 
   <!-- fancyBox image gallery -->
-  <link rel="stylesheet" href="{#p}{js}{/p}fancybox/source/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen" />
-  <script type="text/javascript" src="{#p}{js}{/p}fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  <link rel="stylesheet" href="{#p}{js}{/p}/fancybox/source/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen" />
+  <script type="text/javascript" src="{#p}{js}{/p}/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
 
   <!-- Optionally add helpers - button, thumbnail and/or media -->
-  <link rel="stylesheet" href="{#p}{js}{/p}fancybox/source/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen" />
-  <script type="text/javascript" src="{#p}{js}{/p}fancybox/source/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+  <link rel="stylesheet" href="{#p}{js}{/p}/fancybox/source/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen" />
+  <script type="text/javascript" src="{#p}{js}{/p}/fancybox/source/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
 
   <!-- fancyBox helpers not used 
   <link rel="stylesheet" href="assets/js/fancybox/source/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen" />
@@ -72,8 +72,8 @@
 
   <!-- HTML5 shiv for below IE10 compatibility -->
   <!--[if lt IE 9]>
-  <script src="{#p}{js}{/p}html5shiv-printshiv.min.js"></script>
-  <script src="{#p}{js}{/p}respond.min.js"></script>
+  <script src="{#p}{js}{/p}/html5shiv-printshiv.min.js"></script>
+  <script src="{#p}{js}{/p}/respond.min.js"></script>
   <![endif]-->
 
 </head>
@@ -86,7 +86,7 @@
 <!-- nav responsive controlled by a condenser script below -->
 <div class="spanAll navWrapper">
   <div id="navBar" class="globalWrapper">
-    <img src="{#p}{abs}{/p}images/logo3.png" id="logo">
+    <img src="{#p}{img}{/p}/logo.png" id="logo">
 
     <nav id="navNormal"> 
       <a href="{#p}{home}{/p}"><span class="navButtons navSelected">Home</span></a>

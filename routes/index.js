@@ -13,7 +13,6 @@ var db = require('../models');
 
 // globalJSON
 var gJSON = require('../apps/globalJSON.js');
-gJSON = gJSON(); //compile the object.
 
 module.exports = router;
 

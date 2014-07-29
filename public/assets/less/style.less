@@ -50,8 +50,13 @@ a {
 2. Header, nav
 -------------------------------------------------*/
 @navBarHeight: 53px;
+
+@navBarColor: #cdcccc;
+@navBtnDark: #58585b;
+@navBtnLight: #939598;
+
 .navWrapper {
-    background-color: #2A333B;
+    background-color: @navBarColor;
     height: @navBarHeight;
     position: fixed;
 }
@@ -64,8 +69,9 @@ a {
     transition: 0.5s;
 }
 #logo {
-    height: 44px;
+    height: 28px;
     position: relative;
+    padding: 8px;
     top:5px;
     margin: 0px 20px 0px 15px;
 }
@@ -83,11 +89,11 @@ a {
        display: none;
     } 
     @media (min-width: 768px) {
-        display: inline ;
+        display: inline-block ;
     }
 }
 .navButtons, .navButtonsCondensed {
-    background-color: #0b8d9d;
+    background-color: @navBtnDark;
     color: white;
     font-family: 'Yanone Kaffeesatz';
     font-weight: 200;
@@ -113,17 +119,17 @@ a {
     }
 }
 .navButtons:hover, .navButtonsCondensed:hover {
-    background-color: #08616c;
+    background-color: @navBtnLight;
     cursor: pointer;
 }
 .navSelected {
-    background-color: #08616c!important;
+    background-color: @navBtnLight!important;
 }
 .navSelected:hover{
     cursor: default !important;
 }
 .navSelected {
-    background-color: #08616c;
+    background-color: @navBtnLight;
 }
 #navDropdown { 
     display:none;
@@ -147,16 +153,19 @@ a {
         display: none;
     }
 }
+.navSearchField {
+    color: @navBtnDark;
+}
 .navButtonsCondensed {
     padding: 10px 0px 10px 0px;
     display: block;
     width: 100px;
     text-align: center;
-    border-bottom: 1px solid #2A333B;
+    border-bottom: 1px solid @navBarColor;
 }
 #navSearchInput {
     background-color: #ccc;
-    border: 3px solid #08616c;
+    border: 3px solid @navBtnLight;
     border-radius: 5px;
     height: 25px;
     position: relative;
