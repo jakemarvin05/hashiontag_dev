@@ -1,4 +1,8 @@
 var express = require('express');
+/* routes */
+var routes = require('./routes/index');
+var users = require('./routes/users');
+
 var path = require('path');
 var favicon = require('static-favicon');
 var logger = require('morgan');
@@ -15,9 +19,7 @@ var passport = require('passport');
 var flash = require('connect-flash');
 var session = require('express-session');
 
-/* routes */
-var routes = require('./routes/index');
-var users = require('./routes/users');
+
 
 
 //filesystem middleware

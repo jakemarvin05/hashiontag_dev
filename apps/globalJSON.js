@@ -26,6 +26,7 @@ function globalJSON() {
       logout: '/logout',
       signup: '/signup',
       img: '/images',
+      post: '/post'
     }
 
     //let the forloop do its job

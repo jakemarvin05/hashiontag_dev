@@ -32,25 +32,16 @@ module.exports = function(sequelize, DataTypes) {
         timestamps: true,
         createdAt: false,
         tableName: 'users'
+        }, {
+            classMethods: {
+                associate: function(models) {
+                    User.hasMany(models.Post);
+                }
+            }
         }
     );
 
-    //User.sync();
+    User.sync();
  
-return User
+return User;
 };
-
-
-// module.exports = function(sequelize, DataTypes) {
-//   var User = sequelize.define('User', {
-//     username: DataTypes.STRING
-//   }, {
-//     classMethods: {
-//       associate: function(models) {
-//         User.hasMany(models.Task)
-//       }
-//     }
-//   })
- 
-//   return User
-// }

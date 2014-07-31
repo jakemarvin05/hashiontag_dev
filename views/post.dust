@@ -1,0 +1,38 @@
+{>blockHeader/}
+
+
+
+
+  <section id="leftCol" class="col span2">
+    <div class="blockTitle">
+        <h1>Post</h1>
+    </div>
+
+  </section><!-- left_col -->
+
+  <section id="main" class="col span1">
+
+    <div class="mainColBlock">
+      {?isLoggedIn}
+      <form id="post" method="post">
+        <p>
+          Post: <textarea id="desc" name="desc" required></textarea>
+        </p>
+        <p>
+          <button type="submit">Post</button>
+        </p>
+      </form>
+      {:else}
+      You are not logged in. To post, please log in <a href="{#p}{login}{/p}">here</a>
+      {/isLoggedIn}
+    </div>
+
+    <!-- end your stream -->
+  </section><!-- main -->
+  
+
+
+
+{>blockFooter/}
+
+{>blockFooterScripts/}

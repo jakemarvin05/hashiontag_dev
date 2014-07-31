@@ -93,7 +93,7 @@
       {?isLoggedIn}
       <span class="navButtons">Following</span>
       <span class="navButtons">Followers</span>
-      <span class="navButtons">Explore</span>
+      <a href="{#p}{post}{/p}"><span class="navButtons">Post</span></a>
       <a href="{#p}{logout}{/p}"><span class="navButtons">Logout</span></a>
       {:else}
       <a href="{#p}{login}{/p}"><span class="navButtons">Login</span></a>
@@ -108,7 +108,7 @@
           {?isLoggedIn}
           <span class="navButtonsCondensed">Following</span>
           <span class="navButtonsCondensed">Followers</span>
-          <span class="navButtonsCondensed">Explore</span>
+          <a href="{#p}{post}{/p}"><span class="navButtonsCondensed">Post</span></a>
           <a href="{#p}{logout}{/p}"><span class="navButtonsCondensed">Logout</span></a>
           {:else}
           <a href="{#p}{logout}{/p}"><span class="navButtonsCondensed">Login</span></a>
