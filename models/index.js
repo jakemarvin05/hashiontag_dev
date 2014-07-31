@@ -8,7 +8,7 @@ var fs        = require('fs')
                   host: "ec2-54-235-245-180.compute-1.amazonaws.com",
                   dialect: "postgres", // or 'sqlite', 'postgres', 'mariadb'
                   port: 5432, // or 5432 (for postgres)
-                  native: true  //change settings to localhost and turn native to false if unable to compile native C bindings
+                  native: false  //change settings to localhost and turn native to false if unable to compile native C bindings
                   })
   , db        = {}
  
