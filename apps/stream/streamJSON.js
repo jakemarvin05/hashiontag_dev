@@ -17,8 +17,10 @@ module.exports = function streamJSON(req, eventEmitter) {
     if(req.isAuthenticated()) {
         console.log('streamJSON: user is authenticated.. finding posts...');
         req.user.getFollow(
-            // include: [{
-            //     model: db.Post
+                //where: {UserId: req.user.userId}
+                //attributes: ['userId']
+            // , include: [{
+            //     model: db.Posts
             // }]
 
 
@@ -33,15 +35,37 @@ module.exports = function streamJSON(req, eventEmitter) {
             //     'desc' 
             // ]
 
-        ).getFollowUserPost().success(function(users) {
+        ).success(function(users) {
 
+            var idArray = [];
+
+            for(var i in users) {
+                idArray.push(users[i].values['userId']);
+            }
             
-            console.log(JSON.stringify(users));
+            console.log('streamJSON: got the follows...getting posts');
+
+            db.Post.findAll({ 
+                where: {
+                    User_userId: idArray
+                }
+                , include: [{
+                    model: db.User,
+                    attributes: [
+                        'userName'
+                    ] 
+                }]
+            }).success(function(posts) {
+
+                console.log('streamJSON: db retrieval complete, returning the array...');
+
+                console.log(JSON.stringify(posts));
 
                 return function () {
-                    eventEmitter.emit( 'streamJSONDone', JSON.stringify(users) );
+                    eventEmitter.emit( 'streamJSONDone', JSON.stringify(posts) );
                 }();
 
+            }).error(throwErr);
 
             
 
