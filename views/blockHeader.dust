@@ -76,6 +76,12 @@
   <script src="{#p}{js}{/p}/respond.min.js"></script>
   <![endif]-->
 
+{?renderJSON}
+<script>
+  var renderJSON = {renderJSON|s};
+</script>
+{/renderJSON}
+
 </head>
 
 
@@ -89,15 +95,16 @@
     <img src="{#p}{img}{/p}/logo.png" id="logo">
 
     <nav id="navNormal"> 
-      <a href="{#p}{home}{/p}"><span class="navButtons navSelected">Home</span></a>
+      <a href="{#p}{home}{/p}"><span class="navButtons navSelected">Home</span></a><!--
       {?isLoggedIn}
-      <span class="navButtons">Following</span>
-      <span class="navButtons">Followers</span>
-      <a href="{#p}{post}{/p}"><span class="navButtons">Post</span></a>
-      <a href="{#p}{logout}{/p}"><span class="navButtons">Logout</span></a>
+      --><span class="navButtons">Following</span><!--
+      --><span class="navButtons">Followers</span><!--
+      --><a href="{#p}{post}{/p}"><span class="navButtons">Post</span></a><!--
+      --><a href="{#p}{me}{/p}"><span class="navButtons">Me</span></a><!--
+      --><a href="{#p}{logout}{/p}"><span class="navButtons">Logout</span></a>
       {:else}
-      <a href="{#p}{login}{/p}"><span class="navButtons">Login</span></a>
-      <a href="{#p}{signup}{/p}"><span class="navButtons">Signup</span></a>
+      --><a href="{#p}{login}{/p}"><span class="navButtons">Login</span></a><!--
+      --><a href="{#p}{signup}{/p}"><span class="navButtons">Signup</span></a>
       {/isLoggedIn}
     </nav>
 
@@ -109,6 +116,7 @@
           <span class="navButtonsCondensed">Following</span>
           <span class="navButtonsCondensed">Followers</span>
           <a href="{#p}{post}{/p}"><span class="navButtonsCondensed">Post</span></a>
+          <a href="{#p}{me}{/p}"><span class="navButtonsCondensed">Me</span></a>
           <a href="{#p}{logout}{/p}"><span class="navButtonsCondensed">Logout</span></a>
           {:else}
           <a href="{#p}{logout}{/p}"><span class="navButtonsCondensed">Login</span></a>

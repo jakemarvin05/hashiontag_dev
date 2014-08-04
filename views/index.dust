@@ -31,20 +31,8 @@
           <p><span class="glyphicon glyphicon-heart"></span> I want this! | <span class="glyphicon glyphicon-share-alt"></span> Share</p>
         </header>
       </article>
-    </div>
 
-    <!-- end hot stream -->
-  </section><!-- leftCol -->
-
-  <section id="main" class="col span1">
-      <div class="blockTitle">
-        <h1>Your <span id="wordStream">Stream</span></h1>
-      </div>
-
-    <!-- start your stream -->
-
-    <div class="mainColBlock">
-      <article id="stream_001">
+      <article id="trend_002">
         <div class="blockTop blockInner">
           <div class="blockUserHolder"><img src="images/bloggerpics/blogger_Verlyn.jpg">
           </div>
@@ -66,7 +54,7 @@
         </header>
       </article>
 
-      <article id="stream_002">
+      <article id="trend_003">
         <div class="blockTop blockInner">
           <div class="blockUserHolder"><img src="images/bloggerpics/blogger_Verlyn.jpg">
           </div>
@@ -89,19 +77,45 @@
       </article>
     </div>
 
+    <!-- end hot stream -->
+  </section><!-- leftCol -->
+
+  <section id="main" class="col span1">
+
+    <!-- start your stream -->
+
+      <div class="blockTitle">
+        <h1>Your <span id="wordStream">Stream</span></h1>
+      </div>
+
+    <div class="mainColBlock">
+      <article class="streamLayout" id="layoutId">
+        <div class="blockTop blockInner">
+          <div class="blockUserHolder"></div>
+          <div class="blockTextHolder">
+            <div class="blockUsername"></div>
+            <div class="blockTimelapse"></div>
+          </div>
+        </div>
+        <a class="fancybox">
+        </a>
+        <header class="blockInner">
+          <h2 class="itemName" itemprop="item"></h2>
+          <h2 class="shopName" itemprop="shop"></h2>
+          <h3 class="price" itemprop="price"></h3>
+          <p class="description"></p>
+          <p class="hTags_hidden"></p>
+          <p class="postStats"></p>
+          <p class="postInteractions"></p>
+        </header>
+      </article>
+    </div>
     <!-- end your stream -->
+
+    <!-- start your posts -->
+    
   </section><!-- main -->
-  
-
-
 
 {>blockFooter/}
-
-{! The stream comes in here !}
-{?streamJSON}
-  <script>
-  {streamJSON}
-  </script>
-{/streamJSON}
 
 {>blockFooterScripts/}

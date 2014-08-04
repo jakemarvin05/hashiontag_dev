@@ -5,6 +5,10 @@ var db = require('../../models'); //required once
 // expose this function to our app using module.exports
 module.exports = function(passport) {
 
+//userId
+//password
+//email
+
 
     // =========================================================================
     // passport session setup ==================================================
@@ -14,12 +18,12 @@ module.exports = function(passport) {
 
     //used to serialize the user for the session
     passport.serializeUser(function(user, done) {
-        done(null, user.user_id);
+        done(null, user.userId);
     });
 
     // used to deserialize the user
     passport.deserializeUser(function(id, done) {
-        db.User.find({ where: {user_id: id} }).success(function(user){
+        db.User.find({ where: {userId: id} }).success(function(user){
             done(null, user);
           }).error(function(err){
             done(err, null);
@@ -69,7 +73,7 @@ module.exports = function(passport) {
             // check if username already exist
             db.User.find({ where: 
                 db.Sequelize.or(
-                    {username: user},
+                    {userName: user},
                     {email: req.body.email}
                 )
             }).success(function(user) {
@@ -90,7 +94,7 @@ module.exports = function(passport) {
                     // create the user
                     var newUser = db.User.build({
                         // set the user's local credentials
-                          username: req.body.username
+                          userName: req.body.username
                         , email: req.body.email
                         , password: password
                     });
@@ -144,7 +148,7 @@ module.exports = function(passport) {
         /* start */
         if(user.indexOf('@') > -0.5) {
             //it is an email login
-            db.User.find({where: { email : user } }).success(function(user) {
+            db.User.find({ where: { email : user } }).success(function(user) {
 
                 // if no user is found, return the message
                 if(!user) {
@@ -160,7 +164,7 @@ module.exports = function(passport) {
 
         } else {
             //normal login
-            db.User.find({ where: { username : user } }).success(function(user) {
+            db.User.find({ where: { userName : user } }).success(function(user) {
 
                 // if no user is found, return the message
                 if(!user) {
@@ -169,6 +173,7 @@ module.exports = function(passport) {
 
                     return done(null, false, req.flash('loginMessage', ppMessages.errors.userOrPassword) ); // req.flash is the way to set flashdata using connect-flash
                 }
+                console.log(user.email);
                 //validate
                 validate(user);
 

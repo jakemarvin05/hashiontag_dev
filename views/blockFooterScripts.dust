@@ -1,3 +1,7 @@
+{! ==================================================
+  Globals 
+  !}
+
 <!-- fancyBox init -->
 <script>
 $( document ).ready( function () {
@@ -25,13 +29,86 @@ $(document).keyup(function(e) {
   });
 </script>
 
+{! *** end Globals !}
+
+
+{! ==================================================
+  index, Me
+  !}
+{?renderJSON}
+<script>
+var streamLayout = $( '.mainColBlock' ).html();
+
+var postCounts = 0;
+
+if( renderJSON != undefined && renderJSON ) {
+postCounts = Object.keys(renderJSON).length
+}
+
+if ( postCounts < 1 ) {
+
+  {@select key=streamType}
+    {@eq value="ownPosts"}
+    var message = 'You don\'t have any posts. <a href="{#p}{post}{/p}">Post something!</a>';
+    {/eq}
+    {@eq value="following"}
+    var message = 'No stream for you... follow some people!';
+    {/eq}
+
+    {@default}var message = 'Nothing here...';{/default}
+  {/select}
+
+
+  $( '.streamLayout .description').html(message);
+} else {
+  
+  $( '.mainColBlock .streamLayout' ).remove();
+
+  for( i=0; i < postCounts; i++) {
+
+    var post = renderJSON[i];
+
+    var mStreamId = '#mainStream_' + post.postId;
+
+    //create the block
+    $( '.mainColBlock' ).append(streamLayout);
+    $( '#layoutId' ).attr('id', 'mainStream_' + post.postId );
+
+    //append contents
+    $( mStreamId + ' .blockUsername').html(post.user.userName);
+    $( mStreamId + ' .blockTimelapse').html(post.timeLapse);
+    $( mStreamId + ' .description').html(post.desc);
+  }
+}
+</script>
+{:else}
+<script>
+$( '.streamLayout .description').html('No stream for you... follow some people!');
+</script>
+{/renderJSON}
+
+
+
+
+{! ==================================================
+  /login, /signup
+  !}
+
 {?sValidator}
 <script src="{#p}{js}{/p}/jquery.validate.min.js"></script>
 {/sValidator}
 
+{! *** /login, /signup !}
+
+
+
+{! ==================================================
+  /signup
+  !}
 {?sSignup}
 <script src="{#p}{js}{/p}/signUpCode.js"></script>
 {/sSignup}
+{! *** /signup !}
 
 </body>
 </html>

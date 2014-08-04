@@ -17,6 +17,7 @@ function globalJSON() {
       fonts: ''
     }
   }
+  //topLevel Paths
   function tLPath() {
 
     //set other assets path relative to the main assets folder:
@@ -26,7 +27,8 @@ function globalJSON() {
       logout: '/logout',
       signup: '/signup',
       img: '/images',
-      post: '/post'
+      post: '/post',
+      me: '/me'
     }
 
     //let the forloop do its job
@@ -36,6 +38,7 @@ function globalJSON() {
       }
     }
   }tLPath();
+
   function assetsPath() {
     var assetsPath = globalJSON.paths.absPath + '/assets';
 

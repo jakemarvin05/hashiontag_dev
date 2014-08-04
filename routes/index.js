@@ -1,5 +1,7 @@
 var express = require('express');
 var router = express.Router();
+var async = require('async');
+var events = require('events');
 //var sys = require('sys');
 var meta = require('../apps/meta.js');
 
@@ -23,14 +25,48 @@ module.exports = router;
 router.get('/', function(req, res) {
   //sys.puts(sys.inspect(req));
 
-  //res.send(stream)
-  res.render('index', { 
-    title: meta.header(),
-    isLoggedIn: isLoggedIn(req),
-    gJSON: gJSON,
-    p: gJSON.paths,
-    streamJSON: ''
+  var eventEmitter = new events.EventEmitter();
+
+  //bind the final callback first
+  eventEmitter.on('streamJSONDone', function thenRender(renderJSON) {
+    res.render('index', { 
+      title: meta.header(),
+      isLoggedIn: isLoggedIn(req),
+      gJSON: gJSON,
+      p: gJSON.paths,
+      renderJSON: renderJSON,
+      streamType: 'following'
+    });
+
   });
+
+  //now run callback dependents
+  var streamJSON = require('../apps/stream/streamJSON.js')(req, eventEmitter);
+
+});
+
+
+//ME
+router.get('/me', function(req, res) {
+  //sys.puts(sys.inspect(req));
+
+  var eventEmitter = new events.EventEmitter();
+
+  //bind the final callback first
+  eventEmitter.on('ownPostJSONDone', function thenRender(renderJSON) {
+    res.render('index', { 
+      title: meta.header(),
+      isLoggedIn: isLoggedIn(req),
+      gJSON: gJSON,
+      p: gJSON.paths,
+      renderJSON: renderJSON,
+      streamType: 'ownPosts'
+    });
+
+  });
+
+  //now run callback dependents
+  var ownPostJSON = require('../apps/stream/ownPostJSON.js')(req, eventEmitter);
 
 });
 
@@ -122,13 +158,6 @@ router.get('/post', function(req, res) {
 });
 
   router.post('/post', function(req, res) {
-    // db.User.find({ where: { user_id: req.user.user_id } }).success(function(user) {
-    //     db.Post.create({ desc: req.param('desc'), user_id: user.user_id }).success(function(post) {
-    //         thepost.setUser(user).success(function(){
-    //             res.redirect('/')
-    //         });
-    //     });
-    //   });
     createPost(req, res);
   });
 
@@ -145,4 +174,9 @@ router.get('/dbtest', function(req, res) {
     }
   });
 
+});
+router.get('/sync', function(req, res) {
+  db.sequelize.sync({force:true}).on('success', function() {
+    res.send('sync success');
+  });
 });
