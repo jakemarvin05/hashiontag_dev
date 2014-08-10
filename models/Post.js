@@ -19,17 +19,20 @@ module.exports = function(sequelize, DataTypes) {
                 validate: {
                 }
                 //get: function() { return this.getDataValue('desc') }
+            },
+            User_userId: {
+                type: DataTypes.INTEGER
             }
         }, {
             timestamps: true,
             tableName: 'Posts', //PascalCase
             classMethods: {
+
+                
                 associate: function(models) {
                     Post.belongsTo(models.User,{foreignKey: 'User_userId'});
 
 
-                    //trying...
-                    Post.belongsTo(models.User,{as: 'FollowedPost', foreignKey: 'User_userId'});
                 }
             },
             getterMethods: {
@@ -97,7 +100,7 @@ module.exports = function(sequelize, DataTypes) {
         }
     );
 
-    //Post.sync();
+    Post.sync();
  
 return Post;
 };

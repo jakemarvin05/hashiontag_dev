@@ -15,12 +15,16 @@ module.exports = function createPost(req, res) {
 
     if(req.isAuthenticated()) {
         console.log('user is authenticated.. running db.User.createPost...');
-        db.Post.create({ desc: req.param('desc') }).success(function(post) {
-            console.log('post created, running req.user.addPost(post)...')
+        db.Post.create({ 
+            desc: req.param('desc'),
+            User_userId: req.user.userId
+        }).success(function(post) {
+            //modified to cut down 1 db call.
+            //console.log('post created, running req.user.addPost(post)...')
             //child.setParent(parent)
-            post.setUser(req.user).success(function(){
+            // post.setUser(req.user).success(function(){
                 res.redirect('/me');
-            });
+            // });
         }).error(throwErr);;
 
     } else {

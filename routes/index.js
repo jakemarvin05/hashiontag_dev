@@ -35,7 +35,7 @@ router.get('/', function(req, res) {
       gJSON: gJSON,
       p: gJSON.paths,
       renderJSON: renderJSON,
-      streamType: 'following'
+      streamType: true
     });
 
   });
@@ -160,6 +160,126 @@ router.get('/post', function(req, res) {
   router.post('/post', function(req, res) {
     createPost(req, res);
   });
+
+
+// router.get('/search', function(req, res) {
+//   var eventEmitter = new events.EventEmitter();
+
+//   //bind the final callback first
+//   eventEmitter.on('searchUsersDone', function thenRender(renderJSON) {
+//     res.render('search', { 
+//       title: meta.header(),
+//       isLoggedIn: isLoggedIn(req),
+//       gJSON: gJSON,
+//       p: gJSON.paths,
+//       renderJSON: renderJSON,
+//       streamType: 'search'
+//     });
+
+//   });
+
+//   //now run callback dependents
+//   var searchUsers = require('../apps/searchUsers.js')(req, eventEmitter);
+// });
+
+  router.post('/search', function(req, res) {
+    var eventEmitter = new events.EventEmitter();
+
+    //bind the final callback first
+    eventEmitter.on('searchUsersDone', function thenRender(renderJSON) {
+      res.render('search', { 
+        title: meta.header(),
+        isLoggedIn: isLoggedIn(req),
+        gJSON: gJSON,
+        p: gJSON.paths,
+        renderJSON: renderJSON,
+        streamType: false
+      });
+
+    });
+
+    //now run callback dependents
+    var searchUsers = require('../apps/searchUsers.js')(req, eventEmitter);
+  });
+
+router.post('/follow', function(req, res) {
+  var follow = require('../apps/follow/follow.js');
+  follow(req, res);
+});
+
+router.get('/following', function(req, res) {
+  var follower = require('../apps/follow/follower.js');
+
+    var eventEmitter = new events.EventEmitter();
+
+    //bind the final callback first
+    eventEmitter.on('followJSONDone', function thenRender(renderJSON) {
+      res.render('search', { 
+        title: meta.header(),
+        isLoggedIn: isLoggedIn(req),
+        gJSON: gJSON,
+        p: gJSON.paths,
+        renderJSON: renderJSON,
+        streamType: false
+      });
+
+    });
+
+    //now run callback dependents
+    var follower = require('../apps/follow/follower.js')(req, eventEmitter, 'following');
+
+});
+
+router.get('/followers', function(req, res) {
+  var follower = require('../apps/follow/follower.js');
+
+    var eventEmitter = new events.EventEmitter();
+
+    //bind the final callback first
+    eventEmitter.on('followJSONDone', function thenRender(renderJSON) {
+      res.render('search', { 
+        title: meta.header(),
+        isLoggedIn: isLoggedIn(req),
+        gJSON: gJSON,
+        p: gJSON.paths,
+        renderJSON: renderJSON,
+        streamType: false
+      });
+
+    });
+
+    //now run callback dependents
+    var follower = require('../apps/follow/follower.js')(req, eventEmitter, 'followers');
+
+});
+
+//user routes
+router.get('/:user', function(req, res) {
+
+  var eventEmitter = new events.EventEmitter();
+
+  //bind the final callback first
+  eventEmitter.on('profileJSONDone', function thenRender(renderJSON) {
+    res.render('profile', { 
+      title: meta.header(),
+      isLoggedIn: isLoggedIn(req),
+      gJSON: gJSON,
+      p: gJSON.paths,
+      renderJSON: renderJSON,
+      streamType: false,
+      userId: ( JSON.parse(renderJSON) ).userId
+    });
+
+  });
+
+  //now run callback dependents
+  var getProfile = require('../apps/getProfile.js')(req, eventEmitter);
+
+});
+
+
+
+///////////////////////////////////////////////////////
 
 //dev routes
 router.get('/dbtest', function(req, res) {

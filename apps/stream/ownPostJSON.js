@@ -16,19 +16,18 @@ module.exports = function ownPostJSON(req, eventEmitter) {
 
     if(req.isAuthenticated()) {
         console.log('ownPostJSON: user is authenticated.. finding posts...');
-        db.Post.findAll({ where: {User_userId: req.user.userId}
+        db.Post.findAll({
 
-
-            //TODO: fix this ascending thing
-            //, order:[ 'Posts.createdAt ASC' ]
-
-
+            where: {User_userId: req.user.userId}
             //define attributes, or just take everything
             // , attributes: [
             //     'postId',
             //     'User_userId',
             //     'desc' 
             // ]
+
+            , order: '"Post"."createdAt" DESC'
+
             , include: [{
                 model: db.User,
                 where: {userId: req.user.userId},

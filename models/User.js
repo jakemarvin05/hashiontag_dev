@@ -41,13 +41,48 @@ module.exports = function(sequelize, DataTypes) {
                     User.hasMany(models.Post,{foreignKey: 'User_userId'});
 
                     //following
-                    User.hasMany(models.User, {as: 'Follower', through: 'Following'});
-                    User.hasMany(models.User, {as: 'Follow', through: 'Following'});
+                    User.hasMany(models.User, {as: 'Follow', foreignKey: 'UserId', through: 'Following' }); //creates UserId, FollowId
+                    User.hasMany(models.User, {as: 'Follower', foreignKey: 'FollowId', through: 'Following'});
 
-                    //trying...
-                    User.hasMany(models.Post, {as: 'FollowUserPost', foreignKey: 'User_userId'})
+                },
+                getSearchVector: function() {
+                    return 'userNameVector';
+                },
+                addFullTextIndex: function() {
+
+                    var User = this;
+     
+                    var searchFields = ["userName"];
+     
+                    var vectorName = User.getSearchVector();
+                    sequelize
+                        .query('ALTER TABLE "' + User.tableName + '" ADD COLUMN "' + vectorName + '" TSVECTOR')
+                        .success(function() {
+                            return sequelize
+                                    .query('UPDATE "' + User.tableName + '" SET "' + vectorName + '" = to_tsvector(\'english\', ' + '"' + searchFields.join(' || \' \' || ') + '")')
+                                    .error(console.log);
+                        }).success(function() {
+                            return sequelize
+                                    .query('CREATE INDEX userName_search_idx ON "' + User.tableName + '" USING gin("' + vectorName + '");')
+                                    .error(console.log);
+                        }).success(function() {
+                            return sequelize
+                                    .query('CREATE TRIGGER userName_vector_update BEFORE INSERT OR UPDATE ON "' + User.tableName + '" FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger("' + vectorName + '", \'pg_catalog.english\', ' + '"' + searchFields.join(', ') + '")')
+                                    .error(console.log);
+                        }).error(console.log);
+     
+                },
+                search: function(query) {
+   
+                    var User = this;
+     
+                    query = sequelize.getQueryInterface().escape(query);
+                    console.log(query);
+                    
+                    return sequelize
+                            .query('SELECT * FROM "' + User.tableName + '" WHERE "' + User.getSearchVector() + '" @@ plainto_tsquery(\'english\', ' + query + ')', User);
                 }
-            },
+            }
             // getterMethods: {
             //     //testing...
             //     date: function() {
@@ -58,7 +93,8 @@ module.exports = function(sequelize, DataTypes) {
         }
     );
 
-    //User.sync();
+    User.sync();
+    //User.addFullTextIndex();
  
 return User;
 };

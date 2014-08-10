@@ -92,40 +92,50 @@
 <!-- nav responsive controlled by a condenser script below -->
 <div class="spanAll navWrapper">
   <div id="navBar" class="globalWrapper">
-    <img src="{#p}{img}{/p}/logo.png" id="logo">
+    <a href="{p.home}"><img src="{p.img}/logo.png" id="logo"></a>
 
     <nav id="navNormal"> 
-      <a href="{#p}{home}{/p}"><span class="navButtons navSelected">Home</span></a><!--
+      <!--
       {?isLoggedIn}
       --><span class="navButtons">Following</span><!--
       --><span class="navButtons">Followers</span><!--
-      --><a href="{#p}{post}{/p}"><span class="navButtons">Post</span></a><!--
-      --><a href="{#p}{me}{/p}"><span class="navButtons">Me</span></a><!--
-      --><a href="{#p}{logout}{/p}"><span class="navButtons">Logout</span></a>
+      --><a href="{p.post}"><span class="navButtons">Post</span></a><!--
+      --><a href="{p.me}"><span class="navButtons">Me</span></a><!--
+      --><a href="{p.logout}"><span class="navButtons">Logout</span></a>
       {:else}
-      --><a href="{#p}{login}{/p}"><span class="navButtons">Login</span></a><!--
-      --><a href="{#p}{signup}{/p}"><span class="navButtons">Signup</span></a>
+      --><a href="{p.login}"><span class="navButtons">Login</span></a><!--
+      --><a href="{p.signup}"><span class="navButtons">Signup</span></a>
       {/isLoggedIn}
     </nav>
 
     <nav id="navCondensed">
       <span class="navButtons"><span class="glyphicon glyphicon-th-list"></span></span>
         <span id="navDropdown">
-          <a href="{#p}{home}{/p}"><span class="navButtonsCondensed navSelected">Home</span></a>
+          <a href="p.home}"><span class="navButtonsCondensed navSelected">Home</span></a>
           {?isLoggedIn}
           <span class="navButtonsCondensed">Following</span>
           <span class="navButtonsCondensed">Followers</span>
-          <a href="{#p}{post}{/p}"><span class="navButtonsCondensed">Post</span></a>
-          <a href="{#p}{me}{/p}"><span class="navButtonsCondensed">Me</span></a>
-          <a href="{#p}{logout}{/p}"><span class="navButtonsCondensed">Logout</span></a>
+          <a href="{p.post}"><span class="navButtonsCondensed">Post</span></a>
+          <a href="{p.me}"><span class="navButtonsCondensed">Me</span></a>
+          <a href="{p.logout}"><span class="navButtonsCondensed">Logout</span></a>
           {:else}
-          <a href="{#p}{logout}{/p}"><span class="navButtonsCondensed">Login</span></a>
-          <a href="{#p}{signup}{/p}"><span class="navButtonsCondensed">Signup</span></a>
+          <a href="{p.logout}"><span class="navButtonsCondensed">Login</span></a>
+          <a href="{p.signup}"><span class="navButtonsCondensed">Signup</span></a>
           {/isLoggedIn}
         </span>
     </nav>
 
-    <span class="navSearchField"><input type="text" id="navSearchInput"><span class="glyphicon glyphicon-search"></span></span>
+    <span class="navSearchField"><form id="navSearch" method="post" action="{p.search}"><input type="text" name="navSearchInput" id="navSearchInput"><span class="glyphicon glyphicon-search"></span></form></span>
+    <script>
+    $( '#navSearch .glyphicon' ).click(function(){
+      $( '#navSearch' ).submit();
+    });
+    $( "#navSearchInput" ).on("keydown", function(e) {
+
+      // Enter is pressed
+      if (e.keyCode == 13) { $( '#navSearch' ).submit(); }
+    });
+    </script>
   </div>
 </div><!-- gloabal_wrapper -->
 

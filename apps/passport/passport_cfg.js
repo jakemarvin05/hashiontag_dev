@@ -168,7 +168,7 @@ module.exports = function(passport) {
 
                 // if no user is found, return the message
                 if(!user) {
-
+                    
                     console.log('Login: user not found');
 
                     return done(null, false, req.flash('loginMessage', ppMessages.errors.userOrPassword) ); // req.flash is the way to set flashdata using connect-flash

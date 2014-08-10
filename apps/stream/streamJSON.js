@@ -16,8 +16,8 @@ module.exports = function streamJSON(req, eventEmitter) {
 
     if(req.isAuthenticated()) {
         console.log('streamJSON: user is authenticated.. finding posts...');
-        req.user.getFollow(
-                //where: {UserId: req.user.userId}
+        req.user.getFollow({
+                where: {userId: req.user.userId}
                 //attributes: ['userId']
             // , include: [{
             //     model: db.Posts
@@ -35,7 +35,9 @@ module.exports = function streamJSON(req, eventEmitter) {
             //     'desc' 
             // ]
 
-        ).success(function(users) {
+        }).success(function(users) {
+
+            console.log(users);
 
             var idArray = [];
 
@@ -49,6 +51,9 @@ module.exports = function streamJSON(req, eventEmitter) {
                 where: {
                     User_userId: idArray
                 }
+
+                , order: '"Post"."createdAt" DESC'
+
                 , include: [{
                     model: db.User,
                     attributes: [

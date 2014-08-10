@@ -8,10 +8,10 @@ var fs        = require('fs')
                     host: "ec2-54-235-245-180.compute-1.amazonaws.com",
                     dialect: "postgres", // or 'sqlite', 'postgres', 'mariadb'
                     port: 5432, // or 5432 (for postgres)
-                    syncOnAssociation: false,
+                    syncOnAssociation: true,
                     native: true, //requires c binding
                     define: {
-                      syncOnAssociation: false
+                      syncOnAssociation: true
                     }
                   })
   // , sequelize = new Sequelize('postgres', 'postgres', 'password'

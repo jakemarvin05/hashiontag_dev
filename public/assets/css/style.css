@@ -340,6 +340,9 @@ a {
 .navSearchField {
   color: #58585b;
 }
+#navSearch {
+  display: inline-block;
+}
 .navButtonsCondensed {
   padding: 10px 0px 10px 0px;
   display: block;

@@ -35,57 +35,86 @@ $(document).keyup(function(e) {
 {! ==================================================
   index, Me
   !}
-{?renderJSON}
+{?renderJSON}{?streamType}
 <script>
-var streamLayout = $( '.mainColBlock' ).html();
 
-var postCounts = 0;
+var streamFactory = {
 
-if( renderJSON != undefined && renderJSON ) {
-postCounts = Object.keys(renderJSON).length
-}
+  mainStreamPrefix: '#mainStream_',
+  mainBlock: '.mainColBlock',
+  $mainBlock: $( '.mainColBlock' ),
+  userBlock: '.blockUsername',
+  tLBlock: '.blockTimelapse',
+  desc: '.description',
+  layoutHTML: $( '.mainColBlock' ).html(),
 
-if ( postCounts < 1 ) {
+  objCount: function() {
+    if( (typeof renderJSON != undefined) && renderJSON ) {
 
-  {@select key=streamType}
-    {@eq value="ownPosts"}
-    var message = 'You don\'t have any posts. <a href="{#p}{post}{/p}">Post something!</a>';
-    {/eq}
-    {@eq value="following"}
-    var message = 'No stream for you... follow some people!';
-    {/eq}
+      return Object.keys(renderJSON).length;
 
-    {@default}var message = 'Nothing here...';{/default}
-  {/select}
+    } else {
+    
+      return 0;
+    }
+  },
+  noObj: function() {
+
+    {@select key=streamType}
+      {@eq value="ownPosts"}
+      var message = 'You don\'t have any posts. <a href="{#p}{post}{/p}">Post something!</a>';
+      {/eq}
+      {@eq value="following"}
+      var message = 'No stream for you... follow some people!';
+      {/eq}
+
+      {@default}var message = 'Nothing here...';{/default}
+    {/select}
+
+    $( '.streamLayout .description').html(message);
+
+  },
+  build: function() {
+    var _ = this;
+
+    var objCount = _.objCount();
+
+    if ( objCount < 1 ) { 
+
+      _.noObj();
+
+    } else {
+      
+      $( _.mainBlock + ' ' + '.streamLayout' ).remove();
 
 
-  $( '.streamLayout .description').html(message);
-} else {
-  
-  $( '.mainColBlock .streamLayout' ).remove();
+      for( i=0; i<objCount; i++) {
 
-  for( i=0; i < postCounts; i++) {
+        var obj = renderJSON[i];
+        var mStreamId = _.mainStreamPrefix + obj.postId;
 
-    var post = renderJSON[i];
+        //create the block
+        _.$mainBlock.append( _.layoutHTML);
+        $( '#layoutId' ).attr('id', 'mainStream_' + obj.postId );
 
-    var mStreamId = '#mainStream_' + post.postId;
+        //append contents
+        _.append(mStreamId, obj);
 
-    //create the block
-    $( '.mainColBlock' ).append(streamLayout);
-    $( '#layoutId' ).attr('id', 'mainStream_' + post.postId );
-
-    //append contents
-    $( mStreamId + ' .blockUsername').html(post.user.userName);
-    $( mStreamId + ' .blockTimelapse').html(post.timeLapse);
-    $( mStreamId + ' .description').html(post.desc);
+      }
+    }
+  },
+  append: function(mStreamId, obj) {
+    $( mStreamId + ' ' + this.userBlock ).html('<a href="/' + obj.user.userName + '">' + obj.user.userName + '</a>');
+    $( mStreamId + ' ' + this.tLBlock ).html(obj.timeLapse);
+    $( mStreamId + ' ' + this.desc ).html(obj.desc);
   }
-}
+}; streamFactory.build();
 </script>
 {:else}
 <script>
 $( '.streamLayout .description').html('No stream for you... follow some people!');
 </script>
-{/renderJSON}
+{/streamType}{/renderJSON}
 
 
 

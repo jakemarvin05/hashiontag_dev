@@ -1,0 +1,88 @@
+{>blockHeader/}
+
+
+
+
+  <section id="leftCol" class="col span2">
+    <div class="blockTitle">
+        <h1>Profile</h1>
+    </div>
+
+  </section><!-- left_col -->
+
+  <section id="main" class="col span1">
+
+    <div class="mainColBlock">
+      <article class="userLayout" id="layoutId">
+        <div class="blockTop blockInner">
+          <div class="blockUserHolder"></div>
+          <div class="blockTextHolder">
+            <div class="blockUsername"></div>
+            <div class="blockJoined"></div>
+            <form method="post" action="follow">
+              <input type="submit" value="Follow" name="follow" id="follow">
+              <input type="hidden" value="{userId}" name="userId" id="userId">
+            </form>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- end your stream -->
+  </section><!-- main -->
+  
+<script>
+$( document ).ready(function() {
+  var searchFactory = {
+
+    mainBlock: '.mainColBlock',
+    $mainBlock: $( '.mainColBlock' ),
+    userBlock: '.blockUsername',
+    joinedBlock: '.blockJoined',
+
+    layoutHTML: $( '.mainColBlock' ).html(),
+
+    objCount: function() {
+      if( (typeof renderJSON != undefined) && renderJSON ) {
+
+        return Object.keys(renderJSON).length;
+
+      } else {
+      
+        return 0;
+      }
+    },
+    noObj: function() {
+
+      $( '.userLayout .blockUsername' ).html('User is invalid.');
+
+    },
+    build: function() {
+      var _ = this;
+
+      var objCount = _.objCount();
+
+      if( objCount < 1 ) { 
+
+        _.noObj();
+
+      } else {
+        var divId = 'layoutId';
+        //append contents
+        _.append(divId, renderJSON);
+
+
+      }
+    },
+    append: function(divId, obj) {
+      $( '#' + divId + ' ' + this.userBlock ).html(obj.userName);
+      $( '#' + divId + ' ' + this.joinedBlock ).html('Joined at ' + obj.createdAt);
+    }
+  }; searchFactory.build();
+});
+</script>
+
+
+{>blockFooter/}
+
+{>blockFooterScripts/}
