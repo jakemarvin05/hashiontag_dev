@@ -97,8 +97,8 @@
     <nav id="navNormal"> 
       <!--
       {?isLoggedIn}
-      --><span class="navButtons">Following</span><!--
-      --><span class="navButtons">Followers</span><!--
+      --><a href="{p.following}"><span class="navButtons">Following</span></a><!--
+      --><a href="{p.followers}"><span class="navButtons">Followers</span></a><!--
       --><a href="{p.post}"><span class="navButtons">Post</span></a><!--
       --><a href="{p.me}"><span class="navButtons">Me</span></a><!--
       --><a href="{p.logout}"><span class="navButtons">Logout</span></a>
@@ -113,8 +113,8 @@
         <span id="navDropdown">
           <a href="p.home}"><span class="navButtonsCondensed navSelected">Home</span></a>
           {?isLoggedIn}
-          <span class="navButtonsCondensed">Following</span>
-          <span class="navButtonsCondensed">Followers</span>
+          <a href="{p.following}"><span class="navButtonsCondensed">Following</span></a>
+          <a href="{p.followers}"><span class="navButtonsCondensed">Followers</span></a>
           <a href="{p.post}"><span class="navButtonsCondensed">Post</span></a>
           <a href="{p.me}"><span class="navButtonsCondensed">Me</span></a>
           <a href="{p.logout}"><span class="navButtonsCondensed">Logout</span></a>

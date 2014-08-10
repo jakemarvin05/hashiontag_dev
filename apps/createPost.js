@@ -1,4 +1,5 @@
-var db = require('../models');
+var db = require('../models')
+    , fs = require('fs');
 
 module.exports = function createPost(req, res) {
 
@@ -15,6 +16,23 @@ module.exports = function createPost(req, res) {
 
     if(req.isAuthenticated()) {
         console.log('user is authenticated.. running db.User.createPost...');
+        
+
+        var fstream;
+        req.pipe(req.busboy);
+        req.busboy.on('file', function (fieldname, file, filename) {
+            console.log(fieldname, file, filename);
+            console.log("Uploading: " + filename); 
+            fstream = fs.createWriteStream('./public/uploads/' + filename);
+            file.pipe(fstream);
+            /*
+            fstream.on('close', function () {
+                res.redirect('back');
+            });*/
+        });
+
+
+        // Handle text...
         db.Post.create({ 
             desc: req.param('desc'),
             User_userId: req.user.userId

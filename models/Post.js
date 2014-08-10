@@ -100,7 +100,7 @@ module.exports = function(sequelize, DataTypes) {
         }
     );
 
-    Post.sync();
+    //Post.sync();
  
 return Post;
 };

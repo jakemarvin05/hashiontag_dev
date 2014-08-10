@@ -29,7 +29,9 @@ function globalJSON() {
       img: '/images',
       post: '/post',
       me: '/me',
-      search: '/search'
+      search: '/search',
+      following: '/following',
+      followers: '/followers'
     }
 
     //let the forloop do its job

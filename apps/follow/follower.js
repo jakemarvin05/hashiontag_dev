@@ -40,10 +40,10 @@ module.exports = function followJSON(req, eventEmitter, followType) {
 
             req.user.getFollow({
                 
-                where: {UserId: req.user.userId}
+                //where: {UserId: req.user.userId}
 
                 //define attributes, or just take everything
-                , attributes: [
+                attributes: [
                     'userId',
                     'userName'
                 ]
@@ -62,12 +62,12 @@ module.exports = function followJSON(req, eventEmitter, followType) {
 
             console.log('followJSON: getFollowers');
 
-            req.user.hasFollow({
+            req.user.getFollower({
                 
-                where: {FollowId: req.user.userId}
+                //where: {FollowId: req.user.userId}
 
                 //define attributes, or just take everything
-                , attributes: [
+                attributes: [
                     'userId',
                     'userName'
                 ]

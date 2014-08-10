@@ -16,7 +16,7 @@ module.exports = function(sequelize, DataTypes) {
                 validate: {
                     max: 15,
                     min: 6,
-                    is: ["^[a-zA-Z0-9_]*$"]
+                    is: ["^[a-z0-9_]+$", "i"]
                 }
             },
             email: {
@@ -93,7 +93,7 @@ module.exports = function(sequelize, DataTypes) {
         }
     );
 
-    User.sync();
+    //User.sync();
     //User.addFullTextIndex();
  
 return User;
