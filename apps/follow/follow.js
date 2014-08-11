@@ -18,13 +18,18 @@ module.exports = function follow(req, res) {
 
         var userIdToFollow = req.param('userId');
 
-        // db.User.find({
-        //     where: {userId: userIdToFollow}
-        // }).success(function(user) {
-        //     req.user.hasFollow(user).success
-        // });
+        db.User.find({
+            where: {userId: userIdToFollow}
+        }).success(function(user) {
+            console.log(user);
+            console.log(req.user);
+            user.addFollower(req.user)
+                .success(function(){
+                    res.send('followed!');
+                }).error(throwErr);
+        });
 
-        req.user.addFollow(userIdToFollow).success(function(user) {
+        //req.user.addFollow(userIdToFollow).success(function(user) {
 
 
             //bug: empty user returning object literal [] which passes the !null test.
@@ -48,10 +53,10 @@ module.exports = function follow(req, res) {
             //         //console.log(user);
             //         req.user.addFollow(user, {FollowId :userIdToFollow })
             //             .success(function(){
-                            res.send('followed!');
+            //                res.send('followed!');
             //        }).error(throwErr);
 
-                }).error(throwErr)
+            //    }).error(throwErr)
 
                 
         //     } else {

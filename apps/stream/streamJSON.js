@@ -16,7 +16,7 @@ module.exports = function streamJSON(req, eventEmitter) {
 
     if(req.isAuthenticated()) {
         console.log('streamJSON: user is authenticated.. finding posts...');
-        req.user.getFollow(
+        req.user.getFollows(
                 //attributes: ['userId']
             // , include: [{
             //     model: db.Posts

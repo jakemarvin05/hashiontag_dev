@@ -70,11 +70,14 @@ module.exports = function(passport) {
         // User.find wont fire unless data is sent back
         //process.nextTick(function() {
             console.log('check if username already exist..');
+
+            var user = user.toLowerCase();
+            var email = req.body.email.toLowerCase();
             // check if username already exist
             db.User.find({ where: 
                 db.Sequelize.or(
                     {userName: user},
-                    {email: req.body.email}
+                    {email: email}
                 )
             }).success(function(user) {
 
@@ -94,8 +97,10 @@ module.exports = function(passport) {
                     // create the user
                     var newUser = db.User.build({
                         // set the user's local credentials
-                          userName: req.body.username
+                          userName: req.body.username.toLowerCase()
+                        , userNamePC: req.body.username
                         , email: req.body.email
+                        , emailPC: req.body.email.toLowerCase()
                         , password: password
                     });
 

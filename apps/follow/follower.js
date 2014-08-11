@@ -38,7 +38,7 @@ module.exports = function followJSON(req, eventEmitter, followType) {
         if(following) {
             console.log('followJSON: getFollow');
 
-            req.user.getFollow({
+            req.user.getFollows({
                 
                 //where: {UserId: req.user.userId}
 
@@ -62,7 +62,7 @@ module.exports = function followJSON(req, eventEmitter, followType) {
 
             console.log('followJSON: getFollowers');
 
-            req.user.getFollower({
+            req.user.getFollowers({
                 
                 //where: {FollowId: req.user.userId}
 

@@ -231,6 +231,11 @@ a {
     -o-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
     box-shadow: 0 1px 1px rgba(0,0,0,0.31);
 }
+.leftColBlock article:after, .mainColBlock article:after {
+    content: "";
+    display: table;
+    clear: both;
+}
 /* generic block elements */
 .blockTitle {
     text-align: center;

@@ -19,12 +19,20 @@ module.exports = function(sequelize, DataTypes) {
                     is: ["^[a-z0-9_]+$", "i"]
                 }
             },
+            userNamePC: {
+                type: DataTypes.STRING,
+                allowNull: false
+            }
             email: {
                 type: DataTypes.STRING,
                 allowNull: false,
                 validate: {
                     isEmail: true
                 }
+            },
+            emailPC: {
+                type: DataTypes.STRING,
+                allowNull: false
             },
             password: {
                 type: DataTypes.STRING,
@@ -41,9 +49,25 @@ module.exports = function(sequelize, DataTypes) {
                     User.hasMany(models.Post,{foreignKey: 'User_userId'});
 
                     //following
-                    User.hasMany(models.User, {as: 'Follow', foreignKey: 'UserId', through: 'Following' }); //creates UserId, FollowId
-                    User.hasMany(models.User, {as: 'Follower', foreignKey: 'FollowId', through: 'Following'});
+                    User.hasMany(models.User, {as: 'Follows', foreignKey: 'UserId', through: 'Following' });
+                    User.hasMany(models.User, {as: 'Followers', foreignKey: 'FollowId', through: 'Following'});
+                    // User.hasMany(models.User, {
+                    //     as: {
+                    //         plural: 'Follows'
+                    //         , singular: 'Follow'
+                    //     }
+                    //     , foreignKey: 'UserId'
+                    //     , through: 'Following' 
+                    // });
 
+                    // User.hasMany(models.User, {
+                    //     as: {
+                    //         plural: 'Followers'
+                    //         , singular: 'Follower'
+                    //     }
+                    //     , foreignKey: 'FollowId'
+                    //     , through: 'Following'
+                    // });
                 },
                 getSearchVector: function() {
                     return 'userNameVector';
@@ -93,7 +117,7 @@ module.exports = function(sequelize, DataTypes) {
         }
     );
 
-    //User.sync();
+    User.sync();
     //User.addFullTextIndex();
  
 return User;
