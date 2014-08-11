@@ -19,9 +19,8 @@ var fs        = require('fs')
   //                     host: "localhost",
   //                     dialect: "postgres", // or 'sqlite', 'postgres', 'mariadb'
   //                     port: 5432, // or 5432 (for postgres)
-  //                     native: false  //change settings to localhost and turn native to false if unable to compile native C bindings
+  //                     native: false,  //change settings to localhost and turn native to false if unable to compile native C bindings
   //                     syncOnAssociation: false,
-  //                     native: true, //requires c binding
   //                     define: {
   //                       syncOnAssociation: false
   //                     }
