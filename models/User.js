@@ -117,7 +117,7 @@ module.exports = function(sequelize, DataTypes) {
         }
     );
 
-    User.sync();
+    //User.sync();
     //User.addFullTextIndex();
  
 return User;
