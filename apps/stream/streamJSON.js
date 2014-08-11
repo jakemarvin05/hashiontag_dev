@@ -36,6 +36,7 @@ module.exports = function streamJSON(req, eventEmitter) {
 
         ).success(function(users) {
 
+
             console.log(users);
 
             var idArray = [];
