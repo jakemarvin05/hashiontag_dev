@@ -75,7 +75,7 @@ $( document ).ready(function() {
       }
     },
     append: function(divId, obj) {
-      $( '#' + divId + ' ' + this.userBlock ).html(obj.userName);
+      $( '#' + divId + ' ' + this.userBlock ).html(obj.userNameDisp);
       $( '#' + divId + ' ' + this.joinedBlock ).html('Joined at ' + obj.createdAt);
     }
   }; searchFactory.build();

@@ -19,10 +19,10 @@ module.exports = function(sequelize, DataTypes) {
                     is: ["^[a-z0-9_]+$", "i"]
                 }
             },
-            // userNamePC: {
-            //     type: DataTypes.STRING,
-            //     allowNull: false
-            // },
+            userNameDisp: {
+                type: DataTypes.STRING,
+                allowNull: false
+            },
             email: {
                 type: DataTypes.STRING,
                 allowNull: false,
@@ -30,10 +30,6 @@ module.exports = function(sequelize, DataTypes) {
                     isEmail: true
                 }
             },
-            // emailPC: {
-            //     type: DataTypes.STRING,
-            //     allowNull: false
-            // },
             password: {
                 type: DataTypes.STRING,
                 allowNull: false,

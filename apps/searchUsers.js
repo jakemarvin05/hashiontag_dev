@@ -27,7 +27,7 @@ module.exports = function searchUsers(req, eventEmitter) {
 
                 userArray[i] = {
                     userId: users[i].values['userId'],
-                    userName: users[i].values['userName']
+                    userNameDisp: users[i].values['userNameDisp']
                 }
             }  
         }
@@ -58,7 +58,7 @@ module.exports = function searchUsers(req, eventEmitter) {
 
             db.User.findAll({
                 where: {email: input}
-                , attributes: ['userId', 'userName']
+                , attributes: ['userId', 'userNameDisp']
             }).success(parseUsers(users, req)).error(throwErr);
 
             //email search ends here.

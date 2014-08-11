@@ -45,7 +45,7 @@ module.exports = function followJSON(req, eventEmitter, followType) {
                 //define attributes, or just take everything
                 attributes: [
                     'userId',
-                    'userName'
+                    'userNameDisp'
                 ]
 
             }).success(function(users) {
@@ -69,7 +69,7 @@ module.exports = function followJSON(req, eventEmitter, followType) {
                 //define attributes, or just take everything
                 attributes: [
                     'userId',
-                    'userName'
+                    'userNameDisp'
                 ]
 
             }).success(function(users) {

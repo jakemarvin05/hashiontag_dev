@@ -104,7 +104,7 @@ var streamFactory = {
     }
   },
   append: function(mStreamId, obj) {
-    $( mStreamId + ' ' + this.userBlock ).html('<a href="/' + obj.user.userName + '">' + obj.user.userName + '</a>');
+    $( mStreamId + ' ' + this.userBlock ).html('<a href="/' + obj.user.userNameDisp + '">' + obj.user.userNameDisp + '</a>');
     $( mStreamId + ' ' + this.tLBlock ).html(obj.timeLapse);
     $( mStreamId + ' ' + this.desc ).html(obj.desc);
   }

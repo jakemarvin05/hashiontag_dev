@@ -18,8 +18,8 @@ module.exports = function profileJSON(req, eventEmitter) {
     if(req.isAuthenticated()) {
         console.log('profileJSON: user is authenticated.. finding profile...');
         db.User.find({
-                where: {userName: req.params.user}
-                , attributes: [ 'userId', 'userName', 'createdAt' ]
+                where: {userName: req.params.user.toLowerCase()}
+                , attributes: [ 'userId', 'userNameDisp', 'createdAt' ]
         }).success(function(users) {
 
             console.log('profileJSON: db retrieval complete, returning the array...');

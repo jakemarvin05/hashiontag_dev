@@ -71,12 +71,13 @@ module.exports = function(passport) {
         //process.nextTick(function() {
             console.log('check if username already exist..');
 
-            var user = user.toLowerCase();
+            var userName = user.toLowerCase();
+            var userNameDisp = user;
             var email = req.body.email.toLowerCase();
             // check if username already exist
             db.User.find({ where: 
                 db.Sequelize.or(
-                    {userName: user},
+                    {userName: userName},
                     {email: email}
                 )
             }).success(function(user) {
@@ -97,10 +98,9 @@ module.exports = function(passport) {
                     // create the user
                     var newUser = db.User.build({
                         // set the user's local credentials
-                          userName: req.body.username.toLowerCase()
-                        , userNamePC: req.body.username
-                        , email: req.body.email
-                        , emailPC: req.body.email.toLowerCase()
+                          userName: userName
+                        , userNameDisp: userNameDisp
+                        , email: email
                         , password: password
                     });
 
@@ -130,6 +130,7 @@ module.exports = function(passport) {
     },
     function(req, user, password, done) { // callback with email and password from our form
 
+        var user = user.toLowerCase();
         /* Error handling */
         var throwErr = function(error) {
             console.log(error);

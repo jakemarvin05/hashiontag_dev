@@ -32,7 +32,7 @@ module.exports = function ownPostJSON(req, eventEmitter) {
                 model: db.User,
                 where: {userId: req.user.userId},
                 attributes: [
-                    'userName'
+                    'userNameDisp'
                 ] 
             }]
         }).success(function(posts) {

@@ -57,7 +57,7 @@ module.exports = function streamJSON(req, eventEmitter) {
                 , include: [{
                     model: db.User,
                     attributes: [
-                        'userName'
+                        'userNameDisp'
                     ] 
                 }]
             }).success(function(posts) {

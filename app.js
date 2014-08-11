@@ -8,7 +8,7 @@ var favicon = require('static-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var busboy = require('connect-busboy');
+//var busboy = require('connect-busboy');
 
 //dev utilities
 //var sys = require('sys');
@@ -45,11 +45,11 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser('hashionhashion'));
-//app.use(require('less-middleware')(path.join(__dirname, 'public')));
+app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Uploading images
-app.use(busboy());
+//app.use(busboy());
 
 app.use(session({ secret: 'hashionhashion' })); // session secret
 app.use(passport.initialize());
