@@ -82,7 +82,7 @@ $( document ).ready(function() {
       }
     },
     append: function(divId, obj) {
-      $( '#' + divId + ' ' + this.userBlock ).html('<a href="{p.absPath}/' + obj.user.userNameDisp + '">' + obj.userNameDisp + '</a>');
+      $( '#' + divId + ' ' + this.userBlock ).html('<a href="{p.absPath}/' + obj.userNameDisp + '">' + obj.userNameDisp + '</a>');
     }
   }; searchFactory.build();
 });

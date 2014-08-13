@@ -193,7 +193,7 @@ II. All other media queries
 1. Body, p, h1-h3, other globals
 -------------------------------------------------*/
 body {
-  background-color: #f6f6f3;
+  background-color: #fff;
 }
 p {
   font-family: 'Droid Sans';
@@ -224,18 +224,18 @@ a {
 /*-------------------------------------------------
 2. Header, nav
 -------------------------------------------------*/
+/* used for navbar border-bottom colour */
 .navWrapper {
-  background-color: #cdcccc;
+  background-color: #ffffff;
   height: 53px;
   position: fixed;
+  border-bottom: 1px solid #cccccc;
 }
 #navBar {
   z-index: 9999;
   height: 53px;
   min-height: 53px;
-  color: #ccc;
-  /* nav glyphicon color */
-
+  color: #000;
   -webkit-transition: 0.5s;
   transition: 0.5s;
 }
@@ -268,8 +268,8 @@ a {
 }
 .navButtons,
 .navButtonsCondensed {
-  background-color: #58585b;
-  color: white;
+  background-color: #ffffff;
+  color: #000;
   font-family: 'Yanone Kaffeesatz';
   font-weight: 200;
   font-size: 17px;
@@ -299,23 +299,23 @@ a {
 }
 .navButtons:hover,
 .navButtonsCondensed:hover {
-  background-color: #939598;
+  background-color: #cccccc;
   cursor: pointer;
 }
 .navSelected {
-  background-color: #939598 !important;
+  background-color: #cccccc !important;
 }
 .navSelected:hover {
   cursor: default !important;
 }
 .navSelected {
-  background-color: #939598;
+  background-color: #cccccc;
 }
 #navDropdown {
   display: none;
   position: absolute;
   top: 53px;
-  margin-left: -60px;
+  margin-left: -64px;
 }
 #navCondensed .navButtons {
   padding-left: 20px;
@@ -338,21 +338,24 @@ a {
   }
 }
 .navSearchField {
-  color: #58585b;
+  color: #ffffff;
 }
 #navSearch {
   display: inline-block;
+}
+#navSearch .glyphicon {
+  color: #000;
 }
 .navButtonsCondensed {
   padding: 10px 0px 10px 0px;
   display: block;
   width: 100px;
   text-align: center;
-  border-bottom: 1px solid #cdcccc;
+  border-bottom: 1px solid #ffffff;
 }
 #navSearchInput {
   background-color: #ccc;
-  border: 3px solid #939598;
+  border: 3px solid #cccccc;
   border-radius: 5px;
   height: 25px;
   position: relative;
@@ -382,7 +385,7 @@ a {
   }
 }
 .headerCompensate {
-  padding-top: 53px;
+  padding-top: calc(54px);
 }
 /*-------------------------------------------------
 3. Block headings, blocks styles.
