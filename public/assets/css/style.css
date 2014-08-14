@@ -327,10 +327,7 @@ a {
   }
 }
 @media (min-width: 0px) and (max-width: 480px) {
-  #navCondensed {
-    padding-left: 15px;
-    padding-right: 15px;
-  }
+  
 }
 @media (min-width: 768px) {
   #navCondensed {
