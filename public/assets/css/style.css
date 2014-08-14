@@ -475,6 +475,10 @@ h3 {
 .shopName {
   color: #aaa;
 }
+.mainColBlock .blockImgHolder img {
+  width: 640px;
+  max-width: 100%;
+}
 /* leftCol specifics */
 /*-------------------------------------------------
 5. footer

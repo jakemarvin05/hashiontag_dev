@@ -64,6 +64,8 @@ module.exports = function streamJSON(req, eventEmitter) {
 
                 console.log('streamJSON: db retrieval complete, returning the array...');
 
+                
+
                 console.log(JSON.stringify(posts));
 
                 return function () {

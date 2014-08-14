@@ -31,7 +31,8 @@ function globalJSON() {
       me: '/me',
       search: '/search',
       following: '/following',
-      followers: '/followers'
+      followers: '/followers',
+      mediaDir: '/uploads'
     }
 
     //let the forloop do its job

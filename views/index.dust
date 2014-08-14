@@ -97,8 +97,10 @@
             <div class="blockTimelapse"></div>
           </div>
         </div>
-        <a class="fancybox">
-        </a>
+        <div class="blockImgHolder">
+          <a class="fancybox">
+          </a>
+        </div>
         <header class="blockInner">
           <h2 class="itemName" itemprop="item"></h2>
           <h2 class="shopName" itemprop="shop"></h2>
