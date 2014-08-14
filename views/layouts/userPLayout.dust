@@ -1,0 +1,13 @@
+      <article class="userLayout" id="layoutId">
+        <div class="blockTop blockInner">
+          <div class="blockUserHolder"></div>
+          <div class="blockTextHolder">
+            <div class="blockUsername"></div>
+            <div class="blockJoined"></div>
+            <form method="post" action="follow" id="followForm" style="display:none; padding-bottom:10px;">
+              <input type="submit" value="Follow" name="follow" id="follow">
+              <input type="hidden" value="{userId}" name="userId" id="userId">
+            </form>
+          </div>
+        </div>
+      </article>

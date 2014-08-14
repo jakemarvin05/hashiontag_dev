@@ -24,115 +24,12 @@ $(document).keyup(function(e) {
 
 {! *** end Globals !}
 
-
 {! ==================================================
-  index, Me
+  Layout Factories
   !}
-{?renderJSON}{?streamType}
-<script>
 
-var streamFactory = {
-
-  mainStreamPrefix: '#mainStream_',
-  mainBlock: '.mainColBlock',
-  $mainBlock: $( '.mainColBlock' ),
-  userBlock: '.blockUsername',
-  tLBlock: '.blockTimelapse',
-  desc: '.description',
-  imageBlock: '.fancybox',
-  layoutHTML: $( '.mainColBlock' ).html(),
-  mediaDir: '{p.mediaDir}',
-  errorImg: '{p.img}/image404.jpg',
-
-  objCount: function() {
-    if( (typeof renderJSON != undefined) && renderJSON ) {
-
-      return Object.keys(renderJSON).length;
-
-    } else {
-    
-      return 0;
-    }
-  },
-  noObj: function() {
-
-    {@select key=streamType}
-      {@eq value="ownPosts"}
-      var message = 'You don\'t have any posts. <a href="{p.post}">Post something!</a>';
-      {/eq}
-      {@eq value="following"}
-      var message = 'No stream for you... follow some people!';
-      {/eq}
-
-      {@default}var message = 'Nothing here...';{/default}
-    {/select}
-
-    $( '.streamLayout .description').html(message);
-
-  },
-  build: function() {
-    var _ = this;
-
-    var objCount = _.objCount();
-
-    if ( objCount < 1 ) { 
-
-      _.noObj();
-
-    } else {
-      
-      $( _.mainBlock + ' ' + '.streamLayout' ).remove();
-
-
-      for( i=0; i<objCount; i++) {
-
-        var obj = renderJSON[i];
-        var mStreamId = _.mainStreamPrefix + obj.postId;
-
-        //create the block
-        _.$mainBlock.append( _.layoutHTML);
-        $( '#layoutId' ).attr('id', 'mainStream_' + obj.postId );
-
-        //append contents
-        _.append(mStreamId, obj);
-
-      }
-    }
-  },
-  append: function(mStreamId, obj) {
-    var _ = this;
-
-    $( mStreamId + ' ' + _.userBlock ).html('<a href="/' + obj.user.userNameDisp + '">' + obj.user.userNameDisp + '</a>');
-    $( mStreamId + ' ' + _.tLBlock ).html(obj.timeLapse);
-    $( mStreamId + ' ' + _.desc ).html(obj.desc);
-
-    var imgURL = '';
-
-    imgURL = _.mediaDir + '/' + obj.postId + '.jpg';
-
-    $.get(imgURL)
-        .done(function() { 
-
-            $( mStreamId + ' ' + _.imageBlock )
-              .html('<img src="' + imgURL + '" alt="' + obj.desc + '">')
-              .attr('href', imgURL)
-              .attr('content', obj.desc);
-
-        }).fail(function() { 
-
-            $( mStreamId + ' ' + _.imageBlock ).html('<img src="' + _.errorImg + '">');
-            $( mStreamId + ' ' + _.imageBlock + ' img').unwrap();
-
-        });
-  }
-}; streamFactory.build();
-</script>
-{:else}
-<script>
-$( '.streamLayout .description').html('No stream for you... follow some people!');
-</script>
-{/streamType}{/renderJSON}
-
+  
+{>layoutFactory/}
 
 
 

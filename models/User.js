@@ -1,3 +1,5 @@
+var moment = require('moment');
+
 module.exports = function(sequelize, DataTypes) {
 
 //note: jQuery validation rules applied at clientside should sync with this
@@ -47,23 +49,7 @@ module.exports = function(sequelize, DataTypes) {
                     //following
                     User.hasMany(models.User, {as: 'Follows', foreignKey: 'UserId', through: 'Following' });
                     User.hasMany(models.User, {as: 'Followers', foreignKey: 'FollowId', through: 'Following'});
-                    // User.hasMany(models.User, {
-                    //     as: {
-                    //         plural: 'Follows'
-                    //         , singular: 'Follow'
-                    //     }
-                    //     , foreignKey: 'UserId'
-                    //     , through: 'Following' 
-                    // });
 
-                    // User.hasMany(models.User, {
-                    //     as: {
-                    //         plural: 'Followers'
-                    //         , singular: 'Follower'
-                    //     }
-                    //     , foreignKey: 'FollowId'
-                    //     , through: 'Following'
-                    // });
                 },
                 getSearchVector: function() {
                     return 'userNameVector';
@@ -102,14 +88,16 @@ module.exports = function(sequelize, DataTypes) {
                     return sequelize
                             .query('SELECT * FROM "' + User.tableName + '" WHERE "' + User.getSearchVector() + '" @@ plainto_tsquery(\'english\', ' + query + ')', User);
                 }
+            },
+            getterMethods: {
+                //testing...
+                joinedDateProfile: function() {
+                    var joined = this.get('createdAt'),
+                        theMoment = moment(joined),
+                        formattedDate = theMoment.format('Do MMMM YYYY');
+                    return formattedDate;
+                }
             }
-            // getterMethods: {
-            //     //testing...
-            //     date: function() {
-            //         console.log(this.get('updatedAt'));
-            //         return this.get('updatedAt');
-            //     }
-            // }
         }
     );
 

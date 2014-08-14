@@ -20,6 +20,9 @@ module.exports = function profileJSON(req, eventEmitter) {
         db.User.find({
                 where: {userName: req.params.user.toLowerCase()}
                 , attributes: [ 'userId', 'userNameDisp', 'createdAt' ]
+                , include: [ db.Post ]
+                // , order: [ [ db.Post, '"Post"."createdAt" DESC'] ]
+                , order: [ [db.Post, 'createdAt', 'DESC'] ]
         }).success(function(users) {
 
             console.log('profileJSON: db retrieval complete, returning the array...');
@@ -31,25 +34,6 @@ module.exports = function profileJSON(req, eventEmitter) {
             }();
 
         }).error(throwErr);
-
-        // db.User.getFollow({
-        //         where: {UserId: req.user.userId}
-        //         , attributes: [ 'FollowId' ]
-        // }).success(function(ids) {
-
-        //     console.log('profileJSON: db retrieval complete, returning the array...');
-
-        //     var idArray = [];
-
-        //     for(var i in ids) {
-        //         idArray.push(ids[i].values['userId']);
-        //     }
-
-        //     return function () {
-        //         eventEmitter.emit( 'profileFollowIdJSONDone', JSON.stringify(idArray) );
-        //     }();
-
-        // }).error(throwErr);
 
     } else {
 

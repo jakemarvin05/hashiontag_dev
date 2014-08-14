@@ -1,0 +1,8 @@
+      <article class="userLayout" id="layoutId">
+        <div class="blockTop blockInner">
+          <div class="blockUserHolder"></div>
+          <div class="blockTextHolder">
+            <div class="blockUsername"></div>
+          </div>
+        </div>
+      </article>

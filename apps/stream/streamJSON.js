@@ -47,20 +47,21 @@ module.exports = function streamJSON(req, eventEmitter) {
             
             console.log('streamJSON: got the follows...getting posts');
 
-            db.Post.findAll({ 
-                where: {
+            db.Post.findAll(
+                {where: {
                     User_userId: idArray
+                    }
+
+                    ,order: '"Post"."createdAt" DESC'
+
+                    , include: [{
+                        model: db.User,
+                        attributes: [
+                            'userNameDisp'
+                        ] 
+                    }]
                 }
-
-                , order: '"Post"."createdAt" DESC'
-
-                , include: [{
-                    model: db.User,
-                    attributes: [
-                        'userNameDisp'
-                    ] 
-                }]
-            }).success(function(posts) {
+            ).success(function(posts) {
 
                 console.log('streamJSON: db retrieval complete, returning the array...');
 

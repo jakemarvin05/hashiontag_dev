@@ -35,7 +35,7 @@ router.get('/', function(req, res) {
       gJSON: gJSON,
       p: gJSON.paths,
       renderJSON: renderJSON,
-      streamType: true
+      isStream: 'stream'
     });
 
   });
@@ -64,7 +64,7 @@ router.get('/me', function(req, res) {
       gJSON: gJSON,
       p: gJSON.paths,
       renderJSON: renderJSON,
-      streamType: 'ownPosts'
+      isStream: 'ownPosts'
     });
 
   });
@@ -174,7 +174,7 @@ router.get('/search', function(req, res) {
         gJSON: gJSON,
         p: gJSON.paths,
         renderJSON: renderJSON,
-        streamType: false
+        isStream: false
       });
 
     });
@@ -201,7 +201,7 @@ router.get('/following', function(req, res) {
         gJSON: gJSON,
         p: gJSON.paths,
         renderJSON: renderJSON,
-        streamType: false
+        isStream: false
       });
 
     });
@@ -247,7 +247,8 @@ router.get('/:user', function(req, res) {
       gJSON: gJSON,
       p: gJSON.paths,
       renderJSON: renderJSON,
-      streamType: false,
+      isSearch: true,
+      isProfile: true,
       userId: ( JSON.parse(renderJSON) ).userId
     });
 

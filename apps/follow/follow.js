@@ -18,57 +18,30 @@ module.exports = function follow(req, res) {
 
         var userIdToFollow = req.param('userId');
 
-        db.User.find({
-            where: {userId: userIdToFollow}
-        }).success(function(user) {
-            console.log(user);
-            console.log(req.user);
-            user.addFollower(req.user)
-                .success(function(){
-                    res.send('followed!');
-                }).error(throwErr);
-        });
+        if( !(req.user.userId == req.param('userId')) ) {
 
-        //req.user.addFollow(userIdToFollow).success(function(user) {
+            req.user.hasFollow(userIdToFollow).success(function(user) {
 
-
-            //bug: empty user returning object literal [] which passes the !null test.
-
-            // var follow = false;
-
-            // if(user == 'null') {
-            //     follow = true;
-            // } else if( user.length == 0 ) {
-            //     follow = true;
-            // } else {
-            //     follow = false;
-            // }
-
-            // console.log(user);
-            // if(!user) {
-
-            //     db.User.find({
-            //          where: {userId: userIdToFollow}
-            //     }).success(function(user) {
-            //         //console.log(user);
-            //         req.user.addFollow(user, {FollowId :userIdToFollow })
-            //             .success(function(){
-            //                res.send('followed!');
-            //        }).error(throwErr);
-
-            //    }).error(throwErr)
-
-                
-        //     } else {
-                
-        //         //if( user.length > 0 ) {
-        //             res.send('already followed!');
-        //         //}
-        //     }
+                console.log(user);
+                if(!user) {
+                    req.user.addFollow(userIdToFollow)
+                        .success(function(){
+                            res.send('followed!');
+                        }).error(throwErr);
+                } else {
+                    res.send('already followed');
+                }
 
 
-        // }).error(throwErr);
-        
+
+            }).error(throwErr);
+
+        } else {
+
+            //it is yourself!!
+            res.redirect('/');
+        }
+  
 
     } else {
         res.redirect('/');
