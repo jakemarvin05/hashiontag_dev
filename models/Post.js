@@ -45,7 +45,11 @@ module.exports = function(sequelize, DataTypes) {
                     var secondsLapsed = timeHasLapsed / 1000;
 
                     //1 SECOND lapsed
-                    timeHasLapsed = '1 second ago';
+                    if( secondsLapsed < 1.5) {
+                        timeHasLapsed = '1 second ago';
+
+                    return timeHasLapsed;
+                    }
 
                     //SECONDS lapsed
                     if (secondsLapsed >= 1.5 && secondsLapsed < 59.5) {

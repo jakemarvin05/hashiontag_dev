@@ -14,10 +14,9 @@
 
     <div class="mainColBlock">
       {?isLoggedIn}
-      <!--<form id="post" method="post" enctype="multipart/form-data">-->
-      <form id="post" method="post">
+      <form id="post" method="post" enctype="multipart/form-data">
         <p>
-          Image: (Coming Soon!)<!--<input type="file" name="img" required></input>-->
+          Image: <input type="file" name="img" required></input>
         </p>
         <p>
           Post: <textarea id="desc" name="desc" required></textarea>

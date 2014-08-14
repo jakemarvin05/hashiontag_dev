@@ -45,6 +45,10 @@ router.get('/', function(req, res) {
 
 });
 
+router.get('/error', function(req, res) {
+  res.send('error');
+});
+
 
 //ME
 router.get('/me', function(req, res) {
