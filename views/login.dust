@@ -13,19 +13,17 @@
   <section id="main" class="col span1">
 
     <div class="mainColBlock">
-    {?message}
-      {message}
-    {/message}
-      <form id="login" method="post">
+      <form id="login" action="/login">
         <p>
           Username or email: <input type="text" id="user" name="user">
         </p>
         <p>
           Password: <input type="password" id="password" name="password">
         </p>
-        <p>
+        <p class="submitHolder">
           <button type="submit">Login</button>
         </p>
+        <p class="errorHolder" style="display:none"></p>
         <p>
           <a href="{#p}{signup}{/p}">Don't have an account? Sign up! </a>
         </p>
@@ -34,7 +32,63 @@
     <!-- end your stream -->
   </section><!-- main -->
   
+<script>
+$( "#login" ).submit(function( event ) {
+ 
+  // Stop form from submitting normally
+  event.preventDefault();
+ 
+  // Get some values from elements on the page:
+  var $form = $( this ),
+    user = $form.find( 'input[name="user"]' ).stop().val(),
+    password = $form.find( 'input[name="password"]' ).stop().val(),
+    url = $form.attr( "action" ),
+    submitButton = $form.find( 'button[type="submit"]' ).stop(),
+    submitHolder = $form.find( '.submitHolder' ).stop(),
+    submitButtonHTML = submitHolder.html().replace('>',' style="display:none">'),
+    errorHolder = $form.find( '.errorHolder' ).stop();
 
+    submitButton.fadeOut('fast', function() {
+      submitHolder.html('<img src="{p.img}/ajax-loader.gif" style="display:none">');
+      submitHolder.find('img').stop().fadeIn('fast');
+    });
+
+    if(errorHolder.css('display') !== 'none') {
+      errorHolder.fadeOut('fast');
+    }
+ 
+  // Send the data using post
+  var posting = $.post( url, { user: user, password: password } );
+ 
+  
+  //done
+  posting.done(function( data ) {
+    console.log(data);
+
+    if(data.success) {
+      console.log('login is successful');
+      window.location.replace("{p.home}")
+    }
+
+    if(data.error) {
+      console.log(data.error);
+
+      submitHolder.find('img').stop().fadeOut('fast', function() {
+        submitHolder.html(submitButtonHTML);
+        submitHolder.find('button').stop().fadeIn('fast');
+      });
+
+      errorHolder.html(data.error).fadeIn('fast');
+    }
+  });
+
+
+  //fail
+  posting.fail(function() {
+    errorHolder.html('Something went wrong, please check your connection and try again later.').fadeIn('fast');
+  })
+});
+</script>
 
 
 {>blockFooter/}

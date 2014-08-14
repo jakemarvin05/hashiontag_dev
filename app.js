@@ -8,7 +8,6 @@ var favicon = require('static-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-//var busboy = require('connect-busboy');
 
 //dev utilities
 //var sys = require('sys');
@@ -48,9 +47,6 @@ app.use(cookieParser('hashionhashion'));
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Uploading images
-//app.use(busboy());
-
 app.use(session({ secret: 'hashionhashion' })); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
@@ -59,6 +55,7 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 //routing
 app.use('/', routes);
 app.use('/users', users);
+
 
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -2,13 +2,6 @@
   Globals 
   !}
 
-<!-- fancyBox init -->
-<script>
-$( document ).ready( function () {
-  $(".fancybox").fancybox();
-});
-</script>
-
 <script>
 $(document).keyup(function(e) {
   if (e.keyCode == 71) {
@@ -119,12 +112,17 @@ var streamFactory = {
 
     $.get(imgURL)
         .done(function() { 
-            $( mStreamId + ' ' + _.imageBlock ).html('<img src="' + imgURL + '" alt="' + obj.desc + '">');
 
-            console.log($( mStreamId + ' ' + _.imageBlock ).html('<img src="' + imgURL + '" alt="' + obj.desc + '">'));
+            $( mStreamId + ' ' + _.imageBlock )
+              .html('<img src="' + imgURL + '" alt="' + obj.desc + '">')
+              .attr('href', imgURL)
+              .attr('content', obj.desc);
+
         }).fail(function() { 
+
             $( mStreamId + ' ' + _.imageBlock ).html('<img src="' + _.errorImg + '">');
             $( mStreamId + ' ' + _.imageBlock + ' img').unwrap();
+
         });
   }
 }; streamFactory.build();
@@ -157,6 +155,13 @@ $( '.streamLayout .description').html('No stream for you... follow some people!'
 <script src="{#p}{js}{/p}/signUpCode.js"></script>
 {/sSignup}
 {! *** /signup !}
+
+<!-- fancyBox init -->
+<script>
+$( document ).ready( function () {
+  $(".fancybox").fancybox();
+});
+</script>
 
 </body>
 </html>

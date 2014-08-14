@@ -105,45 +105,36 @@ router.get('/login', function(req, res) {
   });
 });
 
-router.post('/login', 
-  passport.authenticate('local-login', {
-    successRedirect : '/', // redirect to the secure profile section
-    failureRedirect : '/login', // redirect back to the signup page if there is an error
-    failureFlash : true // allow flash messages
-  })
-);
+// router.post('/login', 
+//   passport.authenticate('local-login', {
+//     successRedirect : '/', // redirect to the secure profile section
+//     failureRedirect : '/login', // redirect back to the signup page if there is an error
+//     failureFlash : true // allow flash messages
+//   })
+// );
 
-
-//ajax login. to be implemented soon...
-
-// app.post('/login', function(req, res) {
-//     console.log(res);
-//     passport.authenticate('local', function(err, user) {
-//       if (req.xhr) {
-//         //thanks @jkevinburton
-//         if (err)   { return res.json({ error: err.message }); }
-//         if (!user) { return res.json({error : "Invalid Login"}); }
-//         req.login(user, {}, function(err) {
-//           if (err) { return res.json({error:err}); }
-//           return res.json(
-//             { user: {
-//                       id: req.user.id,
-//                       email: req.user.email,
-//                       joined: req.user.joined
-//               },
-//               success: true
-//             });
-//         });
-//       } else {
-//         if (err)   { return res.redirect('/login'); }
-//         if (!user) { return res.redirect('/login'); }
-//         req.login(user, {}, function(err) {
-//           if (err) { return res.redirect('/login'); }
-//           return res.redirect('/');
-//         });
-//       }
-//     })(req, res);
-// });
+router.post('/login', function(req, res) {
+    console.log(res);
+    passport.authenticate('local-login', function(err, user) {
+      if (req.xhr) {
+        //thanks @jkevinburton
+        if (err)   { return res.json({ error: err.message }); }
+        if (!user) { return res.json({error : "Invalid Login"}); }
+        
+        req.login(user, {}, function(err) {
+          if (err) { return res.json({error:err}); }
+          return res.json({ success: true });
+        });
+      } else {
+        if (err)   { return res.redirect('/login'); }
+        if (!user) { return res.redirect('/login'); }
+        req.login(user, {}, function(err) {
+          if (err) { return res.redirect('/login'); }
+          return res.redirect('/');
+        });
+      }
+    })(req, res);
+});
 
 router.get('/logout', function(req, res) {
 
@@ -166,25 +157,11 @@ router.get('/post', function(req, res) {
   });
 
 
-// router.get('/search', function(req, res) {
-//   var eventEmitter = new events.EventEmitter();
+router.get('/search', function(req, res) {
 
-//   //bind the final callback first
-//   eventEmitter.on('searchUsersDone', function thenRender(renderJSON) {
-//     res.render('search', { 
-//       title: meta.header(),
-//       isLoggedIn: isLoggedIn(req),
-//       gJSON: gJSON,
-//       p: gJSON.paths,
-//       renderJSON: renderJSON,
-//       streamType: 'search'
-//     });
-
-//   });
-
-//   //now run callback dependents
-//   var searchUsers = require('../apps/searchUsers.js')(req, eventEmitter);
-// });
+  res.send('what were you trying to do?')
+  
+});
 
   router.post('/search', function(req, res) {
     var eventEmitter = new events.EventEmitter();
