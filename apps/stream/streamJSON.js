@@ -79,12 +79,35 @@ module.exports = function streamJSON(req, eventEmitter) {
         }).error(throwErr);
     } else {
 
-        console.log('streamJSON: not logged it. return')
+        // console.log('streamJSON: not logged it. return')
 
-        
-        return function() {
-            console.log('streamJSON: user not authenticated...');
-            eventEmitter.emit('streamJSONDone', false);
-        }();
+        // return function() {
+        //     console.log('streamJSON: user not authenticated...');
+        //     eventEmitter.emit('streamJSONDone', false);
+        // }();
+
+        ////DEV for the time being, return everything.
+
+        db.Post.findAll(
+            {
+                order: '"Post"."createdAt" DESC'
+                , include: [{
+                    model: db.User,
+                    attributes: [ 'userNameDisp' ]
+                }]
+            }
+        ).success(function(posts) {
+
+            console.log('streamJSON: db retrieval complete, returning the array...');
+
+            console.log(JSON.stringify(posts));
+
+            return function () {
+                eventEmitter.emit( 'streamJSONDone', JSON.stringify(posts) );
+            }();
+
+        }).error(throwErr);
+
+    return false;
     }
 }
