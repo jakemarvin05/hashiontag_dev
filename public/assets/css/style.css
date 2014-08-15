@@ -611,15 +611,6 @@ footer,
 /*-------------------------------------------------
 II. Form styling
 -------------------------------------------------*/
-input:focus,
-select:focus,
-textarea:focus,
-button:focus {
-  outline: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
 input,
 button,
 textarea {
@@ -628,9 +619,7 @@ textarea {
   color: #565757;
   padding: 5px;
 }
-input[type="text"],
-input[type="button"],
-input[type="submit"],
+input,
 button {
   text-align: center;
 }

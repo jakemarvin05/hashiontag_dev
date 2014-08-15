@@ -20,6 +20,9 @@
         <p>
           Password: <input type="password" id="password" name="password">
         </p>
+        <p>
+          Remember me: <input type="checkbox" id="rememberMe" name="rememberMe" value="true">
+        </p>
         <p class="submitHolder">
           <button type="submit">Login</button>
         </p>
@@ -27,6 +30,7 @@
         <p>
           <a href="{#p}{signup}{/p}">Don't have an account? Sign up! </a>
         </p>
+      </form>
     </div>
 
     <!-- end your stream -->
@@ -42,6 +46,7 @@ $( "#login" ).submit(function( event ) {
   var $form = $( this ),
     user = $form.find( 'input[name="user"]' ).stop().val(),
     password = $form.find( 'input[name="password"]' ).stop().val(),
+    rememberMe = $form.find( 'input[name="rememberMe"]').stop().is(':checked'),
     url = $form.attr( "action" ),
     submitButton = $form.find( 'button[type="submit"]' ).stop(),
     submitHolder = $form.find( '.submitHolder' ).stop(),
@@ -58,7 +63,7 @@ $( "#login" ).submit(function( event ) {
     }
  
   // Send the data using post
-  var posting = $.post( url, { user: user, password: password } );
+  var posting = $.post( url, { user: user, password: password, rememberMe: rememberMe } );
  
   
   //done

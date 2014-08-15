@@ -13,9 +13,6 @@ var isLoggedIn = require('../apps/passport/isLoggedIn.js');
 // sequelize
 var db = require('../models');
 
-// createPost
-var createPost = require('../apps/createPost.js');
-
 // globalJSON
 var gJSON = require('../apps/globalJSON.js');
 
@@ -114,7 +111,7 @@ router.get('/login', function(req, res) {
 // );
 
 router.post('/login', function(req, res) {
-    console.log(res);
+    //console.log(res);
     passport.authenticate('local-login', function(err, user) {
       if (req.xhr) {
         //thanks @jkevinburton
@@ -123,13 +120,36 @@ router.post('/login', function(req, res) {
         
         req.login(user, {}, function(err) {
           if (err) { return res.json({error:err}); }
-          return res.json({ success: true });
+          
+          //=="true" because .rememberMe is a string
+          if (req.body.rememberMe == "true" ) {
+
+            req.session.cookie.maxAge = 315360000000; // 10 years
+
+          } else {
+            
+            req.session.cookie.maxAge = 3600000; //1 hour
+          }
+
+          return res.json({success: true});
+
         });
       } else {
         if (err)   { return res.redirect('/login'); }
         if (!user) { return res.redirect('/login'); }
         req.login(user, {}, function(err) {
           if (err) { return res.redirect('/login'); }
+
+          //=="true" because .rememberMe is a string
+          if (req.body.rememberMe == "true" ) {
+
+            req.session.cookie.maxAge = 315360000000; // 10 years
+
+          } else {
+            
+            req.session.cookie.maxAge = 3600000; //1 hour
+          }
+          
           return res.redirect('/');
         });
       }
@@ -153,7 +173,8 @@ router.get('/post', function(req, res) {
 });
 
   router.post('/post', function(req, res) {
-    createPost(req, res);
+    // createPost
+    var createPost = require('../apps/createPost.js')(req, res);
   });
 
 

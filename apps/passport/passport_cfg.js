@@ -131,13 +131,14 @@ module.exports = function(passport) {
     function(req, user, password, done) { // callback with email and password from our form
 
         var user = user.toLowerCase();
+        
+
         /* Error handling */
         var throwErr = function(error) {
             console.log(error);
         return done( null, false, req.flash('loginMessage', ppMessages.errors.somethingWW) );
         }
 
-        console.log("finding users...");
 
         /* validate function */
         var validate = function(user) {
@@ -150,6 +151,10 @@ module.exports = function(passport) {
         // all is well, return successful user
         return done(null, user);
         }
+
+
+
+        console.log("finding users...");
 
         /* start */
         if(user.indexOf('@') > -0.5) {
