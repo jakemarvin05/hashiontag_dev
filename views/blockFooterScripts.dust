@@ -5,6 +5,24 @@
 <script src="{p.js}/moment.min.js"></script>
 
 <script>
+var errorMsg = {
+  commentError: function() {
+    var uid = new Date().getTime();
+    $('body').append('<div id="error' + uid + '" style="display:none;">Error: Please either login or check your internet connection</div>')
+    $.fancybox.open([
+        {
+            href : '#error' + uid,
+            title : 'Error'
+        }
+
+    ], {
+        padding : 40   
+    });
+  }
+}
+</script>
+
+<script>
 $(document).keyup(function(e) {
   if (e.keyCode == 71) {
     $( 'div' ).css('outline', '1px dotted red');
@@ -63,6 +81,7 @@ $( document ).ready( function () {
 </script>
 
 <script>
+
 $( "button.sendComment" ).click(function() {
  console.log('clicked');
  var self = this;
@@ -105,8 +124,9 @@ $( "button.sendComment" ).click(function() {
       ajaxLoader.stop().fadeOut('fast', function() {
         $(self).stop().fadeIn('fast');
       });
+
       console.log('error');
-      alert('Please login!');
+      errorMsg.commentError();
     }
 
       // ajaxLoader.fadeOut('fast', function() {
@@ -123,7 +143,7 @@ $( "button.sendComment" ).click(function() {
   posting.fail(function() {
     ajaxLoader.stop().fadeOut('fast', function() {
       $(self).stop().fadeIn('fast');
-      alert('Something went wrong, please check your connection and try again later.')
+      errorMsg.commentError();
     });
   });
 });
