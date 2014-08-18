@@ -287,19 +287,38 @@ $( document ).ready(function() {
       imgURL = _.mediaDir + '/' + obj.postId + '.jpg';
 
       $.get(imgURL)
-          .done(function() { 
+        .done(function() { 
 
-              $( mStreamId + ' ' + _.imageBlock )
-                .html('<img src="' + imgURL + '" alt="' + obj.desc + '">')
-                .attr('href', imgURL)
-                .attr('content', obj.desc);
+            $( mStreamId + ' ' + _.imageBlock )
+              .html('<img src="' + imgURL + '" alt="' + obj.desc + '">')
+              .attr('href', imgURL)
+              .attr('content', obj.desc);
 
-          }).fail(function() { 
+        }).fail(function() { 
 
-              $( mStreamId + ' ' + _.imageBlock ).html('<img src="' + _.errorImg + '">');
-              $( mStreamId + ' ' + _.imageBlock + ' img').unwrap();
+            $( mStreamId + ' ' + _.imageBlock ).html('<img src="' + _.errorImg + '">');
+            $( mStreamId + ' ' + _.imageBlock + ' img').unwrap();
 
-          });
+        });
+
+      //comments
+      var comments = obj.comments,
+        commentCount = _.objCount(comments);
+
+      if(commentCount > 0) {
+
+        for(i=0; i<commentCount; i++) {
+
+          var comment = comments[i],
+            timestampAgo = moment(comment.createdAt).fromNow();
+
+          var html = '<p class="postComment" data-ts="' + comment.createdAt + '">' + comment.user.userNameDisp + ': ' + comment.comment + '(' + timestampAgo + ')</p>';
+          
+          $( mStreamId ).children('.postCommentContainer').append(html);
+
+        }
+
+      }
     }
   }; streamFactory.build();
 });

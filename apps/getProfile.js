@@ -3,46 +3,59 @@ var db = require('../models');
 
 module.exports = function profileJSON(req, eventEmitter) {
 
-    var throwErr = function(error) {
+  var throwErr = function(error) {
 
-        console.log(error);
+    console.log(error);
 
-        return function () {
-            //profileJSON = false;
-            eventEmitter.emit('profileJSONDone', false);
-        }();
-    }
+    return function () {
+      //profileJSON = false;
+      eventEmitter.emit('profileJSONDone', false);
+    }();
+  }
 
-    console.log('profileJSON: authenticating');
+  console.log('profileJSON: authenticating');
 
-    if(req.isAuthenticated()) {
-        console.log('profileJSON: user is authenticated.. finding profile...');
-        db.User.find({
-                where: {userName: req.params.user.toLowerCase()}
-                , attributes: [ 'userId', 'userNameDisp', 'createdAt' ]
-                , include: [ db.Post ]
-                // , order: [ [ db.Post, '"Post"."createdAt" DESC'] ]
-                , order: [ [db.Post, 'createdAt', 'DESC'] ]
-        }).success(function(users) {
+  if(req.isAuthenticated()) {
+    console.log('profileJSON: user is authenticated.. finding profile...');
+    db.User.find({
+      where: {userName: req.params.user.toLowerCase()},
+      attributes: [ 'userId', 'userNameDisp', 'createdAt' ],
+      include: [{
+        model: db.Post,
+        include: [{
+          model: db.Comment,
+          attributes: ['comment','createdAt'],
+      
+          include: [{
+            model: db.User,
+            attributes: ['userNameDisp']
+          }]
 
-            console.log('profileJSON: db retrieval complete, returning the array...');
 
-            console.log(JSON.stringify(users));
+        }]//db.Comment include closure
+      }],// db.Post include closure
 
-            return function () {
-                eventEmitter.emit( 'profileJSONDone', JSON.stringify(users) );
-            }();
+      order: [ [db.Post, 'createdAt', 'DESC'], [db.Post, db.Comment, 'createdAt','ASC'] ]
+    }).success(function(users) {
 
-        }).error(throwErr);
+      console.log('profileJSON: db retrieval complete, returning the array...');
 
-    } else {
+      console.log(JSON.stringify(users));
 
-        console.log('profileJSON: not logged it. return')
+      return function () {
+        eventEmitter.emit( 'profileJSONDone', JSON.stringify(users) );
+      }();
 
-        
-        return function() {
-            console.log('profileJSON: user not authenticated...');
-            eventEmitter.emit('profileJSONDone', false);
-        }();
-    }
+    }).error(throwErr);
+
+  } else {
+
+    console.log('profileJSON: not logged it. return')
+
+    
+    return function() {
+      console.log('profileJSON: user not authenticated...');
+      eventEmitter.emit('profileJSONDone', false);
+    }();
+  }
 }

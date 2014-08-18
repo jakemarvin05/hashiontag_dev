@@ -119,12 +119,13 @@ $( "button.sendComment" ).click(function() {
   });
 
 
-  //fail
-  // posting.fail(function() {
-  //   ajaxLoader.fadeOut('fast', function() {
-  //     errorHolder.html('Something went wrong, please check your connection and try again later.').fadeIn('fast');
-  //   });
-  // });
+  fail
+  posting.fail(function() {
+    ajaxLoader.stop().fadeOut('fast', function() {
+      $(self).stop().fadeIn('fast');
+      alert('Something went wrong, please check your connection and try again later.')
+    });
+  });
 });
 </script>
 
