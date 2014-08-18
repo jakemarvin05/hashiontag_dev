@@ -16,25 +16,8 @@ module.exports = function streamJSON(req, eventEmitter) {
 
     if(req.isAuthenticated()) {
         console.log('streamJSON: user is authenticated.. finding posts...');
-        req.user.getFollows(
-                //attributes: ['userId']
-            // , include: [{
-            //     model: db.Posts
-            // }]
 
-
-            //TODO: fix this ascending thing
-            //, order:[ 'Posts.createdAt ASC' ]
-
-
-            //define attributes, or just take everything
-            // , attributes: [
-            //     'postId',
-            //     'User_userId',
-            //     'desc' 
-            // ]
-
-        ).success(function(users) {
+        req.user.getFollows().success(function(users) {
 
 
             console.log(users);
@@ -52,14 +35,28 @@ module.exports = function streamJSON(req, eventEmitter) {
                     User_userId: idArray
                     }
 
-                    ,order: '"Post"."createdAt" DESC'
+                    , include: [
+                        {   
+                            model: db.User,
+                            attributes: [ 'userNameDisp' ]
+                        }
+                        , { 
+                            model: db.Comment,
+                            attributes: [ 'comment', 'createdAt'],
+                            include: [
+                                {
+                                    model: db.User,
+                                    attributes: [ 'userNameDisp' ]
+                                }
+                            ]
+                        }
+                    ]
 
-                    , include: [{
-                        model: db.User,
-                        attributes: [
-                            'userNameDisp'
-                        ] 
-                    }]
+                    , order: [
+
+                        ['createdAt', 'DESC'], 
+                        [db.Comment, 'createdAt', 'ASC'] 
+                    ]
                 }
             ).success(function(posts) {
 
@@ -90,11 +87,28 @@ module.exports = function streamJSON(req, eventEmitter) {
 
         db.Post.findAll(
             {
-                order: '"Post"."createdAt" DESC'
-                , include: [{
-                    model: db.User,
-                    attributes: [ 'userNameDisp' ]
-                }]
+            include: [
+                    {   
+                        model: db.User,
+                        attributes: [ 'userNameDisp' ]
+                    }
+                    , { 
+                        model: db.Comment,
+                        attributes: [ 'comment', 'createdAt'],
+                        include: [
+                            {
+                                model: db.User,
+                                attributes: [ 'userNameDisp' ]
+                            }
+                        ]
+                    }
+                ]
+
+                , order: [
+
+                    ['createdAt', 'DESC'], 
+                    [db.Comment, 'createdAt', 'ASC'] 
+                ]
             }
         ).success(function(posts) {
 

@@ -149,7 +149,7 @@ router.post('/login', function(req, res) {
             
             req.session.cookie.maxAge = 3600000; //1 hour
           }
-          
+
           return res.redirect('/');
         });
       }
@@ -254,6 +254,37 @@ router.get('/followers', function(req, res) {
     var follower = require('../apps/follow/follower.js')(req, eventEmitter, 'followers');
 
 });
+
+router.post('/comment', function(req, res) {
+  //.log(req);
+
+  if (req.xhr) {
+
+    var eventEmitter = new events.EventEmitter();
+
+    //bind the final callback first
+    eventEmitter.on('addCommentDone', function thenSend(data) {
+
+      //data is set to false by default when it fails.
+      if(!data) { 
+        console.log('addComment throws err back to router');
+        return res.json({ success: false }); 
+
+      }
+      console.log('addComment returns success');
+      return res.json({
+        success: true,
+        commentJSON: data
+      });
+
+    });
+
+    //now run callback dependents
+    var addComment = require('../apps/addComment.js')(req, eventEmitter);
+  }
+
+});
+
 
 //user routes
 router.get('/:user', function(req, res) {

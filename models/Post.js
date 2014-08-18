@@ -18,10 +18,6 @@ module.exports = function(sequelize, DataTypes) {
                 allowNull: false,
                 validate: {
                 }
-                //get: function() { return this.getDataValue('desc') }
-            },
-            User_userId: {
-                type: DataTypes.INTEGER
             }
         }, {
             timestamps: true,
@@ -30,8 +26,10 @@ module.exports = function(sequelize, DataTypes) {
 
                 
                 associate: function(models) {
-                    Post.belongsTo(models.User,{foreignKey: 'User_userId'});
+                    Post.belongsTo(models.User, {foreignKey: 'User_userId', foreignKeyConstraint: true });
 
+                    //comment
+                    Post.hasMany(models.Comment, {foreignKey: 'Post_postId', foreignKeyConstraint: true });
 
                 }
             },
@@ -171,8 +169,6 @@ module.exports = function(sequelize, DataTypes) {
             }
         }
     );
-
-    //Post.sync();
  
 return Post;
 };

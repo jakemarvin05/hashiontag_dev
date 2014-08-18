@@ -43,6 +43,10 @@ Object.keys(db).forEach(function(modelName) {
     db[modelName].associate(db)
   }
 })
+
+// db.User.sync();
+// db.Post.sync();
+// db.Comment.sync();
  
 module.exports = lodash.extend({
   sequelize: sequelize,

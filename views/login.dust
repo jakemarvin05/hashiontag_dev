@@ -25,6 +25,7 @@
         </p>
         <p class="submitHolder">
           <button type="submit">Login</button>
+          <img id="ajaxLoader" src="{p.img}/ajax-loader.gif" style="display:none">
         </p>
         <p class="errorHolder" style="display:none"></p>
         <p>
@@ -44,22 +45,22 @@ $( "#login" ).submit(function( event ) {
  
   // Get some values from elements on the page:
   var $form = $( this ),
-    user = $form.find( 'input[name="user"]' ).stop().val(),
-    password = $form.find( 'input[name="password"]' ).stop().val(),
-    rememberMe = $form.find( 'input[name="rememberMe"]').stop().is(':checked'),
+    user = $form.find( 'input[name="user"]' ).val(),
+    password = $form.find( 'input[name="password"]' ).val(),
+    rememberMe = $form.find( 'input[name="rememberMe"]').is(':checked'),
     url = $form.attr( "action" ),
-    submitButton = $form.find( 'button[type="submit"]' ).stop(),
-    submitHolder = $form.find( '.submitHolder' ).stop(),
+    submitButton = $form.find( 'button[type="submit"]' ),
+    ajaxLoader = $form.find( '#ajaxLoader'),
+    submitHolder = $form.find( '.submitHolder' ),
     submitButtonHTML = submitHolder.html().replace('>',' style="display:none">'),
-    errorHolder = $form.find( '.errorHolder' ).stop();
+    errorHolder = $form.find( '.errorHolder' );
 
     submitButton.fadeOut('fast', function() {
-      submitHolder.html('<img src="{p.img}/ajax-loader.gif" style="display:none">');
-      submitHolder.find('img').stop().fadeIn('fast');
+      ajaxLoader.fadeIn('fast');
     });
 
     if(errorHolder.css('display') !== 'none') {
-      errorHolder.fadeOut('fast');
+      errorHolder.stop().fadeOut('fast');
     }
  
   // Send the data using post
@@ -78,7 +79,7 @@ $( "#login" ).submit(function( event ) {
     if(data.error) {
       console.log(data.error);
 
-      submitHolder.find('img').stop().fadeOut('fast', function() {
+      ajaxLoader.stop().fadeOut('fast', function() {
         submitHolder.html(submitButtonHTML);
         submitHolder.find('button').stop().fadeIn('fast');
       });
@@ -90,7 +91,9 @@ $( "#login" ).submit(function( event ) {
 
   //fail
   posting.fail(function() {
-    errorHolder.html('Something went wrong, please check your connection and try again later.').fadeIn('fast');
+    ajaxLoader.fadeOut('fast', function() {
+      errorHolder.html('Something went wrong, please check your connection and try again later.').fadeIn('fast');
+    });
   })
 });
 </script>

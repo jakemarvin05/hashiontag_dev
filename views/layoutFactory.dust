@@ -13,6 +13,7 @@ var streamFactory = {
   userBlock: '.blockUsername',
   tLBlock: '.blockTimelapse',
   desc: '.description',
+  commentButton: '.sendComment',
   imageBlock: '.fancybox',
   layoutHTML: function() {
     $( '.mainColBlock .streamLayout' ).wrap('<div></div>');
@@ -23,13 +24,10 @@ var streamFactory = {
   mediaDir: '{p.mediaDir}',
   errorImg: '{p.img}/image404.jpg',
 
-  type: function() {
+  objCount: function(obj) {
+    if( (typeof obj != undefined) && obj ) {
 
-  },
-  objCount: function() {
-    if( (typeof renderJSON != undefined) && renderJSON ) {
-
-      return Object.keys(renderJSON).length;
+      return Object.keys(obj).length;
 
     } else {
     
@@ -54,11 +52,10 @@ var streamFactory = {
   },
   build: function() {
     var _ = this,
-      layoutHTML = _.layoutHTML();
+      layoutHTML = _.layoutHTML(),
+      postCount = _.objCount(renderJSON);
 
-    var objCount = _.objCount();
-
-    if ( objCount < 1 ) { 
+    if ( postCount < 1 ) { 
 
       _.noObj();
 
@@ -66,7 +63,7 @@ var streamFactory = {
       
       $( _.mainBlock + ' ' + '.streamLayout' ).remove();
 
-      for( i=0; i<objCount; i++) {
+      for( i=0; i<postCount; i++) {
 
         var obj = renderJSON[i];
         var mStreamId = _.mainStreamPrefix + obj.postId;
@@ -78,7 +75,7 @@ var streamFactory = {
         //append contents
         _.append(mStreamId, obj);
 
-      }
+      }//for loop
     }
   },
   append: function(mStreamId, obj) {
@@ -87,27 +84,52 @@ var streamFactory = {
     $( mStreamId + ' ' + _.userBlock ).html('<a href="/' + obj.user.userNameDisp + '">' + obj.user.userNameDisp + '</a>');
     $( mStreamId + ' ' + _.tLBlock ).html(obj.timeLapse);
     $( mStreamId + ' ' + _.desc ).html(obj.desc);
+    $( mStreamId + ' ' + _.commentButton ).attr('data-id', obj.postId);
 
+
+    //image
     var imgURL = '';
 
     imgURL = _.mediaDir + '/' + obj.postId + '.jpg';
 
     $.get(imgURL)
-        .done(function() { 
+      .done(function() { 
 
-            $( mStreamId + ' ' + _.imageBlock )
-              .html('<img src="' + imgURL + '" alt="' + obj.desc + '">')
-              .attr('href', imgURL)
-              .attr('content', obj.desc);
+          $( mStreamId + ' ' + _.imageBlock )
+            .html('<img src="' + imgURL + '" alt="' + obj.desc + '">')
+            .attr('href', imgURL)
+            .attr('content', obj.desc);
 
-        }).fail(function() { 
+      }).fail(function() { 
 
-            $( mStreamId + ' ' + _.imageBlock ).html('<img src="' + _.errorImg + '">');
-            $( mStreamId + ' ' + _.imageBlock + ' img').unwrap();
+          $( mStreamId + ' ' + _.imageBlock ).html('<img src="' + _.errorImg + '">');
+          $( mStreamId + ' ' + _.imageBlock + ' img').unwrap();
 
-        });
+      });
+
+    //comments
+    var comments = obj.comments,
+      commentCount = _.objCount(comments);
+
+    if(commentCount > 0) {
+
+      for(i=0; i<commentCount; i++) {
+
+        var comment = comments[i],
+          timestampAgo = moment(comment.createdAt).fromNow();
+
+        var html = '<p class="postComment" data-ts="' + comment.createdAt + '">' + comment.user.userNameDisp + ': ' + comment.comment + '(' + timestampAgo + ')</p>';
+        
+        $( mStreamId ).children('.postCommentContainer').append(html);
+
+      }
+
+    }
+
+    
   }
-}; streamFactory.build();
+}; 
+streamFactory.build();
 </script>
 {:else}
 <script>

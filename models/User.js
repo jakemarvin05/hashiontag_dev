@@ -44,11 +44,14 @@ module.exports = function(sequelize, DataTypes) {
             tableName: 'Users',
             classMethods: {
                 associate: function(models) {
-                    User.hasMany(models.Post,{foreignKey: 'User_userId'});
+                    User.hasMany(models.Post, {foreignKey: 'User_userId', foreignKeyConstraint: true });
 
                     //following
                     User.hasMany(models.User, {as: 'Follows', foreignKey: 'UserId', through: 'Following' });
                     User.hasMany(models.User, {as: 'Followers', foreignKey: 'FollowId', through: 'Following'});
+
+                    //comment
+                    User.hasMany(models.Comment, {foreignKey: 'User_userId', foreignKeyConstraint: true });
 
                 },
                 getSearchVector: function() {
@@ -101,7 +104,6 @@ module.exports = function(sequelize, DataTypes) {
         }
     );
 
-    //User.sync();
     //User.addFullTextIndex();
  
 return User;

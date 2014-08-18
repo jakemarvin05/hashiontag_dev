@@ -1,6 +1,8 @@
 {! ==================================================
-  Globals 
+  Globals/Dependent Libraries 
   !}
+
+<script src="{p.js}/moment.min.js"></script>
 
 <script>
 $(document).keyup(function(e) {
@@ -57,6 +59,72 @@ $(document).keyup(function(e) {
 <script>
 $( document ).ready( function () {
   $(".fancybox").fancybox();
+});
+</script>
+
+<script>
+$( "button.sendComment" ).click(function() {
+ console.log('clicked');
+ var self = this;
+  // Stop form from submitting normally
+  event.preventDefault();
+
+  var postId = $( this ).attr('data-id'),
+    thisBlock = $( this ).closest('.streamLayout'),
+    commentInput = $( this ).closest('.postInteractions').find('textarea'),
+    comment = commentInput.val(),
+    ajaxLoader = thisBlock.find('.ajaxLoader');
+
+    $(this).fadeOut('fast', function() {
+      ajaxLoader.fadeIn('fast');
+    });
+ 
+  // Send the data using post
+  var posting = $.post( "{p.absPath}/comment", { postId: postId, comment: comment } );
+ 
+  
+  //done
+  posting.done(function( data ) {
+    console.log(data);
+
+    if(data.success) {
+      console.log('comment added');
+      var comment = data.commentJSON;
+      var timestampAgo = moment(comment.timestamp).fromNow();
+      var html = '<p class="postComment" data-ts="' + comment.timestamp + '">' + comment.userNameDisp + ': ' + comment.comment + '(' + timestampAgo + ')</p>';
+
+      thisBlock.children('.postCommentContainer').append(html);
+
+      commentInput.val('');
+
+      ajaxLoader.stop().fadeOut('fast', function() {
+        $(self).stop().fadeIn('fast');
+      });
+
+    } else {
+      ajaxLoader.stop().fadeOut('fast', function() {
+        $(self).stop().fadeIn('fast');
+      });
+      console.log('error');
+      alert('Please login!');
+    }
+
+      // ajaxLoader.fadeOut('fast', function() {
+      //   submitHolder.html(submitButtonHTML);
+      //   submitHolder.find('button').stop().fadeIn('fast');
+      // });
+
+      // errorHolder.html(data.error).fadeIn('fast');
+    
+  });
+
+
+  //fail
+  // posting.fail(function() {
+  //   ajaxLoader.fadeOut('fast', function() {
+  //     errorHolder.html('Something went wrong, please check your connection and try again later.').fadeIn('fast');
+  //   });
+  // });
 });
 </script>
 

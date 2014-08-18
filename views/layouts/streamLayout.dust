@@ -17,6 +17,11 @@
           <p class="description"></p>
           <p class="hTags_hidden"></p>
           <p class="postStats"></p>
-          <p class="postInteractions"></p>
         </header>
+        <div class="postCommentContainer"></div>
+        <p class="postInteractions">
+          <textarea placeholder="Add a comment..."></textarea>
+          <button class="sendComment" data-id="">Send</button>
+          <img src="{p.img}/ajax-loader.gif" class="ajaxLoader" style="display:none;">
+        </p>
       </article>

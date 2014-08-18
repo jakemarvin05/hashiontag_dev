@@ -618,6 +618,7 @@ textarea {
   background: #fff;
   color: #565757;
   padding: 5px;
+  vertical-align: middle;
 }
 input,
 button {

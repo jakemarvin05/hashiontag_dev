@@ -56,7 +56,7 @@ To understand why we do the above associations we start off by knowing what are 
 For O:O, and O:M:
 ------------------
 
-Parent.hasOne(Child, {foreignKey: Parent_childID});
+Parent.hasOne(Child);
 Child.belongsTo(Parent, {foreignKey: Parent_childID});
 
 Note that we explicitly defined our foreignKeys to be Parent_childID. This is because we want this PascalCase_camelCase for TableName_keyName convention.
