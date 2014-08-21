@@ -2,30 +2,24 @@ module.exports = function(sequelize, DataTypes) {
 
 //note: jQuery validation rules applied at clientside should sync with this
 
-    var Comment = sequelize.define('Comment',
+    var Like = sequelize.define('Like',
         {
             //camelCase
-            commentId: {
+            likeId: {
                 type: DataTypes.INTEGER,
                 primaryKey: true,
                 allowNull: false,
                 autoIncrement: true
             },
-            comment: {
-                type: DataTypes.STRING,
-                allowNull: false,
-                validate: {
-                }
-            },
         }, {
             timestamps: true,
-            tableName: 'Comments', //PascalCase
+            updatedAt: false,
+            tableName: 'Liking', //PascalCase
             classMethods: {
-
                 
                 associate: function(models) {
-                    Comment.belongsTo(models.Post, {foreignKey: 'Post_postId'});
-                    Comment.belongsTo(models.User, {foreignKey: 'User_userId'});
+                    Like.belongsTo(models.Post, {foreignKey: 'Post_postId'});
+                    Like.belongsTo(models.User, {foreignKey: 'User_userId'});
                 }
 
 
@@ -34,5 +28,5 @@ module.exports = function(sequelize, DataTypes) {
         }
     );
  
-return Comment;
+return Like;
 };

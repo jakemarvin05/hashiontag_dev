@@ -3,22 +3,22 @@
 
 
 
-  <section id="leftCol" class="col span2">
+<section id="leftCol" class="col span2">
     <div class="blockTitle">
-        <h1>Profile</h1>
+            <h1>Profile</h1>
     </div>
 
-  </section><!-- left_col -->
+</section><!-- left_col -->
 
-  <section id="main" class="col span1">
+<section id="main" class="col span1">
 
     <div class="mainColBlock">
-      {>"layouts/userPLayout"/}
-      {>"layouts/streamLayout"/}
+        {>"layouts/userPLayout"/}
+        {>"layouts/streamLayout"/}
     </div>
 
     <!-- end your stream -->
-  </section><!-- main -->
+</section><!-- main -->
 
 {>blockFooter/}
 

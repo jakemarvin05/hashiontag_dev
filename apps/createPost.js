@@ -19,8 +19,12 @@ module.exports = function createPost(req, res) {
         // console.log('User Authenticated.');
         // console.log('Creating Formidable Form...');
         var form = new formidable.IncomingForm();
+
+        form.on('error', function(err) {
+            res.redirect('/');
+        });
+
         form.uploadDir = "./public/uploads";
-        form.keepExtensions = true;
         // console.log('Formidable Form Created.');
         form.parse(req, function(err, fields, files) {
             console.log('Parsing Formidable Form...');
@@ -29,41 +33,47 @@ module.exports = function createPost(req, res) {
                 console.log(err, fields, files);
             }
             var img=files['img'];
-            // Check if image has a valid extension
-            console.log("Checking file extension...");
-            var idx=img.path.lastIndexOf(".");
-            if (idx===-1){
-                console.log("File has no extension!");
+            // Check if image has a valid MIME type
+            console.log("Checking MIME type...");
+            console.log("MIME type '"+img.type+"' detected.");
+            var ext="";
+            switch(img.type.toUpperCase()){
+                case "IMAGE/GIF":
+                    ext=".gif";
+                break;
+                case "IMAGE/JPEG":
+                case "IMAGE/PJPEG":
+                    ext=".jpg";
+                break;
+                case "IMAGE/PNG":
+                    ext=".png";
+                break;
+                default:
+                    console.log("Invalid MIME type detected: "+img.type);
+            };
+            console.log("Assigning extension: "+ext);
+            if (ext===""){
+                console.log("No extension assigned!");
                 res.redirect('/error');
             } else {
-                var ext=img.path.slice(idx+1).toLowerCase();
-                if (ext!=="jpg"){ // Invalid Extensions
-                    console.log("File extension "+ext+" is invalid!");
-                    console.log('Removing File Extension...');
-                    // console.log(img.path,img.path.slice(0,img.path.lastIndexOf(".")),img.path.lastIndexOf("."));
-                    fs.rename(img.path,img.path.slice(0,img.path.lastIndexOf(".")));
-                    console.log('File Extension Removed.');
-                    res.redirect('/error');
-                } else {
-                    console.log("File extension "+ext+" is valid.");
-                    console.log('Inserting Fields...');
-                    db.Post.create({ 
-                        desc: fields['desc'],
-                        User_userId: req.user.userId
-                    }).success(function(post) {
-                        console.log('Fields inserted.');
-                        // console.log(post);
-                        console.log("Renaming "+img.path+" to "+form.uploadDir+"/"+post.dataValues.postId+"."+ext);
-                        console.log(img.path,form.uploadDir,post.dataValues.postId,ext);
-                        fs.rename(img.path,form.uploadDir+"/"+post.dataValues.postId+"."+ext);
-                        console.log("File renamed");
-                        // console.log('Formidable Form Parsed.');
-                        // console.log('Redirecting to '+'/me');
-                        res.redirect('/me');
-                    }).error(throwErr);
-                }
+                console.log('Inserting Fields...');
+                db.Post.create({ 
+                    desc: fields['desc'],
+                    User_userId: req.user.userId
+                }).then(function(post) {
+                    console.log('Fields inserted.');
+                    // console.log(post);
+                    console.log("Renaming "+img.path+" to "+form.uploadDir+"/"+post.dataValues.postId+ext);
+                    console.log(img.path,form.uploadDir,post.dataValues.postId,ext);
+                    fs.rename(img.path,form.uploadDir+"/"+post.dataValues.postId+ext);
+                    console.log("File renamed");
+                    // console.log('Formidable Form Parsed.');
+                    // console.log('Redirecting to '+'/me');
+                    res.redirect('/me');
+                }).catch(throwErr);
             }
         });
+
     } else {
         res.redirect('/');
     }

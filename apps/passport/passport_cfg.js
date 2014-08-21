@@ -80,7 +80,7 @@ module.exports = function(passport) {
                     {userName: userName},
                     {email: email}
                 )
-            }).success(function(user) {
+            }).then(function(user) {
 
                 console.log('db query is complete');
 
@@ -105,12 +105,12 @@ module.exports = function(passport) {
                     });
 
                     // save the user
-                    newUser.save().success(function() {
+                    newUser.save().then(function() {
                         console.log('saving...');
                     return done(null, newUser, req.flash('loginMessage', ppMessages.success.afterSignup));                         
-                    }).error(throwErr);  
+                    }).catch(throwErr);  
                 }
-            }).error(throwErr);  
+            }).catch(throwErr);  
 
         //}); //nextTick()
 
@@ -121,6 +121,9 @@ module.exports = function(passport) {
     // =========================================================================
     // we are using named strategies since we have one for login and one for signup
     // by default, if there was no name, it would just be called 'local'
+    //
+    // Notes: The done() object calls the callback defined in 
+    //        passport.authenticate([strategyName],[callback])
 
     passport.use('local-login', new LocalStrategy({
         // by default, local strategy uses username and password, we will override with email
@@ -136,7 +139,7 @@ module.exports = function(passport) {
         /* Error handling */
         var throwErr = function(error) {
             console.log(error);
-        return done( null, false, req.flash('loginMessage', ppMessages.errors.somethingWW) );
+        return done(error, false);
         }
 
 
@@ -146,7 +149,7 @@ module.exports = function(passport) {
             if( !(user.password == password) ) {
                 // if the user is found but the password is wrong
                 console.log('password validation failed');
-                return done(null, false, req.flash('loginMessage', ppMessages.errors.userOrPassword)); // create the loginMessage and save it to session as flashdata
+                return done(null, false); // create the loginMessage and save it to session as flashdata
             }
         // all is well, return successful user
         return done(null, user);
@@ -159,36 +162,36 @@ module.exports = function(passport) {
         /* start */
         if(user.indexOf('@') > -0.5) {
             //it is an email login
-            db.User.find({ where: { email : user } }).success(function(user) {
+            db.User.find({ where: { email : user } }).then(function(user) {
 
                 // if no user is found, return the message
                 if(!user) {
 
                     console.log('Login: email not found');
                 
-                return done(null, false, req.flash('loginMessage', ppMessages.errors.userOrPassword) ); // req.flash is the way to set flashdata using connect-flash
+                return done(null, false);
                 }
                 // validate
                 validate(user);
 
-            }).error(throwErr);
+            }).catch(throwErr);
 
         } else {
             //normal login
-            db.User.find({ where: { userName : user } }).success(function(user) {
+            db.User.find({ where: { userName : user } }).then(function(user) {
 
                 // if no user is found, return the message
                 if(!user) {
                     
                     console.log('Login: user not found');
 
-                    return done(null, false, req.flash('loginMessage', ppMessages.errors.userOrPassword) ); // req.flash is the way to set flashdata using connect-flash
+                    return done(null, false);
                 }
                 console.log(user.email);
                 //validate
                 validate(user);
 
-            }).error(throwErr);
+            }).catch(throwErr);
         }
         
     })); // closure: passport.use 'local'

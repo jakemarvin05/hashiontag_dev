@@ -3,81 +3,81 @@
 
 
 
-  <section id="leftCol" class="col span2">
+<section id="leftCol" class="col span2">
     <div class="blockTitle">
-        <h1>Search results</h1>
+            <h1>Search results</h1>
     </div>
 
-  </section><!-- left_col -->
+</section><!-- left_col -->
 
-  <section id="main" class="col span1">
+<section id="main" class="col span1">
 
     <div class="mainColBlock">
-      {>"layouts/userSLayout"/}
+        {>"layouts/userSLayout"/}
     </div>
 
     <!-- end your stream -->
-  </section><!-- main -->
-  
+</section><!-- main -->
+    
 <script>
 $( document ).ready(function() {
-  var searchFactory = {
+    var searchFactory = {
 
-    mainBlock: '.mainColBlock',
-    $mainBlock: $( '.mainColBlock' ),
-    userBlock: '.blockUsername',
+        mainBlock: '.mainColBlock',
+        $mainBlock: $( '.mainColBlock' ),
+        userBlock: '.blockUsername',
 
-    layoutHTML: $( '.mainColBlock' ).html(),
+        layoutHTML: $( '.mainColBlock' ).html(),
 
-    objCount: function() {
-      if( (typeof renderJSON != undefined) && renderJSON ) {
+        objCount: function() {
+            if( (typeof renderJSON != undefined) && renderJSON ) {
 
-        return Object.keys(renderJSON).length;
+                return Object.keys(renderJSON).length;
 
-      } else {
-      
-        return 0;
-      }
-    },
-    noObj: function() {
+            } else {
+            
+                return 0;
+            }
+        },
+        noObj: function() {
 
-      $( '.userLayout .blockUsername' ).html('No users found.');
+            $( '.userLayout .blockUsername' ).html('No users found.');
 
-    },
-    build: function() {
-      var _ = this;
+        },
+        build: function() {
+            var _ = this;
 
-      var objCount = _.objCount();
+            var objCount = _.objCount();
 
-      if( objCount < 1 ) { 
+            if( objCount < 1 ) { 
 
-        _.noObj();
+                _.noObj();
 
-      } else {
-        console.log(1);
-        console.log(_.mainBlock + ' ' + '.userLayout');
-        $( _.mainBlock + ' .userLayout' ).remove();
-        console.log(2);
+            } else {
+                console.log(1);
+                console.log(_.mainBlock + ' ' + '.userLayout');
+                $( _.mainBlock + ' .userLayout' ).remove();
+                console.log(2);
 
-        for( i=0; i<objCount; i++) {
-          console.log(3);
-          var obj = renderJSON[i];
-          var divId = 'user_' + i;
+                for( i=0; i<objCount; i++) {
+                    console.log(3);
+                    var obj = renderJSON[i];
+                    var divId = 'user_' + i;
 
-          //create the block
-          _.$mainBlock.append( _.layoutHTML);
-          $( '#layoutId' ).attr('id', 'user_' + i );
+                    //create the block
+                    _.$mainBlock.append( _.layoutHTML);
+                    $( '#layoutId' ).attr('id', 'user_' + i );
 
-          //append contents
-          _.append(divId, obj);
+                    //append contents
+                    _.append(divId, obj);
 
+                }
+            }
+        },
+        append: function(divId, obj) {
+            $( '#' + divId + ' ' + this.userBlock ).html('<a href="{p.absPath}/' + obj.userNameDisp + '">' + obj.userNameDisp + '</a>');
         }
-      }
-    },
-    append: function(divId, obj) {
-      $( '#' + divId + ' ' + this.userBlock ).html('<a href="{p.absPath}/' + obj.userNameDisp + '">' + obj.userNameDisp + '</a>');
-    }
-  }; searchFactory.build();
+    }; searchFactory.build();
 });
 </script>
 

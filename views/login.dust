@@ -3,98 +3,101 @@
 
 
 
-  <section id="leftCol" class="col span2">
+<section id="leftCol" class="col span2">
     <div class="blockTitle">
-        <h1>Login</h1>
+            <h1>Login</h1>
     </div>
 
-  </section><!-- left_col -->
+</section><!-- left_col -->
 
-  <section id="main" class="col span1">
+<section id="main" class="col span1">
 
     <div class="mainColBlock">
-      <form id="login" action="/login">
-        <p>
-          Username or email: <input type="text" id="user" name="user">
-        </p>
-        <p>
-          Password: <input type="password" id="password" name="password">
-        </p>
-        <p>
-          Remember me: <input type="checkbox" id="rememberMe" name="rememberMe" value="true">
-        </p>
-        <p class="submitHolder">
-          <button type="submit">Login</button>
-          <img id="ajaxLoader" src="{p.img}/ajax-loader.gif" style="display:none">
-        </p>
-        <p class="errorHolder" style="display:none"></p>
-        <p>
-          <a href="{#p}{signup}{/p}">Don't have an account? Sign up! </a>
-        </p>
-      </form>
+        <form id="login" action="/login">
+            <p>
+                Username or email: <input type="text" id="user" name="user">
+            </p>
+            <p>
+                Password: <input type="password" id="password" name="password">
+            </p>
+            <p>
+                Remember me: <input type="checkbox" id="rememberMe" name="rememberMe" value="true">
+            </p>
+            <p class="submitHolder">
+                <button type="submit">Login</button>
+                <img id="ajaxLoader" src="{p.img}/ajax-loader.gif" style="display:none">
+            </p>
+            <p class="errorHolder" style="display:none"></p>
+            <p>
+                <a href="{#p}{signup}{/p}">Don't have an account? Sign up! </a>
+            </p>
+        </form>
     </div>
 
     <!-- end your stream -->
-  </section><!-- main -->
-  
+</section><!-- main -->
+
+{?message}
+<script>
+$(document).ready(function() {
+    alertFactory.protoAlert('{message}');
+});
+</script>
+{/message}
+    
 <script>
 $( "#login" ).submit(function( event ) {
  
-  // Stop form from submitting normally
-  event.preventDefault();
+    // Stop form from submitting normally
+    event.preventDefault();
  
-  // Get some values from elements on the page:
-  var $form = $( this ),
-    user = $form.find( 'input[name="user"]' ).val(),
-    password = $form.find( 'input[name="password"]' ).val(),
-    rememberMe = $form.find( 'input[name="rememberMe"]').is(':checked'),
-    url = $form.attr( "action" ),
-    submitButton = $form.find( 'button[type="submit"]' ),
-    ajaxLoader = $form.find( '#ajaxLoader'),
-    submitHolder = $form.find( '.submitHolder' ),
-    submitButtonHTML = submitHolder.html().replace('>',' style="display:none">'),
-    errorHolder = $form.find( '.errorHolder' );
+    // Get some values from elements on the page:
+    var $form = $( this ),
+        user = $form.find( 'input[name="user"]' ).val(),
+        password = $form.find( 'input[name="password"]' ).val(),
+        rememberMe = $form.find( 'input[name="rememberMe"]').is(':checked'),
+        url = $form.attr( "action" ),
+        submitButton = $form.find( 'button[type="submit"]' ),
+        ajaxLoader = $form.find( '#ajaxLoader'),
+        submitHolder = $form.find( '.submitHolder' ),
+        submitButtonHTML = submitHolder.html().replace('>',' style="display:none">'),
+        errorHolder = $form.find( '.errorHolder' );
 
-    submitButton.fadeOut('fast', function() {
-      ajaxLoader.fadeIn('fast');
+        submitButton.fadeOut('fast', function() {
+            ajaxLoader.fadeIn('fast');
+        });
+ 
+    // Send the data using post
+    var posting = $.post( url, { user: user, password: password, rememberMe: rememberMe } );
+ 
+    
+    //done
+    posting.done(function( data ) {
+        //console.log(data);
+
+        if(data.success) {
+            console.log('login is successful');
+            window.location.replace("{p.home}")
+        }
+
+        if(data.error) {
+            console.log(data.error);
+
+            ajaxLoader.stop().fadeOut('fast', function() {
+                submitHolder.html(submitButtonHTML);
+                submitHolder.find('button').stop().fadeIn('fast');
+            });
+            aF.protoAlert(data.error);
+        }
     });
 
-    if(errorHolder.css('display') !== 'none') {
-      errorHolder.stop().fadeOut('fast');
-    }
- 
-  // Send the data using post
-  var posting = $.post( url, { user: user, password: password, rememberMe: rememberMe } );
- 
-  
-  //done
-  posting.done(function( data ) {
-    console.log(data);
 
-    if(data.success) {
-      console.log('login is successful');
-      window.location.replace("{p.home}")
-    }
-
-    if(data.error) {
-      console.log(data.error);
-
-      ajaxLoader.stop().fadeOut('fast', function() {
-        submitHolder.html(submitButtonHTML);
-        submitHolder.find('button').stop().fadeIn('fast');
-      });
-
-      errorHolder.html(data.error).fadeIn('fast');
-    }
-  });
-
-
-  //fail
-  posting.fail(function() {
-    ajaxLoader.fadeOut('fast', function() {
-      errorHolder.html('Something went wrong, please check your connection and try again later.').fadeIn('fast');
-    });
-  })
+    //fail
+    posting.fail(function() {
+        ajaxLoader.fadeOut('fast', function() {
+            aF.protoAlert('Something went wrong, please check your connection and try again later.');
+        });
+    })
 });
 </script>
 

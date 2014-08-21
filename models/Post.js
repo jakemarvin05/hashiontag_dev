@@ -26,10 +26,17 @@ module.exports = function(sequelize, DataTypes) {
 
                 
                 associate: function(models) {
-                    Post.belongsTo(models.User, {foreignKey: 'User_userId', foreignKeyConstraint: true });
+                    Post.belongsTo(models.User, {foreignKey: 'User_userId'});
 
                     //comment
-                    Post.hasMany(models.Comment, {foreignKey: 'Post_postId', foreignKeyConstraint: true });
+                    Post.hasMany(models.Comment, {foreignKey: 'Post_postId'});
+
+                    //likes
+                    //Post.hasMany(models.User, {as: 'Likers', foreignKey: 'User_userId', through: 'Liking', foreignKeyConstraint: false});
+                    Post.hasMany(models.Like, {foreignKey: 'User_userId'})
+
+                    //notification
+                    //Post.hasMany(models.Notification, {foreignKey: 'Post_postId'});
 
                 }
             },

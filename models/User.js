@@ -44,14 +44,22 @@ module.exports = function(sequelize, DataTypes) {
             tableName: 'Users',
             classMethods: {
                 associate: function(models) {
-                    User.hasMany(models.Post, {foreignKey: 'User_userId', foreignKeyConstraint: true });
+                    User.hasMany(models.Post, {foreignKey: 'User_userId'});
 
                     //following
+                    //would like to change "follows" to "followings", more verbose.
                     User.hasMany(models.User, {as: 'Follows', foreignKey: 'UserId', through: 'Following' });
                     User.hasMany(models.User, {as: 'Followers', foreignKey: 'FollowId', through: 'Following'});
 
                     //comment
-                    User.hasMany(models.Comment, {foreignKey: 'User_userId', foreignKeyConstraint: true });
+                    User.hasMany(models.Comment, {foreignKey: 'User_userId'});
+
+                    //like
+                    //User.hasMany(models.Post, {as:'Likes', foreignKey: 'Post_postId', through: 'Liking'});
+                    User.hasMany(models.Like, {foreignKey: 'User_userId'});
+
+                    //notification
+                    //User.hasMany(models.Notification, {foreignKey: 'User_userId'});
 
                 },
                 getSearchVector: function() {

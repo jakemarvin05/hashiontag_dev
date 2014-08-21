@@ -2,33 +2,33 @@
 
 
 
-  <section id="leftCol" class="col span2">
+<section id="leftCol" class="col span2">
     <div class="blockTitle">
-        <h1>Your <span id="wordHot">Notifications</span></h1>
+            <h1>Your <span id="wordHot">Notifications</span></h1>
     </div>
 
     <!-- start notifications -->
 
 
     <!-- /notifications -->
-  </section><!-- leftCol -->
+</section><!-- leftCol -->
 
-  <section id="main" class="col span1">
+<section id="main" class="col span1">
 
     <!-- start your stream -->
 
-      <div class="blockTitle">
-        <h1>Your <span id="wordStream">Stream</span></h1>
-      </div>
+        <div class="blockTitle">
+            <h1>Your <span id="wordStream">Stream</span></h1>
+        </div>
 
     <div class="mainColBlock">
-      {>"layouts/streamLayout"/}
+        {>"layouts/streamLayout"/}
     </div>
     <!-- end your stream -->
 
     <!-- start your posts -->
     
-  </section><!-- main -->
+</section><!-- main -->
 
 {>blockFooter/}
 

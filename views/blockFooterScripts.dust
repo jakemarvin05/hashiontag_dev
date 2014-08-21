@@ -1,61 +1,43 @@
 {! ==================================================
-  Globals/Dependent Libraries 
-  !}
+    Globals/Dependent Libraries 
+!}
 
 <script src="{p.js}/moment.min.js"></script>
 
 <script>
-var errorMsg = {
-  commentError: function() {
-    var uid = new Date().getTime();
-    $('body').append('<div id="error' + uid + '" style="display:none;">Error: Please either login or check your internet connection</div>')
-    $.fancybox.open([
-        {
-            href : '#error' + uid,
-            title : 'Error'
-        }
-
-    ], {
-        padding : 40   
-    });
-  }
+function grid() {
+    if (e.keyCode == 71) {
+        $( 'div' ).css('outline', '1px dotted red');
+        $( 'span' ).css('outline', '1px dotted red');
+    }
+    if (e.keyCode == 72) {
+        $( 'div' ).css('outline', '0px');
+        $( 'span' ).css('outline', '0px');
+    }
 }
-</script>
-
-<script>
-$(document).keyup(function(e) {
-  if (e.keyCode == 71) {
-    $( 'div' ).css('outline', '1px dotted red');
-    $( 'span' ).css('outline', '1px dotted red');
-  }
-  if (e.keyCode == 72) {
-    $( 'div' ).css('outline', '0px');
-    $( 'span' ).css('outline', '0px');
-  }
-});
 </script>
 
 <!-- condensed navigation -->
 <script>
-  $( '#navCondensed .navButtons').click( function () {
+$( '#navCondensed .navButtons').click( function () {
     $( '#navDropdown' ).slideToggle( 'fast' );
-  });
+});
 </script>
 
 {! *** end Globals !}
 
 {! ==================================================
-  Layout Factories
-  !}
+    Layout Factories
+!}
 
-  
+    
 {>layoutFactory/}
 
 
 
 {! ==================================================
-  /login, /signup
-  !}
+    /login, /signup
+    !}
 
 {?sValidator}
 <script src="{#p}{js}{/p}/jquery.validate.min.js"></script>
@@ -66,8 +48,8 @@ $(document).keyup(function(e) {
 
 
 {! ==================================================
-  /signup
-  !}
+    /signup
+    !}
 {?sSignup}
 <script src="{#p}{js}{/p}/signUpCode.js"></script>
 {/sSignup}
@@ -76,78 +58,140 @@ $(document).keyup(function(e) {
 <!-- fancyBox init -->
 <script>
 $( document ).ready( function () {
-  $(".fancybox").fancybox();
+    $(".fancybox").fancybox();
 });
 </script>
 
-<script>
 
+<!-- sendComment button -->
+<script>
 $( "button.sendComment" ).click(function() {
  console.log('clicked');
  var self = this;
-  // Stop form from submitting normally
-  event.preventDefault();
+    // Stop form from submitting normally
+    event.preventDefault();
 
-  var postId = $( this ).attr('data-id'),
-    thisBlock = $( this ).closest('.streamLayout'),
-    commentInput = $( this ).closest('.postInteractions').find('textarea'),
-    comment = commentInput.val(),
-    ajaxLoader = thisBlock.find('.ajaxLoader');
+    var postId = $( this ).attr('data-id'),
+        thisBlock = $( this ).closest('.streamLayout'),
+        commentInput = $( this ).closest('.postInteractions').find('textarea'),
+        comment = commentInput.val(),
+        ajaxLoader = thisBlock.find('.ajaxLoader');
 
-    $(this).fadeOut('fast', function() {
-      ajaxLoader.fadeIn('fast');
-    });
+        $(this).fadeOut('fast', function() {
+            ajaxLoader.fadeIn('fast');
+        });
  
-  // Send the data using post
-  var posting = $.post( "{p.absPath}/comment", { postId: postId, comment: comment } );
+    // Send the data using post
+    var posting = $.post( "{p.absPath}/comment", { postId: postId, comment: comment } );
  
-  
-  //done
-  posting.done(function( data ) {
-    console.log(data);
-
-    if(data.success) {
-      console.log('comment added');
-      var comment = data.commentJSON;
-      var timestampAgo = moment(comment.timestamp).fromNow();
-      var html = '<p class="postComment" data-ts="' + comment.timestamp + '">' + comment.userNameDisp + ': ' + comment.comment + '(' + timestampAgo + ')</p>';
-
-      thisBlock.children('.postCommentContainer').append(html);
-
-      commentInput.val('');
-
-      ajaxLoader.stop().fadeOut('fast', function() {
-        $(self).stop().fadeIn('fast');
-      });
-
-    } else {
-      ajaxLoader.stop().fadeOut('fast', function() {
-        $(self).stop().fadeIn('fast');
-      });
-
-      console.log('error');
-      errorMsg.commentError();
-    }
-
-      // ajaxLoader.fadeOut('fast', function() {
-      //   submitHolder.html(submitButtonHTML);
-      //   submitHolder.find('button').stop().fadeIn('fast');
-      // });
-
-      // errorHolder.html(data.error).fadeIn('fast');
     
-  });
+    //done
+    posting.done(function( data ) {
+        console.log(data);
 
+        if(data.success) {
+            console.log('comment added');
+            var comment = data.commentJSON;
+            var timestampAgo = moment(comment.timestamp).fromNow();
+            var html = '<p class="postComment" data-ts="' + comment.timestamp + '">' + comment.userNameDisp + ': ' + comment.comment + '(' + timestampAgo + ')</p>';
 
-  fail
-  posting.fail(function() {
-    ajaxLoader.stop().fadeOut('fast', function() {
-      $(self).stop().fadeIn('fast');
-      errorMsg.commentError();
+            thisBlock.children('.postCommentContainer').append(html);
+
+            commentInput.val('');
+
+            ajaxLoader.stop().fadeOut('fast', function() {
+                $(self).stop().fadeIn('fast');
+            });
+
+        } else {
+            ajaxLoader.stop().fadeOut('fast', function() {
+                $(self).stop().fadeIn('fast');
+            });
+
+            console.log('error');
+            alertFactory.commentError();
+        }
+        
     });
-  });
+
+
+    //fail
+    posting.fail(function() {
+        ajaxLoader.stop().fadeOut('fast', function() {
+            $(self).stop().fadeIn('fast');
+            alertFactory.commentError();
+        });
+    });
 });
 </script>
+<!-- Like Button -->
 
+<script>
+$( "button.likeButton" ).click(function() {
+//console.log('clicked');
+var self = this;
+// Stop form from submitting normally
+event.preventDefault();
+
+    var thisBlock = $( this ).closest('.streamLayout'),
+        postId = thisBlock.attr('id').replace('mainStream_',''),
+        action = $( this ).attr('data-action');
+
+    if($( this ).attr('data-action') == 'like') {
+        var theOtherButton = $( this ).siblings('button[data-action="unlike"]');
+    }
+
+    if($( this ).attr('data-action') == 'unlike') {
+        var theOtherButton = $( this ).siblings('button[data-action="like"]');
+    }
+        
+
+    var blink = {
+        run: function(elem) {
+            var self = this;
+            elem.fadeOut('fast', function() {
+                elem.fadeIn('fast', function() {
+                    self.run(elem);
+                });
+            });
+        }
+    }
+
+    //blink it.
+    blink.run($(this));
+ 
+    // Send the data using post
+    var posting = $.post( "{p.absPath}/like", { postId: postId, action: action } );
+ 
+    
+    //done
+    posting.done(function( data ) {
+        console.log(data);
+
+        if(data.success) {
+            console.log('success');
+
+            $(self).stop().fadeOut('fast', function() {
+                theOtherButton.fadeIn('fast');
+            });
+
+        } else {
+            $(self).stop().fadeOut('fast').fadeIn('fast');
+
+            console.log('error');
+            alertFactory.protoAlert('Please either login or check your internet connection.');
+        }
+        
+    });
+
+
+    //fail
+    posting.fail(function() {
+        $(self).stop().fadeOut('fast').fadeIn('fast');
+        alertFactory.protoAlert('Please either login or check your internet connection.');
+
+    });
+});
+</script>
 </body>
 </html>

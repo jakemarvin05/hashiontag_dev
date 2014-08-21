@@ -87,7 +87,7 @@ module.exports = function streamJSON(req, eventEmitter) {
 
         db.Post.findAll(
             {
-            include: [
+                include: [
                     {   
                         model: db.User,
                         attributes: [ 'userNameDisp' ]

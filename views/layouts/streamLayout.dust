@@ -1,27 +1,30 @@
-      <article class="streamLayout" id="layoutId">
-        <div class="blockTop blockInner">
-          <div class="blockUserHolder"></div>
-          <div class="blockTextHolder">
+<article class="streamLayout" id="layoutId">
+    <div class="blockTop blockInner">
+        <div class="blockUserHolder"></div>
+        <div class="blockTextHolder">
             <div class="blockUsername"></div>
             <div class="blockTimelapse"></div>
-          </div>
         </div>
-        <div class="blockImgHolder">
-          <a class="fancybox">
-          </a>
-        </div>
-        <header class="blockInner">
-          <h2 class="itemName" itemprop="item"></h2>
-          <h2 class="shopName" itemprop="shop"></h2>
-          <h3 class="price" itemprop="price"></h3>
-          <p class="description"></p>
-          <p class="hTags_hidden"></p>
-          <p class="postStats"></p>
-        </header>
-        <div class="postCommentContainer"></div>
-        <p class="postInteractions">
-          <textarea placeholder="Add a comment..."></textarea>
-          <button class="sendComment" data-id="">Send</button>
-          <img src="{p.img}/ajax-loader.gif" class="ajaxLoader" style="display:none;">
-        </p>
-      </article>
+    </div>
+    <div class="blockImgHolder">
+        <a class="fancybox">
+        </a>
+    </div>
+    <header class="blockInner">
+        <h2 class="itemName" itemprop="item"></h2>
+        <h2 class="shopName" itemprop="shop"></h2>
+        <h3 class="price" itemprop="price"></h3>
+        <p class="description"></p>
+        <p class="hTags_hidden"></p>
+        <p class="postStats"></p>
+    </header>
+    <div class="postCommentContainer"></div>
+    <div class="postInteractions">
+        <button class="likeButton" data-id="" data-action="like">Like</button>
+        <button class="likeButton" data-id="" data-action="unlike" style="display:none;">Unlike</button>
+
+        <textarea placeholder="Add a comment..."></textarea>
+        <button class="sendComment" data-id="">Send</button>
+        <img src="{p.img}/ajax-loader.gif" class="ajaxLoader" style="display:none;">
+    </div>
+</article>

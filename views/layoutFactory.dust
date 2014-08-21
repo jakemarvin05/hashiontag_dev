@@ -1,133 +1,134 @@
 {! ==================================================
-  index, Me
-  !}
+    index, Me
+!}
 {?renderJSON}{?isStream}
-  
+    
 <script>
 
 var streamFactory = {
 
-  mainStreamPrefix: '#mainStream_',
-  mainBlock: '.mainColBlock',
-  $mainBlock: $( '.mainColBlock' ),
-  userBlock: '.blockUsername',
-  tLBlock: '.blockTimelapse',
-  desc: '.description',
-  commentButton: '.sendComment',
-  imageBlock: '.fancybox',
-  layoutHTML: function() {
-    $( '.mainColBlock .streamLayout' ).wrap('<div></div>');
-    var html = $( '.streamLayout' ).parent('div').html();
-    $( '.streamLayout' ).unwrap();
-    return html;
-  },
-  mediaDir: '{p.mediaDir}',
-  errorImg: '{p.img}/image404.jpg',
+    mainStreamPrefix: 'mainStream_',
+    mainBlock: '.mainColBlock',
+    $mainBlock: $( '.mainColBlock' ),
+    userBlock: '.blockUsername',
+    tLBlock: '.blockTimelapse',
+    desc: '.description',
+    commentButton: '.sendComment',
+    imageBlock: '.fancybox',
+    layoutHTML: function() {
+        $( '.mainColBlock .streamLayout' ).wrap('<div></div>');
+        var html = $( '.streamLayout' ).parent('div').html();
+        $( '.streamLayout' ).unwrap();
+        return html;
+    },
+    mediaDir: '{p.mediaDir}',
+    errorImg: '{p.img}/image404.jpg',
 
-  objCount: function(obj) {
-    if( (typeof obj != undefined) && obj ) {
+    objCount: function(obj) {
+        if( (typeof obj != undefined) && obj ) {
 
-      return Object.keys(obj).length;
+            return Object.keys(obj).length;
 
-    } else {
-    
-      return 0;
-    }
-  },
-  noObj: function() {
-
-    {@select key=streamType}
-      {@eq value="ownPosts"}
-      var message = 'You don\'t have any posts. <a href="{p.post}">Post something!</a>';
-      {/eq}
-      {@eq value="following"}
-      var message = 'No stream for you... follow some people!';
-      {/eq}
-
-      {@default}var message = 'Nothing here...';{/default}
-    {/select}
-
-    $( '.streamLayout .description').html(message);
-
-  },
-  build: function() {
-    var _ = this,
-      layoutHTML = _.layoutHTML(),
-      postCount = _.objCount(renderJSON);
-
-    if ( postCount < 1 ) { 
-
-      _.noObj();
-
-    } else {
-      
-      $( _.mainBlock + ' ' + '.streamLayout' ).remove();
-
-      for( i=0; i<postCount; i++) {
-
-        var obj = renderJSON[i];
-        var mStreamId = _.mainStreamPrefix + obj.postId;
-
-        //create the block
-        _.$mainBlock.append( layoutHTML );
-        $( '.streamLayout#layoutId' ).attr('id', 'mainStream_' + obj.postId );
-
-        //append contents
-        _.append(mStreamId, obj);
-
-      }//for loop
-    }
-  },
-  append: function(mStreamId, obj) {
-    var _ = this;
-
-    $( mStreamId + ' ' + _.userBlock ).html('<a href="/' + obj.user.userNameDisp + '">' + obj.user.userNameDisp + '</a>');
-    $( mStreamId + ' ' + _.tLBlock ).html(obj.timeLapse);
-    $( mStreamId + ' ' + _.desc ).html(obj.desc);
-    $( mStreamId + ' ' + _.commentButton ).attr('data-id', obj.postId);
-
-
-    //image
-    var imgURL = '';
-
-    imgURL = _.mediaDir + '/' + obj.postId + '.jpg';
-
-    $.get(imgURL)
-      .done(function() { 
-
-          $( mStreamId + ' ' + _.imageBlock )
-            .html('<img src="' + imgURL + '" alt="' + obj.desc + '">')
-            .attr('href', imgURL)
-            .attr('content', obj.desc);
-
-      }).fail(function() { 
-
-          $( mStreamId + ' ' + _.imageBlock ).html('<img src="' + _.errorImg + '">');
-          $( mStreamId + ' ' + _.imageBlock + ' img').unwrap();
-
-      });
-
-    //comments
-    var comments = obj.comments,
-      commentCount = _.objCount(comments);
-
-    if(commentCount > 0) {
-
-      for(i=0; i<commentCount; i++) {
-
-        var comment = comments[i],
-          timestampAgo = moment(comment.createdAt).fromNow();
-
-        var html = '<p class="postComment" data-ts="' + comment.createdAt + '">' + comment.user.userNameDisp + ': ' + comment.comment + '(' + timestampAgo + ')</p>';
+        } else {
         
-        $( mStreamId ).children('.postCommentContainer').append(html);
+            return 0;
+        }
+    },
+    noObj: function() {
 
-      }
+        {@select key=streamType}
+            {@eq value="ownPosts"}
+            var message = 'You don\'t have any posts. <a href="{p.post}">Post something!</a>';
+            {/eq}
+            {@eq value="following"}
+            var message = 'No stream for you... follow some people!';
+            {/eq}
 
+            {@default}var message = 'Nothing here...';{/default}
+        {/select}
+
+        $( '.streamLayout .description').html(message);
+
+    },
+    build: function() {
+        var _ = this,
+            layoutHTML = _.layoutHTML(),
+            postCount = _.objCount(renderJSON);
+
+        if ( postCount < 1 ) { 
+
+            _.noObj();
+
+        } else {
+            
+            $( _.mainBlock + ' ' + '.streamLayout' ).remove();
+            for( i=0; i<postCount; i++ ) {
+                
+                var obj = renderJSON[i];
+                var mStreamId = _.mainStreamPrefix + obj.postId;
+               
+
+                //create the block
+                var newBlock = layoutHTML.replace('layoutId', mStreamId);
+                _.$mainBlock.append( newBlock );
+
+                //append contents
+                _.append(mStreamId, obj);
+
+            }//for loop
+        }
+    },
+    append: function(mStreamId, obj) {
+        var _ = this,
+            mStreamId = '#' + mStreamId;
+
+        $( mStreamId + ' ' + _.userBlock ).html('<a href="/' + obj.user.userNameDisp + '">' + obj.user.userNameDisp + '</a>');
+        $( mStreamId + ' ' + _.tLBlock ).html(obj.timeLapse);
+        $( mStreamId + ' ' + _.desc ).html(obj.desc);
+        $( mStreamId + ' ' + _.commentButton ).attr('data-id', obj.postId);
+
+
+        //image
+        var imgURL = '';
+
+        imgURL = _.mediaDir + '/' + obj.postId + '.jpg';
+
+        $.get(imgURL)
+            .done(function() { 
+
+                    $( mStreamId + ' ' + _.imageBlock )
+                        .html('<img src="' + imgURL + '" alt="' + obj.desc + '">')
+                        .attr('href', imgURL)
+                        .attr('content', obj.desc);
+
+            }).fail(function() { 
+
+                    $( mStreamId + ' ' + _.imageBlock ).html('<img src="' + _.errorImg + '">');
+                    $( mStreamId + ' ' + _.imageBlock + ' img').unwrap();
+
+            });
+
+        comments
+        var comments = obj.comments,
+            commentCount = _.objCount(comments);
+
+        if(commentCount > 0) {
+
+            for(j=0; j<commentCount; j++) {
+
+                var comment = comments[j],
+                    timestampAgo = moment(comment.createdAt).fromNow();
+
+                var html = '<p class="postComment">' + comment.user.userNameDisp + ': ' + comment.comment + '(<span class="postTimeStamp" data-ts="' + comment.createdAt + '">' + timestampAgo + '</span>)</p>';
+                
+                $( mStreamId ).children('.postCommentContainer').append(html);
+
+            }
+
+        }
+
+        
     }
-
-    
-  }
 }; 
 streamFactory.build();
 </script>
@@ -140,187 +141,187 @@ $( '.streamLayout .description').html('No stream for you... follow some people!'
 
 
 {! ==================================================
-  search, Profile
+    search, Profile
 
-  user block factory
-  !}
+    user block factory
+!}
 {?renderJSON}{?isSearch}
 <script>
 $( document ).ready(function() {
-  var searchFactory = {
+    var searchFactory = {
 
-    mainBlock: '.mainColBlock',
-    $mainBlock: $( '.mainColBlock' ),
-    userBlock: '.blockUsername',
-    joinedBlock: '.blockJoined',
+        mainBlock: '.mainColBlock',
+        $mainBlock: $( '.mainColBlock' ),
+        userBlock: '.blockUsername',
+        joinedBlock: '.blockJoined',
 
-    //layoutHTML: $( '.mainColBlock' ).html(),
+        //layoutHTML: $( '.mainColBlock' ).html(),
 
-    objCount: function() {
-      if( (typeof renderJSON != undefined) && renderJSON ) {
+        objCount: function() {
+            if( (typeof renderJSON != undefined) && renderJSON ) {
 
-        return Object.keys(renderJSON).length;
+                return Object.keys(renderJSON).length;
 
-      } else {
-      
-        return 0;
-      }
-    },
-    noObj: function() {
+            } else {
+            
+                return 0;
+            }
+        },
+        noObj: function() {
 
-      $( '.userLayout .blockUsername' ).html('User is invalid.');
+            $( '.userLayout .blockUsername' ).html('User is invalid.');
 
-    },
-    build: function() {
-      var _ = this;
+        },
+        build: function() {
+            var _ = this;
 
-      var objCount = _.objCount();
+            var objCount = _.objCount();
 
-      if( objCount < 1 ) { 
+            if( objCount < 1 ) { 
 
-        _.noObj();
+                _.noObj();
 
-      } else {
-        var divId = 'layoutId';
-        //append contents
-        _.append(divId, renderJSON);
+            } else {
+                var divId = 'layoutId';
+                //append contents
+                _.append(divId, renderJSON);
 
 
-      }
-    },
-    append: function(divId, obj) {
-      $( '#' + divId + ' ' + this.userBlock ).html(obj.userNameDisp);
-      $( '#' + divId + ' ' + this.joinedBlock ).html('Joined at ' + obj.joinedDateProfile);
+            }
+        },
+        append: function(divId, obj) {
+            $( '#' + divId + ' ' + this.userBlock ).html(obj.userNameDisp);
+            $( '#' + divId + ' ' + this.joinedBlock ).html('Joined at ' + obj.joinedDateProfile);
 
-      //TODO: remove follow button if already followed
-      $( '#' + divId + ' ' + '#followForm').show();
-    }
-  }; searchFactory.build();
+            //TODO: remove follow button if already followed
+            $( '#' + divId + ' ' + '#followForm').show();
+        }
+    }; searchFactory.build();
 });
 </script>
 {/isSearch}{/renderJSON}
 
 
 {! ==================================================
-  Profile
+    Profile
 
-  user post factory
-  !}
+    user post factory
+!}
 {?renderJSON}{?isProfile}
 <script>
 $( document ).ready(function() {
-  var streamFactory = {
+    var streamFactory = {
 
-    mainStreamPrefix: '#mainStream_',
-    mainBlock: '.mainColBlock',
-    $mainBlock: $( '.mainColBlock' ),
-    userBlock: '.blockUsername',
-    tLBlock: '.blockTimelapse',
-    desc: '.description',
-    imageBlock: '.fancybox',
-    layoutHTML: function() {
-      $( '.mainColBlock .streamLayout' ).wrap('<div></div>');
-      var html = $( '.streamLayout' ).parent('div').html();
-      $( '.streamLayout' ).unwrap();
-      return html;
-    },
-    mediaDir: '{p.mediaDir}',
-    errorImg: '{p.img}/image404.jpg',
+        mainStreamPrefix: '#mainStream_',
+        mainBlock: '.mainColBlock',
+        $mainBlock: $( '.mainColBlock' ),
+        userBlock: '.blockUsername',
+        tLBlock: '.blockTimelapse',
+        desc: '.description',
+        imageBlock: '.fancybox',
+        layoutHTML: function() {
+            $( '.mainColBlock .streamLayout' ).wrap('<div></div>');
+            var html = $( '.streamLayout' ).parent('div').html();
+            $( '.streamLayout' ).unwrap();
+            return html;
+        },
+        mediaDir: '{p.mediaDir}',
+        errorImg: '{p.img}/image404.jpg',
 
-    type: function() {
+        type: function() {
 
-    },
-    objCount: function() {
-      if( (typeof renderJSON != undefined) && renderJSON ) {
+        },
+        objCount: function() {
+            if( (typeof renderJSON != undefined) && renderJSON ) {
 
-        //.posts
-        return Object.keys(renderJSON.posts).length;
+                //.posts
+                return Object.keys(renderJSON.posts).length;
 
-      } else {
-      
-        return 0;
-      }
-    },
-    noObj: function() {
+            } else {
+            
+                return 0;
+            }
+        },
+        noObj: function() {
 
-      $( '.streamLayout .description').html(renderJSON.userNameDisp + ' has no posts.');
+            $( '.streamLayout .description').html(renderJSON.userNameDisp + ' has no posts.');
 
-    },
-    build: function() {
-      var _ = this,
-        layoutHTML = _.layoutHTML();
+        },
+        build: function() {
+            var _ = this,
+                layoutHTML = _.layoutHTML();
 
-      var objCount = _.objCount();
+            var objCount = _.objCount();
 
-      if ( objCount < 1 ) { 
+            if ( objCount < 1 ) { 
 
-        _.noObj();
+                _.noObj();
 
-      } else {
-        
-        $( _.mainBlock + ' ' + '.streamLayout' ).remove();
+            } else {
+                
+                $( _.mainBlock + ' ' + '.streamLayout' ).remove();
 
-        for( i=0; i<objCount; i++) {
+                for( i=0; i<objCount; i++) {
 
-          //.posts
-          var obj = renderJSON.posts[i];
-          var mStreamId = _.mainStreamPrefix + obj.postId;
+                    //.posts
+                    var obj = renderJSON.posts[i];
+                    var mStreamId = _.mainStreamPrefix + obj.postId;
 
-          //create the block
-          _.$mainBlock.append(layoutHTML);
-          $( '.streamLayout#layoutId' ).attr('id', 'mainStream_' + obj.postId );
+                    //create the block
+                    _.$mainBlock.append(layoutHTML);
+                    $( '.streamLayout#layoutId' ).attr('id', 'mainStream_' + obj.postId );
 
-          //append contents
-          _.append(mStreamId, obj);
+                    //append contents
+                    _.append(mStreamId, obj);
 
+                }
+            }
+        },
+        append: function(mStreamId, obj) {
+            var _ = this;
+
+            $( mStreamId + ' ' + _.tLBlock ).html(obj.timeLapse);
+            $( mStreamId + ' ' + _.desc ).html(obj.desc);
+
+            var imgURL = '';
+
+            imgURL = _.mediaDir + '/' + obj.postId + '.jpg';
+
+            $.get(imgURL)
+                .done(function() { 
+
+                        $( mStreamId + ' ' + _.imageBlock )
+                            .html('<img src="' + imgURL + '" alt="' + obj.desc + '">')
+                            .attr('href', imgURL)
+                            .attr('content', obj.desc);
+
+                }).fail(function() { 
+
+                        $( mStreamId + ' ' + _.imageBlock ).html('<img src="' + _.errorImg + '">');
+                        $( mStreamId + ' ' + _.imageBlock + ' img').unwrap();
+
+                });
+
+            //comments
+            var comments = obj.comments,
+                commentCount = _.objCount(comments);
+
+            if(commentCount > 0) {
+
+                for(i=0; i<commentCount; i++) {
+
+                    var comment = comments[i],
+                        timestampAgo = moment(comment.createdAt).fromNow();
+
+                    var html = '<p class="postComment">' + comment.user.userNameDisp + ': ' + comment.comment + '(<span class="postTimeStamp" data-ts="' + comment.createdAt + '">' + timestampAgo + '</span>)</p>';
+                    
+                    $( mStreamId ).children('.postCommentContainer').append(html);
+
+                }
+
+            }
         }
-      }
-    },
-    append: function(mStreamId, obj) {
-      var _ = this;
-
-      $( mStreamId + ' ' + _.tLBlock ).html(obj.timeLapse);
-      $( mStreamId + ' ' + _.desc ).html(obj.desc);
-
-      var imgURL = '';
-
-      imgURL = _.mediaDir + '/' + obj.postId + '.jpg';
-
-      $.get(imgURL)
-        .done(function() { 
-
-            $( mStreamId + ' ' + _.imageBlock )
-              .html('<img src="' + imgURL + '" alt="' + obj.desc + '">')
-              .attr('href', imgURL)
-              .attr('content', obj.desc);
-
-        }).fail(function() { 
-
-            $( mStreamId + ' ' + _.imageBlock ).html('<img src="' + _.errorImg + '">');
-            $( mStreamId + ' ' + _.imageBlock + ' img').unwrap();
-
-        });
-
-      //comments
-      var comments = obj.comments,
-        commentCount = _.objCount(comments);
-
-      if(commentCount > 0) {
-
-        for(i=0; i<commentCount; i++) {
-
-          var comment = comments[i],
-            timestampAgo = moment(comment.createdAt).fromNow();
-
-          var html = '<p class="postComment" data-ts="' + comment.createdAt + '">' + comment.user.userNameDisp + ': ' + comment.comment + '(' + timestampAgo + ')</p>';
-          
-          $( mStreamId ).children('.postCommentContainer').append(html);
-
-        }
-
-      }
-    }
-  }; streamFactory.build();
+    }; streamFactory.build();
 });
 </script>
 {/isProfile}{/renderJSON}
