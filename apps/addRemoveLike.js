@@ -76,7 +76,7 @@ module.exports = function addRemoveLike(req, eventEmitter) {
                 }).then(function(likes) {
                      console.log(likes);
                     // console.log(likes.length);
-                    if(likes.length > 0) {
+                    //if(likes.length > 0) {
 
                         var idArray = [];
 
@@ -84,7 +84,7 @@ module.exports = function addRemoveLike(req, eventEmitter) {
                             idArray.push(likes[i].values['likeId']);
                         }
 
-                        db.Like.destroy({likeId: idArray}).then(function(){
+                        return db.Like.destroy({likeId: idArray}).then(function(){
 
                             return eventEmitter.emit('addRemoveLikeDone', true);
 
@@ -93,12 +93,12 @@ module.exports = function addRemoveLike(req, eventEmitter) {
                             
 
 
-                    } else {
+                    //} else {
 
-                        console.log('attempt to unlike a post has not been liked');
-                        return eventEmitter.emit('addRemoveLikeDone', false);
+                        //console.log('attempt to unlike a post has not been liked');
+                        //return eventEmitter.emit('addRemoveLikeDone', false);
 
-                    }
+                    //}
                         
 
                 }).catch(function(err) {

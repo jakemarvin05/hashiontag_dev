@@ -1,10 +1,13 @@
 {! ==================================================
     index, Me
 !}
+
+{! TODO!!: FIX THIS COMPLICATED AND UNMODULARISE PIECE OF SHIT !}
+
+
 {?renderJSON}{?isStream}
     
 <script>
-
 var streamFactory = {
 
     mainStreamPrefix: 'mainStream_',
@@ -13,7 +16,10 @@ var streamFactory = {
     userBlock: '.blockUsername',
     tLBlock: '.blockTimelapse',
     desc: '.description',
+    postInt: '.postInteractions',
     commentButton: '.sendComment',
+    likeButton: '.likeButton[data-action="like"]',
+    unlikeButton: '.likeButton[data-action="unlike"]',
     imageBlock: '.fancybox',
     layoutHTML: function() {
         $( '.mainColBlock .streamLayout' ).wrap('<div></div>');
@@ -50,6 +56,119 @@ var streamFactory = {
         $( '.streamLayout .description').html(message);
 
     },
+    getRandom: function(arr, size) {
+        var shuffled = arr.slice(0), i = arr.length, temp, index;
+        while (i--) {
+            index = Math.floor((i + 1) * Math.random());
+            temp = shuffled[index];
+            shuffled[index] = shuffled[i];
+            shuffled[i] = temp;
+        }
+        return shuffled.slice(0, size);
+    },
+    likeText: function(obj) {
+        var _ = this;
+
+        var toPrepend = '';
+
+        if(obj.totalLikes > 0) {
+            var likersFollowed = obj.likes,
+                likersFollowedCount = Object.keys(likersFollowed).length,
+                show = 3,
+                loopRuns = 0,
+                likersDispHTML = '',
+                likersDisp = {};
+
+            if(likersFollowedCount > 0) {
+
+                if(likersFollowedCount > show) {
+                    likersDisp = _.getRandom(likersFollowed, show);
+                    loopRuns = show;
+                } else {
+                    likersDisp = likersFollowed;
+                    loopRuns = likersFollowedCount;
+                }
+
+                for(k=0;k<loopRuns;k++) {
+                    console.log(likersDisp[k]);
+                    var name = likersDisp[k].user.userNameDisp;
+
+                    if(k>0) {
+                        likersDispHTML += ', ';
+                    }
+                    likersDispHTML += '<a href="{p.absPath}/' + name + '">' + name +'</a>';
+                }
+            }
+
+            var andLikes = '';
+            if(likersFollowedCount > 3) {
+
+                //sally, mary, jane and 99 others like this.
+
+                var offsetCount = String(obj.totalLikes - 3);
+
+                andLikes  = ' and ';
+                andLikes += '<span class="postLikesCount" data-likescount="' + offsetCount + '">';
+                andLikes += offsetCount;
+                andLikes += '</span>';
+                andLikes += ' others like this.';
+
+            } else if(likersFollowedCount > 0) {
+
+                //sally, mary and 99 others like this.
+
+                var offsetCount = String(obj.totalLikes - likersFollowedCount);
+
+                andLikes  = ' and ';
+                andLikes += '<span class="postLikesCount" data-likescount="' + offsetCount + '">';
+                andLikes += offsetCount;
+                andLikes += '</span>';
+                andLikes += ' others like this.';
+
+            } else if(obj.totalLikes > 1) {
+
+                // 2-99 people like this.
+
+                var offsetCount = String(obj.totalLikes);
+
+                andLikes  = '<span class="postLikesCount" data-likescount="' + offsetCount + '">';
+                andLikes += offsetCount;
+                andLikes += '</span>';
+                andLikes += ' people like this.';
+
+            } else if(obj.hasLiked) {
+
+                //totalLikes is 1 and you liked this -> You are the only one.
+
+                // You like this.
+
+                andLikes = 'You like this.';
+
+            } else {
+
+                // person liked it and it isn't you.
+
+                // 1 person likes this.
+
+                var offsetCount = String(obj.totalLikes);
+
+                andLikes  = '<span class="postLikesCount" data-likescount="' + offsetCount + '">';
+                andLikes += offsetCount;
+                andLikes += '</span>';
+                andLikes += ' person likes this.';
+            }
+
+            toPrepend = likersDispHTML + '<span class="postAndLikes">' + andLikes + '</span>';
+
+        } else {
+
+            toPrepend = '';
+        }
+
+        toPrepend = '<p>' + toPrepend + '</p>'
+            
+        return toPrepend;
+    },
     build: function() {
         var _ = this,
             layoutHTML = _.layoutHTML(),
@@ -80,13 +199,24 @@ var streamFactory = {
     },
     append: function(mStreamId, obj) {
         var _ = this,
-            mStreamId = '#' + mStreamId;
+            mStreamId = '#' + mStreamId,
+            mS = mStreamId + ' ';
 
-        $( mStreamId + ' ' + _.userBlock ).html('<a href="/' + obj.user.userNameDisp + '">' + obj.user.userNameDisp + '</a>');
-        $( mStreamId + ' ' + _.tLBlock ).html(obj.timeLapse);
-        $( mStreamId + ' ' + _.desc ).html(obj.desc);
-        $( mStreamId + ' ' + _.commentButton ).attr('data-id', obj.postId);
+        $( mStreamId ).hide();
 
+        $( mS + _.userBlock ).html('<a href="/' + obj.user.userNameDisp + '">' + obj.user.userNameDisp + '</a>');
+        $( mS + _.tLBlock ).html(obj.timeLapse);
+        $( mS + _.desc ).html(obj.desc);
+        $( mS + _.commentButton ).attr('data-id', obj.postId);
+
+        if(obj.hasLiked) {
+            $( mS + _.unlikeButton).show();
+            $( mS + _.likeButton).remove();
+        } else {
+            $( mS + _.likeButton).show();   
+            $( mS + _.unlikeButton).remove();       
+        }
+        
 
         //image
         var imgURL = '';
@@ -108,7 +238,7 @@ var streamFactory = {
 
             });
 
-        comments
+        //comments
         var comments = obj.comments,
             commentCount = _.objCount(comments);
 
@@ -126,8 +256,13 @@ var streamFactory = {
             }
 
         }
-
+        //likes
+        var toPrepend = _.likeText(obj);
         
+
+        $( mS + _.postInt ).prepend(toPrepend);
+
+        return $(mStreamId).fadeIn('fast'); 
     }
 }; 
 streamFactory.build();
@@ -148,15 +283,29 @@ $( '.streamLayout .description').html('No stream for you... follow some people!'
 {?renderJSON}{?isSearch}
 <script>
 $( document ).ready(function() {
-    var searchFactory = {
+    searchFactory = {
 
         mainBlock: '.mainColBlock',
         $mainBlock: $( '.mainColBlock' ),
         userBlock: '.blockUsername',
         joinedBlock: '.blockJoined',
+        isFollowingYou: '.blockIsFollowingYou',
+        followButton: '#followBtn',
+        followBackButton: '#followBackBtn',
+        unfollowButton: '#unfollowBtn',
+
+        followButtonHTML: '',
+        followBackButtonHTML: '',
+        unfollowButtonHTML: '',
 
         //layoutHTML: $( '.mainColBlock' ).html(),
 
+        initHTML: function(elem) {
+            $( elem ).wrap('<div></div>');
+            var html = $( elem ).parent('div').html();
+            $( elem ).unwrap();
+            return html;
+        },
         objCount: function() {
             if( (typeof renderJSON != undefined) && renderJSON ) {
 
@@ -173,7 +322,13 @@ $( document ).ready(function() {
 
         },
         build: function() {
+
             var _ = this;
+
+            //initialise HTMLs
+            _.followButtonHTML = _.initHTML(_.followButton);
+            _.followBackButtonHTML = _.initHTML(_.followBackButton);
+            _.unfollowButtonHTML = _.initHTML(_.unfollowButton);
 
             var objCount = _.objCount();
 
@@ -190,13 +345,173 @@ $( document ).ready(function() {
             }
         },
         append: function(divId, obj) {
-            $( '#' + divId + ' ' + this.userBlock ).html(obj.userNameDisp);
-            $( '#' + divId + ' ' + this.joinedBlock ).html('Joined at ' + obj.joinedDateProfile);
 
-            //TODO: remove follow button if already followed
-            $( '#' + divId + ' ' + '#followForm').show();
+            var _ = this,
+                blockId = '#' + divId + ' ';
+
+            $( blockId + _.userBlock ).html(obj.userNameDisp);
+            $( blockId + _.joinedBlock ).html('Joined on ' + obj.joinedDateProfile);
+
+
+            var followUnfollow = _.followUnfollow(blockId, obj);
+            followUnfollow(blockId, this);
+
+        },
+        followUnfollow: function(blockId, obj) {
+
+            // BOTH users not following each other
+            if(!obj.isFollowing && !obj.isBeingFollowed) {
+
+                return function(blockId, self) {
+                    $( blockId + self.unfollowButton ).remove();
+                    $( blockId + self.followBackButton ).remove();
+                    $( blockId + self.followButton ).show();
+                }
+
+            }
+
+            // ONLY visiting user is following profile user
+            if(obj.isFollowing && !obj.isBeingFollowed) {
+
+                return function(blockId, self) {
+                    $( blockId + self.followButton ).remove();
+                    $( blockId + self.followBackButton ).remove();
+                    $( blockId + self.unfollowButton ).show();
+                }
+
+            }
+
+            // ONLY profile user is following visiting user
+            if(!obj.isFollowing && obj.isBeingFollowed) {
+
+                return function(blockId, self) {
+                    $( blockId + self.unfollowButton ).remove();
+                    $( blockId + self.followButton ).remove();
+                    $( blockId + self.followBackButton ).show();
+                    $( blockId + self.isFollowingYou ).html('is following you.')
+                }
+
+            }
+
+            // BOTH users are following each other
+            if(obj.isFollowing && obj.isBeingFollowed) {
+
+                return function(blockId, self) {
+                    $( blockId + self.unfollowButton ).show();
+                    $( blockId + self.followButton ).remove();
+                    $( blockId + self.followBackButton ).remove();
+                    $( blockId + self.isFollowingYou ).html('is following you.')
+                }
+                
+            }
+
         }
     }; searchFactory.build();
+
+
+
+    //Follow Button
+
+    var followButton = Object.create(searchFactory);
+    followButton.ajaxFollow = function(elem) {
+
+        var buttonCont = $( elem ).closest('.blockFollowBtnCont'),
+            action = $( elem ).attr('data-action'),
+            userId = $( elem ).attr('data-userid');
+
+            console.log(this.unfollowButtonHTML);
+            console.log(this.followButtonHTML);
+            console.log(this.followBackButtonHTML);
+
+        if($( elem ).attr('data-action') == 'follow') {
+            var theOtherButton = this.unfollowButtonHTML;
+        }
+
+        if($( elem ).attr('data-action') == 'unfollow') {
+
+            if(!renderJSON.isBeingFollowed) {
+                var theOtherButton = this.followButtonHTML;
+            } else {
+                var theOtherButton = this.followBackButtonHTML;
+            }
+
+        }
+            
+
+        var blink = {
+            disabler: function(elem) {
+                elem.attr('disabled','disabled');
+            },
+            blinker: function(elem) {
+                var self = this;
+                elem.fadeOut('fast', function() {
+                    elem.fadeIn('fast', function() {
+                        self.blinker(elem);
+                    });
+                });
+            },
+            run: function(elem) {
+                this.disabler(elem);
+                this.blinker(elem);
+            }
+            
+        }
+
+        //blink it.
+        blink.run(elem);
+     
+        // Send the data using post
+        var posting = $.post( "{p.absPath}/follow", { userId: userId, action: action } );
+     
+        
+        //done
+        posting.done(function( data ) {
+            console.log(data);
+
+            if(data.success) {
+                console.log('success');
+
+                buttonCont.html(theOtherButton);
+                $(elem).stop().fadeOut('fast', function() {
+                    $(elem).remove();
+                    
+                    buttonCont
+                    .find('button')
+                    .fadeIn('fast')
+                    .click(function(event) {
+                        event.preventDefault();
+                        followButton.ajaxFollow($(this));
+                    });
+                });
+
+            } else {
+
+                $(elem).stop().fadeOut('fast').fadeIn('fast').removeAttr('disabled');
+
+                if(data.msg) {
+                    var alertMsg = data.msg;
+                } else {
+                    var alertMsg = 'Please either login or check your internet connection.';
+                }
+
+                console.log('error');
+                alertFactory.protoAlert(alertMsg);
+            }
+            
+        });
+
+
+        //fail
+        posting.fail(function() {
+            $(elem).stop().fadeOut('fast').fadeIn('fast').removeAttr('disabled');
+            alertFactory.protoAlert('Please either login or check your internet connection.');
+
+        });
+    };
+    $( "button.followBtn" ).click(function(event) {
+        event.preventDefault();
+        followButton.ajaxFollow($(this));
+    });
 });
 </script>
 {/isSearch}{/renderJSON}
@@ -228,9 +543,6 @@ $( document ).ready(function() {
         mediaDir: '{p.mediaDir}',
         errorImg: '{p.img}/image404.jpg',
 
-        type: function() {
-
-        },
         objCount: function() {
             if( (typeof renderJSON != undefined) && renderJSON ) {
 

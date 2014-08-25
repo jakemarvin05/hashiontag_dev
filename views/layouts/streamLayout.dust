@@ -20,7 +20,7 @@
     </header>
     <div class="postCommentContainer"></div>
     <div class="postInteractions">
-        <button class="likeButton" data-id="" data-action="like">Like</button>
+        <button class="likeButton" data-id="" data-action="like" style="display:none;">Like</button>
         <button class="likeButton" data-id="" data-action="unlike" style="display:none;">Unlike</button>
 
         <textarea placeholder="Add a comment..."></textarea>

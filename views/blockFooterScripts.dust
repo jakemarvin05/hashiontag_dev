@@ -124,41 +124,48 @@ $( "button.sendComment" ).click(function() {
     });
 });
 </script>
+
 <!-- Like Button -->
-
 <script>
-$( "button.likeButton" ).click(function() {
-//console.log('clicked');
-var self = this;
-// Stop form from submitting normally
-event.preventDefault();
+var likeUnlike = function(elem) {
 
-    var thisBlock = $( this ).closest('.streamLayout'),
+    var thisBlock = $( elem ).closest('.streamLayout'),
         postId = thisBlock.attr('id').replace('mainStream_',''),
-        action = $( this ).attr('data-action');
+        buttonCont = $( elem ).closest('.postInteractions'),
+        action = $( elem ).attr('data-action'),
+        likeButtonHTML = '<button class="likeButton" data-action="like" style="display:none;">Like</button>',
+        unlikeButtonHTML = '<button class="likeButton" data-action="unlike" style="display:none;">unlike</button>';
 
-    if($( this ).attr('data-action') == 'like') {
-        var theOtherButton = $( this ).siblings('button[data-action="unlike"]');
+    if($( elem ).attr('data-action') == 'like') {
+        var theOtherButton = unlikeButtonHTML;
     }
 
-    if($( this ).attr('data-action') == 'unlike') {
-        var theOtherButton = $( this ).siblings('button[data-action="like"]');
+    if($( elem ).attr('data-action') == 'unlike') {
+        var theOtherButton = likeButtonHTML;
     }
         
 
     var blink = {
-        run: function(elem) {
+        disabler: function(elem) {
+            elem.attr('disabled','disabled');
+        },
+        blinker: function(elem) {
             var self = this;
             elem.fadeOut('fast', function() {
                 elem.fadeIn('fast', function() {
-                    self.run(elem);
+                    self.blinker(elem);
                 });
             });
+        },
+        run: function(elem) {
+            this.disabler(elem);
+            this.blinker(elem);
         }
+        
     }
 
     //blink it.
-    blink.run($(this));
+    blink.run(elem);
  
     // Send the data using post
     var posting = $.post( "{p.absPath}/like", { postId: postId, action: action } );
@@ -171,12 +178,21 @@ event.preventDefault();
         if(data.success) {
             console.log('success');
 
-            $(self).stop().fadeOut('fast', function() {
-                theOtherButton.fadeIn('fast');
+            buttonCont.find('textarea').before(theOtherButton);
+            $(elem).stop().fadeOut('fast', function() {
+                $(elem).remove();
+                
+                buttonCont
+                .find('.likeButton')
+                .fadeIn('fast')
+                .click(function(event) {
+                    event.preventDefault();
+                    likeUnlike($(this));
+                });
             });
 
         } else {
-            $(self).stop().fadeOut('fast').fadeIn('fast');
+            $(elem).stop().fadeOut('fast').fadeIn('fast').removeAttr('disabled');
 
             console.log('error');
             alertFactory.protoAlert('Please either login or check your internet connection.');
@@ -187,10 +203,14 @@ event.preventDefault();
 
     //fail
     posting.fail(function() {
-        $(self).stop().fadeOut('fast').fadeIn('fast');
+        $(elem).stop().fadeOut('fast').fadeIn('fast').removeAttr('disabled');
         alertFactory.protoAlert('Please either login or check your internet connection.');
 
     });
+};
+$( "button.likeButton" ).click(function(event) {
+    event.preventDefault();
+    likeUnlike($(this));
 });
 </script>
 </body>

@@ -1,6 +1,6 @@
 
 module.exports = {
-    title: 'Hashiontag',
+    title: 'Vogue&Verve',
     header: function () {
     return this.title;
     }

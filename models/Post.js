@@ -33,7 +33,7 @@ module.exports = function(sequelize, DataTypes) {
 
                     //likes
                     //Post.hasMany(models.User, {as: 'Likers', foreignKey: 'User_userId', through: 'Liking', foreignKeyConstraint: false});
-                    Post.hasMany(models.Like, {foreignKey: 'User_userId'})
+                    Post.hasMany(models.Like, {foreignKey: 'Post_postId'})
 
                     //notification
                     //Post.hasMany(models.Notification, {foreignKey: 'Post_postId'});

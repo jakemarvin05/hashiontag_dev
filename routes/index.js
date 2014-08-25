@@ -352,6 +352,7 @@ router.get('/:user', function(req, res) {
 ///////////////////////////////////////////////////////
 
 //dev routes
+//disable :user routes to get here.
 router.get('/dbtest', function(req, res) {
          
     db.sequelize.authenticate().complete(function(err) {
@@ -365,6 +366,15 @@ router.get('/dbtest', function(req, res) {
     });
 
 });
+
+// router.get('/testing', function(req, res) {
+
+//     req.user.removeFollow({where4).then(function(){
+//         res.send('removed');
+//     })  
+
+// });
+
 // router.get('/sync', function(req, res) {
 //   db.sequelize.sync({force:true}).on('success', function() {
 //     res.send('sync success');

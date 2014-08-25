@@ -7,44 +7,85 @@ module.exports = function follow(req, res) {
 
         console.log(error);
 
-        return function () {
-            res.redirect('/error');
-        }();
+        return res.json({success:false});
+
     }
 
+    var userIdToAction = req.body.userId;
 
-    if(req.isAuthenticated()) {
-        console.log('user is authenticated.. following...');
+    //authenticated and not yourself
+    if(req.isAuthenticated() && !(req.user.userId == userIdToAction) ) {
+        console.log('user is authenticated.. following or unfollowing...');
 
-        var userIdToFollow = req.param('userId');
 
-        if( !(req.user.userId == req.param('userId')) ) {
+        if(req.body.action == 'follow') {
 
-            req.user.hasFollow(userIdToFollow).success(function(user) {
+            
+            req.user.hasFollow(userIdToAction).then(function(user) {
 
                 console.log(user);
                 if(!user) {
-                    req.user.addFollow(userIdToFollow)
-                        .success(function(){
-                            res.send('followed!');
-                        }).error(throwErr);
+
+                    return req.user.addFollow(userIdToAction)
+                        .then(function(){
+                            res.json({success:true});
+                        });
+
                 } else {
-                    res.send('already followed');
+
+                    console.log('Error: User trying to follow someone he/she is already following.')
+                    
+                    return res.json({success:false, msg:'You are already following him/her!'});
                 }
 
 
+            }).catch(throwErr);
 
-            }).error(throwErr);
 
-        } else {
-
-            //it is yourself!!
-            res.redirect('/');
         }
-  
 
+
+        if(req.body.action == 'unfollow') {
+
+
+            req.user.hasFollow(userIdToAction).then(function(user) {
+
+                console.log(user);
+                if(user) {
+
+                    console.log('remove');
+
+                    //parent.removeChild(childID) to be used once implemented.
+                    //return req.user.removeFollow(userIdToAction);
+
+                    return db.User.find({where:{userId: userIdToAction}});
+
+                } else {
+
+                    console.log('Error: User is trying to unfollow someone who he or she is not following.');
+                    
+                    return res.json({success:false, msg:'You have already unfollowed him/her.'});
+                    
+                }
+
+
+            }).then(function(userToUnfollow) {
+
+                return req.user.removeFollow(userToUnfollow);
+
+            }).then(function() {
+
+                return res.json({success:true});
+
+            }).catch(throwErr);
+
+        }        
+
+  
     } else {
-        res.redirect('/');
+
+        //either never login, or is yourself.
+        return res.json({success:false});
     }
 
 }
