@@ -230,9 +230,9 @@ a {
   height: 53px;
   position: fixed;
   border-bottom: 1px solid #cccccc;
+  z-index: 9999;
 }
 #navBar {
-  z-index: 9999;
   height: 53px;
   min-height: 53px;
   color: #000;

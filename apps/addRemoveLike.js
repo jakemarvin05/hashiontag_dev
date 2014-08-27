@@ -1,118 +1,150 @@
-var db = require('../models');
+var db = require('../models'),
+    notification = require('./notification.js');
 
 
-module.exports = function addRemoveLike(req, eventEmitter) {
+module.exports = function addRemoveLike(req, res) {
 
-        var throwErr = function(error) {
+    var throwErr = function(error) {
 
-                console.log(error);
+        console.log(error);
 
-                return function() {
-                        //addRemoveLike = false;
-                        eventEmitter.emit('addRemoveLikeDone', true); // err = true
-                }();
+        return res.json({ success: false, error:error });
+
+    }
+
+    var dataObj = '';
+
+    console.log('addRemoveLike: authenticating');
+
+    if(req.isAuthenticated()) {
+
+        if(req.body.action == 'like') {
+
+            db.Like.find({
+                where: db.Sequelize.and(
+                    {Post_postId: req.body.postId},
+                    {User_userId: req.user.userId}
+                )
+            }).then(function(like) {
+
+                if(like) {
+
+                    console.log('attempt to like a post already liked');
+                    throw new Error('attempt to like a post already liked');
+
+                }
+
+                return db.Post.find({ where:{ postId:req.body.postId } });
+
+            }).then(function(post) {
+
+                if(!post) {
+
+                    console.log('attempt to like a post then doesn\'t exist');
+                    throw new Error('attempt to like a post then doesn\'t exist');
+                }                    
+
+                console.log('addRemoveLike: like and post check passed, creating like..');
+
+                dataObj = {
+                    post: post,
+                    postOwner: req.body.postOwnerId,
+                    notificationSetter: req.user,
+                    action: 'like'
+                }
+
+                return db.Like.build().save();
+
+
+            }).then(function(like) {
+
+                return like.updateAttributes({
+                    Post_postId: req.body.postId,
+                    User_userId: req.user.userId
+                });
+
+                //asynchronous ops
+                // return [
+                //     like.setUser(req.user),
+                //     like.setPost(req.body.postId),
+                // ];
+
+            }).then(function() {
+
+                console.log('addRemoveLike: like created, setting user and post');
+
+                //asynchronous notification setting
+                //if error occurs in notification setting it will be logged. but user doesn't need to know.
+                notification(req,res,dataObj);
+                
+                return res.json({success: true});
+                
+            }).catch(function(err) {
+
+                console.log('caught error:');
+                console.log(err); 
+                return res.json({ success: false });
+
+            });
+
         }
 
-        console.log('addRemoveLike: authenticating');
+        if(req.body.action == 'unlike') {
 
-        if(req.isAuthenticated()) {
+            db.Like.findAll({
+                where: db.Sequelize.and(
+                    {Post_postId: req.body.postId},
+                    {User_userId: req.user.userId}
+                )
+            }).then(function(likes) {
 
-            if(req.body.action == 'like') {
+                //console.log(likes);
+                //console.log(likes.length);
+                //if(likes.length > 0) {
 
-                db.Like.find({
-                    where: db.Sequelize.and(
-                        {Post_postId: req.body.postId},
-                        {User_userId: req.user.userId}
-                    )
-                }).then(function(like) {
+                var idArray = [];
+                for(var i in likes) {
+                    idArray.push(likes[i].values['likeId']);
+                }
 
-                    if(!like) {
+                return [
+                    db.Like.destroy({likeId: idArray}),
+                    db.Post.find({ where:{postId:req.body.postId}, attributes: ['postId'] })
+                ]
+                    
+            }).spread(function(destroy, post){
 
-                        db.Like.build().save().then(function(like) {
-                        console.log('addRemoveLike: like created, setting user and post');
-                        //console.log(like);
+                if(post) {
 
-
-                        //asynchronous setting
-                        return [
-                                like.setUser(req.user),
-                                like.setPost(req.body.postId)
-                        ];
-
-                        }).spread(function(setUser, setPost) {
-                            //console.log(JSON.stringify(setUser));
-                            //console.log(JSON.stringify(setPost));
-
-                            //console.log(commentJSON);
-
-                            return eventEmitter.emit('addRemoveLikeDone', true);
-
-                        });
-
-                    } else {
-
-                        console.log('attempt to like a post already liked');
-                        return eventEmitter.emit('addRemoveLikeDone', false);
-
+                    var dataObj = {
+                        post: post,
+                        postOwner: req.body.postOwnerId,
+                        notificationSetter: req.user,
+                        action: 'unlike'
                     }
-                        
 
-                }).catch(function(err) {
-                    console.log('caught error:');
-                    console.log(err); 
-                    return eventEmitter.emit('addRemoveLikeDone', false);
-                });
+                    notification(req,res,dataObj);
 
-            }
+                } 
+                // else {
+                    //should we write a findAll notifications associated to the post and destroy?
+                    //time will tell.
+                // }
 
-            if(req.body.action == 'unlike') {
+                return res.json({success: true});
 
-                //using find a
-                db.Like.findAll({
-                    where: db.Sequelize.and(
-                        {Post_postId: req.body.postId},
-                        {User_userId: req.user.userId}
-                    )
-                }).then(function(likes) {
-                     console.log(likes);
-                    // console.log(likes.length);
-                    //if(likes.length > 0) {
+            }).catch(function(err) {
+                console.log('caught error:');
+                console.log(err); 
+                return res.json({ success: false });
+            });
 
-                        var idArray = [];
-
-                        for(var i in likes) {
-                            idArray.push(likes[i].values['likeId']);
-                        }
-
-                        return db.Like.destroy({likeId: idArray}).then(function(){
-
-                            return eventEmitter.emit('addRemoveLikeDone', true);
-
-                        });
-
-                            
-
-
-                    //} else {
-
-                        //console.log('attempt to unlike a post has not been liked');
-                        //return eventEmitter.emit('addRemoveLikeDone', false);
-
-                    //}
-                        
-
-                }).catch(function(err) {
-                    console.log('caught error:');
-                    console.log(err); 
-                    return eventEmitter.emit('addRemoveLikeDone', false);
-                });
-
-            }
-
-        } else {
-            console.log('not authenticated');
-            return eventEmitter.emit('addRemoveLikeDone', false);
         }
+
+    } else {
+        console.log('not authenticated');
+        return res.json({ success: false });
+    }
 
                 
 

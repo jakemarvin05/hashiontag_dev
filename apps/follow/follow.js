@@ -58,7 +58,7 @@ module.exports = function follow(req, res) {
                     //parent.removeChild(childID) to be used once implemented.
                     //return req.user.removeFollow(userIdToAction);
 
-                    return db.User.find({where:{userId: userIdToAction}});
+                    return db.User.find({where:{userId: userIdToAction}, attributes:['userId']});
 
                 } else {
 

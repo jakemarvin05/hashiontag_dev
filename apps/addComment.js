@@ -1,95 +1,103 @@
-var db = require('../models');
+var db = require('../models'),
+    notification = require('./notification.js');
 
 
-module.exports = function addComment(req, eventEmitter) {
+module.exports = function addComment(req, res) {
 
     var throwErr = function(error) {
 
-        console.log(error);
+            console.log(error);
 
-        return function() {
-            //addComment = false;
-            eventEmitter.emit('addCommentDone', true); // err = true
-        }();
+            return res.json({ success: false });
     }
+
+    var commentJSON = '',
+        dataObj = '';
+
 
     console.log('addComment: authenticating');
 
     if(req.isAuthenticated()) {
 
-    var commentJSON = {};
-
+        console.log('addComment: saving comment....');
+    
         db.Comment.create({
+
             comment: req.body.comment
+
         }).then(function(comment) {
-            console.log('addComment: comment created. saving...');
-            
-            return comment.save();
-        }).then(function(comment) {
-            console.log('addComment: comment saved... setting user');
-            console.log(comment);
 
             commentJSON = {
-                id: comment.commentId,
-                comment: comment.comment,
-                userNameDisp: req.user.userNameDisp,
-                timestamp: comment.createdAt
+                    id: comment.commentId,
+                    comment: comment.comment,
+                    userNameDisp: req.user.userNameDisp,
+                    timestamp: comment.createdAt
             }
 
-        //asynchronous setting
+            return comment.save();
+
+        }).then(function(comment) {
+
+            console.log('addComment: comment saved... setting user');
+            //console.log(comment);
+
+            var dataObj = {
+                notificationSetter: req.user,
+                action: 'addComment'
+            }
+            notification(req,res,dataObj);
+
+            //asynchronous ops
             return [
                 comment.setUser(req.user),
                 comment.setPost(req.body.postId)
             ];
 
         }).spread(function(setUser, setPost) {
-      //console.log(JSON.stringify(setUser));
-      //console.log(JSON.stringify(setPost));
 
-      console.log(commentJSON);
+            console.log(commentJSON);
 
-      return eventEmitter.emit('addCommentDone', commentJSON);
+            return res.json({
+                success: true,
+                commentJSON: commentJSON
+            });
 
-    }).catch(function(err) {
-        console.log('caught error:');
-        console.log(err); 
-        return eventEmitter.emit('addCommentDone', false);
-    });
-        
+        }).catch(throwErr);
+                
 
 
 /***** TODO: Make transactions work! */
 
-        // return sequelize.transaction().then(function(t) {
-  //     console.log(t);
+                // return sequelize.transaction().then(function(t) {
+    //     console.log(t);
 
-  //     console.log('addComment: transaction started');
-  //     return db.Comment.create({
+    //     console.log('addComment: transaction started');
+    //     return db.Comment.create({
 
-  //       comment: req.body.comment
+    //       comment: req.body.comment
 
-  //     }, {
+    //     }, {
 
-  //       transaction: t
+    //       transaction: t
 
-  //     }).then(function(comment) {
+    //     }).then(function(comment) {
 
-        //      console.log('addComment: comment created, saving it.');
+                //      console.log('addComment: comment created, saving it.');
 
-        //      comment.save();
+                //      comment.save();
 
-        //  }).then(function(comment) {
+                //  }).then(function(comment) {
 
-        //      console.log('addComment: setting user and post..');
-        //      comment.setUser(req.user, {transaction: t});
-        //      comment.setPost(req.body.postId, {transaction: t});
+                //      console.log('addComment: setting user and post..');
+                //      comment.setUser(req.user, {transaction: t});
+                //      comment.setPost(req.body.postId, {transaction: t});
 
-        //  }).then(t.commit.bind(t), t.rollback.bind(t));
-    
-  //   });
+                //  }).then(t.commit.bind(t), t.rollback.bind(t));
+        
+    //   });
 
+
+    } else {
+        return throwErr('not authenticated');
     }
-  else {
-    return eventEmitter.emit('addCommentDone', false);
-  }
 }

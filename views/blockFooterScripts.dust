@@ -71,7 +71,9 @@ $( "button.sendComment" ).click(function() {
     // Stop form from submitting normally
     event.preventDefault();
 
-    var postId = $( this ).attr('data-id'),
+    var thisBlock = $( this ).closest('.streamLayout'),
+        postId = thisBlock.attr('data-pid'),
+        postOwnerId = thisBlock.attr('data-uid'),
         thisBlock = $( this ).closest('.streamLayout'),
         commentInput = $( this ).closest('.postInteractions').find('textarea'),
         comment = commentInput.val(),
@@ -82,7 +84,7 @@ $( "button.sendComment" ).click(function() {
         });
  
     // Send the data using post
-    var posting = $.post( "{p.absPath}/comment", { postId: postId, comment: comment } );
+    var posting = $.post( "{p.absPath}/api/comment", { postId: postId, postOwnerId: postOwnerId, comment: comment } );
  
     
     //done
@@ -130,7 +132,8 @@ $( "button.sendComment" ).click(function() {
 var likeUnlike = function(elem) {
 
     var thisBlock = $( elem ).closest('.streamLayout'),
-        postId = thisBlock.attr('id').replace('mainStream_',''),
+        postId = thisBlock.attr('data-pid'),
+        postOwnerId = thisBlock.attr('data-uid'),
         buttonCont = $( elem ).closest('.postInteractions'),
         action = $( elem ).attr('data-action'),
         likeButtonHTML = '<button class="likeButton" data-action="like" style="display:none;">Like</button>',
@@ -168,7 +171,7 @@ var likeUnlike = function(elem) {
     blink.run(elem);
  
     // Send the data using post
-    var posting = $.post( "{p.absPath}/like", { postId: postId, action: action } );
+    var posting = $.post( "{p.absPath}/like", { postId: postId, postOwnerId: postOwnerId, action: action } );
  
     
     //done

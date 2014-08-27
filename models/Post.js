@@ -36,7 +36,7 @@ module.exports = function(sequelize, DataTypes) {
                     Post.hasMany(models.Like, {foreignKey: 'Post_postId'})
 
                     //notification
-                    //Post.hasMany(models.Notification, {foreignKey: 'Post_postId'});
+                    Post.hasMany(models.Notification, {foreignKey: 'Post_postId'});
 
                 }
             },

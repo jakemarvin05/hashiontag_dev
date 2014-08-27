@@ -102,59 +102,52 @@ router.get('/login', function(req, res) {
     });
 });
 
-// router.post('/login', 
-//   passport.authenticate('local-login', {
-//     successRedirect : '/', // redirect to the secure profile section
-//     failureRedirect : '/login', // redirect back to the signup page if there is an error
-//     failureFlash : true // allow flash messages
-//   })
-// );
-
 router.post('/login', function(req, res) {
         //console.log(res);
-        passport.authenticate('local-login', function(err, user) {
-            if (req.xhr) {
+    passport.authenticate('local-login', function(err, user) {
+        if (req.xhr) {
 
-                //if (err)   { return res.json({ error: err.message }); }
-                if (err) { return res.json({ error: 'Ops... Something went wrong, please try again!'}) }
-                if (!user) { return res.json({error : "Either your username or password is incorrect"}); }
+            //if (err)   { return res.json({ error: err.message }); }
+            if (err) { return res.json({ error: 'Ops... Something went wrong, please try again!'}) }
+            if (!user) { return res.json({error : "Either your username or password is incorrect"}); }
+            
+            req.login(user, {}, function(err) {
+                if (err) { return res.json({error:err}); }
                 
-                req.login(user, {}, function(err) {
-                    if (err) { return res.json({error:err}); }
+                //=="true" because .rememberMe is a string
+                if (req.body.rememberMe == "true" ) {
+
+                    req.session.cookie.maxAge = 315360000000; // 10 years
+
+                } else {
                     
-                    //=="true" because .rememberMe is a string
-                    if (req.body.rememberMe == "true" ) {
+                    req.session.cookie.maxAge = 3600000; //1 hour
+                }
 
-                        req.session.cookie.maxAge = 315360000000; // 10 years
+                return res.json({success: true});
 
-                    } else {
-                        
-                        req.session.cookie.maxAge = 3600000; //1 hour
-                    }
+            });
+        } else {
+            if (err)   { return res.redirect('/login'); }
+            if (!user) { return res.redirect('/login'); }
+            req.login(user, {}, function(err) {
+                if (err) { return res.redirect('/login'); }
 
-                    return res.json({success: true});
+                //=="true" because .rememberMe is a string
+                if (req.body.rememberMe == "true" ) {
 
-                });
-            } else {
-                if (err)   { return res.redirect('/login'); }
-                if (!user) { return res.redirect('/login'); }
-                req.login(user, {}, function(err) {
-                    if (err) { return res.redirect('/login'); }
+                    req.session.cookie.maxAge = 315360000000; // 10 years
 
-                    //=="true" because .rememberMe is a string
-                    if (req.body.rememberMe == "true" ) {
+                } else {
+                    
+                    req.session.cookie.maxAge = 3600000; //1 hour
+                }
 
-                        req.session.cookie.maxAge = 315360000000; // 10 years
+                return res.redirect('/');
+            });
+        }
+    })(req, res);
 
-                    } else {
-                        
-                        req.session.cookie.maxAge = 3600000; //1 hour
-                    }
-
-                    return res.redirect('/');
-                });
-            }
-        })(req, res);
 });
 
 router.get('/logout', function(req, res) {
@@ -211,6 +204,7 @@ router.post('/follow', function(req, res) {
 });
 
 router.get('/following', function(req, res) {
+
     var follower = require('../apps/follow/follower.js');
 
         var eventEmitter = new events.EventEmitter();
@@ -256,32 +250,12 @@ router.get('/followers', function(req, res) {
 
 });
 
-router.post('/comment', function(req, res) {
-    //.log(req);
+router.post('/api/comment', function(req, res) {
 
     if (req.xhr) {
 
-        var eventEmitter = new events.EventEmitter();
+        var addComment = require('../apps/addComment.js')(req, res);
 
-        //bind the final callback first
-        eventEmitter.on('addCommentDone', function thenSend(data) {
-
-            //data is set to false by default when it fails.
-            if(!data) { 
-                console.log('addComment throws err back to router');
-                return res.json({ success: false }); 
-
-            }
-            console.log('addComment returns success');
-            return res.json({
-                success: true,
-                commentJSON: data
-            });
-
-        });
-
-        //now run callback dependents
-        var addComment = require('../apps/addComment.js')(req, eventEmitter);
     } else {
         res.redirect('/');
     }
@@ -289,34 +263,31 @@ router.post('/comment', function(req, res) {
 });
 
 router.post('/like', function(req, res) {
-    //.log(req);
 
     if (req.xhr) {
 
-        var eventEmitter = new events.EventEmitter();
-
-        //bind the final callback first
-        eventEmitter.on('addRemoveLikeDone', function thenSend(data) {
-
-            //data is set to false by default when it fails.
-            if(!data) { 
-                console.log('addRemoveLike throws err back to router');
-                return res.json({ success: false }); 
-
-            }
-            console.log('addRemoveLike returns success');
-            return res.json({
-                success: true,
-                commentJSON: data
-            });
-
-        });
-
-        //now run callback dependents
-        var addRemoveLike = require('../apps/addRemoveLike.js')(req, eventEmitter);
+        var addRemoveLike = require('../apps/addRemoveLike.js')(req, res);
 
     } else {
+
         res.redirect('/');
+
+    }
+
+});
+
+router.post('/api/notification', function(req, res) {
+
+    var dataObj = {};
+
+    if (req.xhr) {
+
+        var notification = require('../apps/notification.js')(req, res, dataObj);
+
+    } else {
+
+        res.redirect('/');
+
     }
 
 });

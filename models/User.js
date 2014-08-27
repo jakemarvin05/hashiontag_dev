@@ -46,20 +46,32 @@ module.exports = function(sequelize, DataTypes) {
                 associate: function(models) {
                     User.hasMany(models.Post, {foreignKey: 'User_userId'});
 
-                    //following
-                    //would like to change "follows" to "followings", more verbose.
-                    User.hasMany(models.User, {as: 'Follows', foreignKey: 'UserId', through: 'Following' });
+                    //FOLLOWING
+                    User.hasMany(models.User, {as: 'Follows', foreignKey: 'FollowerId', through: 'Following' });
+
+                    /*
+                    Explanation: User has many other users as "Followers". In the "Following" table, this user
+                                 record is identified using the foreign key "FollowId"
+                    */
                     User.hasMany(models.User, {as: 'Followers', foreignKey: 'FollowId', through: 'Following'});
 
-                    //comment
+
+
+                    //COMMENT
                     User.hasMany(models.Comment, {foreignKey: 'User_userId'});
 
-                    //like
-                    //User.hasMany(models.Post, {as:'Likes', foreignKey: 'Post_postId', through: 'Liking'});
+
+
+                    //LIKE
                     User.hasMany(models.Like, {foreignKey: 'User_userId'});
 
-                    //notification
-                    //User.hasMany(models.Notification, {foreignKey: 'User_userId'});
+
+
+                    //NOTIFICATION
+                    User.hasMany(models.Notification, {as: 'Notifications', foreignKey: 'User_userId_receiver'});
+                    
+                        //User has many notifications that they set -> "SetNotifications".
+                    User.hasMany(models.Notification, {as: 'SetNotifications', foreignKey: 'User_userId_setter'});
 
                 },
                 getSearchVector: function() {

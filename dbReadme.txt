@@ -87,6 +87,15 @@ AnotherParent.hasMany(Parent, {
   through: [Parent_AnotherParent] 
 });
 
+
+Verbose example:
+
+Guy.hasMany(Girl, {as: 'Flings', foreignKey:'Guy_guyId', through:'FlingTable'});
+Girl.hasMany(Guy, {as: 'Flings', foreignKey:'Girl_girlId', though:'FlingTable});
+
+Guy.hasOne(Girl, {as: 'Wife', foreignKey:'Guy_guyId'});
+Girl.belongsTo(Guy, {as: 'Husband', foreignKey:'Guy_guyId'});
+
 This will create all the hasMany() methods on both sides. You don't need belongTo() in this situation.
 
 As a standard, using the "through" key, we explicitly define all the crosstable names for consistency and less gotchas.

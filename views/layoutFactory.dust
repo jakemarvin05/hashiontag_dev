@@ -100,6 +100,7 @@ var streamFactory = {
                 }
             }
 
+            //TODO: Do away with text-based like description....
             var andLikes = '';
             if(likersFollowedCount > 3) {
 
@@ -172,7 +173,7 @@ var streamFactory = {
     build: function() {
         var _ = this,
             layoutHTML = _.layoutHTML(),
-            postCount = _.objCount(renderJSON);
+            postCount = _.objCount(renderJSON.posts);
 
         if ( postCount < 1 ) { 
 
@@ -183,7 +184,7 @@ var streamFactory = {
             $( _.mainBlock + ' ' + '.streamLayout' ).remove();
             for( i=0; i<postCount; i++ ) {
                 
-                var obj = renderJSON[i];
+                var obj = renderJSON.posts[i];
                 var mStreamId = _.mainStreamPrefix + obj.postId;
                
 
@@ -203,6 +204,12 @@ var streamFactory = {
             mS = mStreamId + ' ';
 
         $( mStreamId ).hide();
+
+        //ids
+        $( mStreamId )
+            .attr('data-uid', obj.user.userId)
+            .attr('data-pid', obj.postId);
+
 
         $( mS + _.userBlock ).html('<a href="/' + obj.user.userNameDisp + '">' + obj.user.userNameDisp + '</a>');
         $( mS + _.tLBlock ).html(obj.timeLapse);
@@ -259,13 +266,60 @@ var streamFactory = {
         //likes
         var toPrepend = _.likeText(obj);
         
-
         $( mS + _.postInt ).prepend(toPrepend);
 
         return $(mStreamId).fadeIn('fast'); 
     }
 }; 
 streamFactory.build();
+
+var notificationFactory = {
+    $appendTarget: $('#leftCol'),
+
+    noNotification: function() {
+        $appendTarget.append('<div>You have no notification.</div>');
+    },
+    build: function() {
+        var notifications = renderJSON.notifications;
+
+
+        if(notifications) {
+            var notificationsCount = Object.keys(notifications).length;
+
+            if(!(notificationsCount > 0)) {
+                return this.noNotification();
+            } else {
+
+
+                for(i=0;i<notificationsCount;i++) {
+                    var setterName = notifications[i].setter.userNameDisp,
+                        html = '';
+
+                    var html = '<div><a href="{p.absPath}/' + setterName + '">';
+                        html += setterName + '</a> ';
+
+                        if(notifications[i].type == 'like') {
+                            html += 'likes';
+                        }
+                        if(notifications[i].type == 'comment') {
+                            html += 'commented on';
+                        }
+
+                        html += ' your post (' + notifications[i].Post_postId.toString() + ')';
+
+                    this.append(html);
+
+                }//for loop
+
+            }//if else
+
+        }//if notifications
+    },
+    append: function(html) {
+        this.$appendTarget.append(html);
+    }
+}
+notificationFactory.build();
 </script>
 {:else}
 <script>
@@ -595,6 +649,8 @@ $( document ).ready(function() {
             $( mStreamId + ' ' + _.tLBlock ).html(obj.timeLapse);
             $( mStreamId + ' ' + _.desc ).html(obj.desc);
 
+
+            //images
             var imgURL = '';
 
             imgURL = _.mediaDir + '/' + obj.postId + '.jpg';
