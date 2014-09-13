@@ -1,41 +1,775 @@
 {>blockHeader/}
 
+<script src="{p.js}/exif.binaryjax.js"></script>
+<script type="text/javascript" src="{p.js}/caman.full.min.js"></script>
+<script src="{p.js}/socket.io.js"></script>
+<script>
+var socket = io('/post', {
+    // Disables the automatic reconnection
+    reconnect: false
+});
+var socketId = '';
+
+socket.on('welcome', function (data) {
+    socketId = data.message;
+});
+
+// Reconnects on disconnection
+socket.on('disconnect', function(){
+    console.log("reconnecting to server....");
+    //VERIFY
+    socket.connect();
+});
+
+socket.on('uploadProgress', function(data){
+    var percentage = data.bytesReceived/data.bytesExpected
+    $('#progress').val(parseInt(percentage)+'%');
+});
+</script>
 
 
-
+{!
 <section id="leftCol" class="col span2">
     <div class="blockTitle">
-            <h1>Post</h1>
+        
     </div>
-
 </section><!-- left_col -->
-
+!}
 <section id="main" class="col span1">
-
     <div class="mainColBlock">
+        <h1>Post</h1>
+
         {?isLoggedIn}
-        <form id="post" method="post" enctype="multipart/form-data">
-            <p>
-                Image: <input type="file" name="img" required></input>
-            </p>
-            <p>
-                Post: <textarea id="desc" name="desc" required></textarea>
-            </p>
-            <p>
-                <button type="submit">Post</button>
-            </p>
-        </form>
+
+        <script src="{p.js}/vvImg.js"></script>
+        <script>
+        //Client Side Render
+        {!
+        {?isCSRender}
+        VV.img.CSRender = true;
         {:else}
-        You are not logged in. To post, please log in <a href="{#p}{login}{/p}">here</a>
+        VV.img.CSRender = false;
+        {/isCSRender}
+        !}
+        VV.img.CSRender = false;
+        </script>
+
+        <style>
+        #img_background {
+            height:320px; width:320px; box-sizing:border-box; border:2px dotted grey;
+        }
+        img[id^=img_preview] {
+            position:relative;
+            z-index:-1;
+            left:-2px;
+            top:-2px;
+        }
+        </style>
+
+
+        <div id="img_background" style="">
+            
+        </div>
+        <input id="test" type="text"></input>
+        Image: <input id="img_field" type="file" name="img" accepts="image/jpeg,image/gif,image/png" required></input>
+
+    <p>
+        Post: <textarea id="desc" name="desc" required></textarea>
+    </p>
+    <p>
+        <button id="submit" type="button">Pre-submit</button>
+        <button>Post</button>
+    </p>
+    <p>
+        Progress: <input id="progress" name="progressPercent" required></input>
+    </p>
+
+        {:else}
+            You are not logged in. To post, please log in <a href="{#p}{login}{/p}">here</a>
         {/isLoggedIn}
     </div>
-
     <!-- end your stream -->
 </section><!-- main -->
+
+
+<script>
+$(document).ready(function(){
+
+    var startX, startY, endX, endY, minX, minY, maxX, maxY;
+
+    /*****************
+    * Drag scrolling *
+    *****************/
+    // console.log("Adding Drag Scrolling");
+    // Bind drag event to mousedown/touchdown at image container
+    $('#img_background').on("mousedown.vv touchstart.vv",function(e){
+        console.log("Mousedown Event");
+
+        var $img_preview = $('#img_preview');
+
+        if($img_preview.length === 0) {
+            return false;
+        }
+        e.stopPropagation();
+        e.preventDefault();
+        startX = e.pageX;
+        startY = e.pageY;
+
+        var imgW = $img_preview.width(),
+            imgH = $img_preview.height();
+            
+        minX = VV.img.CROP_PORT - imgW;
+        minY = VV.img.CROP_PORT - imgH;
+        maxX = 0;
+        maxY = 0;
+
+        //console.log("Start Position:",startX,startY);
+        $('#img_background').on("mousemove.vv touchmove.vv",function(e){
+
+            console.log('mousemove');
+
+            // Object caching
+            var $img_preview = $('#img_preview');
+            e.stopPropagation();
+            e.preventDefault();
+            if (e.type=="touchmove") e=e.originalEvent.touches[0]||e.originalEvent.changedTouches[0];
+            endX = e.pageX;
+            endY = e.pageY;
+
+            return shifter($img_preview);
+        });
+
+        function shifter($el) {
+
+            VV.img.IMG_X += endX - startX;
+            VV.img.IMG_Y += endY - startY;
+
+            // Update image position based on Boundary
+
+            if (VV.img.IMG_X < minX) {
+                VV.img.IMG_X = minX;
+            } else if (VV.img.IMG_X > maxX) {
+                VV.img.IMG_X = maxX;
+            }
+
+            if (VV.img.IMG_Y < minY) {
+                VV.img.IMG_Y = minY;
+            } else if (VV.img.IMG_Y > maxY) {
+                VV.img.IMG_Y = maxY;
+            }
+            // Reset starting offsets
+            startX = endX;
+            startY = endY;
+            // Render image
+            $el.css({
+                'margin-top': VV.img.IMG_Y.toString() + "px",
+                'margin-left': VV.img.IMG_X.toString() + "px"
+            });
+            $("#test").val(VV.img.IMG_Y.toString() + "px " + VV.img.IMG_X.toString() + "px");
+            
+        }
+
+    });
+
+    // Unbind drag event to mouseup/touchend at window
+    $(window).on("mouseup touchend",function(){
+        console.log("Mouseup Event");
+        $('#img_background').unbind("mousemove.vv touchmove.vv");
+    });
+
+    /*******************
+    * Image processing *
+    *******************/
+
+    var $img_field = $('img_field');
+    var el_img_field = document.getElementById('img_field');
+
+    $("#img_field").change(function(){
+        console.log("New file");
+
+        /*
+        1) Reject if there are no files, or if file is larger than limit.
+        2) Parse the EXIF tags and set STOCK_IMG_ROTATE parameter.
+            
+        */
+
+        //prepare the canvas
+        //document.getElementById('img_preview').getContext('2d').clearRect(0, 0, this.width, this.height);
+        //$('#img_background').slideUp('fast');
+
+/* STEP 1: Rejection or accept */
+
+        if(!this.files && !this.files[0]) {
+            return false;
+        }
+
+        console.log(this.files[0].size);
+
+        if( this.files[0].size > 3145728 ) {
+            return aF.protoAlert({
+                    text:'Your image file is too large. Please resize your image to below 3mb.', 
+                    title:'Max filesize exceeded.'
+                });
+        }
+
+
+
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+
+            //reset all globals
+            VV.img.resetGlobal();
+            console.log('reader.onload');
+
+            VV.img.STOCK_IMG.onload = function() {
+
+                console.log('img onload');
+
+                //reject image if too small
+                
+                if(this.height < 640 || this.width < 640 ) {
+                    
+                    return aF.protoAlert({
+                            text:'Please select an image with at least 640px by 640px resolution', 
+                            title:'Resolution too small'
+                    });
+
+                }
+
+
+                var resTooHigh = {
+                    text:'Your image resolution is too high. Please resize before uploading.', 
+                    title:'Resolution too high'
+                }
+
+                if(this.height > this.width) {
+                    if(this.width > 5120) {
+                        return aF.protoAlert(resTooHigh);
+                    }
+                } else {
+                    if(this.height > 5120) {
+                        return aF.protoAlert(resTooHigh);
+                    }
+                }
+                if(this.height * this.width > 23000000) {
+                    return aF.protoAlert(resTooHigh);
+                }
+
+                //store the heights for use later.
+                VV.img.STOCK_IMG_W = this.width;
+                VV.img.STOCK_IMG_H = this.height;
+
+                if(VV.img.CSRender) {
+
+                    //get EXIF first before resizing
+                    var rotate = VV.img.getEXIF(VV.img.STOCK_IMG.src);
+
+                    VV.img.canvasResize(VV.img.STOCK_IMG, rotate, function(imgData) {
+                        VV.img.dispTmp(imgData);
+                    });                
+
+                } else {
+
+                    var attrs = {
+                        action: 'raw',
+                        imgData: el_img_field.files[0],
+                        processData: false
+                    }
+
+                    VV.img.upload(attrs, function(data) {
+                        VV.img.dispTmp(data.pathToImg);
+
+
+                    }); //VV.img.upload;
+
+                }
+                
+            } //img onload
+            VV.img.STOCK_IMG.src = e.target.result;
+                    
+        } //reader onload
+        reader.readAsDataURL(this.files[0]);  
+    });
+
+    /******************
+    * Post processing *
+    ******************/
     
+    $("#submit").click(function(){
+        if(!VV.img.TEMP_IMG) {
+            return false;
+        }
+
+        if(VV.img.CSRender) {
+
+            VV.img.canvasCrop(VV.img.TEMP_IMG, function(data) {
+
+                var blobBin = atob( data.split(',')[1] );
+                var array = [];
+                for(var i = 0; i < blobBin.length; i++) {
+                    array.push(blobBin.charCodeAt(i));
+                }
+                var file = new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
+
+                var attrs = {
+                    action: 'store',
+                    imgData: file,
+                    processData: false,
+                    desc: $('#desc').val()
+                }
+
+                VV.img.upload(attrs, function(data) {
+                    //redirect to post
+                    window.location.href = '/';
+                    console.log(data.postId);
+                });
+            })
+
+        } else {
+
+            var processData = {
+                crop: {
+                    x: VV.img.IMG_X,
+                    y: VV.img.IMG_Y,
+                    cp: VV.img.CROP_PORT
+                }
+            }
+            console.log(processData);
+
+            var attrs = {
+                action: 'process',
+                imgData: VV.img.TEMP_IMG.src,
+                processData: processData,
+                desc: $('#desc').val()
+            }
+
+            VV.img.upload(attrs, function(data) {
+                window.location.href = '/';
+                console.log(data.postId);
+            });
 
 
+        }
+
+
+
+
+{!
+        Caman('#img_preview', function() {
+
+            var m = 2;
+            this.crop(640, 640, -IMG_X*m, -IMG_Y*m); // width, height, x, y
+
+            this.render(function() {
+                var $img_preview = $('#img_preview');
+                $img_preview.css({'width':'320px','height':'320px'});
+                var imgData = document.getElementById('img_preview').toDataURL();
+                window.open(imgData, "toDataURL() image", "width=640, height=640");
+                // AJAX Post...
+            });
+
+        });  // caman 
+!}    
+         
+    }); //submit onclick
+
+}); //document.ready
+</script>
+
+
+{! Caman filters
+
+
+ <div id="presetFilters" style="display:none;">
+     Filters are for preview purposes at the moment.
+   
+     <button data-preset="vintage">Vintage</button>
+   
+     <button data-preset="lomo">Lomo</button>
+   
+     <button data-preset="clarity">Clarity</button>
+   
+     <button data-preset="sinCity">Sin City</button>
+   
+     <button data-preset="sunrise">Sunrise</button>
+   
+     <button data-preset="crossProcess">Cross Process</button>
+   
+     <button data-preset="orangePeel">Orange Peel</button>
+   
+     <button data-preset="love">Love</button>
+   
+     <button data-preset="grungy">Grungy</button>
+   
+     <button data-preset="jarques">Jarques</button>
+   
+     <button data-preset="pinhole">Pinhole</button>
+   
+     <button data-preset="oldBoot">Old Boot</button>
+   
+     <button data-preset="glowingSun">Glowing Sun</button>
+   
+     <button data-preset="hazyDays">Hazy Days</button>
+   
+     <button data-preset="herMajesty">Her Majesty</button>
+   
+     <button data-preset="nostalgia">Nostalgia</button>
+   
+     <button data-preset="hemingway">Hemingway</button>
+   
+     <button data-preset="concentrate">Concentrate</button>
+   
+   </div>
+
+ <script>
+ var blink = {
+     disabler: function(elem) {
+         elem.attr('disabled','disabled');
+     },
+     blinker: function(elem) {
+         var self = this;
+         elem.fadeOut('fast', function() {
+             elem.fadeIn('fast', function() {
+                 self.blinker(elem);
+             });
+         });
+     },
+     run: function(elem) {
+         this.disabler(elem);
+         this.blinker(elem);
+     }
+     
+ }
+ var block = false;
+
+ $(document).ready(function() {
+     //var previewCanvas = Caman("#img_preview");
+
+     $('#presetFilters button').each(function() {
+
+         $(this).click(function() {
+
+             $('#presetFilters button').removeClass('selected');
+
+             var self = $(this);
+
+             if(block) {
+                 return false;
+             }
+
+             block = true;
+
+             blink.run($(this));
+
+             var filter = $(this).data('preset');
+
+             console.log(filter);
+
+             Caman("#img_preview").revert(false);
+             Caman("#img_preview")[filter]().render(function() {
+                 block = false;
+                 self.stop().fadeOut('fast').fadeIn('fast').removeAttr('disabled');
+                 self.addClass('selected');
+             });
+
+         });
+     });
+ });
+ </script> 
+
+ <script>
+ var v = Caman;
+ v.Filter.register("vintage", function(F) {
+     if (F == null) {
+         F = true
+     }
+     this.greyscale();
+     this.contrast(5);
+     this.noise(3);
+     this.sepia(100);
+     this.channels({
+         red: 8,
+         blue: 2,
+         green: 4
+     });
+     this.gamma(0.87);
+     if (F) {
+         return this.vignette("40%", 30)
+     }
+ });
+ v.Filter.register("lomo", function(F) {
+     if (F == null) {
+         F = true
+     }
+     this.brightness(15);
+     this.exposure(15);
+     this.curves("rgb", [0, 0], [200, 0], [155, 255], [255, 255]);
+     this.saturation(-20);
+     this.gamma(1.8);
+     if (F) {
+         this.vignette("50%", 60)
+     }
+     return this.brightness(5)
+ });
+ v.Filter.register("clarity", function(F) {
+     if (F == null) {
+         F = false
+     }
+     this.vibrance(20);
+     this.curves("rgb", [5, 0], [130, 150], [190, 220], [250, 255]);
+     this.sharpen(15);
+     this.vignette("45%", 20);
+     if (F) {
+         this.greyscale();
+         this.contrast(4)
+     }
+     return this
+ });
+ v.Filter.register("sinCity", function() {
+     this.contrast(100);
+     this.brightness(15);
+     this.exposure(10);
+     this.posterize(80);
+     this.clip(30);
+     return this.greyscale()
+ });
+ v.Filter.register("sunrise", function() {
+     this.exposure(3.5);
+     this.saturation(-5);
+     this.vibrance(50);
+     this.sepia(60);
+     this.colorize("#e87b22", 10);
+     this.channels({
+         red: 8,
+         blue: 8
+     });
+     this.contrast(5);
+     this.gamma(1.2);
+     return this.vignette("55%", 25)
+ });
+ v.Filter.register("crossProcess", function() {
+     this.exposure(5);
+     this.colorize("#e87b22", 4);
+     this.sepia(20);
+     this.channels({
+         blue: 8,
+         red: 3
+     });
+     this.curves("b", [0, 0], [100, 150], [180, 180], [255, 255]);
+     this.contrast(15);
+     this.vibrance(75);
+     return this.gamma(1.6)
+ });
+ v.Filter.register("orangePeel", function() {
+     this.curves("rgb", [0, 0], [100, 50], [140, 200], [255, 255]);
+     this.vibrance(-30);
+     this.saturation(-30);
+     this.colorize("#ff9000", 30);
+     this.contrast(-5);
+     return this.gamma(1.4)
+ });
+ v.Filter.register("love", function() {
+     this.brightness(5);
+     this.exposure(8);
+     this.contrast(4);
+     this.colorize("#c42007", 30);
+     this.vibrance(50);
+     return this.gamma(1.3)
+ });
+ v.Filter.register("grungy", function() {
+     this.gamma(1.5);
+     this.clip(25);
+     this.saturation(-60);
+     this.contrast(5);
+     this.noise(5);
+     return this.vignette("50%", 30)
+ });
+ v.Filter.register("jarques", function() {
+     this.saturation(-35);
+     this.curves("b", [20, 0], [90, 120], [186, 144], [255, 230]);
+     this.curves("r", [0, 0], [144, 90], [138, 120], [255, 255]);
+     this.curves("g", [10, 0], [115, 105], [148, 100], [255, 248]);
+     this.curves("rgb", [0, 0], [120, 100], [128, 140], [255, 255]);
+     return this.sharpen(20)
+ });
+ v.Filter.register("pinhole", function() {
+     this.greyscale();
+     this.sepia(10);
+     this.exposure(10);
+     this.contrast(15);
+     return this.vignette("60%", 35)
+ });
+ v.Filter.register("oldBoot", function() {
+     this.saturation(-20);
+     this.vibrance(-50);
+     this.gamma(1.1);
+     this.sepia(30);
+     this.channels({
+         red: -10,
+         blue: 5
+     });
+     this.curves("rgb", [0, 0], [80, 50], [128, 230], [255, 255]);
+     return this.vignette("60%", 30)
+ });
+ v.Filter.register("glowingSun", function(F) {
+     if (F == null) {
+         F = true
+     }
+     this.brightness(10);
+     this.newLayer(function() {
+         this.setBlendingMode("multiply");
+         this.opacity(80);
+         this.copyParent();
+         this.filter.gamma(0.8);
+         this.filter.contrast(50);
+         return this.filter.exposure(10)
+     });
+     this.newLayer(function() {
+         this.setBlendingMode("softLight");
+         this.opacity(80);
+         return this.fillColor("#f49600")
+     });
+     this.exposure(20);
+     this.gamma(0.8);
+     if (F) {
+         return this.vignette("45%", 20)
+     }
+ });
+ v.Filter.register("hazyDays", function() {
+     this.gamma(1.2);
+     this.newLayer(function() {
+         this.setBlendingMode("overlay");
+         this.opacity(60);
+         this.copyParent();
+         this.filter.channels({
+             red: 5
+         });
+         return this.filter.stackBlur(15)
+     });
+     this.newLayer(function() {
+         this.setBlendingMode("addition");
+         this.opacity(40);
+         return this.fillColor("#6899ba")
+     });
+     this.newLayer(function() {
+         this.setBlendingMode("multiply");
+         this.opacity(35);
+         this.copyParent();
+         this.filter.brightness(40);
+         this.filter.vibrance(40);
+         this.filter.exposure(30);
+         this.filter.contrast(15);
+         this.filter.curves("r", [0, 40], [128, 128], [128, 128], [255, 215]);
+         this.filter.curves("g", [0, 40], [128, 128], [128, 128], [255, 215]);
+         this.filter.curves("b", [0, 40], [128, 128], [128, 128], [255, 215]);
+         return this.filter.stackBlur(5)
+     });
+     this.curves("r", [20, 0], [128, 158], [128, 128], [235, 255]);
+     this.curves("g", [20, 0], [128, 128], [128, 128], [235, 255]);
+     this.curves("b", [20, 0], [128, 108], [128, 128], [235, 255]);
+     return this.vignette("45%", 20)
+ });
+ v.Filter.register("herMajesty", function() {
+     this.brightness(40);
+     this.colorize("#ea1c5d", 10);
+     this.curves("b", [0, 10], [128, 180], [190, 190], [255, 255]);
+     this.newLayer(function() {
+         this.setBlendingMode("overlay");
+         this.opacity(50);
+         this.copyParent();
+         this.filter.gamma(0.7);
+         return this.newLayer(function() {
+             this.setBlendingMode("normal");
+             this.opacity(60);
+             return this.fillColor("#ea1c5d")
+         })
+     });
+     this.newLayer(function() {
+         this.setBlendingMode("multiply");
+         this.opacity(60);
+         this.copyParent();
+         this.filter.saturation(50);
+         this.filter.hue(90);
+         return this.filter.contrast(10)
+     });
+     this.gamma(1.4);
+     this.vibrance(-30);
+     this.newLayer(function() {
+         this.opacity(10);
+         return this.fillColor("#e5f0ff")
+     });
+     return this
+ });
+ v.Filter.register("nostalgia", function() {
+     this.saturation(20);
+     this.gamma(1.4);
+     this.greyscale();
+     this.contrast(5);
+     this.sepia(100);
+     this.channels({
+         red: 8,
+         blue: 2,
+         green: 4
+     });
+     this.gamma(0.8);
+     this.contrast(5);
+     this.exposure(10);
+     this.newLayer(function() {
+         this.setBlendingMode("overlay");
+         this.copyParent();
+         this.opacity(55);
+         return this.filter.stackBlur(10)
+     });
+     return this.vignette("50%", 30)
+ });
+ v.Filter.register("hemingway", function() {
+     this.greyscale();
+     this.contrast(10);
+     this.gamma(0.9);
+     this.newLayer(function() {
+         this.setBlendingMode("multiply");
+         this.opacity(40);
+         this.copyParent();
+         this.filter.exposure(15);
+         this.filter.contrast(15);
+         return this.filter.channels({
+             green: 10,
+             red: 5
+         })
+     });
+     this.sepia(30);
+     this.curves("rgb", [0, 10], [120, 90], [180, 200], [235, 255]);
+     this.channels({
+         red: 5,
+         green: -2
+     });
+     return this.exposure(15)
+ });
+ v.Filter.register("concentrate", function() {
+     this.sharpen(40);
+     this.saturation(-50);
+     this.channels({
+         red: 3
+     });
+     this.newLayer(function() {
+         this.setBlendingMode("multiply");
+         this.opacity(80);
+         this.copyParent();
+         this.filter.sharpen(5);
+         this.filter.contrast(50);
+         this.filter.exposure(10);
+         return this.filter.channels({
+             blue: 5
+         })
+     });
+     return this.brightness(10)
+ });
+
+
+ </script>
+
+!}
 
 {>blockFooter/}
-
 {>blockFooterScripts/}

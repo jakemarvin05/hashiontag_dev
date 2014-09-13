@@ -16,8 +16,7 @@ module.exports = function(sequelize, DataTypes) {
                 type: DataTypes.STRING,
                 allowNull: false,
                 validate: {
-                    max: 15,
-                    min: 6,
+                    len:[6,20],
                     is: ["^[a-z0-9_]+$", "i"]
                 }
             },
@@ -36,7 +35,23 @@ module.exports = function(sequelize, DataTypes) {
                 type: DataTypes.STRING,
                 allowNull: false,
                 validate: {
-                    min: 6
+                    len:[6,999999]
+                }
+            },
+            name: {
+                type: DataTypes.STRING,
+                allowNull: true,
+                validate: {
+                    len:[2,30]
+                    //TODO: VALIDATION of username
+                    //is: ["^[a-z]+$", "i"]
+                }
+            },
+            about: {
+                type: DataTypes.STRING,
+                allowNull: true,
+                validate: {
+                    len:[1,140]
                 }
             }
         }, {

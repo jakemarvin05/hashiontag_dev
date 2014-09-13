@@ -58,7 +58,9 @@ $( '#navCondensed .navButtons').click( function () {
 <!-- fancyBox init -->
 <script>
 $( document ).ready( function () {
-    $(".fancybox").fancybox();
+    if($('.fancybox').length > 0) {
+        $(".fancybox").fancybox();
+    }
 });
 </script>
 
@@ -90,7 +92,6 @@ $( "button.sendComment" ).click(function() {
     //done
     posting.done(function( data ) {
         console.log(data);
-
         if(data.success) {
             console.log('comment added');
             var comment = data.commentJSON;

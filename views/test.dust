@@ -1,0 +1,27 @@
+<html>
+
+<head>
+<script src="https://cdn.socket.io/socket.io-1.0.6.js"></script>
+
+
+<script>
+  var socket = io('/socketio');
+  var socketId = '';
+  socket.on('welcome', function (data) {
+    console.log(data);
+
+    socketId = data.message;
+    
+  });
+
+  socket.on('foo', function(data) {
+    console.log(data);
+  })
+</script>
+
+</head>
+
+
+<body>
+</body>
+</html>

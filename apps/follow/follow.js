@@ -14,11 +14,11 @@ module.exports = function follow(req, res) {
     var userIdToAction = req.body.userId;
 
     //authenticated and not yourself
-    if(req.isAuthenticated() && !(req.user.userId == userIdToAction) ) {
+    if(req.isAuthenticated() && !(req.user.userId === userIdToAction) ) {
         console.log('user is authenticated.. following or unfollowing...');
 
 
-        if(req.body.action == 'follow') {
+        if(req.body.action === 'follow') {
 
             
             req.user.hasFollow(userIdToAction).then(function(user) {
@@ -45,7 +45,7 @@ module.exports = function follow(req, res) {
         }
 
 
-        if(req.body.action == 'unfollow') {
+        if(req.body.action === 'unfollow') {
 
 
             req.user.hasFollow(userIdToAction).then(function(user) {

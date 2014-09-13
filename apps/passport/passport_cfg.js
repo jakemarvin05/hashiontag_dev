@@ -146,7 +146,7 @@ module.exports = function(passport) {
         /* validate function */
         var validate = function(user) {
             console.log('user was found by email or username, validating password...');
-            if( !(user.password == password) ) {
+            if( !(user.password === password) ) {
                 // if the user is found but the password is wrong
                 console.log('password validation failed');
                 return done(null, false); // create the loginMessage and save it to session as flashdata

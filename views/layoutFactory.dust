@@ -228,7 +228,7 @@ var streamFactory = {
         //image
         var imgURL = '';
 
-        imgURL = _.mediaDir + '/' + obj.postId + '.jpg';
+        imgURL = _.mediaDir + '/' + obj.imgUUID + '.jpg';
 
         $.get(imgURL)
             .done(function() { 
@@ -240,9 +240,25 @@ var streamFactory = {
 
             }).fail(function() { 
 
-                    $( mStreamId + ' ' + _.imageBlock ).html('<img src="' + _.errorImg + '">');
-                    $( mStreamId + ' ' + _.imageBlock + ' img').unwrap();
 
+                // TEMP, for BC
+                var bcURL = _.mediaDir + '/' + obj.postId + '.jpg';
+                $.get(bcURL)
+                    .done(function() {
+                        $( mStreamId + ' ' + _.imageBlock )
+                            .html('<img src="' + bcURL + '" alt="' + obj.desc + '">')
+                            .attr('href', bcURL)
+                            .attr('content', obj.desc);
+                    }).fail(function() {
+
+                        $( mStreamId + ' ' + _.imageBlock ).html('<img src="' + _.errorImg + '">');
+                        $( mStreamId + ' ' + _.imageBlock + ' img').unwrap();
+
+                    })
+
+                // $( mStreamId + ' ' + _.imageBlock ).html('<img src="' + _.errorImg + '">');
+                // $( mStreamId + ' ' + _.imageBlock + ' img').unwrap();
+                    
             });
 
         //comments

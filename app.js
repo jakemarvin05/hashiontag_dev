@@ -95,3 +95,20 @@ var server = app.listen(3000, function() {
     console.log('Congrats, nothing broke!! Listening on port %d', server.address().port);
 });
 
+var io = require('socket.io').listen(server);
+var ioSockets = {};
+
+io.of('/post').on('connection', function(socket) {
+
+    ioSockets[socket.id] = socket;
+
+    socket.emit('welcome', {message: socket.id});
+
+    socket.on('disconnect', function(socket) {
+        delete ioSockets[socket.id];
+    });
+});
+
+//uncomment if we need to export io instance
+//exports.io = io;
+exports.ioSockets = ioSockets;

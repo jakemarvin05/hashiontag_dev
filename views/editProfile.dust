@@ -1,0 +1,125 @@
+{>blockHeader/}
+
+
+<section id="leftCol" class="col span2">
+    <div class="blockTitle">
+            <h1>Edit Profile</h1>
+    </div>
+
+</section><!-- left_col -->
+
+<section id="main" class="col span1">
+
+    <div class="mainColBlock">
+
+        <ul>
+            <label h2> User Name: </label>
+            <input type="text" name="userNameDisp" id="userNameDisp" disabled value="{user.userNameDisp}">
+
+            <hr>
+
+            <label h2> Current E-mail: </label>
+            <input type="text" name="email" id="email" disabled value="{user.email}">
+
+            <hr>
+
+            <label h2> Name </label>
+            <input type="text" name="name" id="name" value="{user.name}">
+
+            <hr>
+
+            <label h2> Description</label>
+            <input type="text" name="about" id="about" value="{user.about}">
+
+            <hr>
+
+            <button id="changeButton">Change</button>
+        </ul>
+
+    </div>
+
+    <!-- end your stream -->
+</section><!-- main -->
+
+<script>
+var editProfile = function(elem) {
+    //Save the current changes. (name and about)
+
+    var userId = "{user.userId}",
+        theName = function() {
+            return $('#name').val().toString();
+        },
+        about = function() {
+            return $('#about').val().toString();
+        }
+
+
+
+
+    var blink = {
+        disabler: function(elem) {
+            elem.attr('disabled','disabled');
+        },
+        blinker: function(elem) {
+            var self = this;
+            elem.fadeOut('fast', function() {
+                elem.fadeIn('fast', function() {
+                    self.blinker(elem);
+                });
+            });
+        },
+        run: function(elem) {
+            this.disabler(elem);
+            this.blinker(elem);
+        }
+        
+    }
+
+    //blink it.
+    blink.run(elem);
+ 
+    // Send the data using post
+    var posting = $.post( "{p.absPath}/api/edit", { userId: userId, name: theName(), about: about() } );
+ 
+    
+    //done
+    posting.done(function( data ) {
+        console.log(data);
+
+        if(data.success) {
+            console.log('success');
+
+            elem.stop();
+            elem.removeAttr('disabled');
+
+        } else {
+            $(elem).stop().fadeOut('fast').fadeIn('fast').removeAttr('disabled');
+            console.log('error');
+            alertFactory.protoAlert('Please either login or check your internet connection.');
+        }
+        
+    });
+
+
+    //fail
+    posting.fail(function(err) {
+
+
+        alertFactory.protoAlert(err);
+
+        //alertFactory.protoAlert('Please either login or check your internet connection.');
+
+    });
+};
+
+
+$( "button#changeButton" ).click(function(event) {
+    event.preventDefault();
+    editProfile($(this));
+});
+
+
+</script>
+{>blockFooter/}
+
+{>blockFooterScripts/}

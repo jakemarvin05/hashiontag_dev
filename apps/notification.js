@@ -91,7 +91,7 @@ module.exports = function notification(req, res, dataObj) {
 
 /** LIKES */
 
-    if(dataObj.action == 'like') {
+    if(dataObj.action === 'like') {
 
         postOwnerToBeNotified.then(function(toBeNotified) {
 
@@ -121,7 +121,7 @@ module.exports = function notification(req, res, dataObj) {
 
     }
 
-    if(dataObj.action == 'unlike') {
+    if(dataObj.action === 'unlike') {
 
         db.Notification.find({
             where: {
@@ -153,7 +153,7 @@ module.exports = function notification(req, res, dataObj) {
 
 /** Comments */
 
-    if(dataObj.action == 'addComment') {
+    if(dataObj.action === 'addComment') {
 
         postOwnerToBeNotified.then(function(toBeNotified) {
 

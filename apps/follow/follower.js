@@ -9,7 +9,7 @@ module.exports = function followJSON(req, eventEmitter, followType) {
 
         following = true;
 
-    } else if(followType == "followers") {
+    } else if(followType === "followers") {
 
         followers = true;
 

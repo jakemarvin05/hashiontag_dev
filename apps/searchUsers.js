@@ -21,7 +21,7 @@ module.exports = function searchUsers(req, eventEmitter) {
         for(var i in users) {
             //exclude yourself from results
             console.log(users[i].userId);
-            if( !(users[i].userId == req.user.userId) ) {
+            if( !(users[i].userId === req.user.userId) ) {
 
                 userArray[i] = {};
 
@@ -48,7 +48,7 @@ module.exports = function searchUsers(req, eventEmitter) {
 
         var input = req.param('navSearchInput')
         , hasAdd = input.indexOf('@') > -0.5
-        , hasAddFirstPosit = input.indexOf('@') == 1
+        , hasAddFirstPosit = input.indexOf('@') === 1
         , hasDot = input.indexOf('.') > -0.5;
 
         console.log(input);

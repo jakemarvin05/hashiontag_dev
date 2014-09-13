@@ -1,0 +1,1847 @@
+{>blockHeader/}
+
+<script>
+
+function rotateImg(canvas, degree, callback) {
+
+    var img = new Image()
+
+    img.src = canvas.toDataURL();
+
+    var cContext = canvas.getContext('2d');
+
+    var cw = img.width, ch = img.height, cx = 0, cy = 0;
+
+    //   Calculate new canvas size and x/y coorditates for image
+    if(degree === 90) {
+        cw = img.height;
+        ch = img.width;
+        cy = img.height * (-1);
+    } else if (degree === 180) {
+        cx = img.width * (-1);
+        cy = img.height * (-1);
+    } else if (degree === -90) {
+        cw = img.height;
+        ch = img.width;
+        cx = img.width * (-1);
+    }
+
+    //  Rotate image
+    canvas.setAttribute('width', cw);
+    canvas.setAttribute('height', ch);
+    cContext.rotate(degree * Math.PI / 180);
+    cContext.drawImage(img, cx, cy);
+
+    return callback(canvas.toDataURL());
+}
+
+/*
+ * drawImage() stepdown Resize
+ */
+
+function drawImageSDResize( canvas, img, scaledPx, callback ) {
+    var canvasWidth = img.width,
+        canvasHeight = img.height,
+        destWidth, destHeight, 
+        srcWidth = img.width, 
+        srcHeight = img.height, 
+        last = false,
+        timeStart = Date.now(),
+        determinant = ''; //determinant is the dimension that will reach the destination first in down scaling.
+
+    var tmp = new Image();
+        tmp.src = img.src;
+
+
+    var canvas = canvas;
+
+    var scaledPx = Math.round(scaledPx);
+
+    if(srcHeight > srcWidth) {
+        destWidth = scaledPx;
+        destHeight = srcHeight / ( srcWidth / scaledPx );
+        destHeight = Math.round(destHeight);
+        determinant = 'width';
+    } else {
+        destHeight = scaledPx;
+        destWidth = srcWidth / ( srcHeight / scaledPx );
+        destWidth = Math.round(destWidth);
+        determinant = 'height';
+    }
+
+
+
+    var resizeLimit = 3; //5120px!!
+    var steps = 0;
+    var stepsParam = {};
+
+    stepsParam[0] = {
+        width: img.width,
+        height: img.height
+    }
+
+    for(var i = 0; i < resizeLimit; i++) {
+        var width = Math.round(stepsParam[i].width / 2);
+        var height = Math.round(stepsParam[i].height / 2);
+        stepsParam[i+1] = {};
+
+        if(determinant === 'width') {
+
+            if( width < destWidth ) {
+                stepsParam[i+1].width = destWidth;
+                stepsParam[i+1].height = destHeight;
+                break;
+            } else {
+                stepsParam[i+1].width = width;
+                stepsParam[i+1].height = height;
+            }
+
+        } else {
+
+            if( height < destHeight ) {
+                stepsParam[i+1].width = destWidth;
+                stepsParam[i+1].height = destHeight;
+                break;
+            } else {
+                stepsParam[i+1].width = width;
+                stepsParam[i+1].height = height;
+            }
+
+        }
+
+        steps += 1;
+        
+    }
+
+    console.log(steps);
+    console.log(stepsParam);
+
+
+
+
+/*
+    function looper() {
+
+        console.log('looping');
+
+        canvasWidth /= 2;
+        canvasWidth = Math.round(canvasWidth);
+        canvasHeight /= 2;
+        canvasHeight = Math.round(canvasHeight);
+
+        if( canvasWidth <= destWidth || canvasHeight <= destHeight) {
+            canvasWidth = destWidth;
+            canvasHeight = destHeight;
+            last = true;
+        }
+
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+        context = canvas.getContext( '2d' );
+        context.drawImage( tmp, 0, 0, canvasWidth, canvasHeight );
+
+        
+
+        if(last) {
+            tmp.src = canvas.toDataURL('image/jpeg');
+            window.open(tmp.src);
+            delete canvas;
+            delete img;
+            return console.log('Resizer took ' + Math.round(Date.now() - timeStart) + ' ms');
+        }
+        tmp.src = canvas.toDataURL();
+
+        return looper();
+    }
+    looper();
+*/
+
+
+    for(var j = 0; j < steps+1; j++) {
+
+        var width = stepsParam[j+1].width,
+            height = stepsParam[j+1].height;
+
+        console.log('loop ' + j);
+
+        canvas.width = width;
+        canvas.height = height;
+        context = canvas.getContext('2d');
+        context.drawImage( tmp, 0, 0, width, height );
+
+        if(j === steps) {
+            console.log('Resizer took ' + Math.round(Date.now() - timeStart) + ' ms');
+            //tmp.src = canvas.toDataURL('image/jpeg');
+            //delete canvas;
+        } else {
+            tmp.src = canvas.toDataURL();
+        }
+
+    }
+    //return document.body.appendChild(tmp);
+
+    return callback(canvas);
+
+}
+
+/*
+ * Hermite Resize
+ */
+
+function hermiteResize(canvas, img, W2, H2, callback){
+
+    //round all width height inputs
+    var W = img.width,
+        H = img.height,
+        W2 = Math.round(W2),
+        H2 = Math.round(H2);
+
+    console.log(W);
+    console.log(H);
+
+    var time1 = Date.now();
+
+    canvas.width = W;
+    canvas.height = H;
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    var srcImg = ctx.getImageData(0, 0, W, H);
+    var destImg = ctx.getImageData(0, 0, W2, H2);
+
+    var data = srcImg.data;
+    var data2 = destImg.data;
+    var ratio_w = W / W2;
+    var ratio_h = H / H2;
+    var ratio_w_half = Math.ceil(ratio_w/2);
+    var ratio_h_half = Math.ceil(ratio_h/2);
+    
+    for(var j = 0; j < H2; j++){
+        for(var i = 0; i < W2; i++){
+            var x2 = (i + j*W2) * 4;
+            var weight = 0;
+            var weights = 0;
+            var weights_alpha = 0;
+            var gx_r = gx_g = gx_b = gx_a = 0;
+            var center_y = (j + 0.5) * ratio_h;
+            for(var yy = Math.floor(j * ratio_h); yy < (j + 1) * ratio_h; yy++){
+                var dy = Math.abs(center_y - (yy + 0.5)) / ratio_h_half;
+                var center_x = (i + 0.5) * ratio_w;
+                var w0 = dy*dy //pre-calc part of w
+                for(var xx = Math.floor(i * ratio_w); xx < (i + 1) * ratio_w; xx++){
+                    var dx = Math.abs(center_x - (xx + 0.5)) / ratio_w_half;
+                    var w = Math.sqrt(w0 + dx*dx);
+                    if(w >= -1 && w <= 1){
+                        //hermite filter
+                        weight = 2 * w*w*w - 3*w*w + 1;
+                        if(weight > 0){
+                            dx = 4*(xx + yy*W);
+                            //alpha
+                            gx_a += weight * data[dx + 3];
+                            weights_alpha += weight;
+                            //colors
+                            if(data[dx + 3] < 255)
+                                weight = weight * data[dx + 3] / 250;
+                            gx_r += weight * data[dx];
+                            gx_g += weight * data[dx + 1];
+                            gx_b += weight * data[dx + 2];
+                            weights += weight;
+                            }
+                        }
+                    }       
+                }
+            data2[x2]     = gx_r / weights;
+            data2[x2 + 1] = gx_g / weights;
+            data2[x2 + 2] = gx_b / weights;
+            data2[x2 + 3] = gx_a / weights_alpha;
+            }
+        }
+    console.log("hermite = "+(Math.round(Date.now() - time1)/1000)+" s");
+    canvas.getContext("2d").clearRect(0, 0, Math.max(W, W2), Math.max(H, H2));
+    canvas.width = W2;
+    canvas.height = H2;
+    canvas.getContext("2d").putImageData(destImg, 0, 0);
+
+    var data = canvas.toDataURL();
+
+    delete canvas;
+
+    return callback(data);
+}
+
+/*
+ * lanzcros Resize
+ */
+
+//returns a function that calculates lanczos weight
+function lanczosCreate(lobes){
+  return function(x){
+    if (x > lobes) 
+      return 0;
+    x *= Math.PI;
+    if (Math.abs(x) < 1e-16) 
+      return 1
+    var xx = x / lobes;
+    return Math.sin(x) * Math.sin(xx) / x / xx;
+  }
+}
+
+//elem: canvas element, img: image element, sx: scaled width, lobes: kernel radius
+function lanczosResize(elem, img, sx, lobes){ 
+    this.timeStart = Date.now();
+    this.canvas = elem;
+    elem.width = img.width;
+    elem.height = img.height;
+    //elem.style.display = "none";
+    this.ctx = elem.getContext("2d");
+    this.ctx.drawImage(img, 0, 0);
+    this.img = img;
+    this.src = this.ctx.getImageData(0, 0, img.width, img.height);
+    this.dest = {
+        width: sx,
+        height: Math.round(img.height * sx / img.width),
+    };
+    this.dest.data = new Array(this.dest.width * this.dest.height * 3);
+    this.lanczos = lanczosCreate(lobes);
+    this.ratio = img.width / sx;
+    this.rcp_ratio = 2 / this.ratio;
+    this.range2 = Math.ceil(this.ratio * lobes / 2);
+    this.cacheLanc = {};
+    this.center = {};
+    this.icenter = {};
+    setTimeout(this.process1, 0, this, 0);
+}
+
+lanczosResize.prototype.process1 = function(self, u){
+    self.center.x = (u + 0.5) * self.ratio;
+    self.icenter.x = Math.floor(self.center.x);
+    for (var v = 0; v < self.dest.height; v++) {
+        self.center.y = (v + 0.5) * self.ratio;
+        self.icenter.y = Math.floor(self.center.y);
+        var a, r, g, b;
+        a = r = g = b = 0;
+        for (var i = self.icenter.x - self.range2; i <= self.icenter.x + self.range2; i++) {
+            if (i < 0 || i >= self.src.width) 
+                continue;
+            var f_x = Math.floor(1000 * Math.abs(i - self.center.x));
+            if (!self.cacheLanc[f_x]) 
+                self.cacheLanc[f_x] = {};
+            for (var j = self.icenter.y - self.range2; j <= self.icenter.y + self.range2; j++) {
+                if (j < 0 || j >= self.src.height) 
+                    continue;
+                var f_y = Math.floor(1000 * Math.abs(j - self.center.y));
+                if (self.cacheLanc[f_x][f_y] == undefined) 
+                    self.cacheLanc[f_x][f_y] = self.lanczos(Math.sqrt(Math.pow(f_x * self.rcp_ratio, 2) + Math.pow(f_y * self.rcp_ratio, 2)) / 1000);
+                weight = self.cacheLanc[f_x][f_y];
+                if (weight > 0) {
+                    var idx = (j * self.src.width + i) * 4;
+                    a += weight;
+                    r += weight * self.src.data[idx];
+                    g += weight * self.src.data[idx + 1];
+                    b += weight * self.src.data[idx + 2];
+                }
+            }
+        }
+        var idx = (v * self.dest.width + u) * 3;
+        self.dest.data[idx] = r / a;
+        self.dest.data[idx + 1] = g / a;
+        self.dest.data[idx + 2] = b / a;
+    }
+
+    if (++u < self.dest.width) 
+        setTimeout(self.process1, 0, self, u);
+    else 
+        setTimeout(self.process2, 0, self);
+};
+lanczosResize.prototype.process2 = function(self){
+    self.canvas.width = self.dest.width;
+    self.canvas.height = self.dest.height;
+    self.ctx.drawImage(self.img, 0, 0);
+    self.src = self.ctx.getImageData(0, 0, self.dest.width, self.dest.height);
+    var idx, idx2;
+    for (var i = 0; i < self.dest.width; i++) {
+        for (var j = 0; j < self.dest.height; j++) {
+            idx = (j * self.dest.width + i) * 3;
+            idx2 = (j * self.dest.width + i) * 4;
+            self.src.data[idx2] = self.dest.data[idx];
+            self.src.data[idx2 + 1] = self.dest.data[idx + 1];
+            self.src.data[idx2 + 2] = self.dest.data[idx + 2];
+        }
+    }
+    self.ctx.putImageData(self.src, 0, 0);
+    //self.canvas.style.display = "block";
+    console.log('Lanzcros resizing took: ' + ( Math.round(Date.now() - self.timeStart) ).toString() + ' ms');
+
+    return self.toDataURL();
+}
+
+
+</script>
+
+<script>
+/*
+ * Javascript EXIF Reader 0.1.4
+ * Copyright (c) 2008 Jacob Seidelin, cupboy@gmail.com, http://blog.nihilogic.dk/
+ * Licensed under the MPL License [http://www.nihilogic.dk/licenses/mpl-license.txt]
+ */
+ 
+ 
+var EXIF = {};
+ 
+(function() {
+ 
+var bDebug = false;
+ 
+EXIF.Tags = {
+ 
+    // version tags
+    0x9000 : "ExifVersion",         // EXIF version
+    0xA000 : "FlashpixVersion",     // Flashpix format version
+ 
+    // colorspace tags
+    0xA001 : "ColorSpace",          // Color space information tag
+ 
+    // image configuration
+    0xA002 : "PixelXDimension",     // Valid width of meaningful image
+    0xA003 : "PixelYDimension",     // Valid height of meaningful image
+    0x9101 : "ComponentsConfiguration", // Information about channels
+    0x9102 : "CompressedBitsPerPixel",  // Compressed bits per pixel
+ 
+    // user information
+    0x927C : "MakerNote",           // Any desired information written by the manufacturer
+    0x9286 : "UserComment",         // Comments by user
+ 
+    // related file
+    0xA004 : "RelatedSoundFile",        // Name of related sound file
+ 
+    // date and time
+    0x9003 : "DateTimeOriginal",        // Date and time when the original image was generated
+    0x9004 : "DateTimeDigitized",       // Date and time when the image was stored digitally
+    0x9290 : "SubsecTime",          // Fractions of seconds for DateTime
+    0x9291 : "SubsecTimeOriginal",      // Fractions of seconds for DateTimeOriginal
+    0x9292 : "SubsecTimeDigitized",     // Fractions of seconds for DateTimeDigitized
+ 
+    // picture-taking conditions
+    0x829A : "ExposureTime",        // Exposure time (in seconds)
+    0x829D : "FNumber",         // F number
+    0x8822 : "ExposureProgram",     // Exposure program
+    0x8824 : "SpectralSensitivity",     // Spectral sensitivity
+    0x8827 : "ISOSpeedRatings",     // ISO speed rating
+    0x8828 : "OECF",            // Optoelectric conversion factor
+    0x9201 : "ShutterSpeedValue",       // Shutter speed
+    0x9202 : "ApertureValue",       // Lens aperture
+    0x9203 : "BrightnessValue",     // Value of brightness
+    0x9204 : "ExposureBias",        // Exposure bias
+    0x9205 : "MaxApertureValue",        // Smallest F number of lens
+    0x9206 : "SubjectDistance",     // Distance to subject in meters
+    0x9207 : "MeteringMode",        // Metering mode
+    0x9208 : "LightSource",         // Kind of light source
+    0x9209 : "Flash",           // Flash status
+    0x9214 : "SubjectArea",         // Location and area of main subject
+    0x920A : "FocalLength",         // Focal length of the lens in mm
+    0xA20B : "FlashEnergy",         // Strobe energy in BCPS
+    0xA20C : "SpatialFrequencyResponse",    // 
+    0xA20E : "FocalPlaneXResolution",   // Number of pixels in width direction per FocalPlaneResolutionUnit
+    0xA20F : "FocalPlaneYResolution",   // Number of pixels in height direction per FocalPlaneResolutionUnit
+    0xA210 : "FocalPlaneResolutionUnit",    // Unit for measuring FocalPlaneXResolution and FocalPlaneYResolution
+    0xA214 : "SubjectLocation",     // Location of subject in image
+    0xA215 : "ExposureIndex",       // Exposure index selected on camera
+    0xA217 : "SensingMethod",       // Image sensor type
+    0xA300 : "FileSource",          // Image source (3 == DSC)
+    0xA301 : "SceneType",           // Scene type (1 == directly photographed)
+    0xA302 : "CFAPattern",          // Color filter array geometric pattern
+    0xA401 : "CustomRendered",      // Special processing
+    0xA402 : "ExposureMode",        // Exposure mode
+    0xA403 : "WhiteBalance",        // 1 = auto white balance, 2 = manual
+    0xA404 : "DigitalZoomRation",       // Digital zoom ratio
+    0xA405 : "FocalLengthIn35mmFilm",   // Equivalent foacl length assuming 35mm film camera (in mm)
+    0xA406 : "SceneCaptureType",        // Type of scene
+    0xA407 : "GainControl",         // Degree of overall image gain adjustment
+    0xA408 : "Contrast",            // Direction of contrast processing applied by camera
+    0xA409 : "Saturation",          // Direction of saturation processing applied by camera
+    0xA40A : "Sharpness",           // Direction of sharpness processing applied by camera
+    0xA40B : "DeviceSettingDescription",    // 
+    0xA40C : "SubjectDistanceRange",    // Distance to subject
+ 
+    // other tags
+    0xA005 : "InteroperabilityIFDPointer",
+    0xA420 : "ImageUniqueID"        // Identifier assigned uniquely to each image
+};
+ 
+EXIF.TiffTags = {
+    0x0100 : "ImageWidth",
+    0x0101 : "ImageHeight",
+    0x8769 : "ExifIFDPointer",
+    0x8825 : "GPSInfoIFDPointer",
+    0xA005 : "InteroperabilityIFDPointer",
+    0x0102 : "BitsPerSample",
+    0x0103 : "Compression",
+    0x0106 : "PhotometricInterpretation",
+    0x0112 : "Orientation",
+    0x0115 : "SamplesPerPixel",
+    0x011C : "PlanarConfiguration",
+    0x0212 : "YCbCrSubSampling",
+    0x0213 : "YCbCrPositioning",
+    0x011A : "XResolution",
+    0x011B : "YResolution",
+    0x0128 : "ResolutionUnit",
+    0x0111 : "StripOffsets",
+    0x0116 : "RowsPerStrip",
+    0x0117 : "StripByteCounts",
+    0x0201 : "JPEGInterchangeFormat",
+    0x0202 : "JPEGInterchangeFormatLength",
+    0x012D : "TransferFunction",
+    0x013E : "WhitePoint",
+    0x013F : "PrimaryChromaticities",
+    0x0211 : "YCbCrCoefficients",
+    0x0214 : "ReferenceBlackWhite",
+    0x0132 : "DateTime",
+    0x010E : "ImageDescription",
+    0x010F : "Make",
+    0x0110 : "Model",
+    0x0131 : "Software",
+    0x013B : "Artist",
+    0x8298 : "Copyright"
+}
+ 
+EXIF.GPSTags = {
+    0x0000 : "GPSVersionID",
+    0x0001 : "GPSLatitudeRef",
+    0x0002 : "GPSLatitude",
+    0x0003 : "GPSLongitudeRef",
+    0x0004 : "GPSLongitude",
+    0x0005 : "GPSAltitudeRef",
+    0x0006 : "GPSAltitude",
+    0x0007 : "GPSTimeStamp",
+    0x0008 : "GPSSatellites",
+    0x0009 : "GPSStatus",
+    0x000A : "GPSMeasureMode",
+    0x000B : "GPSDOP",
+    0x000C : "GPSSpeedRef",
+    0x000D : "GPSSpeed",
+    0x000E : "GPSTrackRef",
+    0x000F : "GPSTrack",
+    0x0010 : "GPSImgDirectionRef",
+    0x0011 : "GPSImgDirection",
+    0x0012 : "GPSMapDatum",
+    0x0013 : "GPSDestLatitudeRef",
+    0x0014 : "GPSDestLatitude",
+    0x0015 : "GPSDestLongitudeRef",
+    0x0016 : "GPSDestLongitude",
+    0x0017 : "GPSDestBearingRef",
+    0x0018 : "GPSDestBearing",
+    0x0019 : "GPSDestDistanceRef",
+    0x001A : "GPSDestDistance",
+    0x001B : "GPSProcessingMethod",
+    0x001C : "GPSAreaInformation",
+    0x001D : "GPSDateStamp",
+    0x001E : "GPSDifferential"
+}
+ 
+EXIF.StringValues = {
+    ExposureProgram : {
+        0 : "Not defined",
+        1 : "Manual",
+        2 : "Normal program",
+        3 : "Aperture priority",
+        4 : "Shutter priority",
+        5 : "Creative program",
+        6 : "Action program",
+        7 : "Portrait mode",
+        8 : "Landscape mode"
+    },
+    MeteringMode : {
+        0 : "Unknown",
+        1 : "Average",
+        2 : "CenterWeightedAverage",
+        3 : "Spot",
+        4 : "MultiSpot",
+        5 : "Pattern",
+        6 : "Partial",
+        255 : "Other"
+    },
+    LightSource : {
+        0 : "Unknown",
+        1 : "Daylight",
+        2 : "Fluorescent",
+        3 : "Tungsten (incandescent light)",
+        4 : "Flash",
+        9 : "Fine weather",
+        10 : "Cloudy weather",
+        11 : "Shade",
+        12 : "Daylight fluorescent (D 5700 - 7100K)",
+        13 : "Day white fluorescent (N 4600 - 5400K)",
+        14 : "Cool white fluorescent (W 3900 - 4500K)",
+        15 : "White fluorescent (WW 3200 - 3700K)",
+        17 : "Standard light A",
+        18 : "Standard light B",
+        19 : "Standard light C",
+        20 : "D55",
+        21 : "D65",
+        22 : "D75",
+        23 : "D50",
+        24 : "ISO studio tungsten",
+        255 : "Other"
+    },
+    Flash : {
+        0x0000 : "Flash did not fire",
+        0x0001 : "Flash fired",
+        0x0005 : "Strobe return light not detected",
+        0x0007 : "Strobe return light detected",
+        0x0009 : "Flash fired, compulsory flash mode",
+        0x000D : "Flash fired, compulsory flash mode, return light not detected",
+        0x000F : "Flash fired, compulsory flash mode, return light detected",
+        0x0010 : "Flash did not fire, compulsory flash mode",
+        0x0018 : "Flash did not fire, auto mode",
+        0x0019 : "Flash fired, auto mode",
+        0x001D : "Flash fired, auto mode, return light not detected",
+        0x001F : "Flash fired, auto mode, return light detected",
+        0x0020 : "No flash function",
+        0x0041 : "Flash fired, red-eye reduction mode",
+        0x0045 : "Flash fired, red-eye reduction mode, return light not detected",
+        0x0047 : "Flash fired, red-eye reduction mode, return light detected",
+        0x0049 : "Flash fired, compulsory flash mode, red-eye reduction mode",
+        0x004D : "Flash fired, compulsory flash mode, red-eye reduction mode, return light not detected",
+        0x004F : "Flash fired, compulsory flash mode, red-eye reduction mode, return light detected",
+        0x0059 : "Flash fired, auto mode, red-eye reduction mode",
+        0x005D : "Flash fired, auto mode, return light not detected, red-eye reduction mode",
+        0x005F : "Flash fired, auto mode, return light detected, red-eye reduction mode"
+    },
+    SensingMethod : {
+        1 : "Not defined",
+        2 : "One-chip color area sensor",
+        3 : "Two-chip color area sensor",
+        4 : "Three-chip color area sensor",
+        5 : "Color sequential area sensor",
+        7 : "Trilinear sensor",
+        8 : "Color sequential linear sensor"
+    },
+    SceneCaptureType : {
+        0 : "Standard",
+        1 : "Landscape",
+        2 : "Portrait",
+        3 : "Night scene"
+    },
+    SceneType : {
+        1 : "Directly photographed"
+    },
+    CustomRendered : {
+        0 : "Normal process",
+        1 : "Custom process"
+    },
+    WhiteBalance : {
+        0 : "Auto white balance",
+        1 : "Manual white balance"
+    },
+    GainControl : {
+        0 : "None",
+        1 : "Low gain up",
+        2 : "High gain up",
+        3 : "Low gain down",
+        4 : "High gain down"
+    },
+    Contrast : {
+        0 : "Normal",
+        1 : "Soft",
+        2 : "Hard"
+    },
+    Saturation : {
+        0 : "Normal",
+        1 : "Low saturation",
+        2 : "High saturation"
+    },
+    Sharpness : {
+        0 : "Normal",
+        1 : "Soft",
+        2 : "Hard"
+    },
+    SubjectDistanceRange : {
+        0 : "Unknown",
+        1 : "Macro",
+        2 : "Close view",
+        3 : "Distant view"
+    },
+    FileSource : {
+        3 : "DSC"
+    },
+ 
+    Components : {
+        0 : "",
+        1 : "Y",
+        2 : "Cb",
+        3 : "Cr",
+        4 : "R",
+        5 : "G",
+        6 : "B"
+    }
+}
+ 
+function addEvent(oElement, strEvent, fncHandler) 
+{
+    if (oElement.addEventListener) { 
+        oElement.addEventListener(strEvent, fncHandler, false); 
+    } else if (oElement.attachEvent) { 
+        oElement.attachEvent("on" + strEvent, fncHandler); 
+    }
+}
+ 
+ 
+function imageHasData(oImg) 
+{
+    return !!(oImg.exifdata);
+}
+ 
+function getImageData(oImg, fncCallback) 
+{
+    BinaryAjax(
+        oImg.src,
+        function(oHTTP) {
+            var oEXIF = findEXIFinJPEG(oHTTP.binaryResponse);
+            oImg.exifdata = oEXIF || {};
+            if (fncCallback) fncCallback();
+        }
+    )
+}
+ 
+function findEXIFinJPEG(oFile) {
+    var aMarkers = [];
+ 
+    if (oFile.getByteAt(0) != 0xFF || oFile.getByteAt(1) != 0xD8) {
+        return false; // not a valid jpeg
+    }
+ 
+    var iOffset = 2;
+    var iLength = oFile.getLength();
+    while (iOffset < iLength) {
+        if (oFile.getByteAt(iOffset) != 0xFF) {
+            if (bDebug) console.log("Not a valid marker at offset " + iOffset + ", found: " + oFile.getByteAt(iOffset));
+            return false; // not a valid marker, something is wrong
+        }
+ 
+        var iMarker = oFile.getByteAt(iOffset+1);
+ 
+        // we could implement handling for other markers here, 
+        // but we're only looking for 0xFFE1 for EXIF data
+ 
+        if (iMarker == 22400) {
+            if (bDebug) console.log("Found 0xFFE1 marker");
+            return readEXIFData(oFile, iOffset + 4, oFile.getShortAt(iOffset+2, true)-2);
+            iOffset += 2 + oFile.getShortAt(iOffset+2, true);
+ 
+        } else if (iMarker == 225) {
+            // 0xE1 = Application-specific 1 (for EXIF)
+            if (bDebug) console.log("Found 0xFFE1 marker");
+            return readEXIFData(oFile, iOffset + 4, oFile.getShortAt(iOffset+2, true)-2);
+ 
+        } else {
+            iOffset += 2 + oFile.getShortAt(iOffset+2, true);
+        }
+ 
+    }
+ 
+}
+ 
+ 
+function readTags(oFile, iTIFFStart, iDirStart, oStrings, bBigEnd) 
+{
+    var iEntries = oFile.getShortAt(iDirStart, bBigEnd);
+    var oTags = {};
+    for (var i=0;i<iEntries;i++) {
+        var iEntryOffset = iDirStart + i*12 + 2;
+        var strTag = oStrings[oFile.getShortAt(iEntryOffset, bBigEnd)];
+        if (!strTag && bDebug) console.log("Unknown tag: " + oFile.getShortAt(iEntryOffset, bBigEnd));
+        oTags[strTag] = readTagValue(oFile, iEntryOffset, iTIFFStart, iDirStart, bBigEnd);
+    }
+    return oTags;
+}
+ 
+ 
+function readTagValue(oFile, iEntryOffset, iTIFFStart, iDirStart, bBigEnd)
+{
+    var iType = oFile.getShortAt(iEntryOffset+2, bBigEnd);
+    var iNumValues = oFile.getLongAt(iEntryOffset+4, bBigEnd);
+    var iValueOffset = oFile.getLongAt(iEntryOffset+8, bBigEnd) + iTIFFStart;
+ 
+    switch (iType) {
+        case 1: // byte, 8-bit unsigned int
+        case 7: // undefined, 8-bit byte, value depending on field
+            if (iNumValues == 1) {
+                return oFile.getByteAt(iEntryOffset + 8, bBigEnd);
+            } else {
+                var iValOffset = iNumValues > 4 ? iValueOffset : (iEntryOffset + 8);
+                var aVals = [];
+                for (var n=0;n<iNumValues;n++) {
+                    aVals[n] = oFile.getByteAt(iValOffset + n);
+                }
+                return aVals;
+            }
+            break;
+ 
+        case 2: // ascii, 8-bit byte
+            var iStringOffset = iNumValues > 4 ? iValueOffset : (iEntryOffset + 8);
+            return oFile.getStringAt(iStringOffset, iNumValues-1);
+            break;
+ 
+        case 3: // short, 16 bit int
+            if (iNumValues == 1) {
+                return oFile.getShortAt(iEntryOffset + 8, bBigEnd);
+            } else {
+                var iValOffset = iNumValues > 2 ? iValueOffset : (iEntryOffset + 8);
+                var aVals = [];
+                for (var n=0;n<iNumValues;n++) {
+                    aVals[n] = oFile.getShortAt(iValOffset + 2*n, bBigEnd);
+                }
+                return aVals;
+            }
+            break;
+ 
+        case 4: // long, 32 bit int
+            if (iNumValues == 1) {
+                return oFile.getLongAt(iEntryOffset + 8, bBigEnd);
+            } else {
+                var aVals = [];
+                for (var n=0;n<iNumValues;n++) {
+                    aVals[n] = oFile.getLongAt(iValueOffset + 4*n, bBigEnd);
+                }
+                return aVals;
+            }
+            break;
+        case 5: // rational = two long values, first is numerator, second is denominator
+            if (iNumValues == 1) {
+                return oFile.getLongAt(iValueOffset, bBigEnd) / oFile.getLongAt(iValueOffset+4, bBigEnd);
+            } else {
+                var aVals = [];
+                for (var n=0;n<iNumValues;n++) {
+                    aVals[n] = oFile.getLongAt(iValueOffset + 8*n, bBigEnd) / oFile.getLongAt(iValueOffset+4 + 8*n, bBigEnd);
+                }
+                return aVals;
+            }
+            break;
+        case 9: // slong, 32 bit signed int
+            if (iNumValues == 1) {
+                return oFile.getSLongAt(iEntryOffset + 8, bBigEnd);
+            } else {
+                var aVals = [];
+                for (var n=0;n<iNumValues;n++) {
+                    aVals[n] = oFile.getSLongAt(iValueOffset + 4*n, bBigEnd);
+                }
+                return aVals;
+            }
+            break;
+        case 10: // signed rational, two slongs, first is numerator, second is denominator
+            if (iNumValues == 1) {
+                return oFile.getSLongAt(iValueOffset, bBigEnd) / oFile.getSLongAt(iValueOffset+4, bBigEnd);
+            } else {
+                var aVals = [];
+                for (var n=0;n<iNumValues;n++) {
+                    aVals[n] = oFile.getSLongAt(iValueOffset + 8*n, bBigEnd) / oFile.getSLongAt(iValueOffset+4 + 8*n, bBigEnd);
+                }
+                return aVals;
+            }
+            break;
+    }
+}
+ 
+ 
+function readEXIFData(oFile, iStart, iLength) 
+{
+    if (oFile.getStringAt(iStart, 4) != "Exif") {
+        if (bDebug) console.log("Not valid EXIF data! " + oFile.getStringAt(iStart, 4));
+        return false;
+    }
+ 
+    var bBigEnd;
+ 
+    var iTIFFOffset = iStart + 6;
+ 
+    // test for TIFF validity and endianness
+    if (oFile.getShortAt(iTIFFOffset) == 0x4949) {
+        bBigEnd = false;
+    } else if (oFile.getShortAt(iTIFFOffset) == 0x4D4D) {
+        bBigEnd = true;
+    } else {
+        if (bDebug) console.log("Not valid TIFF data! (no 0x4949 or 0x4D4D)");
+        return false;
+    }
+ 
+    if (oFile.getShortAt(iTIFFOffset+2, bBigEnd) != 0x002A) {
+        if (bDebug) console.log("Not valid TIFF data! (no 0x002A)");
+        return false;
+    }
+ 
+    if (oFile.getLongAt(iTIFFOffset+4, bBigEnd) != 0x00000008) {
+        if (bDebug) console.log("Not valid TIFF data! (First offset not 8)", oFile.getShortAt(iTIFFOffset+4, bBigEnd));
+        return false;
+    }
+ 
+    var oTags = readTags(oFile, iTIFFOffset, iTIFFOffset+8, EXIF.TiffTags, bBigEnd);
+ 
+    if (oTags.ExifIFDPointer) {
+        var oEXIFTags = readTags(oFile, iTIFFOffset, iTIFFOffset + oTags.ExifIFDPointer, EXIF.Tags, bBigEnd);
+        for (var strTag in oEXIFTags) {
+            switch (strTag) {
+                case "LightSource" :
+                case "Flash" :
+                case "MeteringMode" :
+                case "ExposureProgram" :
+                case "SensingMethod" :
+                case "SceneCaptureType" :
+                case "SceneType" :
+                case "CustomRendered" :
+                case "WhiteBalance" : 
+                case "GainControl" : 
+                case "Contrast" :
+                case "Saturation" :
+                case "Sharpness" : 
+                case "SubjectDistanceRange" :
+                case "FileSource" :
+                    oEXIFTags[strTag] = EXIF.StringValues[strTag][oEXIFTags[strTag]];
+                    break;
+    
+                case "ExifVersion" :
+                case "FlashpixVersion" :
+                    oEXIFTags[strTag] = String.fromCharCode(oEXIFTags[strTag][0], oEXIFTags[strTag][1], oEXIFTags[strTag][2], oEXIFTags[strTag][3]);
+                    break;
+    
+                case "ComponentsConfiguration" : 
+                    oEXIFTags[strTag] = 
+                        EXIF.StringValues.Components[oEXIFTags[strTag][0]]
+                        + EXIF.StringValues.Components[oEXIFTags[strTag][1]]
+                        + EXIF.StringValues.Components[oEXIFTags[strTag][2]]
+                        + EXIF.StringValues.Components[oEXIFTags[strTag][3]];
+                    break;
+            }
+            oTags[strTag] = oEXIFTags[strTag];
+        }
+    }
+ 
+    if (oTags.GPSInfoIFDPointer) {
+        var oGPSTags = readTags(oFile, iTIFFOffset, iTIFFOffset + oTags.GPSInfoIFDPointer, EXIF.GPSTags, bBigEnd);
+        for (var strTag in oGPSTags) {
+            switch (strTag) {
+                case "GPSVersionID" : 
+                    oGPSTags[strTag] = oGPSTags[strTag][0] 
+                        + "." + oGPSTags[strTag][1] 
+                        + "." + oGPSTags[strTag][2] 
+                        + "." + oGPSTags[strTag][3];
+                    break;
+            }
+            oTags[strTag] = oGPSTags[strTag];
+        }
+    }
+ 
+    return oTags;
+}
+ 
+ 
+EXIF.getData = function(oImg, fncCallback) 
+{
+    if (!oImg.complete) return false;
+    if (!imageHasData(oImg)) {
+        getImageData(oImg, fncCallback);
+    } else {
+        if (fncCallback) fncCallback();
+    }
+    return true;
+}
+ 
+EXIF.getTag = function(oImg, strTag) 
+{
+    if (!imageHasData(oImg)) return;
+    return oImg.exifdata[strTag];
+}
+ 
+EXIF.getAllTags = function(oImg) 
+{
+    if (!imageHasData(oImg)) return {};
+    var oData = oImg.exifdata;
+    var oAllTags = {};
+    for (var a in oData) {
+        if (oData.hasOwnProperty(a)) {
+            oAllTags[a] = oData[a];
+        }
+    }
+    return oAllTags;
+}
+ 
+ 
+EXIF.pretty = function(oImg) 
+{
+    if (!imageHasData(oImg)) return "";
+    var oData = oImg.exifdata;
+    var strPretty = "";
+    for (var a in oData) {
+        if (oData.hasOwnProperty(a)) {
+            if (typeof oData[a] == "object") {
+                strPretty += a + " : [" + oData[a].length + " values]\r\n";
+            } else {
+                strPretty += a + " : " + oData[a] + "\r\n";
+            }
+        }
+    }
+    return strPretty;
+}
+ 
+EXIF.readFromBinaryFile = function(oFile) {
+    return findEXIFinJPEG(oFile);
+}
+ 
+function loadAllImages() 
+{
+    var aImages = document.getElementsByTagName("img");
+    for (var i=0;i<aImages.length;i++) {
+        if (aImages[i].getAttribute("exif") == "true") {
+            if (!aImages[i].complete) {
+                addEvent(aImages[i], "load", 
+                    function() {
+                        EXIF.getData(this);
+                    }
+                ); 
+            } else {
+                EXIF.getData(aImages[i]);
+            }
+        }
+    }
+}
+ 
+addEvent(window, "load", loadAllImages); 
+ 
+})();
+
+/*
+ * Binary Ajax 0.1.10
+ * Copyright (c) 2008 Jacob Seidelin, cupboy@gmail.com, http://blog.nihilogic.dk/
+ * Licensed under the MPL License [http://www.nihilogic.dk/licenses/mpl-license.txt]
+ */
+
+
+var BinaryFile = function(strData, iDataOffset, iDataLength) {
+    var data = strData;
+    var dataOffset = iDataOffset || 0;
+    var dataLength = 0;
+
+    this.getRawData = function() {
+        return data;
+    }
+
+    if (typeof strData == "string") {
+        dataLength = iDataLength || data.length;
+
+        this.getByteAt = function(iOffset) {
+            return data.charCodeAt(iOffset + dataOffset) & 0xFF;
+        }
+        
+        this.getBytesAt = function(iOffset, iLength) {
+            var aBytes = [];
+            
+            for (var i = 0; i < iLength; i++) {
+                aBytes[i] = data.charCodeAt((iOffset + i) + dataOffset) & 0xFF
+            };
+            
+            return aBytes;
+        }
+    } else if (typeof strData == "unknown") {
+        dataLength = iDataLength || IEBinary_getLength(data);
+
+        this.getByteAt = function(iOffset) {
+            return IEBinary_getByteAt(data, iOffset + dataOffset);
+        }
+
+        this.getBytesAt = function(iOffset, iLength) {
+            return new VBArray(IEBinary_getBytesAt(data, iOffset + dataOffset, iLength)).toArray();
+        }
+    }
+
+    this.getLength = function() {
+        return dataLength;
+    }
+
+    this.getSByteAt = function(iOffset) {
+        var iByte = this.getByteAt(iOffset);
+        if (iByte > 127)
+            return iByte - 256;
+        else
+            return iByte;
+    }
+
+    this.getShortAt = function(iOffset, bBigEndian) {
+        var iShort = bBigEndian ? 
+            (this.getByteAt(iOffset) << 8) + this.getByteAt(iOffset + 1)
+            : (this.getByteAt(iOffset + 1) << 8) + this.getByteAt(iOffset)
+        if (iShort < 0) iShort += 65536;
+        return iShort;
+    }
+    this.getSShortAt = function(iOffset, bBigEndian) {
+        var iUShort = this.getShortAt(iOffset, bBigEndian);
+        if (iUShort > 32767)
+            return iUShort - 65536;
+        else
+            return iUShort;
+    }
+    this.getLongAt = function(iOffset, bBigEndian) {
+        var iByte1 = this.getByteAt(iOffset),
+            iByte2 = this.getByteAt(iOffset + 1),
+            iByte3 = this.getByteAt(iOffset + 2),
+            iByte4 = this.getByteAt(iOffset + 3);
+
+        var iLong = bBigEndian ? 
+            (((((iByte1 << 8) + iByte2) << 8) + iByte3) << 8) + iByte4
+            : (((((iByte4 << 8) + iByte3) << 8) + iByte2) << 8) + iByte1;
+        if (iLong < 0) iLong += 4294967296;
+        return iLong;
+    }
+    this.getSLongAt = function(iOffset, bBigEndian) {
+        var iULong = this.getLongAt(iOffset, bBigEndian);
+        if (iULong > 2147483647)
+            return iULong - 4294967296;
+        else
+            return iULong;
+    }
+
+    this.getStringAt = function(iOffset, iLength) {
+        var aStr = [];
+        
+        var aBytes = this.getBytesAt(iOffset, iLength);
+        for (var j=0; j < iLength; j++) {
+            aStr[j] = String.fromCharCode(aBytes[j]);
+        }
+        return aStr.join("");
+    }
+    
+    this.getCharAt = function(iOffset) {
+        return String.fromCharCode(this.getByteAt(iOffset));
+    }
+    this.toBase64 = function() {
+        return window.btoa(data);
+    }
+    this.fromBase64 = function(strBase64) {
+        data = window.atob(strBase64);
+    }
+}
+
+
+</script>
+
+
+<section id="leftCol" class="col span2">
+    <div class="blockTitle">
+        <h1>Post</h1>
+    </div>
+</section><!-- left_col -->
+<section id="main" class="col span1">
+    <div class="mainColBlock">
+        {?isLoggedIn}
+            <style>
+                #img_background,#img_preview {
+                    position:relative;
+                }
+                #img_background {
+                    overflow:hidden;
+                }
+            </style>
+            <script type="text/javascript" src="{p.js}/caman.full.min.js"></script>
+
+                    <div id="img_background" style="height:320px;width:320px;display:none;">
+                        <canvas id="img_preview" alt="Your Style"></canvas>
+                    </div>
+                    <div id="presetFilters" style="display:none;">
+                        Filters are for preview purposes at the moment.
+                      
+                        <button data-preset="vintage">Vintage</button>
+                      
+                        <button data-preset="lomo">Lomo</button>
+                      
+                        <button data-preset="clarity">Clarity</button>
+                      
+                        <button data-preset="sinCity">Sin City</button>
+                      
+                        <button data-preset="sunrise">Sunrise</button>
+                      
+                        <button data-preset="crossProcess">Cross Process</button>
+                      
+                        <button data-preset="orangePeel">Orange Peel</button>
+                      
+                        <button data-preset="love">Love</button>
+                      
+                        <button data-preset="grungy">Grungy</button>
+                      
+                        <button data-preset="jarques">Jarques</button>
+                      
+                        <button data-preset="pinhole">Pinhole</button>
+                      
+                        <button data-preset="oldBoot">Old Boot</button>
+                      
+                        <button data-preset="glowingSun">Glowing Sun</button>
+                      
+                        <button data-preset="hazyDays">Hazy Days</button>
+                      
+                        <button data-preset="herMajesty">Her Majesty</button>
+                      
+                        <button data-preset="nostalgia">Nostalgia</button>
+                      
+                        <button data-preset="hemingway">Hemingway</button>
+                      
+                        <button data-preset="concentrate">Concentrate</button>
+                      
+                      </div>
+
+                    <script>
+                    var blink = {
+                        disabler: function(elem) {
+                            elem.attr('disabled','disabled');
+                        },
+                        blinker: function(elem) {
+                            var self = this;
+                            elem.fadeOut('fast', function() {
+                                elem.fadeIn('fast', function() {
+                                    self.blinker(elem);
+                                });
+                            });
+                        },
+                        run: function(elem) {
+                            this.disabler(elem);
+                            this.blinker(elem);
+                        }
+                        
+                    }
+                    var block = false;
+
+                    $(document).ready(function() {
+                        var previewCanvas = Caman("#img_preview");
+
+                        $('#presetFilters button').each(function() {
+
+                            $(this).click(function() {
+
+                                $('#presetFilters button').removeClass('selected');
+
+                                var self = $(this);
+
+                                if(block) {
+                                    return false;
+                                }
+
+                                block = true;
+
+                                blink.run($(this));
+
+                                var filter = $(this).data('preset');
+
+                                console.log(filter);
+
+                                Caman("#img_preview").revert(false);
+                                Caman("#img_preview")[filter]().render(function() {
+                                    block = false;
+                                    self.stop().fadeOut('fast').fadeIn('fast').removeAttr('disabled');
+                                    self.addClass('selected');
+                                });
+
+                            });
+                        });
+                    });
+                    </script>
+                    Image: <input id="img_field" type="file" name="img" required></input>
+            
+                <p>
+                    Post: <textarea id="desc" name="desc" required></textarea>
+                </p>
+                <p>
+                    <button id="submit" type="button">Pre-submit</button>
+                    <button>Post</button>
+                </p>
+
+        {:else}
+            You are not logged in. To post, please log in <a href="{#p}{login}{/p}">here</a>
+        {/isLoggedIn}
+    </div>
+    <!-- end your stream -->
+</section><!-- main -->
+
+
+<script>
+/*******************
+* Global Variables *
+*******************/
+var imgX = 0, // margin-left of preview image (i.e. $("#img_preview"))
+    imgY = 0, // margin-top of preview image
+    stockImg = '', // user uploaded stock image.
+    stockImgEXIF = {},
+    stockImgRotate = 0;
+
+// console.log("Loading...");
+$(document).ready(function(){
+    // console.log("Document Ready");
+    
+    /*****************
+    * Drag scrolling *
+    *****************/
+    // console.log("Adding Drag Scrolling");
+    // Bind drag event to mousedown/touchdown at image container
+    $('#img_background').on("mousedown touchstart",function(e){
+        // console.log("Mousedown Event");
+        e.stopPropagation();
+        e.preventDefault();
+        var startX = e.pageX,
+            startY = e.pageY;
+        console.log("Start Position:",startX,startY);
+        $('#img_background').on("mousemove touchmove",function(e){
+            // Object caching
+            var $img_preview = $('#img_preview');
+            e.stopPropagation();
+            e.preventDefault();
+            if (e.type=="touchmove") e=e.originalEvent.touches[0]||e.originalEvent.changedTouches[0];
+            var endX = e.pageX,
+                endY = e.pageY,
+                imgLeft = $img_preview.css("margin-left"),
+                imgTop = $img_preview.css("margin-top"),
+            //  imgX = parseInt(imgLeft.substr(0,imgLeft.length-2)),
+            //  imgY = parseInt(imgTop.substr(0,imgTop.length-2)),
+                imgW = $img_preview.css("width"),
+                imgH = $img_preview.css("height"),
+                minX = 320-parseInt(imgW.substr(0,imgW.length-2)),
+                minY = 320-parseInt(imgH.substr(0,imgH.length-2)),
+                maxX = 0,
+                maxY = 0;
+            // console.log("End Position:",endX,endY);
+            // console.log("Image Position (css):",imgLeft,imgTop);
+            // console.log("Image Position:",imgX,imgY);
+            // console.log("Image Size:",imgW,imgH);
+            // console.log("Image Boundary:",minX,minY,maxX,maxY);
+            // Update image position based on Mouse Event
+            imgX += endX-startX;
+            imgY += endY-startY;
+            // Update image position based on Boundary
+            if (imgX<minX){
+                imgX=minX;
+            } else if (imgX>maxX){
+                imgX=maxX;
+            }
+            if (imgY<minY){
+                imgY=minY;
+            } else if (imgY>maxY){
+                imgY=maxY;
+            }
+            // Reset starting offsets
+            startX = endX;
+            startY = endY;
+            // Render image
+            $("#img_preview").css({
+                marginTop:imgY+"px",
+                marginLeft:imgX+"px"
+            });
+            return false;
+        });
+        return false;
+    });
+    // Unbind drag event to mouseup/touchend at window
+    $(window).on("mouseup touchnend",function(){
+        console.log("Mouseup Event");
+        $('#img_background').unbind("mousemove touchmove");
+    });
+    /*******************
+    * Image processing *
+    *******************/
+
+    $("#img_field").change(function(){
+        console.log("New file");
+
+        //prepare the canvas
+        document.getElementById('img_preview').getContext('2d').clearRect(0, 0, this.width, this.height);
+        $('#img_background').slideUp('fast');
+
+
+        if(!this.files && !this.files[0]) {
+            return false;
+        }
+
+        var reader = new FileReader();
+        
+        reader.onload = function (e) {
+
+            //stockImg = e.target.result;
+            stockImgRotate = 0;
+            stockImgEXIF = {};
+
+            //GET IMAGE EXIF FOR ROTATION
+            if( typeof atob === 'function' && typeof BinaryFile === 'function') {
+
+                var base64 = e.target.result.replace(/^.*?,/,''),
+                    binary = atob(base64),
+                    exif = EXIF.readFromBinaryFile(new BinaryFile(binary));
+
+                console.log(exif);
+                if(exif) {
+                    stockImgEXIF = exif
+                }
+            }
+
+            //pre-processing: Resize.
+            var img = new Image();
+            var canvas = document.createElement("canvas");
+
+            img.onload = function() {
+
+                //reject image if too small
+                if(this.height < 640 || this.width < 640 ) {
+                    return aF.protoAlert({
+                            text:'Please select an image with at least 640px by 640px resolution', 
+                            title:'Resolution too small'
+                        });
+                }
+
+                if(img.height > img.width) {
+                    var rW = 640,
+                        rH = img.height / ( img.width / 640 );
+                } else {
+                    var rH = 640,
+                        rW = img.width / ( img.height / 640 );
+                }
+
+                //hermiteResize([canvas], [image], [resizedWidth], [resizedHeight]);
+                //var resizedImage = hermiteResize(canvas, img, rW, rH);
+
+                //drawImageSDResize([canvas], [image], [scaledPx]);
+
+
+                //WARNING: Doesn't work for Safari when image is above a certain resolution.
+                drawImageSDResize(canvas, img, 640, function(canvas) {
+
+                    //rotation
+                    if(!$.isEmptyObject(stockImgEXIF)) {
+                        if(stockImgEXIF.Orientation) {
+
+                            var orientation = parseFloat(stockImgEXIF.Orientation);
+
+                            if(orientation === 3 || orientation === 4) {
+                                stockImgRotate = 180;
+                            } else if(orientation === 5 || orientation === 6) {
+                                stockImgRotate = 90;
+                            } else if(orientation === 7 || orientation === 9) {
+                                stockImgRotate = -90;
+                            }
+
+                        }
+                    }
+                    if(stockImgRotate) {
+
+                        rotateImg(canvas, stockImgRotate, function(data) {
+                            var img = new Image();
+                            img.src = data;
+
+                            document.body.appendChild(img);
+                        });
+
+                        // this.render(function() {
+                        //     finalCallBack(this);
+                        // });
+
+                    } else {
+
+
+                        var img = new Image();
+                        img.src = canvas.toDataURL();
+
+                        document.body.appendChild(img);
+
+
+                        //finalCallBack(this);
+                    }
+{!
+                    //LOAD CAMAN
+                    // Reset caman canvas ID to reload image
+                    $('#img_preview').removeAttr('data-caman-id');
+
+
+                    Caman("#img_preview", resizedImage, function () {
+
+                        console.log('Caman initialised');
+
+                        //finalCallBack
+                        function finalCallBack(self) {
+                            var $img_preview = $('#img_preview');
+                            console.log(self.width);
+                            console.log(self.height);
+
+                            if(self.height > self.width) {
+                                $img_preview.css('height', self.height/2 + 'px')
+                                    .css('width', '320px');
+                            } else {
+                                $img_preview.css('width', self.width/2 + 'px')
+                                    .css('height', '320px');
+                            }
+
+                            // Center Image
+                            var imgW = $img_preview.css("width"),
+                                imgH = $img_preview.css("height");
+                            // Set margins
+                            imgX = ( 320-parseInt(imgW.substr(0,imgW.length-2)) )/2,
+                            imgY = ( 320-parseInt(imgH.substr(0,imgH.length-2)) )/2;
+
+                            console.log(imgW,imgH,imgX,imgY);
+                            $img_preview.css({marginTop:imgY,marginLeft:imgX});
+
+                            $('#img_background').slideDown('fast', function() {
+                                $('#presetFilters').slideDown('fast');
+                            });
+                            
+                        }
+
+                        //rotation
+                        if(!$.isEmptyObject(stockImgEXIF)) {
+                            if(stockImgEXIF.Orientation) {
+
+                                var orientation = parseFloat(stockImgEXIF.Orientation);
+
+                                if(orientation === 3 || orientation === 4) {
+                                    stockImgRotate = 180;
+                                } else if(orientation === 5 || orientation === 6) {
+                                    stockImgRotate = 90;
+                                } else if(orientation === 7 || orientation === 9) {
+                                    stockImgRotate = -90;
+                                }
+
+                            }
+                        }
+                        if(stockImgRotate) {
+
+                            this.rotate(stockImgRotate);
+                            this.render(function() {
+                                finalCallBack(this);
+                            });
+
+                        } else {
+
+                            finalCallBack(this);
+                        }
+
+                    }); //caman
+!}
+
+                });
+
+            } //img onload
+            img.src = reader.result;
+                    
+        } //reader onload
+        reader.readAsDataURL(this.files[0]);  
+    });
+
+    /******************
+    * Post processing *
+    ******************/
+    
+    $("#submit").click(function(){
+
+        Caman('#img_preview', function() {
+
+            var m = 2;
+            this.crop(640, 640, -imgX*m, -imgY*m); // width, height, x, y
+
+            this.render(function() {
+                var $img_preview = $('#img_preview');
+                $img_preview.css({'width':'320px','height':'320px'});
+                var imgData = document.getElementById('img_preview').toDataURL();
+                window.open(imgData, "toDataURL() image", "width=640, height=640");
+                // AJAX Post...
+            });
+
+        });  // caman     
+         
+    }); //submit onclick
+
+}); //document.ready
+</script>
+
+<script>
+var v = Caman;
+v.Filter.register("vintage", function(F) {
+    if (F == null) {
+        F = true
+    }
+    this.greyscale();
+    this.contrast(5);
+    this.noise(3);
+    this.sepia(100);
+    this.channels({
+        red: 8,
+        blue: 2,
+        green: 4
+    });
+    this.gamma(0.87);
+    if (F) {
+        return this.vignette("40%", 30)
+    }
+});
+v.Filter.register("lomo", function(F) {
+    if (F == null) {
+        F = true
+    }
+    this.brightness(15);
+    this.exposure(15);
+    this.curves("rgb", [0, 0], [200, 0], [155, 255], [255, 255]);
+    this.saturation(-20);
+    this.gamma(1.8);
+    if (F) {
+        this.vignette("50%", 60)
+    }
+    return this.brightness(5)
+});
+v.Filter.register("clarity", function(F) {
+    if (F == null) {
+        F = false
+    }
+    this.vibrance(20);
+    this.curves("rgb", [5, 0], [130, 150], [190, 220], [250, 255]);
+    this.sharpen(15);
+    this.vignette("45%", 20);
+    if (F) {
+        this.greyscale();
+        this.contrast(4)
+    }
+    return this
+});
+v.Filter.register("sinCity", function() {
+    this.contrast(100);
+    this.brightness(15);
+    this.exposure(10);
+    this.posterize(80);
+    this.clip(30);
+    return this.greyscale()
+});
+v.Filter.register("sunrise", function() {
+    this.exposure(3.5);
+    this.saturation(-5);
+    this.vibrance(50);
+    this.sepia(60);
+    this.colorize("#e87b22", 10);
+    this.channels({
+        red: 8,
+        blue: 8
+    });
+    this.contrast(5);
+    this.gamma(1.2);
+    return this.vignette("55%", 25)
+});
+v.Filter.register("crossProcess", function() {
+    this.exposure(5);
+    this.colorize("#e87b22", 4);
+    this.sepia(20);
+    this.channels({
+        blue: 8,
+        red: 3
+    });
+    this.curves("b", [0, 0], [100, 150], [180, 180], [255, 255]);
+    this.contrast(15);
+    this.vibrance(75);
+    return this.gamma(1.6)
+});
+v.Filter.register("orangePeel", function() {
+    this.curves("rgb", [0, 0], [100, 50], [140, 200], [255, 255]);
+    this.vibrance(-30);
+    this.saturation(-30);
+    this.colorize("#ff9000", 30);
+    this.contrast(-5);
+    return this.gamma(1.4)
+});
+v.Filter.register("love", function() {
+    this.brightness(5);
+    this.exposure(8);
+    this.contrast(4);
+    this.colorize("#c42007", 30);
+    this.vibrance(50);
+    return this.gamma(1.3)
+});
+v.Filter.register("grungy", function() {
+    this.gamma(1.5);
+    this.clip(25);
+    this.saturation(-60);
+    this.contrast(5);
+    this.noise(5);
+    return this.vignette("50%", 30)
+});
+v.Filter.register("jarques", function() {
+    this.saturation(-35);
+    this.curves("b", [20, 0], [90, 120], [186, 144], [255, 230]);
+    this.curves("r", [0, 0], [144, 90], [138, 120], [255, 255]);
+    this.curves("g", [10, 0], [115, 105], [148, 100], [255, 248]);
+    this.curves("rgb", [0, 0], [120, 100], [128, 140], [255, 255]);
+    return this.sharpen(20)
+});
+v.Filter.register("pinhole", function() {
+    this.greyscale();
+    this.sepia(10);
+    this.exposure(10);
+    this.contrast(15);
+    return this.vignette("60%", 35)
+});
+v.Filter.register("oldBoot", function() {
+    this.saturation(-20);
+    this.vibrance(-50);
+    this.gamma(1.1);
+    this.sepia(30);
+    this.channels({
+        red: -10,
+        blue: 5
+    });
+    this.curves("rgb", [0, 0], [80, 50], [128, 230], [255, 255]);
+    return this.vignette("60%", 30)
+});
+v.Filter.register("glowingSun", function(F) {
+    if (F == null) {
+        F = true
+    }
+    this.brightness(10);
+    this.newLayer(function() {
+        this.setBlendingMode("multiply");
+        this.opacity(80);
+        this.copyParent();
+        this.filter.gamma(0.8);
+        this.filter.contrast(50);
+        return this.filter.exposure(10)
+    });
+    this.newLayer(function() {
+        this.setBlendingMode("softLight");
+        this.opacity(80);
+        return this.fillColor("#f49600")
+    });
+    this.exposure(20);
+    this.gamma(0.8);
+    if (F) {
+        return this.vignette("45%", 20)
+    }
+});
+v.Filter.register("hazyDays", function() {
+    this.gamma(1.2);
+    this.newLayer(function() {
+        this.setBlendingMode("overlay");
+        this.opacity(60);
+        this.copyParent();
+        this.filter.channels({
+            red: 5
+        });
+        return this.filter.stackBlur(15)
+    });
+    this.newLayer(function() {
+        this.setBlendingMode("addition");
+        this.opacity(40);
+        return this.fillColor("#6899ba")
+    });
+    this.newLayer(function() {
+        this.setBlendingMode("multiply");
+        this.opacity(35);
+        this.copyParent();
+        this.filter.brightness(40);
+        this.filter.vibrance(40);
+        this.filter.exposure(30);
+        this.filter.contrast(15);
+        this.filter.curves("r", [0, 40], [128, 128], [128, 128], [255, 215]);
+        this.filter.curves("g", [0, 40], [128, 128], [128, 128], [255, 215]);
+        this.filter.curves("b", [0, 40], [128, 128], [128, 128], [255, 215]);
+        return this.filter.stackBlur(5)
+    });
+    this.curves("r", [20, 0], [128, 158], [128, 128], [235, 255]);
+    this.curves("g", [20, 0], [128, 128], [128, 128], [235, 255]);
+    this.curves("b", [20, 0], [128, 108], [128, 128], [235, 255]);
+    return this.vignette("45%", 20)
+});
+v.Filter.register("herMajesty", function() {
+    this.brightness(40);
+    this.colorize("#ea1c5d", 10);
+    this.curves("b", [0, 10], [128, 180], [190, 190], [255, 255]);
+    this.newLayer(function() {
+        this.setBlendingMode("overlay");
+        this.opacity(50);
+        this.copyParent();
+        this.filter.gamma(0.7);
+        return this.newLayer(function() {
+            this.setBlendingMode("normal");
+            this.opacity(60);
+            return this.fillColor("#ea1c5d")
+        })
+    });
+    this.newLayer(function() {
+        this.setBlendingMode("multiply");
+        this.opacity(60);
+        this.copyParent();
+        this.filter.saturation(50);
+        this.filter.hue(90);
+        return this.filter.contrast(10)
+    });
+    this.gamma(1.4);
+    this.vibrance(-30);
+    this.newLayer(function() {
+        this.opacity(10);
+        return this.fillColor("#e5f0ff")
+    });
+    return this
+});
+v.Filter.register("nostalgia", function() {
+    this.saturation(20);
+    this.gamma(1.4);
+    this.greyscale();
+    this.contrast(5);
+    this.sepia(100);
+    this.channels({
+        red: 8,
+        blue: 2,
+        green: 4
+    });
+    this.gamma(0.8);
+    this.contrast(5);
+    this.exposure(10);
+    this.newLayer(function() {
+        this.setBlendingMode("overlay");
+        this.copyParent();
+        this.opacity(55);
+        return this.filter.stackBlur(10)
+    });
+    return this.vignette("50%", 30)
+});
+v.Filter.register("hemingway", function() {
+    this.greyscale();
+    this.contrast(10);
+    this.gamma(0.9);
+    this.newLayer(function() {
+        this.setBlendingMode("multiply");
+        this.opacity(40);
+        this.copyParent();
+        this.filter.exposure(15);
+        this.filter.contrast(15);
+        return this.filter.channels({
+            green: 10,
+            red: 5
+        })
+    });
+    this.sepia(30);
+    this.curves("rgb", [0, 10], [120, 90], [180, 200], [235, 255]);
+    this.channels({
+        red: 5,
+        green: -2
+    });
+    return this.exposure(15)
+});
+v.Filter.register("concentrate", function() {
+    this.sharpen(40);
+    this.saturation(-50);
+    this.channels({
+        red: 3
+    });
+    this.newLayer(function() {
+        this.setBlendingMode("multiply");
+        this.opacity(80);
+        this.copyParent();
+        this.filter.sharpen(5);
+        this.filter.contrast(50);
+        this.filter.exposure(10);
+        return this.filter.channels({
+            blue: 5
+        })
+    });
+    return this.brightness(10)
+});
+
+
+</script>
+
+
+{>blockFooter/}
+{>blockFooterScripts/}

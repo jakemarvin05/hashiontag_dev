@@ -4,7 +4,7 @@ Brief:
 ======
 O:O, set up a Parent.hasOne(Child) AND Child.belongsTo(Parent).
 O:M, set up Parent.hasMany(Child) AND Child.belongsTo(Parent).
-M:M, set up Parent.hasMany(Child) and Child.hasMany(Parent)
+N:M, set up Parent.hasMany(Child) and Child.hasMany(Parent)
 
 
 =====================================================

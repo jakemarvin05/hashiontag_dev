@@ -1,4 +1,5 @@
 var express = require('express');
+var app = require('../app.js');
 var router = express.Router();
 //var async = require('async');
 var events = require('events');
@@ -68,6 +69,40 @@ router.get('/me', function(req, res) {
 
     //now run callback dependents
     var ownPostJSON = require('../apps/stream/ownPostJSON.js')(req, eventEmitter);
+
+});
+
+//edit profile
+router.get('/me/edit', function(req, res) {
+
+    var eventEmitter = new events.EventEmitter();
+
+    //bind the final callback first
+    eventEmitter.on('editProfileDone', function thenRender(user) {
+
+        res.render('editProfile', { 
+
+            title: meta.header(),
+            isLoggedIn: isLoggedIn(req),
+            gJSON: gJSON,
+            p: gJSON.paths,
+            user: user
+
+        });
+    });
+
+    eventEmitter.on('editProfileError', function thenRender() {
+        res.redirect('/');
+    });
+
+    require('../apps/editProfile.js')(req, eventEmitter);
+
+});
+
+//edit profile
+router.post('/api/editProfile', function(req, res) {
+
+    require('../apps/updateProfile.js')(req)
 
 });
 
@@ -166,10 +201,11 @@ router.get('/post', function(req, res) {
     });
 });
 
-    router.post('/post', function(req, res) {
-        // createPost
-        var createPost = require('../apps/createPost.js')(req, res);
-    });
+router.post('/api/post', function(req, res) {
+    // createPost
+    var socketId = app.ioSockets[req.header('sioId')];
+    createPost = require('../apps/createPost.js')(req, res, socketId);
+});
 
 
 router.get('/search', function(req, res) {
@@ -252,9 +288,12 @@ router.get('/followers', function(req, res) {
 
 router.post('/api/comment', function(req, res) {
 
+    console.log(req);
+    //console.log("****: " + JSON.stringify(res) );
+
     if (req.xhr) {
 
-        var addComment = require('../apps/addComment.js')(req, res);
+        require('../apps/addComment.js')(req, res);
 
     } else {
         res.redirect('/');
@@ -292,6 +331,41 @@ router.post('/api/notification', function(req, res) {
 
 });
 
+router.get('/ua-parser', function(req, res) {
+    var uap = require('ua-parser').parse(req.headers['user-agent']);
+
+    res.json({
+        everything: uap.ua
+    })
+});
+
+router.get('/:find/:model/:where', function(req, res) {
+    if(req.params.find && req.params.model) {
+        console.log(req.params.model);
+        if(req.params.where) {
+            db[req.params.model][req.params.find](req.params.where)
+                .then(function(result) {
+                    res.json(result);
+                })
+                .catch(function() {
+                    res.send('error');
+                });
+        } else {
+            db[req.params.model][req.params.find]()
+                .then(function(result) {
+                    res.json(result);
+                })
+                .catch(function() {
+                    res.send('error');
+                });;
+        }    
+    } else {
+        res.send('error');
+    }
+
+
+    
+});
 
 //user routes
 router.get('/:user', function(req, res) {

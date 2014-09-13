@@ -18,7 +18,8 @@ module.exports = function addRemoveLike(req, res) {
 
     if(req.isAuthenticated()) {
 
-        if(req.body.action == 'like') {
+
+        if(req.body.action === 'like') {
 
             db.Like.find({
                 where: db.Sequelize.and(
@@ -79,17 +80,11 @@ module.exports = function addRemoveLike(req, res) {
                 
                 return res.json({success: true});
                 
-            }).catch(function(err) {
-
-                console.log('caught error:');
-                console.log(err); 
-                return res.json({ success: false });
-
-            });
+            }).catch(throwErr);
 
         }
 
-        if(req.body.action == 'unlike') {
+        if(req.body.action === 'unlike') {
 
             db.Like.findAll({
                 where: db.Sequelize.and(
@@ -133,11 +128,7 @@ module.exports = function addRemoveLike(req, res) {
 
                 return res.json({success: true});
 
-            }).catch(function(err) {
-                console.log('caught error:');
-                console.log(err); 
-                return res.json({ success: false });
-            });
+            }).catch(throwErr);
 
         }
 

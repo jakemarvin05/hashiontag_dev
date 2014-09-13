@@ -110,7 +110,7 @@ module.exports = function streamJSON(req, eventEmitter) {
 
                     var theUser = targets[l].User_userId;
 
-                    if(theUser == req.user.userId) {
+                    if(theUser === req.user.userId) {
                         posts[j].hasLiked = true;
                         //splice myself away
                         //console.log('self spliced ' + theUser);
