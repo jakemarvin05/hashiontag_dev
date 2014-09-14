@@ -4,7 +4,7 @@
 <script type="text/javascript" src="{p.js}/caman.full.min.js"></script>
 <script src="{p.js}/socket.io.js"></script>
 <script>
-var socket = io('/post', {
+var socket = io.connect('/post', {
     // Disables the automatic reconnection
     reconnect: false
 });
@@ -23,7 +23,7 @@ socket.on('disconnect', function(){
 
 socket.on('uploadProgress', function(data){
     var percentage = data.bytesReceived/data.bytesExpected
-    $('#progress').val(parseInt(percentage)+'%');
+    $('#progress').val(parseInt(percentage)*100+'%');
 });
 </script>
 
@@ -212,81 +212,106 @@ $(document).ready(function(){
                 });
         }
 
+        VV.img.STOCK_IMG.onload = function() {
 
+            console.log('img onload');
+
+            //reject image if too small
+            
+            if(this.height < 640 || this.width < 640 ) {
+                
+                return aF.protoAlert({
+                        text:'Please select an image with at least 640px by 640px resolution', 
+                        title:'Resolution too small'
+                });
+
+            }
+
+
+            var resTooHigh = {
+                text:'Your image resolution is too high. Please resize before uploading.', 
+                title:'Resolution too high'
+            }
+
+            if(this.height > this.width) {
+                if(this.width > 5120) {
+                    return aF.protoAlert(resTooHigh);
+                }
+            } else {
+                if(this.height > 5120) {
+                    return aF.protoAlert(resTooHigh);
+                }
+            }
+            if(this.height * this.width > 23000000) {
+                return aF.protoAlert(resTooHigh);
+            }
+
+            //store the heights for use later.
+            VV.img.STOCK_IMG_W = this.width;
+            VV.img.STOCK_IMG_H = this.height;
+
+            if(VV.img.CSRender) {
+
+                //get EXIF first before resizing
+                var rotate = VV.img.getEXIF(VV.img.STOCK_IMG.src);
+
+                VV.img.canvasResize(VV.img.STOCK_IMG, rotate, function(imgData) {
+                    VV.img.dispTmp(imgData);
+                });                
+
+            } else {
+
+                var attrs = {
+                    action: 'raw',
+                    imgData: el_img_field.files[0],
+                    processData: false
+                }
+
+                VV.img.upload(attrs, function(data) {
+                    VV.img.dispTmp(data.pathToImg);
+
+
+                }); //VV.img.upload;
+
+            }
+            
+        } //img onload
 
         var reader = new FileReader();
 
         reader.onload = function (e) {
 
+            function loader($el) {
+                var loading = '<div id="loading">Loading...</div>';
+                
+                $el.append(loading);
+
+                function blinker($loading) {
+                    $loading.fadeOut('slow', function() {
+                        $(this).fadeIn('slow', function() {
+                            blinker($(this));
+                        });
+                    });
+                }
+                blinker($('#loading'));
+                
+            }
+
+            if($('#img_preview').length > 0) {
+                $('#img_preview').slideUp('slow', function() {
+                    $(this).remove();
+                    loader($('#img_background'));
+                    VV.img.STOCK_IMG.src = e.target.result;
+                });
+            } else {
+                loader($('#img_background'));
+                VV.img.STOCK_IMG.src = e.target.result;
+            }
+
             //reset all globals
             VV.img.resetGlobal();
             console.log('reader.onload');
 
-            VV.img.STOCK_IMG.onload = function() {
-
-                console.log('img onload');
-
-                //reject image if too small
-                
-                if(this.height < 640 || this.width < 640 ) {
-                    
-                    return aF.protoAlert({
-                            text:'Please select an image with at least 640px by 640px resolution', 
-                            title:'Resolution too small'
-                    });
-
-                }
-
-
-                var resTooHigh = {
-                    text:'Your image resolution is too high. Please resize before uploading.', 
-                    title:'Resolution too high'
-                }
-
-                if(this.height > this.width) {
-                    if(this.width > 5120) {
-                        return aF.protoAlert(resTooHigh);
-                    }
-                } else {
-                    if(this.height > 5120) {
-                        return aF.protoAlert(resTooHigh);
-                    }
-                }
-                if(this.height * this.width > 23000000) {
-                    return aF.protoAlert(resTooHigh);
-                }
-
-                //store the heights for use later.
-                VV.img.STOCK_IMG_W = this.width;
-                VV.img.STOCK_IMG_H = this.height;
-
-                if(VV.img.CSRender) {
-
-                    //get EXIF first before resizing
-                    var rotate = VV.img.getEXIF(VV.img.STOCK_IMG.src);
-
-                    VV.img.canvasResize(VV.img.STOCK_IMG, rotate, function(imgData) {
-                        VV.img.dispTmp(imgData);
-                    });                
-
-                } else {
-
-                    var attrs = {
-                        action: 'raw',
-                        imgData: el_img_field.files[0],
-                        processData: false
-                    }
-
-                    VV.img.upload(attrs, function(data) {
-                        VV.img.dispTmp(data.pathToImg);
-
-
-                    }); //VV.img.upload;
-
-                }
-                
-            } //img onload
-            VV.img.STOCK_IMG.src = e.target.result;
                     
         } //reader onload
         reader.readAsDataURL(this.files[0]);  

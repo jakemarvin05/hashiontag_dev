@@ -161,6 +161,9 @@ VV.img.upload = function(attrs, callback) {
 
 VV.img.tallOrWide = function(img) {
     //img is a normal image
+    console.log(img);
+    console.log('height: ' + img.height);
+    console.log('width: ' + img.width);
     if(img.height>img.width) {
         return 'tall';
     } else {
@@ -203,22 +206,19 @@ VV.img.canvasResize = function(img, rotate, callback) {
 
     //img is a complete img element
 
-    var srcWidth = img.width,
-        srcHeight = img.height,
-        canvas = document.createElement('canvas');
+    var canvasWidth = img.width,
+        canvasHeight = img.height,
+        destWidth, destHeight, 
+        srcWidth = img.width, 
+        srcHeight = img.height, 
+        last = false,
+        timeStart = Date.now(),
+        determinant = ''; //determinant is the dimension that will reach the destination first in down scaling.
 
     var tmp = new Image();
         tmp.src = img.src;
 
-    canvas.height = srcHeight;
-    canvas.width = srcWidth;
-
-    canvas.getContext('2d').drawImage(tmp, 0, 0);
-
-    var destWidth, destHeight, 
-        last = false,
-        timeStart = Date.now(),
-        determinant = ''; //determinant is the dimension that will reach the destination first in down scaling.
+    var canvas = document.createElement('canvas');
 
     var scaledPx = VV.img.CROP_SIZE;
 
@@ -234,58 +234,86 @@ VV.img.canvasResize = function(img, rotate, callback) {
         determinant = 'height';
     }
 
-    function resample_hermite(canvas, W, H, W2, H2, callback){
-        var time1 = Date.now();
-        var img = canvas.getContext("2d").getImageData(0, 0, W, H);
-        var img2 = canvas.getContext("2d").getImageData(0, 0, W2, H2);
-        var data2 = img2.data;
-        var cores = 1;
-        var cpu_in_use = 0;
-        canvas.getContext("2d").clearRect(0, 0, W, H);
+    var resizeLimit = 3; //5120px!!
+    var steps = 0;
+    var stepsParam = {};
 
-        for(var c = 0; c < cores; c++){
-            cpu_in_use++;
-            var my_worker = new Worker("assets/js/worker-hermite.js");
-            my_worker.onmessage = function(event){
-                cpu_in_use--;
-                var offset = event.data.offset;
-                
-                for(var i = 0; i < event.data.data.length; i += 4){
-                    var x = offset + i;
-                    data2[x]     = event.data.data[i];  
-                    data2[x + 1] = event.data.data[i+1];
-                    data2[x + 2] = event.data.data[i+2];
-                    data2[x + 3] = event.data.data[i+3];
-                    }
-                
-                //finish
-                if(cpu_in_use <= 0){
-                    console.log("hermite "+cores+" cores = "+(Math.round(Date.now() - time1)/1000)+" s");   
-                    canvas.getContext("2d").clearRect(0, 0, W, H);
-                    canvas.height = H2;
-                    canvas.width = W2;
-                    canvas.getContext("2d").putImageData(img2, 0, 0);
-                    return callback(canvas);
-                }
-            };
-            my_worker.postMessage([img, W, H, W2, H2, c, cores]);
+    stepsParam[0] = {
+        width: img.width,
+        height: img.height
+    }
+
+    // 0, 1, 2
+    //i will get 1, 2, 3 in stepsParam
+    for(var i = 0; i < 5; i++) {
+        var width = Math.round(stepsParam[i].width / 2);
+        var height = Math.round(stepsParam[i].height / 2);
+        stepsParam[i+1] = {};
+
+        if(determinant === 'width') {
+
+            if( width < destWidth ) {
+                stepsParam[i+1].width = destWidth;
+                stepsParam[i+1].height = destHeight;
+                break;
+            } else {
+                stepsParam[i+1].width = width;
+                stepsParam[i+1].height = height;
+            }
+
+        } else {
+
+            if( height < destHeight ) {
+                stepsParam[i+1].width = destWidth;
+                stepsParam[i+1].height = destHeight;
+                break;
+            } else {
+                stepsParam[i+1].width = width;
+                stepsParam[i+1].height = height;
+            }
+
         }
-    };
-    console.log(img.width, img.height, destWidth, destHeight);
-    resample_hermite(canvas, img.width, img.height, destWidth, destHeight, function(canvas) {
-        console.log(canvas.height, canvas.width);
-        if(rotate) {
-            return VV.img.canvasRotate(canvas, callback);
+        if(i === 3) {
+            console.log('error: attempting to resize too many steps');
+            return false;
+        }
+        steps += 1;
+        
+    }
+
+    console.log(steps);
+    console.log(stepsParam);
+
+    var start = true;
+    
+    for(var j = 0; j < steps+1; j++) {
+
+        var width = stepsParam[j+1].width,
+            height = stepsParam[j+1].height;
+
+        console.log('loop ' + j);
+
+        canvas.width = width;
+        canvas.height = height;
+        context = canvas.getContext('2d');
+        context.drawImage( tmp, 0, 0, width, height );
+
+        if(j === steps) {
+            console.log('Resizer took ' + Math.round(Date.now() - timeStart) + ' ms');
+        } else {
+            tmp.src = canvas.toDataURL();
         }
 
-        //no rotaton required
-        var data = canvas.toDataURL();
-        delete canvas;
-        return callback(data);
+    }
 
-    });
+    if(rotate) {
+        return VV.img.canvasRotate(canvas, callback);
+    }
 
-
+    //no rotaton required
+    var data = canvas.toDataURL();
+    delete canvas;
+    return callback(data);
 
 }
 
@@ -408,11 +436,12 @@ VV.img.dispTmp = function(imgData) {
 
 
         //transitions
-        if($('#loading').length > 0) {
-            $('#loading').stop().fadeIn().fadeOut('slow', function() {
+        if($('#img_preview').length > 0) {
+            $('#img_preview').slideUp('slow', function() {
+                
                 
                 $('#img_preview2').slideDown('slow', function() {
-                    $('#loading').remove();
+                    $('#img_preview').remove();
                     $(this).attr('id', 'img_preview');
                 });
 
