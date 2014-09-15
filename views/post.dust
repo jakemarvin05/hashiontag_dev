@@ -4,7 +4,7 @@
 <script type="text/javascript" src="{p.js}/caman.full.min.js"></script>
 <script src="{p.js}/socket.io.js"></script>
 <script>
-var socket = io.connect();
+var socket = io.connect('http://afternoon-plateau-5273.herokuapp.com');
 // var socket = io.connect('/post', {
 //     // Disables the automatic reconnection
 //     reconnect: false
