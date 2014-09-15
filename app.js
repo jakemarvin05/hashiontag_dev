@@ -112,6 +112,6 @@ io.on('connection', function(socket) {
 exports.ioSockets = ioSockets;
 module.exports = app;
 
-server.listen(3000, function() {
+server.listen(80, function() {
     console.log('Congrats, nothing broke!! Listening on port %d', server.address().port);
 });
