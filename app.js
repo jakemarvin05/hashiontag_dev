@@ -96,7 +96,7 @@ var server = require('http').Server(app);
 var io = require('socket.io').listen(server);
 var ioSockets = {};
 
-io.of('/post').on('connection', function(socket) {
+io.on('connection', function(socket) {
 
     ioSockets[socket.id] = socket;
 
