@@ -64,8 +64,6 @@ VV.img.resetGlobal = function() {
 
 VV.img.TEMP_IMG = new Image();
 
-VV.img.upload = {};
-
 VV.img.upload = function(attrs, callback) {
 
     /* 
