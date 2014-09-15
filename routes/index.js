@@ -368,33 +368,33 @@ router.get('/:find/:model/:where', function(req, res) {
 });
 
 //user routes
-router.get('/:user', function(req, res, next) {
+// router.get('/:user', function(req, res, next) {
 
-    if(req.params.user === 'socket.io') {
-        return next(err);
-    }
+//     if(req.params.user === 'socket.io') {
+//         return next(err);
+//     }
 
-    var eventEmitter = new events.EventEmitter();
+//     var eventEmitter = new events.EventEmitter();
 
-    //bind the final callback first
-    eventEmitter.on('profileJSONDone', function thenRender(renderJSON) {
-        res.render('profile', { 
-            title: meta.header(),
-            isLoggedIn: isLoggedIn(req),
-            gJSON: gJSON,
-            p: gJSON.paths,
-            renderJSON: renderJSON,
-            isSearch: true,
-            isProfile: true,
-            userId: ( JSON.parse(renderJSON) ).userId
-        });
+//     //bind the final callback first
+//     eventEmitter.on('profileJSONDone', function thenRender(renderJSON) {
+//         res.render('profile', { 
+//             title: meta.header(),
+//             isLoggedIn: isLoggedIn(req),
+//             gJSON: gJSON,
+//             p: gJSON.paths,
+//             renderJSON: renderJSON,
+//             isSearch: true,
+//             isProfile: true,
+//             userId: ( JSON.parse(renderJSON) ).userId
+//         });
 
-    });
+//     });
 
-    //now run callback dependents
-    var getProfile = require('../apps/getProfile.js')(req, eventEmitter);
+//     //now run callback dependents
+//     var getProfile = require('../apps/getProfile.js')(req, eventEmitter);
 
-});
+// });
 
 
 
