@@ -368,7 +368,11 @@ router.get('/:find/:model/:where', function(req, res) {
 });
 
 //user routes
-router.get('/:user', function(req, res) {
+router.get('/:user', function(req, res, next) {
+
+    if(req.params.user === 'socket.io') {
+        return next(err);
+    }
 
     var eventEmitter = new events.EventEmitter();
 
