@@ -93,7 +93,7 @@ app.use(function(err, req, res, next) {
 //start the server
 var server = require('http').Server(app);
 
-var io = require('socket.io').listen(server);
+var io = require('socket.io')(server);
 var ioSockets = {};
 
 io.on('connection', function(socket) {
@@ -112,6 +112,6 @@ io.on('connection', function(socket) {
 exports.ioSockets = ioSockets;
 module.exports = app;
 
-server.listen(80, function() {
+server.listen(process.env.PORT || 8080, function() {
     console.log('Congrats, nothing broke!! Listening on port %d', server.address().port);
 });
