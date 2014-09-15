@@ -4,14 +4,14 @@
 <script type="text/javascript" src="{p.js}/caman.full.min.js"></script>
 <script src="{p.js}/socket.io.js"></script>
 <script>
-var socket = io.connect('http://www.vogue-verve.com/post', {
-    // Disables the automatic reconnection
-    reconnect: false
-});
-// var socket = io.connect('/post', {
+// var socket = io.connect('http://www.vogue-verve.com/post', {
 //     // Disables the automatic reconnection
 //     reconnect: false
 // });
+var socket = io.connect('/post', {
+    // Disables the automatic reconnection
+    reconnect: false
+});
 var socketId = '';
 
 socket.on('welcome', function (data) {
