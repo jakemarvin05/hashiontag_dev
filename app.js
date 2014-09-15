@@ -91,11 +91,9 @@ app.use(function(err, req, res, next) {
 module.exports = app;
 
 //start the server
-var server = app.listen(3000, function() {
-    console.log('Congrats, nothing broke!! Listening on port %d', server.address().port);
-});
+var server = require('http').Server(app);
 
-var io = require('socket.io').listen(server);
+var io = require('socket.io')(server);
 var ioSockets = {};
 
 io.of('/post').on('connection', function(socket) {
@@ -112,3 +110,7 @@ io.of('/post').on('connection', function(socket) {
 //uncomment if we need to export io instance
 //exports.io = io;
 exports.ioSockets = ioSockets;
+
+server.listen(3000, function() {
+    console.log('Congrats, nothing broke!! Listening on port %d', server.address().port);
+});
