@@ -1,39 +1,18 @@
-/*
-uploading function
+/* This file requires alertFactory 'aF' */
 
-send data.
-
-tell the server whether:
-
-condition 1: image needs resize and rotation (raw image)
-
-condition 2: this is just data attrs to resize/rotate/crop/add filters and compress the raw image
-
-             sent in condition 1
-
-condition 3: this image is processed, just store it.
-
-
-condition 1 and 3 can be merged, with server return the path to the image. in condition 1 image
-
-is in temp folder.
-
-condition 2 requires the path information sent to server to apply the attrs.
-*/
-
-
-
-/*******************
-* Global Variables *
-*******************/
 var VV = {
     img: {}
 };
 
+/*******************
+* Global Variables *
+*******************/
+
 //sticky globals
-VV.img.CROP_PORT = 320;
+VV.img.CROP_PORT = 280; //default
 VV.img.CROP_SIZE = 640;
 VV.img.QUALITY = 0.75;
+VV.img.SCALE_LIMIT = 2;
 
 //resettable globals
 VV.img.IMG_X = 0, // margin-left of preview image (i.e. $("#img_preview"))
@@ -46,6 +25,8 @@ VV.img.STOCK_IMG_H = 0,
 VV.img.LEFT_OFFSET = -2,
 VV.img.TOP_OFFSET = -2;
 VV.img.TEMP_IMG = false;
+VV.img.SCALE = 1;
+VV.img.AR = false;
 
 VV.img.resetGlobal = function() {
     VV.img.IMG_X = 0;
@@ -57,12 +38,15 @@ VV.img.resetGlobal = function() {
     VV.img.LEFT_OFFSET = -2;
     VV.img.TOP_OFFSET = -2;
     VV.img.TEMP_IMG = false;
+    VV.img.SCALE = 1;
+    VV.img.AR = false;
 }
 
-
-
-
 VV.img.TEMP_IMG = new Image();
+
+/*******************
+* Methods *
+*******************/
 
 VV.img.upload = function(attrs, callback) {
 
@@ -157,68 +141,77 @@ VV.img.upload = function(attrs, callback) {
 
 } //VV.img.upload
 
-VV.img.tallOrWide = function(img) {
-    //img is a normal image
-    if(img.height>img.width) {
-        return 'tall';
-    } else {
-        return 'wide';
-    }
+VV.img.tallOrWide = function(obj) {
+    if(obj.height>obj.width) {return 'tall'; }
+    else { return 'wide'; }
 }
-
-
-VV.img.maxWH = function($img, tallOrWide) {
+VV.img.maxWH = function($img, $layer1img, tallOrWide) {
+    var AR = VV.img.AR;
+    if(!AR) {
+        var AR = $img.width() / $img.height();
+        VV.img.AR = AR;
+    }
 
     //$img is a jQuery selector
     if(tallOrWide === 'tall') {
-        $img.css('max-width', VV.img.CROP_PORT);
+        var width = VV.img.CROP_PORT;
+        var height = VV.img.CROP_PORT/VV.img.AR;
+        $img.css('width', width+'px');
+        $img.attr('data-tallorwide', 'tall');
+        $layer1img.css('width', width+'px');
     } else if(tallOrWide === 'wide') {
-        $img.css('max-height', VV.img.CROP_PORT);
+        var height = VV.img.CROP_PORT;
+        var width = VV.img.CROP_PORT*VV.img.AR;
+        $img.css('height', height+'px');
+        $img.attr('data-tallorwide', 'wide');
+        $layer1img.css('height', height+'px');
     } else {
         return console.log('tallOrWide not properly specified');
     }
 
 }
 
-VV.img.center = function($img, tallOrWide) {
-
-    var AR = $img.width() / $img.height();
+VV.img.center = function($img, $layer1img, tallOrWide) {
+    var AR = VV.img.AR;
+    if(!AR) {
+        var AR = $img.width() / $img.height();
+        VV.img.AR = AR;
+    }
+    
     if(tallOrWide === 'tall') {
-        VV.img.IMG_Y = -( (VV.img.CROP_PORT/AR) - VV.img.CROP_PORT ) / 2;
-        $img.css('margin-top', VV.img.IMG_Y);
+        VV.img.IMG_Y = -( (VV.img.CROP_PORT/AR ) - VV.img.CROP_PORT ) / 2;
+        $img.css('margin-top', VV.img.IMG_Y + 'px');
+        $layer1img.css('top', VV.img.IMG_Y+'px');
         return true;
     } else if(tallOrWide === 'wide') {
         VV.img.IMG_X = -( (VV.img.CROP_PORT*AR) - VV.img.CROP_PORT ) / 2;
-        $img.css('margin-left', VV.img.IMG_X);
+        $img.css('margin-left', VV.img.IMG_X + 'px');
+        $layer1img.css('left', VV.img.IMG_X +'px');
         return true;
     } else {
         return console.log('tallOrWide not properly specified');
     }
 
 }
-
-VV.img.canvasResize = function(img, rotate, callback) {
-
+VV.img.canvasrise = function(img) {
     //img is a complete img element
+    var canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    var ctx = canvas.getContext('2d')
+    ctx.drawImage(img, 0, 0);
+    return canvas;
+}
 
-    var srcWidth = img.width,
-        srcHeight = img.height,
-        canvas = document.createElement('canvas');
-
-    var tmp = new Image();
-        tmp.src = img.src;
-
-    canvas.height = srcHeight;
-    canvas.width = srcWidth;
-
-    canvas.getContext('2d').drawImage(tmp, 0, 0);
-
+VV.img.canvasResize = function(canvas, scaledPx, rotate, callback) {
+    var scaledPx = Math.round(scaledPx);
     var destWidth, destHeight, 
-        last = false,
+        srcWidth = canvas.width,
+        srcHeight = canvas.height,
         timeStart = Date.now(),
         determinant = ''; //determinant is the dimension that will reach the destination first in down scaling.
 
-    var scaledPx = VV.img.CROP_SIZE;
+    //var scaledPx = VV.img.CROP_SIZE;
 
     if(srcHeight > srcWidth) {
         destWidth = scaledPx;
@@ -232,89 +225,68 @@ VV.img.canvasResize = function(img, rotate, callback) {
         determinant = 'height';
     }
 
-    function resample_hermite(canvas, W, H, W2, H2, callback){
+    function resample_hermite(canvas, W2, H2, callback){
         var time1 = Date.now();
+        var W = canvas.width;
+        var H = canvas.height;
         var img = canvas.getContext("2d").getImageData(0, 0, W, H);
         var img2 = canvas.getContext("2d").getImageData(0, 0, W2, H2);
-        var data2 = img2.data;
-        var cores = 1;
-        var cpu_in_use = 0;
         canvas.getContext("2d").clearRect(0, 0, W, H);
 
-        for(var c = 0; c < cores; c++){
-            cpu_in_use++;
-            var my_worker = new Worker("assets/js/worker-hermite.js");
-            my_worker.onmessage = function(event){
-                cpu_in_use--;
-                var offset = event.data.offset;
-                
-                for(var i = 0; i < event.data.data.length; i += 4){
-                    var x = offset + i;
-                    data2[x]     = event.data.data[i];  
-                    data2[x + 1] = event.data.data[i+1];
-                    data2[x + 2] = event.data.data[i+2];
-                    data2[x + 3] = event.data.data[i+3];
-                    }
-                
-                //finish
-                if(cpu_in_use <= 0){
-                    console.log("hermite "+cores+" cores = "+(Math.round(Date.now() - time1)/1000)+" s");   
-                    canvas.getContext("2d").clearRect(0, 0, W, H);
-                    canvas.height = H2;
-                    canvas.width = W2;
-                    canvas.getContext("2d").putImageData(img2, 0, 0);
-                    return callback(canvas);
-                }
-            };
-            my_worker.postMessage([img, W, H, W2, H2, c, cores]);
-        }
+        var my_worker = new Worker("assets/js/worker-hermite.js");
+        my_worker.onmessage = function(event){
+
+            img2 = event.data.data;    
+
+            console.log("hermite resize completed in "+(Math.round(Date.now() - time1)/1000)+" s");   
+            canvas.getContext("2d").clearRect(0, 0, W, H);
+            canvas.height = H2;
+            canvas.width = W2;
+            canvas.getContext("2d").putImageData(img2, 0, 0);
+            return callback(canvas);
+            
+        };
+        my_worker.postMessage([img, W, H, W2, H2, img2]);
+
     };
-    console.log(img.width, img.height, destWidth, destHeight);
-    resample_hermite(canvas, img.width, img.height, destWidth, destHeight, function(canvas) {
+    resample_hermite(canvas, destWidth, destHeight, function(canvas) {
         console.log(canvas.height, canvas.width);
         if(rotate) {
             return VV.img.canvasRotate(canvas, callback);
         }
-
-        //no rotaton required
-        var data = canvas.toDataURL();
-        delete canvas;
-        return callback(data);
-
+        return callback(canvas);
     });
-
-
-
 }
 
-VV.img.getEXIF = function(data64) {
+VV.img.getEXIF = function(file, callback) {
 
-    if( typeof atob === 'function' && typeof BinaryFile === 'function') {
+    if( typeof EXIF.readFromBinaryFile === 'function' && typeof BinaryFile === 'function') {
 
-        var base64 = data64.replace(/^.*?,/,''),
-            binary = atob(base64),
-            exif = EXIF.readFromBinaryFile(new BinaryFile(binary));
-
-        console.log(exif);
-        if(exif) {
-            VV.img.STOCK_IMG_EXIF = exif;
-            return true;
-        } else {
-            return false;
+        fr = new FileReader();
+        fr.onloadend = function (e) {
+            var exif = EXIF.readFromBinaryFile(new BinaryFile(e.target.result));
+            if(exif) {
+                console.log(exif);
+                VV.img.STOCK_IMG_EXIF = exif;
+                return callback(true);
+            } else {
+                callback(false);
+                return false;
+            }
         }
+        fr.readAsBinaryString(file);
+
     } else {
+        console.log('Warning: EXIF and BinaryFile error...')
         return false;
     }
 }
 
 VV.img.canvasRotate = function(canvas, callback) {
-
     //rotation
     if(!$.isEmptyObject(VV.img.STOCK_IMG_EXIF)) {
         if(VV.img.STOCK_IMG_EXIF.Orientation) {
-
             var orientation = parseFloat(VV.img.STOCK_IMG_EXIF.Orientation);
-
             if(orientation === 3 || orientation === 4) {
                 VV.img.STOCK_IMG_ROTATE = 180;
             } else if(orientation === 5 || orientation === 6) {
@@ -356,73 +328,166 @@ VV.img.canvasRotate = function(canvas, callback) {
         canvas.setAttribute('height', newCH);
         cContext.rotate(degree * Math.PI / 180);
         cContext.drawImage(data, cx, cy);
-        var data = canvas.toDataURL();
-        delete canvas;
-
-        return callback(data);
+        return callback(canvas);
     }
-
     else {
-        var data = canvas.toDataURL();
-        delete canvas;
-        return callback(data);
+        return callback(canvas);
     }
 }
 
-VV.img.canvasCrop = function(img, callback) {
-    var canvas = document.createElement('canvas');
-    canvas.height = VV.img.CROP_SIZE;
-    canvas.width = VV.img.CROP_SIZE;
-
-    var ctx = canvas.getContext('2d');
-
-    var m = VV.img.CROP_SIZE/VV.img.CROP_PORT;
-
-    ctx.drawImage(img, VV.img.IMG_X*m, VV.img.IMG_Y*m);
-
-    var data = canvas.toDataURL('image/jpeg', VV.img.QUALITY);
-    delete canvas;
+VV.img.canvasCrop = function(type, file, callback) {
+    var m = VV.img.CROP_SIZE/VV.img.CROP_PORT,
+        x = VV.img.IMG_X*m,
+        y = VV.img.IMG_Y*m;
+    if(type === 'image') {
+        var img = file;
+        var cropCanvas = document.createElement('canvas');
+        cropCanvas.height = VV.img.CROP_SIZE;
+        cropCanvas.width = VV.img.CROP_SIZE;
+        var ctx = cropCanvas.getContext('2d');
+        ctx.drawImage(img, VV.img.IMG_X*m, VV.img.IMG_Y*m);
+    } else if(type === 'canvas') {
+        var cropCanvas = file;
+        var ctx = file.getContext('2d');
+        var data = ctx.getImageData(0,0,cropCanvas.width,cropCanvas.height);
+        cropCanvas.height = VV.img.CROP_SIZE;
+        cropCanvas.width = VV.img.CROP_SIZE;
+        ctx.clearRect(0,0,cropCanvas.width,cropCanvas.height);
+        ctx.putImageData(data,x,y);
+    } else {
+        console.log('canvasCrop type invalid');
+        return aF.protoAlert({
+            text: 'Something has gone wrong... Please refresh window and try again.',
+            title: 'Oops..'
+        })
+    }
+    var data = cropCanvas.toDataURL('image/jpeg', VV.img.QUALITY);
+    delete cropCanvas;
     return callback(data);
 }
 
-VV.img.dispTmp = function(imgData) {
+VV.img.dispTmp = function(type, data) {
+    var $cont = $('#cropPort');
+    var $layer1 = $('#cropPortBg');
 
-    VV.img.TEMP_IMG = new Image();
-    VV.img.TEMP_IMG.src = imgData;
-
-    VV.img.TEMP_IMG.onload = function() {
-
-        VV.img.TEMP_IMG.id = 'img_preview2';
-        VV.img.TEMP_IMG.style['display'] = 'none';
-
-        document.getElementById('img_background').appendChild(VV.img.TEMP_IMG);
-
-        var tallOrWide = VV.img.tallOrWide(VV.img.TEMP_IMG);
-
+    function display(canvas) {
+        VV.img.AR = canvas.width/canvas.height;
+        canvas.id = 'img_preview2';
+        canvas.style['display'] = 'none';
+        var tallOrWide = VV.img.tallOrWide(canvas);
+        $cont.append(canvas);
+        var layer1img = new Image();
+        layer1img.src = VV.img.TEMP_IMG.src;
+        layer1img.style['display'] = 'none'
+        $layer1.append(layer1img);
+        var $layer1img = $('#cropPortBg img')
         var $img = $('#img_preview2');
-
-        VV.img.maxWH($img, tallOrWide);
-        VV.img.center($img, tallOrWide);
-
-
+        VV.img.maxWH($img, $layer1img, tallOrWide);
+        VV.img.center($img, $layer1img, tallOrWide);
         //transitions
         if($('#loading').length > 0) {
-            $('#loading').stop().fadeIn().fadeOut('slow', function() {
-                
-                $('#img_preview2').slideDown('slow', function() {
-                    $('#loading').remove();
-                    $(this).attr('id', 'img_preview');
-                });
-
+            $('#loading').velocity("stop").velocity("fadeOut", {
+                duration: 300,
+                complete: function(el) {
+                    $(el).remove();
+                    $('#cropPortBg img').velocity({opacity: 0.4}, {
+                        display: 'block',
+                        duration:300
+                    });
+                    $('#img_preview2').velocity('fadeIn', {
+                        duration: 300,
+                        complete: function(el) {
+                            $(el).attr('id', 'img_preview');
+                        }
+                    });
+                }
             });
         } else {
-
-            $('#img_preview2').slideDown('slow', function() {
-                $(this).attr('id', 'img_preview');
+            $('#cropPortBg img').velocity({opacity: 0.4}, {
+                display: 'block',
+                duration: 300
             });
-
+            $('#img_preview2').velocity('fadeIn', {
+                duration: 300,
+                complete: function(el) {
+                    $(el).attr('id', 'img_preview');
+                }
+            });
         }
-
-
+        $('#scaleSliderCont').velocity('fadeIn', { duration: 300 });
     }
+
+    if(type === 'imgData') {
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        console.log('here1');
+
+        VV.img.TEMP_IMG = new Image();
+
+        VV.img.TEMP_IMG.onload = function() {
+            console.log('here2');
+            canvas.height = VV.img.TEMP_IMG.height;
+            canvas.width = VV.img.TEMP_IMG.width;
+            ctx.drawImage(VV.img.TEMP_IMG, 0, 0);
+            display(canvas);
+        }
+        VV.img.TEMP_IMG.src = data;
+
+    } else if(type === 'canvas') {
+        VV.img.TEMP_IMG = new Image();
+        VV.img.TEMP_IMG.src = data.toDataURL();
+        display(data);
+    }
+}
+
+VV.img.scaler = function(scale, $el, $el2) {
+    var delta = scale - VV.img.SCALE;
+    var tallOrWide = $el.attr('data-tallorwide');
+    if(tallOrWide === 'tall') {
+        var width = VV.img.CROP_PORT*scale;
+        var height = VV.img.CROP_PORT*scale/VV.img.AR;
+        $el.css('width', width + 'px');
+        $el2.css('width', width + 'px');
+        VV.img.scaleCenter($el, $el2, tallOrWide, delta);
+        VV.img.SCALE = scale;
+    } else if(tallOrWide === 'wide') {
+        var height = VV.img.CROP_PORT*scale;
+        var width = VV.img.CROP_PORT*scale*VV.img.AR;
+        $el.css('height', height + 'px');
+        $el2.css('height', height + 'px');
+        VV.img.scaleCenter($el, $el2, tallOrWide, delta);
+        VV.img.SCALE = scale;
+    }
+}
+
+VV.img.scaleCenter = function($img, $bg, tallOrWide, delta) {
+
+    var AR = $img.width() / $img.height(),
+        minX = VV.img.CROP_PORT - $img.width(),
+        minY = VV.img.CROP_PORT - $img.height();
+    if(tallOrWide === 'tall') {
+        VV.img.IMG_Y += -(VV.img.CROP_PORT/AR * delta) / 2;
+        VV.img.IMG_X += -(VV.img.CROP_PORT * delta) / 2;
+    } else if(tallOrWide === 'wide') {
+        VV.img.IMG_X += -(VV.img.CROP_PORT * AR * delta) / 2;
+        VV.img.IMG_Y += -(VV.img.CROP_PORT * delta) / 2;
+    } else {
+        return console.log('tallOrWide not properly specified');
+    }
+    if(VV.img.IMG_X > 0) { VV.img.IMG_X = 0; }
+    if(VV.img.IMG_Y > 0) { VV.img.IMG_Y = 0; }
+    if(VV.img.IMG_X < minX) { VV.img.IMG_X = minX; }
+    if(VV.img.IMG_Y < minY) { VV.img.IMG_Y = minY; }
+    $img.css('margin-top', VV.img.IMG_Y + 'px');
+    $img.css('margin-left', VV.img.IMG_X + 'px');
+    $bg.css('top', VV.img.IMG_Y + 'px');
+    $bg.css('left', VV.img.IMG_X + 'px');
+}
+VV.img.cloneCanvas = function(oldCanvas) {
+    var newCanvas = document.createElement('canvas');
+    var context = newCanvas.getContext('2d');
+    newCanvas.width = oldCanvas.width;
+    newCanvas.height = oldCanvas.height;
+    context.drawImage(oldCanvas, 0, 0);
+    return newCanvas;
 }

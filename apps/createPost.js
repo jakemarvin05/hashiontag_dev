@@ -57,7 +57,7 @@ module.exports = function createPost(req, res, socket) {
         };
     }
 
-    var addingPost = function(uuid, fields, deleteTemp, errHook) {
+    var addingPost = function(uuid, path, fields, deleteTemp, errHook) {
 
         db.Post.create({ 
             desc: fields['desc'],
@@ -83,6 +83,15 @@ module.exports = function createPost(req, res, socket) {
             if(typeof errHook === 'function') {
                 errHook();
             }
+
+            //delete away image if error in creating post.
+            fs.unlink(path, function(err) {
+                if(err) {
+                    console.log('Err (createPost.js): Error deleting' + uuid + '.jpg');
+                    console.log(err);
+                }
+            });
+
             return throwErr(err);
         });
 
@@ -123,7 +132,16 @@ module.exports = function createPost(req, res, socket) {
             
         });
 
-        form.uploadDir = "./public/upl_temp";
+        var hr = (new Date()).getHours();
+        // 0300hrs to 1459hrs -> upl_temp
+        // 1500hrs to 0259hrs -> upl_temp2
+        var upl_temp_prefix = "upl_temp";
+        if(hr >= 3 && hr < 15 ) {
+            var uploadDir = "./public/" + upl_temp_prefix;
+        } else {
+            var uploadDir = "./public/" + upl_temp_prefix + "2";
+        }
+        form.uploadDir = uploadDir;
 
         //resize, rotate, return the image.
         form.parse(req, function(err, fields, files) {
@@ -151,55 +169,49 @@ module.exports = function createPost(req, res, socket) {
                     var intPathToImg = rawPath + pSuffix + '.jpg';
                     var pathToImg = '';
 
-                    //finding the size
-                    rawImg.size(function(err, value) {
+                    //now resize
+                    rawImg
+                    .noProfile()
+                    .autoOrient()
+                    //parse the stream for async saving.
+                    .stream(function(err, stdout, stderr) {
 
                         if(err) {
-                            console.log(fn + ': .size():' + err);
+                            console.log('Stream error...');
+                            console.log(err);
                             return res.json({success: false});
                         }
 
-                        //setting the resizing
-                        if(value.height > value.width) {
-                            var resizeHeight = null;
-                            var resizeWidth = cropSize;
-                        } else {
-                            var resizeWidth = null;
-                            var resizeHeight = cropSize;
-                        }
+                        var stream = gm(stdout);
+                        //save 2 instances and also delete stock image.
+                        async.parallel([
 
-                        //now resize
-                        rawImg
-                        .noProfile()
-                        .resize(resizeWidth, resizeHeight)
-                        .autoOrient()
+                            function(callback) {
+                                stream.write(rawPath+'temp', function(err) {
+                                    console.log('Writing resized raw...');
+                                    if(err) {
+                                        console.log('Err (createPost.js): Error in creating resized raw image.');
+                                        console.log(err);
+                                        return callback(err);
+                                    }
+                                    return callback();
+                                })
+                            },
+                            function(callback) {
+                                stream
+                                .size({bufferStream: true}, function(err, value) {
 
-                        //parse the stream for async saving.
-                        .stream(function(err, stdout, stderr) {
+                                    //setting the resizing
+                                    if(value.height > value.width) {
+                                        var resizeHeight = null;
+                                        var resizeWidth = cropSize;
+                                    } else {
+                                        var resizeWidth = null;
+                                        var resizeHeight = cropSize;
+                                    }
 
-                            if(err) {
-                                console.log('Stream error...');
-                                console.log(err);
-                                return res.json({success: false});
-                            }
-
-                            var stream = gm(stdout);
-                            //save 2 instances and also delete stock image.
-                            async.parallel([
-
-                                function(callback) {
-                                    stream.write(rawPath+'temp', function(err) {
-                                        console.log('Writing resized raw...');
-                                        if(err) {
-                                            console.log('Err (createPost.js): Error in creating resized raw image.');
-                                            console.log(err);
-                                            return callback(err);
-                                        }
-                                        return callback();
-                                    })
-                                },
-                                function(callback) {
-                                    stream
+                                    this
+                                    .resize(resizeWidth, resizeHeight)
                                     .setFormat('JPEG')
                                     .quality(50)
                                     .write(intPathToImg, function(err) {
@@ -213,35 +225,34 @@ module.exports = function createPost(req, res, socket) {
                                             pathToImg = intPathToImg.substring("public".length); 
                                         }
                                         return callback();
-                                    })
-                                }
+                                    });
+                                });
+                            }
 
-                            ], function(err) {
+                        ], function(err) {
+                            if(err) {
+                                return res.json({success: false});
+                            }
+
+                            //respond to user 
+                            res.json({
+                                success: true,
+                                pathToImg: pathToImg,
+                                actionCompleted: 'rawReturned'
+                            });
+
+                            //delete away the raw image
+                            fs.unlink(rawPath, function(err) {
                                 if(err) {
-                                    return res.json({success: false});
+                                    console.log('Err (createPost.js): Error deleting old raw image');
+                                    console.log(err);
+
                                 }
 
-                                //respond to user 
-                                res.json({
-                                    success: true,
-                                    pathToImg: pathToImg,
-                                    actionCompleted: 'rawReturned'
-                                });
+                            });
 
-                                //delete away the raw image
-                                fs.unlink(rawPath, function(err) {
-                                    if(err) {
-                                        console.log('Err (createPost.js): Error deleting old raw image');
-                                        console.log(err);
-
-                                    }
-
-                                });
-
-                            }); //async.parallel
-                        }); // stream() 
-                        
-                    }); //.size()
+                        }); //async.parallel
+                    }); // stream() 
 
                 } //if raw
 
@@ -255,12 +266,14 @@ module.exports = function createPost(req, res, socket) {
                     console.log(processData);
 
                     //retrieve just the temp file name without suffixes.
-                    var rawName = fields['imgData'];
-                        rawName = rawName.substring(rawName.lastIndexOf('/') + 1);
-                        rawName = rawName.substring(0, rawName.lastIndexOf(pSuffix));
+                    var rawUpl = fields['imgData'],
+                        rawName = rawUpl.substring(rawUpl.lastIndexOf('/') + 1);
 
-                    var prevPath = 'public/upl_temp/' + rawName + pSuffix + '.jpg';
-                    var rawPath = 'public/upl_temp/' + rawName + 'temp';
+                        rawUpl = rawUpl.substring(rawUpl.lastIndexOf(upl_temp_prefix));
+                        rawUpl = rawUpl.substring(0, rawUpl.lastIndexOf(pSuffix));
+
+                    var prevPath = 'public/' + rawUpl + pSuffix + '.jpg';
+                    var rawPath = 'public/' + rawUpl + 'temp';
                     console.log('reconstructed rawPath: ' + rawPath);
                     
 
@@ -304,14 +317,12 @@ module.exports = function createPost(req, res, socket) {
                                     });
                                 }
 
-                                return addingPost(newUUID, fields, deleteTemp, errHook);
+                                return addingPost(newUUID, finalPath, fields, deleteTemp, errHook);
                             }
 
                         }); // write()
                     }
                     /* END VARIABLES AND FUNCTIONS */
-
-
 
                     gm(rawPath).size({bufferStream: true}, function(err, value) {
 
@@ -328,9 +339,18 @@ module.exports = function createPost(req, res, socket) {
                         }
 
                         if(value.height > value.width) {
-                            var m = value.width / userCropPort;
+                            var m = value.width / (userCropPort*processData.crop.scale);
                         } else {
-                            var m = value.height / userCropPort;
+                            var m = value.height / (userCropPort*processData.crop.scale);
+                        }
+
+                        //setting the resizing
+                        if(value.height > value.width) {
+                            var resizeHeight = null;
+                            var resizeWidth = cropSize;
+                        } else {
+                            var resizeWidth = null;
+                            var resizeHeight = cropSize;
                         }
 
                         //crop & resize first.
@@ -345,7 +365,24 @@ module.exports = function createPost(req, res, socket) {
                                 console.log('crop: ');
                                 console.log(-x*m, -y*m);
                                 this
-                                .crop(cropSize, cropSize, -x*m, -y*m)
+                                .crop(userCropPort*m, userCropPort*m, -x*m, -y*m)
+                                .stream(function(err, stdout, stderr) {
+                                    if(err) { return res.json({success: false});}
+
+                                    gm(stdout).resize(resizeWidth, resizeHeight)
+                                    .stream(function(err, stdout, stderr) {
+                                        if (err) {
+                                            console.log(fn + 'Error in process-crop: ' + err);
+                                            return res.json({success: false});
+                                        }
+                                        //apply filters here.
+                                        compressWrite(stdout, rawName);
+                                    });
+                                });
+                            } else {
+
+                                this
+                                .resize(resizeWidth, resizeHeight)
                                 .stream(function(err, stdout, stderr) {
                                     if (err) {
                                         console.log(fn + 'Error in process-crop: ' + err);
@@ -380,7 +417,7 @@ module.exports = function createPost(req, res, socket) {
 
                     fs.rename(img.path, newPath, function() {
                         //var pathToImg = newPath.substring("public".length);
-                        return addingPost(newUUID, fields);
+                        return addingPost(newUUID, newPath, fields);
                     });
                 }
                 else {

@@ -48,7 +48,7 @@
     <link href="{p.css}/style.css" rel="stylesheet"> 
 
     <!-- fonts, glyphicons -->
-    <link href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:400,200|Droid+Sans:400,700' rel='stylesheet' type='text/css'>
+    <!--<link href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:400,200|Droid+Sans:400,700' rel='stylesheet' type='text/css'>-->
     <link href="{p.css}/bootstrap-glyphicons.css" rel="stylesheet">
     
     <!-- jQuery and UI -->
@@ -71,11 +71,15 @@
     -->
 
     <!-- HTML5 shiv for below IE10 compatibility -->
+    <!-- TO DO: CONSIDER TAKING OUT IE < 10 SUPPORT!! -->
     <!--[if lt IE 9]>
     <script src="{p.js}/html5shiv-printshiv.min.js"></script>
     <script src="{p.js}/respond.min.js"></script>
     <![endif]-->
     <script src="{p.js}/alert.js"></script>
+    <script src="{p.js}/hammer.min.js"></script>
+    <script src="{p.js}/velocity/velocity.min.js"></script>
+    <script src="{p.js}/velocity/velocity.ui.min.js"></script>
 
 {?renderJSON}
 <script>

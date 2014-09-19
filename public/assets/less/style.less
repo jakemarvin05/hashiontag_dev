@@ -1,5 +1,18 @@
 @import "normalize.less";
 
+/* Fonts */
+@font-face {
+    font-family: 'NeutraText', Helvetica, Arial;
+    src: url('../fonts/NeutraText-Book.woff');
+    font-weight: normal;
+
+}
+@font-face {
+    font-family: 'NeutraText', Helvetica, Arial;
+    src: url('../fonts/NeutraText-Bold.woff');
+    font-weight: bold;
+}
+
 /* Stylesheet content lists
 ===================================================
 1. Body, p, h1-h3, other globals
@@ -19,12 +32,12 @@ body {
     background-color: #fff;
 }
 p {
-    font-family: 'Droid Sans';
+    font-family: 'NeutraText', Helvetica, Arial;
     font-size: 13px;
     font-weight: 400;
 }
 h1, h2 {
-    font-family: Georgia, sans-serif;
+    font-family: 'NeutraText', Helvetica, Arial;
 }
 h1 {
     font-size: 20px;
@@ -33,7 +46,7 @@ h2 {
     font-size: 18px;
 }
 h3 {
-    font-family: 'Droid Sans';
+    font-family: 'NeutraText', Helvetica, Arial;
     font-size: 14px;
 }
 a {
@@ -96,9 +109,9 @@ a {
 .navButtons, .navButtonsCondensed {
     background-color: @navBtnDark;
     color: #000;
-    font-family: 'Yanone Kaffeesatz';
+    font-family: 'NeutraText', Helvetica, Arial;
     font-weight: 200;
-    font-size: 17px;
+    font-size: 14px;
     letter-spacing: 3px;
 }
 .navButtons {
@@ -246,7 +259,7 @@ a {
     color: #000;
 }
 .blockTitle h1 {
-    font-family: 'Yanone Kaffeesatz';
+    font-family: 'NeutraText', Helvetica, Arial;
     font-size: 30px;
 }
 .blockInner {
@@ -274,12 +287,12 @@ a {
     padding-top:6px;
 }
 .blockUsername { 
-    font-family: 'Droid Sans';
+    font-family: 'NeutraText', Helvetica, Arial;
     font-weight: 700;
     font-size: 13px;
 }
 .blockTimelapse {
-    font-family: 'Droid Sans';
+    font-family: 'NeutraText', Helvetica, Arial;
     font-weight: 400;
     font-size: 12px;
     color: #ccc;
@@ -427,18 +440,18 @@ footer, .globalWrapper {
     ----------------------------------------------------------------------------- 
     1) Display everything
 
-    Span 1:    60.0% * 768
-    Span 2:    40.0% * 768
+    Span 1:    70.0% * 768
+    Span 2:    30.0% * 768
     Span all:  100%   
     ----------------------------------------------------------------------------- */
 
     @media (min-width: 769px) {
 
         .span1 {
-            width:(768px*0.6);
+            width:(768px*0.7);
         }
         .span2 {
-            width:(768px*0.4);
+            width:(768px*0.3);
         }
         .spanAll {
             margin-left:0;

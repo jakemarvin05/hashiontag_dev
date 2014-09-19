@@ -193,11 +193,37 @@ router.get('/logout', function(req, res) {
 });
 
 router.get('/post', function(req, res) {
-    res.render('post', { 
+
+    var uap = require('ua-parser').parseUA(req.headers['user-agent']);
+
+    var family = uap.family.toLowerCase();
+    console.log(family);
+    var major = parseFloat(uap.major);
+    console.log(major);
+    var CSRender = false;
+
+    //reject cases
+    if(family.indexOf('mobile') > -1 ) {
+        //reject
+    } else if(family.indexOf('safari') > -1) {
+        //reject
+    } else {
+        //no mobile branch, check for firefox and chrome.
+        if(family.indexOf('chrome') > -1 && major >=  37) {
+            console.log('chrome >= 37');
+            CSRender = true;
+        }
+        if(family.indexOf('firefox') > -1 && major >=  32) {
+            CSRender = true;
+        }
+    }
+
+    return res.render('post', { 
         title: meta.header(),
         isLoggedIn: isLoggedIn(req),
         gJSON: gJSON,
-        p: gJSON.paths
+        p: gJSON.paths,
+        CSRender: CSRender
     });
 });
 
@@ -332,13 +358,34 @@ router.post('/api/notification', function(req, res) {
 });
 
 router.get('/ua-parser', function(req, res) {
-    var uap = require('ua-parser').parse(req.headers['user-agent']);
+    var uap = require('ua-parser').parseUA(req.headers['user-agent']);
 
     res.json({
-        everything: uap.ua
-    })
+        'everything': uap
+    });
+
+
+    var family = uap.family.toLowerCase();
+    var major = parseFloat(uap.major);
+    var CSRender = false;
+
+    //reject cases
+    if(family.indexOf('mobile') > -1 ) {
+        //reject
+    } else if(family.indexOf('safari') > -1) {
+        //reject
+    } else {
+        //no mobile branch, check for firefox and chrome.
+        if(family.indexOf('chrome') > -1 && major >=  37) {
+            CSRender = true;
+        }
+        if(family.indexOf('firefox') > -1 && major >=  32) {
+            CSRender = true;
+        }
+    }
 });
 
+//dev
 router.get('/:find/:model/:where', function(req, res) {
     if(req.params.find && req.params.model) {
         console.log(req.params.model);
@@ -361,40 +408,37 @@ router.get('/:find/:model/:where', function(req, res) {
         }    
     } else {
         res.send('error');
-    }
-
-
-    
+    }  
 });
 
 //user routes
-// router.get('/:user', function(req, res, next) {
+router.get('/:user', function(req, res, next) {
 
-//     if(req.params.user === 'socket.io') {
-//         return next(err);
-//     }
+    if(req.params.user === 'socket.io') {
+        return next(err);
+    }
 
-//     var eventEmitter = new events.EventEmitter();
+    var eventEmitter = new events.EventEmitter();
 
-//     //bind the final callback first
-//     eventEmitter.on('profileJSONDone', function thenRender(renderJSON) {
-//         res.render('profile', { 
-//             title: meta.header(),
-//             isLoggedIn: isLoggedIn(req),
-//             gJSON: gJSON,
-//             p: gJSON.paths,
-//             renderJSON: renderJSON,
-//             isSearch: true,
-//             isProfile: true,
-//             userId: ( JSON.parse(renderJSON) ).userId
-//         });
+    //bind the final callback first
+    eventEmitter.on('profileJSONDone', function thenRender(renderJSON) {
+        res.render('profile', { 
+            title: meta.header(),
+            isLoggedIn: isLoggedIn(req),
+            gJSON: gJSON,
+            p: gJSON.paths,
+            renderJSON: renderJSON,
+            isSearch: true,
+            isProfile: true,
+            userId: ( JSON.parse(renderJSON) ).userId
+        });
 
-//     });
+    });
 
-//     //now run callback dependents
-//     var getProfile = require('../apps/getProfile.js')(req, eventEmitter);
+    //now run callback dependents
+    var getProfile = require('../apps/getProfile.js')(req, eventEmitter);
 
-// });
+});
 
 
 
@@ -415,15 +459,6 @@ router.get('/dbtest', function(req, res) {
     });
 
 });
-
-// router.get('/testing', function(req, res) {
-
-//     req.user.removeFollow({where4).then(function(){
-//         res.send('removed');
-//     })  
-
-// });
-
 // router.get('/sync', function(req, res) {
 //   db.sequelize.sync({force:true}).on('success', function() {
 //     res.send('sync success');

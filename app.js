@@ -13,22 +13,16 @@ var bodyParser = require('body-parser');
 //var sys = require('sys');
 //var util = require('util');
 
-
 var cons = require('consolidate');
 
 /* sequelize */
-var db = require('./models'); 
+var db = require('./models');
+global.db = db;
 
 /* passport and its friends */
 var passport = require('passport');
 var flash = require('connect-flash');
 var session = require('express-session');
-
-
-
-
-//filesystem middleware
-//var fs = require('fs');
 
 var app = express();
 

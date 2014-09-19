@@ -5,17 +5,15 @@ onmessage = function (event){
     var H = event.data[2];
     var W2 = event.data[3];
     var H2 = event.data[4];
-    var core = event.data[5];
-    var max_cores = event.data[6];
-    var data2 = [];
+    var img2 = event.data[5]
+    var data2 = img2.data;
+
     var ratio_w = W / W2;
     var ratio_h = H / H2;
     var ratio_w_half = Math.ceil(ratio_w/2);
     var ratio_h_half = Math.ceil(ratio_h/2);
-    var start_row = Math.ceil(H2*core/max_cores)-1; if(start_row < 0) start_row = 0;
-    var offset = Math.floor(H2*core/max_cores) * W2 * 4;
-    
-    for(var j = start_row; j < start_row + Math.ceil(H2/max_cores); j++){
+
+    for(var j = 0; j < H2; j++){
         for(var i = 0; i < W2; i++){
             var x2 = (i + j*W2) * 4;
             var weight = 0;
@@ -43,12 +41,11 @@ onmessage = function (event){
                         }
                     }
                 }
-            var x2 = (i + j*W2) * 4 - offset;
             data2[x2]     = gx_r / weights;
             data2[x2 + 1] = gx_g / weights;
             data2[x2 + 2] = gx_b / weights;
             data2[x2 + 3] = gx_a / weights;
             }
         }
-    postMessage({offset: offset, data: data2});
+    postMessage({data: img2});
     };
