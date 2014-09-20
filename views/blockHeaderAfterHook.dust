@@ -1,0 +1,56 @@
+</head>
+<body>
+
+<!-- HTML5 structural block -->
+
+<!-- nav responsive controlled by a condenser script below -->
+<div class="spanAll navWrapper">
+    <div id="navBar" class="globalWrapper">
+        <a href="{p.home}"><img src="{p.img}/logo.png" id="logo"></a>
+
+        <nav id="navNormal"> 
+            <!--
+            {?isLoggedIn}
+            --><a href="{p.following}"><span class="navButtons">Following</span></a><!--
+            --><a href="{p.followers}"><span class="navButtons">Followers</span></a><!--
+            --><a href="{p.post}"><span class="navButtons">Post</span></a><!--
+            --><a href="{p.me}"><span class="navButtons">Me</span></a><!--
+            --><a href="{p.logout}"><span class="navButtons">Logout</span></a>
+            {:else}
+            --><a href="{p.login}"><span class="navButtons">Login</span></a><!--
+            --><a href="{p.signup}"><span class="navButtons">Signup</span></a>
+            {/isLoggedIn}
+        </nav>
+
+        <nav id="navCondensed">
+            <span class="navButtons"><span class="glyphicon glyphicon-th-list"></span></span>
+                <span id="navDropdown">
+                    <a href="{p.home}"><span class="navButtonsCondensed navSelected">Home</span></a>
+                    {?isLoggedIn}
+                    <a href="{p.following}"><span class="navButtonsCondensed">Following</span></a>
+                    <a href="{p.followers}"><span class="navButtonsCondensed">Followers</span></a>
+                    <a href="{p.post}"><span class="navButtonsCondensed">Post</span></a>
+                    <a href="{p.me}"><span class="navButtonsCondensed">Me</span></a>
+                    <a href="{p.logout}"><span class="navButtonsCondensed">Logout</span></a>
+                    {:else}
+                    <a href="{p.login}"><span class="navButtonsCondensed">Login</span></a>
+                    <a href="{p.signup}"><span class="navButtonsCondensed">Signup</span></a>
+                    {/isLoggedIn}
+                </span>
+        </nav>
+
+        <span class="navSearchField"><form id="navSearch" method="post" action="{p.search}"><input type="text" name="navSearchInput" id="navSearchInput"><span class="glyphicon glyphicon-search"></span></form></span>
+        <script>
+        $( '#navSearch .glyphicon' ).click(function(){
+            $( '#navSearch' ).submit();
+        });
+        $( "#navSearchInput" ).on("keydown", function(e) {
+
+            // Enter is pressed
+            if (e.keyCode == 13) { $( '#navSearch' ).submit(); }
+        });
+        </script>
+    </div>
+</div><!-- gloabal_wrapper -->
+
+<div class="globalWrapper headerCompensate">
