@@ -70,11 +70,20 @@ socket.on('uploadProgress', function(data){
             left:-2px;
             top:-2px;
         }
+        #img_field {
+            opacity: 0;
+            filter: alpha(opacity=0);
+            position: absolute;
+            max-height: 0px;
+            max-width: 0px;
+        }
+        #browseCont, #scaleCont, #postCont {
+            text-align:center;
+        }
         #scaleSliderCont {
             width:280px;
             height: 50px;
             padding-top: 20px;
-            display:none;
             margin:auto;
         }
             #scaleSlider {
@@ -96,9 +105,8 @@ socket.on('uploadProgress', function(data){
             <div id="cropPortBg"></div>
             <div id="cropPort"></div>
         </div>
-        <div id="test1"></div><div id="test2"></div><div id="test3"></div>
         <script>
-        $(document).ready(function() {
+        $(function() {
             //set the crop port
             var windowW = $(window).width();
             if(windowW > 640) {
@@ -106,25 +114,46 @@ socket.on('uploadProgress', function(data){
                 $("#cropPort").css('height', VV.img.CROP_PORT).css('width', VV.img.CROP_PORT);
                 $("#cropPortBg").css('width', VV.img.CROP_PORT);
             }
+            //init dragShifting
+            dragShifting.init();
+            //init pinch scaling
+            scaleSlider.pinch.init(document.getElementById('cropPort'));
         });
         </script>
-        <div id="scaleSliderCont">
-            <div id="scaleSlider"></div>
-            <div id="scaleSliderBut"></div>
+        <div id="browseCont">
+            <button id="browseButton">Browse</button>
+            <input id="img_field" type="file" name="img" accept="image/jpeg,image/gif,image/png" required></input>
         </div>
-        <div id="percent">0</div>
-        Image: <input id="img_field" type="file" name="img" accepts="image/jpeg,image/gif,image/png" required></input>
+        <script>
+        //bind button to input="file"
+        $(function() {
+            $('#browseButton').click(function() {
+                $('#img_field').focus().trigger('click');
+            });
+        });
+        </script>
 
-    <p>
-        Post: <textarea id="desc" name="desc" required></textarea>
-    </p>
-    <p>
-        <button id="submit" type="button">Pre-submit</button>
-        <button>Post</button>
-    </p>
-    <p>
-        Progress: <input id="progress" name="progressPercent" required></input>
-    </p>
+        {! Bindings for these buttons are below !}
+        <div id="scaleCont" style="display:none">
+            <div id="scaleSliderCont">
+                <div id="scaleSlider"></div>
+                <div id="scaleSliderBut"></div>
+                <script>
+                //init scale slider button
+                $(function() { scaleSlider.init($('#scaleSliderBut')); });
+                </script>
+            </div>
+            <button id="doneScaling">Done scaling</button>
+        </div>
+        <div id="postCont" style="display:none">
+            <textarea id="desc" name="desc" required></textarea>
+            <button id="postIt">Post</button>
+        </div>
+        
+    
+        <p>
+            Progress: <input id="progress" name="progressPercent" required></input>
+        </p>
 
         {:else}
             You are not logged in. To post, please log in <a href="{#p}{login}{/p}">here</a>
@@ -138,12 +167,7 @@ socket.on('uploadProgress', function(data){
 
 <script src="{p.js}/vvImg.js"></script>
 <script>
-//Client Side Render
-{?CSRender}
-VV.img.CSRender = true;
-{:else}
-VV.img.CSRender = false;
-{/CSRender}
+VV.img.CSRender = {CSRender};
 </script>
 
 <script src="{p.js}/exif.binaryjax.js"></script>
@@ -232,8 +256,6 @@ dragShifting.init = function() {
         $('#cropPort').unbind('mousemove.ds touchmove.ds');
     });
 }
-dragShifting.init();
-
 
 /*******************
 * Slider *
@@ -251,8 +273,8 @@ scaleSlider.startX = 0;
 
 scaleSlider.reset = function($el) {
     scaleSlider.currentPosit = 0;
-    $el.velocity({marginLeft: scaleSlider.stopLimits + 'px'}, {duration: 300});
-    console.log('resetted!');
+    //$el.velocity({marginLeft: scaleSlider.stopLimits + 'px'}, {duration: 300});
+    $el.css('marginLeft', scaleSlider.stopLimits + 'px');
 }
 
 scaleSlider.init = function($el) {
@@ -302,8 +324,6 @@ scaleSlider.init = function($el) {
         }
     });
 }
-scaleSlider.init($('#scaleSliderBut'));
-
 scaleSlider.pinch = {}
 scaleSlider.pinch.sensitivity = 0.6;
 scaleSlider.pinch.init = function(el) {
@@ -343,7 +363,33 @@ scaleSlider.pinch.init = function(el) {
         oScale = newScale;  
     });
 }
-scaleSlider.pinch.init(document.getElementById('cropPort'));
+
+/*******************
+* Loader *
+*******************/
+var loader = {
+    state: false,
+    run: function ($cont) {
+        this.state = true;
+        console.log('loader: ' + loader.state);
+        var loading = '<div id="loader" style="position:absolute">Loading...</div>';
+        $cont.append(loading);
+        $('#loader').velocity("fadeIn", {
+            duration: 500, loop: true });
+    },
+    kill: function(callback) {
+        var self = this;
+        $('#loader').velocity("stop").velocity("fadeOut", {
+            duration: 300,
+            complete: function(el) {
+                $(el).remove();
+                self.state = false;
+                console.log('loader: ' + loader.state);
+                if(typeof callback === 'function') return callback();
+            }
+        });
+    }
+}
 
 /*******************
 * Image processing *
@@ -361,47 +407,49 @@ scaleSlider.pinch.init(document.getElementById('cropPort'));
 var $img_field = $('img_field');
 var el_img_field = document.getElementById('img_field');
 
-function loader($el) {
-    var loading = '<div id="loading">Loading...</div>';
-    $el.append(loading);
-    $('#loading').velocity("fadeIn", {
-        duration: 500, loop: true });
-}
-
 VV.img.STOCK_IMG.onload = function() {
     var self = this;
     console.log('img onload');
 
     //480x480
     if(this.height < 480 || this.width < 480 ) {
+        loader.kill();
         return aF.protoAlert({
                 text:'Please select an image with at least 480px by 480px resolution', 
                 title:'Resolution too small'
         });
     }
-    var resTooHigh = {
-        text:'Your image resolution is too high. Please resize before uploading.', 
-        title:'Resolution too high'
+
+    VV.img.STOCK_IMG_MP = this.height*this.width/1000000;
+    if(VV.img.STOCK_IMG_MP > VV.img.RESIZE_MP_LIMIT) {
+        loader.kill();
+        return aF.protoAlert({
+                text:'Please resize your image before uploading.', 
+                title:'Resolution too high'
+        });
     }
-    //<5120px
-    if(this.height > this.width) {
-        if(this.width > 5120) { return aF.protoAlert(resTooHigh); }
-    } else {
-        if(this.height > 5120) { return aF.protoAlert(resTooHigh); }
-    }
-    //<23megapixel
-    if(this.height * this.width > 23000000) { return aF.protoAlert(resTooHigh); }
+
+    //ok clear to proceed...
 
     //store the heights for use later.
     VV.img.STOCK_IMG_W = this.width;
     VV.img.STOCK_IMG_H = this.height;
+    
+
+    //TRANSITIONS
+    $("#browseCont").velocity("transition.slideLeftOut", 300);
     $("#cropPort").css('cursor', 'move');
 
-    if(VV.img.CSRender) {
-        //get EXIF first before resizing
-        return VV.img.getEXIF(el_img_field.files[0], function(toRotate) {
+    //check if image MP within prescribed limits
+    var clientCanHandle = (VV.img.CSRender >= VV.img.STOCK_IMG_MP);
+    var imageIsBelowHardLimit = (VV.img.STOCK_IMG_MP <= VV.img.RESIZE_MP_LIMIT);
 
+    if(clientCanHandle && imageIsBelowHardLimit) {
+        //get EXIF first
+        VV.img.getEXIF(el_img_field.files[0], function(toRotate) {
             var canvas = VV.img.canvasrise(self);
+            //set resizer
+            
             var scaleTo = VV.img.CROP_SIZE*VV.img.SCALE_LIMIT;
             //resize and rotate
             VV.img.canvasResize(canvas, scaleTo, toRotate, function(canvas) {
@@ -410,6 +458,7 @@ VV.img.STOCK_IMG.onload = function() {
 
         });
     } else {
+        //upload the image that client can't handle
         var attrs = {
             action: 'raw',
             imgData: el_img_field.files[0],
@@ -456,13 +505,14 @@ $("#img_field").change(function(){
             duration: 300,
             complete: function(el) {
                 $(el).remove();
-                loader($('#cropPort'));
+                $('.img_previews').remove();
+                loader.run($('#cropPort'));
                 reader.readAsDataURL(self.files[0]);
                 //VV.img.STOCK_IMG.src = objectURL;
             }
         });
     } else {
-        loader($('#cropPort'));
+        loader.run($('#cropPort'));
         reader.readAsDataURL(this.files[0]);
         
         //VV.img.STOCK_IMG.src = objectURL;
@@ -476,34 +526,106 @@ $("#img_field").change(function(){
 * Post processing *
 ******************/
 
-$("#submit").click(function(){
 
-    if(VV.img.CSRender) {
-        var submittedCanvas = document.getElementById('img_preview');
-        var tempCanvas = VV.img.cloneCanvas(submittedCanvas);
-        VV.img.canvasResize(tempCanvas, VV.img.CROP_SIZE*VV.img.SCALE, false, function(canvas) {
+$("#doneScaling").click(function(){
+    loader.run($('#cropPort'));
+    $('#scaleCont').velocity('transition.slideLeftOut', {duration: 300});
+    //This option is only available to client-side render.
+    //1. crop and resize VV.img.TEMP_IMG.
+    //2. re-apply filters.
 
-            VV.img.canvasCrop('canvas', canvas, function(data) {
-                var blobBin = atob( data.split(',')[1] );
-                var array = [];
-                for(var i = 0; i < blobBin.length; i++) {
-                    array.push(blobBin.charCodeAt(i));
-                }
-                var file = new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
+    if(VV.img.CSRender !== false) {
+        var tempCanvas = document.createElement('canvas');
+        var tempCanvasCtx = tempCanvas.getContext('2d');
+        tempCanvas.height = VV.img.TEMP_IMG_H;
+        tempCanvas.width = VV.img.TEMP_IMG_W;
+        tempCanvasCtx.drawImage(VV.img.TEMP_IMG, 0, 0);
 
-                var attrs = {
-                    action: 'store',
-                    imgData: file,
-                    processData: false,
-                    desc: $('#desc').val()
-                }
+        //m tells you how much bigger the image used for processing is.
+        //this is used to multiply the drag shifted offsets IMG_X and IMG_Y
+        if(tempCanvas.height > tempCanvas.width) {
+            var m = VV.img.TEMP_IMG_W / (VV.img.CROP_PORT*VV.img.SCALE);
+        } else {
+            var m = VV.img.TEMP_IMG_H / (VV.img.CROP_PORT*VV.img.SCALE);
+        }
 
-                VV.img.upload(attrs, function(data) {
-                    //redirect to post
-                    window.location.href = '/';
-                    console.log(data.postId);
-                });
+        VV.img.canvasCrop('canvas', tempCanvas, m, VV.img.SCALE, function(cropped) {
+            VV.img.canvasResize(cropped, VV.img.CROP_SIZE, false, function(canvas) {
+                //in future, apply filters here.
+                canvas.style['height'] = VV.img.CROP_PORT + 'px';
+                canvas.style['width'] = VV.img.CROP_PORT + 'px';
+                canvas.id = 'img_preview2';
+                canvas.className = 'img_previews';
+                loader.kill();
+                
+                $('#cropPortBg img').velocity({
+                    opacity:0
+                }, {
+                    duration: 300,
+                    complete: function() {
+                    $('#img_preview').hide();
+                    $('#cropPort').append(canvas);
+                    $('#postCont').velocity('transition.slideRightIn', {duration: 300});
+                    }
+                }); 
+
             });
+        });
+    }
+}); // #processImage" click
+
+
+$("#postIt").click(function(){
+
+    if(VV.img.CSRender !== false) {
+        //var submittedCanvas = document.getElementById('img_preview');
+        //var tempCanvas = VV.img.cloneCanvas(submittedCanvas);
+        // VV.img.canvasResize(tempCanvas, VV.img.CROP_SIZE*VV.img.SCALE, false, function(canvas) {
+
+        //     VV.img.canvasCrop('canvas', canvas, function(data) {
+        //         var blobBin = atob( data.split(',')[1] );
+        //         var array = [];
+        //         for(var i = 0; i < blobBin.length; i++) {
+        //             array.push(blobBin.charCodeAt(i));
+        //         }
+        //         var file = new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
+
+        //         var attrs = {
+        //             action: 'store',
+        //             imgData: file,
+        //             processData: false,
+        //             desc: $('#desc').val()
+        //         }
+
+        //         VV.img.upload(attrs, function(data) {
+        //             //redirect to post
+        //             window.location.href = '/';
+        //             console.log(data.postId);
+        //         });
+        //     });
+        // });
+
+        var el_finalCanvas = document.getElementById('img_preview2');
+
+        var data = el_finalCanvas.toDataURL('image/jpeg', VV.img.QUALITY);
+        var blobBin = atob( data.split(',')[1] );
+        var array = [];
+        for(var i = 0; i < blobBin.length; i++) {
+            array.push(blobBin.charCodeAt(i));
+        }
+        var file = new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
+
+        var attrs = {
+            action: 'store',
+            imgData: file,
+            processData: false,
+            desc: $('#desc').val()
+        }
+
+        VV.img.upload(attrs, function(data) {
+            //redirect to post
+            //window.location.href = '/';
+            console.log(data.postId);
         });
 
     } else {

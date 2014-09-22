@@ -43,6 +43,9 @@ module.exports = function(sequelize, DataTypes) {
                     //notification
                     Post.hasMany(models.Notification, {foreignKey: 'Post_postId'});
 
+                    //Hashtags
+                    Post.hasMany(models.Hashtag, {foreignKey: 'Post_postId', through: 'Posts_Hashtags'});
+
                 }
             },
             getterMethods: {

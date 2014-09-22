@@ -53,7 +53,7 @@
     
     <!-- jQuery and UI -->
     <script src="{p.js}/jquery-1.10.1.min.js"></script>
-    <script src="{p.js}/jquery-ui-1.10.4/js/jquery-ui-1.10.4.min.js"></script>
+    <!--<script src="{p.js}/jquery-ui-1.10.4/js/jquery-ui-1.10.4.min.js"></script>-->
     <link href="{p.js}/jquery-ui-1.10.4/css/ui-lightness/jquery-ui-1.10.4.min.css" rel="stylesheet">
 
     <!-- fancyBox image gallery -->
@@ -77,7 +77,7 @@
     <script src="{p.js}/respond.min.js"></script>
     <![endif]-->
     <script src="{p.js}/alert.js"></script>
-    <script src="{p.js}/hammer.min.js"></script>
+    <script src="{p.js}/hammer/hammer.min.js"></script>
     <script src="{p.js}/velocity/velocity.min.js"></script>
     <script src="{p.js}/velocity/velocity.ui.min.js"></script>
 

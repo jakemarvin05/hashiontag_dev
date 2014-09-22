@@ -200,21 +200,24 @@ router.get('/post', function(req, res) {
     console.log(family);
     var major = parseFloat(uap.major);
     console.log(major);
-    var CSRender = false;
 
-    //reject cases
+    //CSRender defines whether client should render the images and if
+    //yes, up to how many megapixels. Default setting is 3MP.
+    var CSRender = 3;
+
+    //limitation cases
     if(family.indexOf('mobile') > -1 ) {
-        //reject
+        CSRender = 8;
     } else if(family.indexOf('safari') > -1) {
-        //reject
+        CSRender = 23;
     } else {
         //no mobile branch, check for firefox and chrome.
         if(family.indexOf('chrome') > -1 && major >=  37) {
             console.log('chrome >= 37');
-            CSRender = true;
+            CSRender = 23;
         }
         if(family.indexOf('firefox') > -1 && major >=  32) {
-            CSRender = true;
+            CSRender = 23;
         }
     }
 
