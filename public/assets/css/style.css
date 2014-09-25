@@ -292,22 +292,26 @@ a {
 /* main red: #ef4549
 */
 #opacBar {
-  height: 46px;
+  height: 70px;
   width: 100%;
-  background-color: #fff;
-  opacity: 0.9;
+  background-color: #ef4549;
+  /* opacity: 0.9; */
+
   position: fixed;
   z-index: -1;
+  -webkit-transition: 0.5s;
+  transition: 0.5s;
 }
 .navWrapper {
-  height: 46px;
+  height: 70px;
   position: fixed;
-  border-bottom: 1px solid #cccccc;
+  border-bottom: 1px solid #b93337;
   z-index: 9999;
+  -webkit-transition: 0.5s;
+  transition: 0.5s;
 }
 #navBar {
-  height: 46px;
-  min-height: 46px;
+  height: 100%;
   color: #000;
   -webkit-transition: 0.5s;
   transition: 0.5s;
@@ -316,15 +320,11 @@ a {
   float: left;
   height: 100%;
   overflow: hidden;
+  width: 288px;
 }
-@media (min-width: 0px) and (max-width: 767px) {
+@media (min-width: 0px) and (max-width: 480px) {
   #logoCont {
-    width: 68px;
-  }
-}
-@media (min-width: 768px) {
-  #logoCont {
-    width: 244px;
+    max-width: 80px;
   }
 }
 #logoInner {
@@ -336,18 +336,10 @@ a {
   vertical-align: middle;
   margin: 0px 20px 0px 15px;
 }
-@media (min-width: 768px) {
-  #logo {
-    margin: 0px 20px 0px 15px;
-  }
-}
-@media (max-width: 767px) {
-  #logo {
-    margin: 0px 15px 0px 10px;
-  }
-}
 #navNormal {
-  width: 100%;
+  float: right;
+  /* width: 100%; */
+
   height: 100%;
   text-align: center;
   display: inline-block;
@@ -363,7 +355,7 @@ a {
 .navButtons,
 .navButtonsCondensed {
   display: inline-block;
-  color: #ccc;
+  color: #ffffff;
   font-family: 'NeutraText', Helvetica, Arial;
   font-weight: bold;
   font-size: 13px;
@@ -371,28 +363,53 @@ a {
   vertical-align: middle;
   width: 30px;
   padding: 5px;
-  margin: 0px 20px;
+}
+@media (min-width: 0px) and (max-width: 480px) {
+  .navButtons,
+  .navButtonsCondensed {
+    margin: 0px 10px;
+  }
+}
+@media (min-width: 481px) and (max-width: 767px) {
+  .navButtons,
+  .navButtonsCondensed {
+    margin: 0px;
+  }
+}
+@media (min-width: 768px) {
+  .navButtons,
+  .navButtonsCondensed {
+    margin: 0px 20px;
+  }
 }
 .navButtons {
   margin-left: 0px;
   -webkit-transition: 0.5s;
   transition: 0.5s;
 }
-.navButtons [class^="icon-"],
-[class*=" icon-"] {
-  font-size: 20px;
+@media (min-width: 0px) and (max-width: 480px) {
+  .navButtons [class^="icon-"],
+  [class*=" icon-"] {
+    font-size: 28px;
+  }
+}
+@media (min-width: 481px) {
+  .navButtons [class^="icon-"],
+  [class*=" icon-"] {
+    font-size: 20px;
+  }
 }
 .navButtons span {
   position: relative;
   top: 3px;
   font-size: 8px;
 }
-@media (min-width: 0px) and (max-width: 767px) {
+@media (min-width: 0px) and (max-width: 480px) {
   .navButtons span {
     display: none;
   }
 }
-@media (min-width: 768px) {
+@media (min-width: 481px) {
   .navButtons span {
     display: inline;
   }
@@ -414,22 +431,19 @@ a {
 .navButtonsCondensed:hover {
   /* background-color: #B93337; */
 
-  color: #B93337;
+  color: #b93337;
   cursor: pointer;
 }
 .navSelected {
-  background-color: #cccccc !important;
+  color: #b93337 !important;
 }
 .navSelected:hover {
   cursor: default !important;
 }
-.navSelected {
-  background-color: #cccccc;
-}
 #navDropdown {
   display: none;
   position: absolute;
-  top: 46px;
+  top: 70px;
   margin-left: -64px;
 }
 #navCondensed .navButtons {
@@ -499,7 +513,7 @@ a {
   }
 }
 .headerCompensate {
-  padding-top: 47px;
+  padding-top: 70px;
 }
 #main {
   margin: auto;

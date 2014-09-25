@@ -7,12 +7,12 @@
 <div class="spanAll navWrapper">
     <div id="opacBar" class="spanAll"></div>
     <div id="navBar" class="globalWrapper">
-        <!--<div id="logoCont">
+        <div id="logoCont">
             <div id="logoInner" class="clearfix">
             <div class="vaDiv"></div>
-            <a href="{p.home}"><img src="{p.img}/logo2.png" id="logo"></a>
+            <a href="{p.home}"><img src="{p.img}/logo-white.png" id="logo"></a>
             </div>
-        </div>-->
+        </div>
 
         <nav id="navNormal" class="clearfix"> 
             <div class='vaDiv'></div>
@@ -29,9 +29,9 @@
                     <span>Me</span>
                 </div>
             </a>
-            <a href="{p.home}">
+            <!--<a href="{p.home}">
                 <img src="{p.img}/logo2.png" id="logo">
-            </a>
+            </a>-->
             <a href="{p.me}">
                 <div class="navButtons">
                     <div class="icon-heart"></div>
@@ -98,5 +98,25 @@
         </script>
     </div>
 </div><!-- gloabal_wrapper -->
+<script>
+$(function() {
+    var $nW = $('.navWrapper'),
+        $oB = $('#opacBar'),
+        oH = $nW.height();
+        tH = 100,
+        h = 50;
+    $(window).scroll(function (e) {
+        var scroll = $(window).scrollTop();
+        if(scroll > tH) {
+            $nW.css('height', h + 'px');
+            $oB.css('height', h + 'px').css('opacity','0.8');
+        } else {
+            $nW.css('height', oH + 'px');
+            $oB.css('height', oH + 'px').css('opacity','1');
+        }
+    });
+});
+
+</script>
 
 <div class="globalWrapper headerCompensate">
