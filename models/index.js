@@ -3,14 +3,25 @@ var fs        = require('fs')
     , Sequelize = require('sequelize')
     , lodash    = require('../node_modules/sequelize/node_modules/lodash')
                                                             //'name','username','password'
-    , sequelize = new Sequelize('d2qhi6e8qpq1js', 'achmxwosijzdwc', 'g_05iNqib65ZR7wZArOjfhkmh7'
+    //amazon
+    , sequelize = new Sequelize('vogueverve', 'vogueverve', 'g_05iNqib65ZR7wZArOjfhkmh7'
         ,{
-            host: "ec2-54-235-245-180.compute-1.amazonaws.com",
+            host: "voguevervepg.c2ojyvhannhx.us-west-2.rds.amazonaws.com",
             dialect: "postgres", // or 'sqlite', 'postgres', 'mariadb'
             port: 5432, // or 5432 (for postgres)
             native: true, //requires c binding
 
         })
+    //heroku
+    // , sequelize = new Sequelize('d2qhi6e8qpq1js', 'achmxwosijzdwc', 'g_05iNqib65ZR7wZArOjfhkmh7'
+    //     ,{
+    //         host: "ec2-54-235-245-180.compute-1.amazonaws.com",
+    //         dialect: "postgres", // or 'sqlite', 'postgres', 'mariadb'
+    //         port: 5432, // or 5432 (for postgres)
+    //         native: true, //requires c binding
+
+    //     })
+    //localhost
     // , sequelize = new Sequelize('postgres', 'postgres', 'password'
     //     ,{
     //         host: "localhost",

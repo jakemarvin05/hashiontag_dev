@@ -59,7 +59,12 @@ module.exports = function(sequelize, DataTypes) {
             tableName: 'Users',
             classMethods: {
                 associate: function(models) {
+                    //POSTS
                     User.hasMany(models.Post, {foreignKey: 'User_userId'});
+
+                    //PROFILE PICTURES
+                    //user a belongsTo because we want to put the foreignKey inside of Users table
+                    User.belongsTo(models.Post, {as: 'ProfilePicture', foreignKey: 'Post_postId_profilePicture', constraints: false});
 
                     //FOLLOWING
                     User.hasMany(models.User, {as: 'Follows', foreignKey: 'FollowerId', through: 'Following' });

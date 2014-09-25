@@ -26,6 +26,11 @@ socket.on('uploadProgress', function(data){
 });
 </script>
 
+<script src="{p.js}/vvImg.js"></script>
+<script>
+VV.img.CSRender = {CSRender};
+</script>
+
 {>blockHeaderAfterHook/}
 
 <section id="leftCol" class="col span2">
@@ -106,15 +111,15 @@ socket.on('uploadProgress', function(data){
             <div id="cropPort"></div>
         </div>
         <script>
+        //set the crop port
+        var windowW = $(window).width();
+        if(windowW > 640) {
+            VV.img.CROP_PORT = 480;
+            $("#cropPort").css('height', VV.img.CROP_PORT).css('width', VV.img.CROP_PORT);
+            $("#cropPortBg").css('width', VV.img.CROP_PORT);
+        }
+        //init dragShifting
         $(function() {
-            //set the crop port
-            var windowW = $(window).width();
-            if(windowW > 640) {
-                VV.img.CROP_PORT = 480;
-                $("#cropPort").css('height', VV.img.CROP_PORT).css('width', VV.img.CROP_PORT);
-                $("#cropPortBg").css('width', VV.img.CROP_PORT);
-            }
-            //init dragShifting
             dragShifting.init();
             //init pinch scaling
             scaleSlider.pinch.init(document.getElementById('cropPort'));
@@ -126,10 +131,8 @@ socket.on('uploadProgress', function(data){
         </div>
         <script>
         //bind button to input="file"
-        $(function() {
-            $('#browseButton').click(function() {
-                $('#img_field').focus().trigger('click');
-            });
+        $('#browseButton').click(function() {
+            $('#img_field').focus().trigger('click');
         });
         </script>
 
@@ -140,7 +143,7 @@ socket.on('uploadProgress', function(data){
                 <div id="scaleSliderBut"></div>
                 <script>
                 //init scale slider button
-                $(function() { scaleSlider.init($('#scaleSliderBut')); });
+                $(function() { scaleSlider.init($('#scaleSliderBut')) });
                 </script>
             </div>
             <button id="doneScaling">Done scaling</button>
@@ -163,12 +166,6 @@ socket.on('uploadProgress', function(data){
 </section><!-- main -->
 
 {>blockFooter/}
-
-
-<script src="{p.js}/vvImg.js"></script>
-<script>
-VV.img.CSRender = {CSRender};
-</script>
 
 <script src="{p.js}/exif.binaryjax.js"></script>
 {!<script type="text/javascript" src="{p.js}/caman.full.min.js"></script>!}
@@ -241,6 +238,9 @@ dragShifting.shifter = function (self) {
         'top': VV.img.IMG_Y.toString() + "px",
         'left': VV.img.IMG_X.toString() + "px"
     });  
+}
+dragShifting.kill = function($el) {
+    $el.unbind('mousedown.ds touchstart.ds mousemove.ds touchmove.ds');
 }
 dragShifting.init = function() {
     var self = dragShifting;
@@ -373,7 +373,7 @@ var loader = {
         this.state = true;
         console.log('loader: ' + loader.state);
         var loading = '<div id="loader" style="position:absolute">Loading...</div>';
-        $cont.append(loading);
+        $cont.prepend(loading);
         $('#loader').velocity("fadeIn", {
             duration: 500, loop: true });
     },
@@ -528,8 +528,15 @@ $("#img_field").change(function(){
 
 
 $("#doneScaling").click(function(){
-    loader.run($('#cropPort'));
+    //unbind dragShifting
+    var $cP = $('#cropPort');
+    dragShifting.kill($cP);
+    loader.run($cP);
+    $cP.css('cursor', 'default');
+
+    //slideout scale container
     $('#scaleCont').velocity('transition.slideLeftOut', {duration: 300});
+
     //This option is only available to client-side render.
     //1. crop and resize VV.img.TEMP_IMG.
     //2. re-apply filters.
@@ -556,26 +563,30 @@ $("#doneScaling").click(function(){
                 canvas.style['width'] = VV.img.CROP_PORT + 'px';
                 canvas.id = 'img_preview2';
                 canvas.className = 'img_previews';
-                loader.kill();
                 
-                $('#cropPortBg img').velocity({
-                    opacity:0
-                }, {
-                    duration: 300,
-                    complete: function() {
+                //transitions
+                loader.kill();
+                $('#cropPortBg img').velocity({opacity:0}, 300, function() {
                     $('#img_preview').hide();
                     $('#cropPort').append(canvas);
-                    $('#postCont').velocity('transition.slideRightIn', {duration: 300});
-                    }
+                    $('#postCont').velocity('transition.slideRightIn', 300);
                 }); 
 
             });
         });
+    } else {
+        //transitions
+        loader.kill();
+        $('#cropPortBg img').velocity({opacity:0}, 300, function() {
+            $('#postCont').velocity('transition.slideRightIn', 300);
+        }); 
     }
-}); // #processImage" click
+}); // #processImage click
 
 
 $("#postIt").click(function(){
+
+    loader.run($('#cropPort'));
 
     if(VV.img.CSRender !== false) {
         //var submittedCanvas = document.getElementById('img_preview');
@@ -626,6 +637,7 @@ $("#postIt").click(function(){
             //redirect to post
             //window.location.href = '/';
             console.log(data.postId);
+            loader.kill();
         });
 
     } else {
@@ -650,6 +662,7 @@ $("#postIt").click(function(){
         VV.img.upload(attrs, function(data) {
             //window.location.href = '/';
             console.log(data.postId);
+            loader.kill();
         });
     }    
 }); //submit onclick

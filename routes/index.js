@@ -233,7 +233,7 @@ router.get('/post', function(req, res) {
 router.post('/api/post', function(req, res) {
     // createPost
     var socketId = app.ioSockets[req.header('sioId')];
-    createPost = require('../apps/createPost.js')(req, res, socketId);
+    require('../apps/post/posting.js')(req, res, socketId);
 });
 
 

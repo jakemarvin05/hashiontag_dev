@@ -14,11 +14,8 @@ module.exports = function(sequelize, DataTypes) {
                 autoIncrement: true
             },
             desc: {
-                type: DataTypes.STRING,
-                allowNull: false,
-                validate: {
-                    len:[1,200]
-                }
+                type: DataTypes.STRING(4000),
+                allowNull: false
             },
             imgUUID: {
                 type: DataTypes.STRING,
@@ -31,7 +28,11 @@ module.exports = function(sequelize, DataTypes) {
 
                 
                 associate: function(models) {
+                    //Post
                     Post.belongsTo(models.User, {foreignKey: 'User_userId'});
+
+                    //Profile picture
+                    Post.hasOne(models.User, {as: 'UserProfilePicture', foreignKey: 'Post_postId_profilePicture', constraints: false});
 
                     //comment
                     Post.hasMany(models.Comment, {foreignKey: 'Post_postId'});

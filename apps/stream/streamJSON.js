@@ -25,44 +25,33 @@ module.exports = function streamJSON(req, eventEmitter) {
 
             return [
 
-                db.Post.findAll(
-                    {where: {
+                db.Post.findAll({
+                    where: {
                         User_userId: idArray
-                        }
-
-                        , include: [
-                            {   
-                                model: db.User,
-                                attributes: [ 'userNameDisp', 'userId' ]
-                            }
-                            , { 
-                                model: db.Comment,
-                                attributes: [ 'comment', 'createdAt'],
-                                include: [
-                                    {
-                                        model: db.User,
-                                        attributes: [ 'userNameDisp' ]
-                                    }
-                                ]
-                            }
-                            , {
-                                model: db.Like,
-                                attributes: [ 'User_userId' ],
-                                include: [
-                                    {
-                                        model: db.User,
-                                        attributes: [ 'userNameDisp' ]
-                                    }
-                                ]
-                            }
-                        ]
-
-                        , order: [
-
-                            ['createdAt', 'DESC'], 
-                            [db.Comment, 'createdAt', 'ASC'] 
-                        ]
-                    }
+                    }, 
+                    include: [{   
+                        model: db.User,
+                        attributes: [ 'userNameDisp', 'userId' ]
+                    }, { 
+                        model: db.Comment,
+                        attributes: [ 'comment', 'createdAt'],
+                        include: [{
+                            model: db.User,
+                            attributes: [ 'userNameDisp' ]
+                        }]
+                    }, {
+                        model: db.Like,
+                        attributes: [ 'User_userId' ],
+                        include: [{
+                            model: db.User,
+                            attributes: [ 'userNameDisp' ]
+                        }]
+                    }], 
+                    order: [
+                        ['createdAt', 'DESC'], 
+                        [db.Comment, 'createdAt', 'ASC'] 
+                    ]
+                }
                         // {raw: true,
                         // nest: true}
                 ),

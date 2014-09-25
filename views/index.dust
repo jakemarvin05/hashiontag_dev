@@ -2,25 +2,7 @@
 {>blockHeaderAfterHook/}
 
 
-
-<section id="leftCol" class="col span2">
-    <div class="blockTitle">
-            <h1>Your <span id="wordHot">Notifications</span></h1>
-    </div>
-
-    <!-- start notifications -->
-
-
-    <!-- /notifications -->
-</section><!-- leftCol -->
-
 <section id="main" class="col span1">
-
-    <!-- start your stream -->
-
-        <div class="blockTitle">
-            <h1>Your <span id="wordStream">Stream</span></h1>
-        </div>
 
     <div class="mainColBlock">
         {>"layouts/streamLayout"/}

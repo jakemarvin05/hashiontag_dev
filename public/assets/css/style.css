@@ -180,14 +180,52 @@ th {
 }
 /* end normalize.css *//* Fonts */
 @font-face {
-  font-family: 'NeutraText', Helvetica, Arial;
+  font-family: 'NeutraText';
   src: url('../fonts/NeutraText-Book.woff');
   font-weight: normal;
 }
 @font-face {
-  font-family: 'NeutraText', Helvetica, Arial;
+  font-family: 'NeutraText';
   src: url('../fonts/NeutraText-Bold.woff');
   font-weight: bold;
+}
+@charset "UTF-8";
+@font-face {
+  font-family: 'vvicons';
+  src: url('../fonts/vvicons.woff?-ndp7ic') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+[class^="icon-"],
+[class*=" icon-"] {
+  font-family: 'vvicons';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  display: inline-block;
+  /* Better Font Rendering =========== */
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  vertical-align: middle;
+}
+.icon-home:before {
+  content: "\e603";
+}
+.icon-camera:before {
+  content: "\e600";
+}
+.icon-glass:before {
+  content: "\e601";
+}
+.icon-heart:before {
+  content: "\e602";
+}
+.icon-me:before {
+  content: "\e604";
 }
 /* Stylesheet content lists
 ===================================================
@@ -232,29 +270,70 @@ a {
   max-width: 768px;
   margin: auto;
 }
+.clearfix:before,
+.clearfix:after {
+  content: " ";
+  display: table;
+  clear: both;
+}
+.clearfix {
+  *zoom: 1;
+}
+.vaDiv {
+  height: 100%;
+  width: 0px;
+  display: inline-block;
+  vertical-align: middle;
+}
 /*-------------------------------------------------
 2. Header, nav
 -------------------------------------------------*/
 /* used for navbar border-bottom colour */
+/* main red: #ef4549
+*/
+#opacBar {
+  height: 46px;
+  width: 100%;
+  background-color: #fff;
+  opacity: 0.9;
+  position: fixed;
+  z-index: -1;
+}
 .navWrapper {
-  background-color: #ffffff;
-  height: 53px;
+  height: 46px;
   position: fixed;
   border-bottom: 1px solid #cccccc;
   z-index: 9999;
 }
 #navBar {
-  height: 53px;
-  min-height: 53px;
+  height: 46px;
+  min-height: 46px;
   color: #000;
   -webkit-transition: 0.5s;
   transition: 0.5s;
 }
+#logoCont {
+  float: left;
+  height: 100%;
+  overflow: hidden;
+}
+@media (min-width: 0px) and (max-width: 767px) {
+  #logoCont {
+    width: 68px;
+  }
+}
+@media (min-width: 768px) {
+  #logoCont {
+    width: 244px;
+  }
+}
+#logoInner {
+  height: 100%;
+  width: 300px;
+}
 #logo {
-  height: 28px;
-  position: relative;
-  padding: 8px;
-  top: 5px;
+  height: 44px;
+  vertical-align: middle;
   margin: 0px 20px 0px 15px;
 }
 @media (min-width: 768px) {
@@ -267,50 +346,75 @@ a {
     margin: 0px 15px 0px 10px;
   }
 }
-@media (min-width: 0px) and (max-width: 767px) {
-  #navNormal {
-    display: none;
-  }
-}
-@media (min-width: 768px) {
-  #navNormal {
-    display: inline-block;
-  }
+#navNormal {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  display: inline-block;
+  /*
+    @media (min-width: 0px) and (max-width: 767px) {
+       display: none;
+    } 
+    @media (min-width: 768px) {
+        display: inline-block ;
+    }*/
+
 }
 .navButtons,
 .navButtonsCondensed {
-  background-color: #ffffff;
-  color: #000;
+  display: inline-block;
+  color: #ccc;
   font-family: 'NeutraText', Helvetica, Arial;
-  font-weight: 200;
-  font-size: 14px;
-  letter-spacing: 3px;
+  font-weight: bold;
+  font-size: 13px;
+  text-transform: uppercase;
+  vertical-align: middle;
+  width: 30px;
+  padding: 5px;
+  margin: 0px 20px;
 }
 .navButtons {
-  position: relative;
-  top: -11px;
   margin-left: 0px;
   -webkit-transition: 0.5s;
   transition: 0.5s;
 }
-@media (min-width: 0px) and (max-width: 480px) {
-  .navButtons {
-    padding: 17px 15px;
+.navButtons [class^="icon-"],
+[class*=" icon-"] {
+  font-size: 20px;
+}
+.navButtons span {
+  position: relative;
+  top: 3px;
+  font-size: 8px;
+}
+@media (min-width: 0px) and (max-width: 767px) {
+  .navButtons span {
+    display: none;
   }
 }
-@media (min-width: 481px) {
-  .navButtons {
-    padding: 17px 10px 17px 10px;
+@media (min-width: 768px) {
+  .navButtons span {
+    display: inline;
   }
 }
-@media (min-width: 767px) and (max-width: 1024px) {
-  .navButtons {
-    letter-spacing: 0px!important;
-  }
+/*
+.navButtons {
+    @media (min-width: 0px) and (max-width: 480px) {
+        padding: 17px 15px;
+    }
+    @media (min-width: 481px) {
+        padding: 17px 10px 17px 10px;
+    }
+    @media (min-width: 767px) and (max-width: 1024px) {
+       letter-spacing: 0px!important;
+    }
 }
+*/
 .navButtons:hover,
 .navButtonsCondensed:hover {
-  background-color: #cccccc;
+  /* background-color: #B93337; */
+
+  color: #B93337;
   cursor: pointer;
 }
 .navSelected {
@@ -325,25 +429,27 @@ a {
 #navDropdown {
   display: none;
   position: absolute;
-  top: 53px;
+  top: 46px;
   margin-left: -64px;
 }
 #navCondensed .navButtons {
   padding-left: 20px;
   padding-right: 20px;
 }
-@media (min-width: 0px) and (max-width: 767px) {
-  #navCondensed {
-    display: inline;
-  }
-}
-@media (min-width: 0px) and (max-width: 480px) {
-  
-}
-@media (min-width: 768px) {
-  #navCondensed {
-    display: none;
-  }
+#navCondensed {
+  display: none;
+  /*
+        @media (min-width: 0px) and (max-width: 767px) {
+            display: inline;
+        }
+        @media (min-width: 0px) and (max-width: 480px) {
+            // padding-left: 15px;
+            // padding-right: 15px;
+        }
+        @media (min-width: 768px) {
+            display: none;
+        } */
+
 }
 .navSearchField {
   color: #ffffff;
@@ -393,7 +499,10 @@ a {
   }
 }
 .headerCompensate {
-  padding-top: calc(54px);
+  padding-top: 47px;
+}
+#main {
+  margin: auto;
 }
 /*-------------------------------------------------
 3. Block headings, blocks styles.
@@ -500,7 +609,8 @@ I. Responsive grid
 -------------------------------------------------*/
 /* Reusable column setup */
 .col {
-  float: left;
+  /*float: left;*/
+
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -510,7 +620,8 @@ I. Responsive grid
 }
 /* all the full width elements never go below 320px */
 footer,
-.globalWrapper {
+.globalWrapper,
+.spanAll {
   min-width: 320px;
 }
 /* 1. 1 Column Grid 0px - 480px 

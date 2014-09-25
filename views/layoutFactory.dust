@@ -8,6 +8,11 @@
 {?renderJSON}{?isStream}
     
 <script>
+function strip(html) {
+   var tmp = document.createElement("DIV");
+   tmp.innerHTML = html;
+   return tmp.textContent || tmp.innerText || "";
+}
 var streamFactory = {
 
     mainStreamPrefix: 'mainStream_',
@@ -234,7 +239,7 @@ var streamFactory = {
             .done(function() { 
 
                     $( mStreamId + ' ' + _.imageBlock )
-                        .html('<img src="' + imgURL + '" alt="' + obj.desc + '">')
+                        .html('<img src="' + imgURL + '" alt="' + strip(obj.desc) + '">')
                         .attr('href', imgURL)
                         .attr('content', obj.desc);
 
@@ -293,7 +298,7 @@ var notificationFactory = {
     $appendTarget: $('#leftCol'),
 
     noNotification: function() {
-        $appendTarget.append('<div>You have no notification.</div>');
+        this.$appendTarget.append('<div>You have no notification.</div>');
     },
     build: function() {
         var notifications = renderJSON.notifications;

@@ -6,14 +6,16 @@
 
 <script>
 function grid() {
-    if (e.keyCode == 71) {
-        $( 'div' ).css('outline', '1px dotted red');
-        $( 'span' ).css('outline', '1px dotted red');
-    }
-    if (e.keyCode == 72) {
-        $( 'div' ).css('outline', '0px');
-        $( 'span' ).css('outline', '0px');
-    }
+    $(window).on('keydown', function(e){
+        if (e.keyCode == 71) {
+            $( 'div' ).css('outline', '1px dotted red');
+            $( 'span' ).css('outline', '1px dotted red');
+        }
+        if (e.keyCode == 72) {
+            $( 'div' ).css('outline', '0px');
+            $( 'span' ).css('outline', '0px');
+        }
+    });
 }
 </script>
 
