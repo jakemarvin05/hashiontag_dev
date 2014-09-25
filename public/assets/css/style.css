@@ -243,11 +243,13 @@ II. All other media queries
 -------------------------------------------------*/
 body {
   background-color: #fff;
+  font-family: 'NeutraText', Helvetica, Arial;
+  font-size: 15px;
+  color: #565757;
 }
 p {
   font-family: 'NeutraText', Helvetica, Arial;
-  font-size: 13px;
-  font-weight: 400;
+  font-size: 15px;
 }
 h1,
 h2 {
@@ -265,6 +267,19 @@ h3 {
 }
 a {
   text-decoration: none;
+  color: #b93337;
+}
+a:visited {
+  text-decoration: none;
+  color: #b93337;
+}
+a:hover {
+  text-decoration: none;
+  color: #ef4549;
+}
+div,
+span {
+  box-sizing: border-box;
 }
 .globalWrapper {
   max-width: 768px;
@@ -291,17 +306,6 @@ a {
 /* used for navbar border-bottom colour */
 /* main red: #ef4549
 */
-#opacBar {
-  height: 70px;
-  width: 100%;
-  background-color: #ef4549;
-  /* opacity: 0.9; */
-
-  position: fixed;
-  z-index: -1;
-  -webkit-transition: 0.5s;
-  transition: 0.5s;
-}
 .navWrapper {
   height: 70px;
   position: fixed;
@@ -310,21 +314,31 @@ a {
   -webkit-transition: 0.5s;
   transition: 0.5s;
 }
+#opacBar {
+  height: 70px;
+  width: 100%;
+  background-color: #ef4549;
+  -webkit-transition: 0.5s;
+  transition: 0.5s;
+  position: absolute;
+}
 #navBar {
   height: 100%;
   color: #000;
   -webkit-transition: 0.5s;
   transition: 0.5s;
+  padding: 0px 15px;
+  position: relative;
 }
 #logoCont {
   float: left;
   height: 100%;
   overflow: hidden;
-  width: 288px;
+  width: 272px;
 }
 @media (min-width: 0px) and (max-width: 480px) {
   #logoCont {
-    max-width: 80px;
+    max-width: 66px;
   }
 }
 #logoInner {
@@ -334,7 +348,6 @@ a {
 #logo {
   height: 44px;
   vertical-align: middle;
-  margin: 0px 20px 0px 15px;
 }
 #navNormal {
   float: right;
@@ -521,28 +534,18 @@ a {
 /*-------------------------------------------------
 3. Block headings, blocks styles.
 -------------------------------------------------*/
-#wordHot {
-  color: #e83d3d;
-}
-#wordStream {
-  color: #2889c6;
-}
-.leftColBlock,
-.mainColBlock,
-.rightMenu {
-  width: 98%;
+.mainColBlock {
   margin: auto;
-  /*
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    -o-border-radius: 4px;
-    border-radius: 4px;
-    -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
-    -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
-    -o-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
-    box-shadow: 0 1px 1px rgba(0,0,0,0.31);
-    overflow:hidden;*/
-
+}
+@media (min-width: 0px) and (max-width: 539px) {
+  .mainColBlock {
+    width: 100%;
+  }
+}
+@media (min-width: 540px) {
+  .mainColBlock {
+    width: 540px;
+  }
 }
 .leftColBlock article,
 .mainColBlock article {
@@ -615,7 +618,6 @@ h3 {
 5. footer
 -------------------------------------------------*/
 #footer {
-  background-color: #fff;
   text-align: center;
 }
 /*-------------------------------------------------
@@ -623,8 +625,7 @@ I. Responsive grid
 -------------------------------------------------*/
 /* Reusable column setup */
 .col {
-  /*float: left;*/
-
+  float: left;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -747,16 +748,38 @@ footer,
 /*-------------------------------------------------
 II. Form styling
 -------------------------------------------------*/
-input,
+textarea:focus,
+input:focus {
+  outline: 0;
+}
+input[type="text"],
+input[type="password"],
 button,
 textarea {
-  border: 1px solid #565757;
+  border: 1px solid #ef4549;
   background: #fff;
   color: #565757;
-  padding: 5px;
+  padding: 8px;
   vertical-align: middle;
+  box-sizing: border-box;
+  font-size: 15px;
+  padding: 10px 8px 8px 8px;
+  height: 34px;
 }
 input,
 button {
   text-align: center;
+}
+button {
+  text-transform: uppercase;
+}
+button.darkButton {
+  border: 1px solid #b93337;
+  background: #ef4549;
+  color: #fff;
+  -webkit-transition: background 0.5s;
+  transition: background 0.5s;
+}
+button.darkButton:hover {
+  background: #b93337;
 }

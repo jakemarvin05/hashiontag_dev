@@ -1,8 +1,8 @@
 {>blockHeader/}
 {>blockHeaderAfterHook/}
 
-
-<section id="main" class="col span1">
+{?isLoggedIn}
+<section id="main">
 
     <div class="mainColBlock">
         {>"layouts/streamLayout"/}
@@ -12,6 +12,11 @@
     <!-- start your posts -->
     
 </section><!-- main -->
+{:else}
+
+{>loginForm/}
+
+{/isLoggedIn}
 
 {>blockFooter/}
 

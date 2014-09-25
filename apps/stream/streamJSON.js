@@ -31,7 +31,12 @@ module.exports = function streamJSON(req, eventEmitter) {
                     }, 
                     include: [{   
                         model: db.User,
-                        attributes: [ 'userNameDisp', 'userId' ]
+                        attributes: [ 'userNameDisp', 'userId' ],
+                        include: [{
+                            model: db.Post,
+                            as: 'ProfilePicture',
+                            attributes:['imgUUID']
+                        }]
                     }, { 
                         model: db.Comment,
                         attributes: [ 'comment', 'createdAt'],

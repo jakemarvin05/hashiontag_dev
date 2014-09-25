@@ -18,6 +18,8 @@ var streamFactory = {
     mainStreamPrefix: 'mainStream_',
     mainBlock: '.mainColBlock',
     $mainBlock: $( '.mainColBlock' ),
+    userImg: '.blockUserHolder',
+    $userImg: $('.blockUserHolder'),
     userBlock: '.blockUsername',
     tLBlock: '.blockTimelapse',
     desc: '.description',
@@ -215,7 +217,7 @@ var streamFactory = {
             .attr('data-uid', obj.user.userId)
             .attr('data-pid', obj.postId);
 
-
+        $( mS + _.userImg).html('<a href="/' + obj.user.userNameDisp + '"><img src="{p.mediaDir}/' + obj.user.profilePicture.imgUUID + '.jpg"></a>');
         $( mS + _.userBlock ).html('<a href="/' + obj.user.userNameDisp + '">' + obj.user.userNameDisp + '</a>');
         $( mS + _.tLBlock ).html(obj.timeLapse);
         $( mS + _.desc ).html(obj.desc);

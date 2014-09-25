@@ -59,7 +59,6 @@ VV.img.CSRender = {CSRender};
                 position: relative;
                 opacity: 0.4;
                 filter: alpha(opacity=40);
-                z-index: -1;
              }
             #cropPort {
                 height:280px; 
@@ -71,7 +70,6 @@ VV.img.CSRender = {CSRender};
             }
         img[id^=img_preview], canvas[id^=img_preview] {
             position:relative;
-            z-index:-1;
             left:-2px;
             top:-2px;
         }

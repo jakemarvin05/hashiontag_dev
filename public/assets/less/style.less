@@ -69,13 +69,19 @@ II. All other media queries
 /*-------------------------------------------------
 1. Body, p, h1-h3, other globals
 -------------------------------------------------*/
+@mainRed: #ef4549;
+@mainRedDark: #B93337;
+@mainFontColor: #565757; //almost black
+
 body {
     background-color: #fff;
+    font-family: 'NeutraText', Helvetica, Arial;
+    font-size: 15px;
+    color: #565757;
 }
 p {
     font-family: 'NeutraText', Helvetica, Arial;
-    font-size: 13px;
-    font-weight: 400;
+    font-size: 15px;
 }
 h1, h2 {
     font-family: 'NeutraText', Helvetica, Arial;
@@ -92,6 +98,18 @@ h3 {
 }
 a {
     text-decoration: none;
+    color: @mainRedDark;
+}
+a:visited {
+    text-decoration: none;
+    color: @mainRedDark;
+}
+a:hover {
+    text-decoration: none;
+    color: @mainRed;
+}
+div, span {
+    box-sizing: border-box;
 }
 .globalWrapper {
     max-width: 768px;
@@ -115,9 +133,6 @@ a {
 /*-------------------------------------------------
 2. Header, nav
 -------------------------------------------------*/
-@mainRed: #ef4549;
-@mainRedDark: #B93337;
-
 
 @navBarHeight: 70px;
 @navBarFont: #fff;
@@ -129,38 +144,37 @@ a {
 /* main red: #ef4549
 */
 
-#opacBar {
-    height: @navBarHeight;
-    width: 100%;
-    background-color: #ef4549;
-    /* opacity: 0.9; */
-    position: fixed;
-    z-index: -1;
-    -webkit-transition: 0.5s;
-    transition: 0.5s;
-}
-
 .navWrapper {
     height: @navBarHeight;
     position: fixed;
     border-bottom: 1px solid @mainRedDark;
     z-index:9999;
-        -webkit-transition: 0.5s;
+    -webkit-transition: 0.5s;
     transition: 0.5s;
+}
+#opacBar {
+    height: @navBarHeight;
+    width: 100%;
+    background-color: #ef4549;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+    position: absolute;
 }
 #navBar {
     height: 100%;
     color: #000;
     -webkit-transition: 0.5s;
     transition: 0.5s;
+    padding: 0px 15px;
+    position: relative;
 }
 #logoCont {
     float: left;
     height: 100%;
     overflow: hidden;
-    width: 288px;
+    width: 272px;
     @media (min-width: 0px) and (max-width: 480px) {
-        max-width: 80px;
+        max-width: 66px;
     }   
 }
     #logoInner {
@@ -170,7 +184,6 @@ a {
     #logo {
         height: 44px;
         vertical-align: middle;
-        margin: 0px 20px 0px 15px;
     }
 
 #navNormal {
@@ -336,26 +349,16 @@ a {
 /*-------------------------------------------------
 3. Block headings, blocks styles.
 -------------------------------------------------*/
-#wordHot {
-    color: #e83d3d;
+.mainColBlock {
+    margin: auto;
+    @media (min-width: 0px) and (max-width: 539px) {
+        width: 100%;
+    }
+    @media (min-width: 540px) {
+        width: 540px;
+    }
 }
-#wordStream {
-    color: #2889c6;
-}
-.leftColBlock, .mainColBlock, .rightMenu {
-    width:98%;
-    margin:auto;
-    /*
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    -o-border-radius: 4px;
-    border-radius: 4px;
-    -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
-    -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
-    -o-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
-    box-shadow: 0 1px 1px rgba(0,0,0,0.31);
-    overflow:hidden;*/
-}
+
 .leftColBlock article, .mainColBlock article {
     background-color: #fff;
     margin: 10px auto 10px auto;
@@ -432,7 +435,6 @@ a {
 5. footer
 -------------------------------------------------*/
 #footer {
-    background-color: #fff;
     text-align:center;
 }
 
@@ -442,7 +444,7 @@ I. Responsive grid
 
 /* Reusable column setup */
 .col {
-    /*float: left;*/
+    float: left;
     -webkit-box-sizing:border-box;
     -moz-box-sizing:border-box;
     box-sizing:border-box;
@@ -596,14 +598,39 @@ II. Form styling
 //     -moz-appearance: none;
 //     appearance: none;
 // }
+textarea:focus, input:focus{
+    outline: 0;
+}
 
-input, button, textarea {
-    border: 1px solid #565757;
+input[type="text"], input[type="password"], button, textarea {
+    border: 1px solid @mainRed;
     background: #fff;
     color: #565757;
-    padding: 5px;
+    padding: 8px;
     vertical-align: middle;
+    box-sizing: border-box;
+    font-size: 15px;
+    padding: 10px 8px 8px 8px;
+    height: 34px;
 }
 input, button {
     text-align:center;
+}
+button {
+    text-transform: uppercase;
+}
+
+button.light {
+
+}
+
+button.darkButton {
+    border: 1px solid @mainRedDark;
+    background: @mainRed;
+    color: #fff;
+    -webkit-transition: background 0.5s;
+    transition: background 0.5s;
+}
+button.darkButton:hover {
+    background: @mainRedDark;
 }

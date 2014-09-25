@@ -140,47 +140,27 @@ router.get('/login', function(req, res) {
 router.post('/login', function(req, res) {
         //console.log(res);
     passport.authenticate('local-login', function(err, user) {
-        if (req.xhr) {
 
-            //if (err)   { return res.json({ error: err.message }); }
-            if (err) { return res.json({ error: 'Ops... Something went wrong, please try again!'}) }
-            if (!user) { return res.json({error : "Either your username or password is incorrect"}); }
+        if (err) { return res.json({ error: 'unknown'}) }
+        if (!user) { return res.json({error : 'userpassword'}); }
+        
+        req.login(user, {}, function(err) {
+            if (err) { return res.json({error:err}); }
             
-            req.login(user, {}, function(err) {
-                if (err) { return res.json({error:err}); }
+            //=="true" because .rememberMe is a string
+            if (req.body.rememberMe == "true" ) {
+
+                req.session.cookie.maxAge = 315360000000; // 10 years
+
+            } else {
                 
-                //=="true" because .rememberMe is a string
-                if (req.body.rememberMe == "true" ) {
+                req.session.cookie.maxAge = 3600000; //1 hour
+            }
 
-                    req.session.cookie.maxAge = 315360000000; // 10 years
+            return res.json({success: true});
 
-                } else {
-                    
-                    req.session.cookie.maxAge = 3600000; //1 hour
-                }
-
-                return res.json({success: true});
-
-            });
-        } else {
-            if (err)   { return res.redirect('/login'); }
-            if (!user) { return res.redirect('/login'); }
-            req.login(user, {}, function(err) {
-                if (err) { return res.redirect('/login'); }
-
-                //=="true" because .rememberMe is a string
-                if (req.body.rememberMe == "true" ) {
-
-                    req.session.cookie.maxAge = 315360000000; // 10 years
-
-                } else {
-                    
-                    req.session.cookie.maxAge = 3600000; //1 hour
-                }
-
-                return res.redirect('/');
-            });
-        }
+        });
+        
     })(req, res);
 
 });

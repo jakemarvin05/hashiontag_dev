@@ -1,16 +1,16 @@
 <article class="streamLayout" id="layoutId">
-    <div class="blockTop blockInner">
-        <div class="blockUserHolder"></div>
-        <div class="blockTextHolder">
-            <div class="blockUsername"></div>
-            <div class="blockTimelapse"></div>
-        </div>
-    </div>
     <div class="blockImgHolder">
         <a class="fancybox">
         </a>
     </div>
     <header class="blockInner">
+        <div class="blockTop blockInner">
+            <div class="blockUserHolder"></div>
+            <div class="blockTextHolder">
+                <div class="blockUsername"></div>
+                <div class="blockTimelapse"></div>
+            </div>
+        </div>
         <h2 class="itemName" itemprop="item"></h2>
         <h2 class="shopName" itemprop="shop"></h2>
         <h3 class="price" itemprop="price"></h3>

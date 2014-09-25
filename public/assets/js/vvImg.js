@@ -1,8 +1,7 @@
 /* This file requires alertFactory 'aF' */
+if(typeof VV === 'undefined') { var VV = {} }
 
-var VV = {
-    img: {}
-};
+VV.img = {}
 
 /*******************
 * Global Variables *

@@ -80,6 +80,7 @@
     <script src="{p.js}/hammer/hammer.min.js"></script>
     <script src="{p.js}/velocity/velocity.min.js"></script>
     <script src="{p.js}/velocity/velocity.ui.min.js"></script>
+    <script src="{p.js}/vvUtils.js"></script>
 
 {?renderJSON}
 <script>
