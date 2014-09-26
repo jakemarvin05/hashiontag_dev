@@ -9,13 +9,15 @@ module.exports = function addingPost(req, uuid, path, fields, deleteTemp, throwE
     var hasEmails = false;
     var emails = DESC.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
 
-    if(emails.length > 0) { 
-        var eml = 0;
-        while(emails[eml]) {
-            DESC = DESC.replace(emails[eml], '{{{email}}}');
-            eml++;
+    if(emails) {
+        if(emails.length > 0) { 
+            var eml = 0;
+            while(emails[eml]) {
+                DESC = DESC.replace(emails[eml], '{{{email}}}');
+                eml++;
+            }
+            hasEmails = true; 
         }
-        hasEmails = true; 
     }
 
     var hashTags = DESC.match(/#\w+/g),

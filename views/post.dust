@@ -36,7 +36,7 @@ VV.img.CSRender = {CSRender};
 <section id="leftCol" class="col span2">
 </section><!-- left_col -->
 
-<section id="main" class="col span1">
+<section id="main">
     <div class="mainColBlock">
         <h1>Post</h1>
 

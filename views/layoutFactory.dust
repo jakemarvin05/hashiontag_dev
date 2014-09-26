@@ -217,7 +217,14 @@ var streamFactory = {
             .attr('data-uid', obj.user.userId)
             .attr('data-pid', obj.postId);
 
-        $( mS + _.userImg).html('<a href="/' + obj.user.userNameDisp + '"><img src="{p.mediaDir}/' + obj.user.profilePicture.imgUUID + '.jpg"></a>');
+        var pp = '{p.img}/noprofilepicture.jpg';
+        if(obj.user.profilePicture) {
+            if(obj.user.profilePicture.imgUUID) {
+                var pp = '{p.mediaDir}/' + obj.user.profilePicture.imgUUID + '.jpg';
+            }
+        }
+
+        $( mS + _.userImg).html('<a href="/' + obj.user.userNameDisp + '"><img src="' + pp + '"></a>');
         $( mS + _.userBlock ).html('<a href="/' + obj.user.userNameDisp + '">' + obj.user.userNameDisp + '</a>');
         $( mS + _.tLBlock ).html(obj.timeLapse);
         $( mS + _.desc ).html(obj.desc);
