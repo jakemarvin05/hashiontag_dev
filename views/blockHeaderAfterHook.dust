@@ -6,6 +6,17 @@
 <!-- nav responsive controlled by a condenser script below -->
 <div class="spanAll navWrapper">
     <div id="opacBar" class="spanAll"></div>
+    <script>
+    $(function() {
+        var $o = $('#opacBar');
+        $('.navWrapper').hover(function() {
+          $o.attr('data-attr-opac', $o.css('opacity'));
+          $o.css('opacity',1);
+        }, function() {
+          $o.css('opacity', $o.attr('data-attr-opac'));
+        });
+    });
+    </script>
     <div id="navBar" class="globalWrapper">
         <div id="logoCont">
             <div id="logoInner" class="clearfix">

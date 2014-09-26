@@ -182,8 +182,8 @@ router.get('/post', function(req, res) {
     console.log(major);
 
     //CSRender defines whether client should render the images and if
-    //yes, up to how many megapixels. Default setting is 3MP.
-    var CSRender = 3;
+    //yes, up to how many megapixels. Default setting is 8MP.
+    var CSRender = 8;
 
     //limitation cases
     if(family.indexOf('mobile') > -1 ) {
@@ -200,6 +200,9 @@ router.get('/post', function(req, res) {
             CSRender = 23;
         }
     }
+
+    //override
+    CSRender = 30;
 
     return res.render('post', { 
         title: meta.header(),

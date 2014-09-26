@@ -1,35 +1,28 @@
-var fs        = require('fs')
-    , path      = require('path')
-    , Sequelize = require('sequelize')
-    , lodash    = require('../node_modules/sequelize/node_modules/lodash')
-                                                            //'name','username','password'
-    //amazon
-    , sequelize = new Sequelize('vogueverve', 'vogueverve', 'g_05iNqib65ZR7wZArOjfhkmh7'
-        ,{
-            host: "voguevervepg.c2ojyvhannhx.us-west-2.rds.amazonaws.com",
+var fs        = require('fs'),
+    path      = require('path'),
+    Sequelize = require('sequelize'),
+    lodash    = require('../node_modules/sequelize/node_modules/lodash'),
+    
+    //sequelize parameters: 'name','username','password'
+
+    //heroku
+    sequelize = new Sequelize('d2qhi6e8qpq1js', 'achmxwosijzdwc', 'g_05iNqib65ZR7wZArOjfhkmh7',
+        {
+            host: "ec2-54-235-245-180.compute-1.amazonaws.com",
             dialect: "postgres", // or 'sqlite', 'postgres', 'mariadb'
             port: 5432, // or 5432 (for postgres)
             native: true, //requires c binding
 
-        })
-    //heroku
-    // , sequelize = new Sequelize('d2qhi6e8qpq1js', 'achmxwosijzdwc', 'g_05iNqib65ZR7wZArOjfhkmh7'
-    //     ,{
-    //         host: "ec2-54-235-245-180.compute-1.amazonaws.com",
-    //         dialect: "postgres", // or 'sqlite', 'postgres', 'mariadb'
-    //         port: 5432, // or 5432 (for postgres)
-    //         native: true, //requires c binding
-
-    //     })
+        }),
     //localhost
-    // , sequelize = new Sequelize('postgres', 'postgres', 'password'
+    // sequelize = new Sequelize('postgres', 'postgres', 'password'
     //     ,{
     //         host: "localhost",
     //         dialect: "postgres", // or 'sqlite', 'postgres', 'mariadb'
     //         port: 5432, // or 5432 (for postgres)
     //         native: false,  //change settings to localhost and turn native to false if unable to compile native C bindings
-    //     })
-    , db        = {}
+    //     }),
+    db        = {}
  
 fs
 .readdirSync(__dirname)
@@ -53,7 +46,7 @@ Object.keys(db).forEach(function(modelName) {
 // db.Post.sync();
 // db.Comment.sync();
 //db.Notification.sync();
-//sequelize.sync()
+sequelize.sync()
  
 module.exports = lodash.extend({
     sequelize: sequelize,

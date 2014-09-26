@@ -53,6 +53,10 @@ module.exports = function(sequelize, DataTypes) {
                 validate: {
                     len:[1,140]
                 }
+            },
+            profilePicture: {
+                type: DataTypes.STRING,
+                allowNull: true
             }
         }, {
             timestamps: true,
@@ -62,8 +66,8 @@ module.exports = function(sequelize, DataTypes) {
                     //POSTS
                     User.hasMany(models.Post, {foreignKey: 'User_userId'});
 
-                    //PROFILE PICTURES
-                    //user a belongsTo because we want to put the foreignKey inside of Users table
+                    //Profile picture
+                    //Use belongsTo here to place the postId key here.
                     User.belongsTo(models.Post, {as: 'ProfilePicture', foreignKey: 'Post_postId_profilePicture', constraints: false});
 
                     //FOLLOWING

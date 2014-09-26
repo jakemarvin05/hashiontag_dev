@@ -217,12 +217,8 @@ var streamFactory = {
             .attr('data-uid', obj.user.userId)
             .attr('data-pid', obj.postId);
 
-        var pp = '{p.img}/noprofilepicture.jpg';
-        if(obj.user.profilePicture) {
-            if(obj.user.profilePicture.imgUUID) {
-                var pp = '{p.mediaDir}/' + obj.user.profilePicture.imgUUID + '.jpg';
-            }
-        }
+        var pp = (obj.user.profilePicture) ? '{p.mediaDir}/' + obj.user.profilePicture + '.jpg' : '{p.img}/noprofilepicture.jpg';
+        
 
         $( mS + _.userImg).html('<a href="/' + obj.user.userNameDisp + '"><img src="' + pp + '"></a>');
         $( mS + _.userBlock ).html('<a href="/' + obj.user.userNameDisp + '">' + obj.user.userNameDisp + '</a>');
@@ -286,9 +282,15 @@ var streamFactory = {
                 var comment = comments[j],
                     timestampAgo = moment(comment.createdAt).fromNow();
 
-                var html = '<p class="postComment">' + comment.user.userNameDisp + ': ' + comment.comment + '(<span class="postTimeStamp" data-ts="' + comment.createdAt + '">' + timestampAgo + '</span>)</p>';
+                var pp = (obj.user.profilePicture) ? '{p.mediaDir}/' + obj.user.profilePicture + '.jpg' : '{p.img}/noprofilepicture.jpg';
+
+                var commentUserPP = '<a href="/' + obj.user.userNameDisp + '"><img class="profileThumb" src="' + pp + '"></a>';
+
+                var commentUser = '<a href="/' + obj.user.userNameDisp + '">' + obj.user.userNameDisp + '</a>';
+
+                var html = commentUserPP + '<p class="postComment">' + commentUser + ': ' + comment.comment + '(<span class="postTimeStamp" data-ts="' + comment.createdAt + '">' + timestampAgo + '</span>)</p>';
                 
-                $( mStreamId ).children('.postCommentContainer').append(html);
+                $( mStreamId ).find('.postCommentContainer').append(html);
 
             }
 

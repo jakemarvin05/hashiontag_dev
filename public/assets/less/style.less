@@ -72,6 +72,7 @@ II. All other media queries
 @mainRed: #ef4549;
 @mainRedDark: #B93337;
 @mainFontColor: #565757; //almost black
+@mainLineColor: #ccc;
 
 body {
     background-color: #fff;
@@ -82,6 +83,7 @@ body {
 p {
     font-family: 'NeutraText', Helvetica, Arial;
     font-size: 15px;
+    line-height: 130%;
 }
 h1, h2 {
     font-family: 'NeutraText', Helvetica, Arial;
@@ -381,11 +383,16 @@ div, span {
     font-family: 'NeutraText', Helvetica, Arial;
     font-size: 30px;
 }
-.blockInner {
-    padding: 8px;
+.blockPad {
+    padding: 8px 0px;
 }
-.blockInner p, h2, h3 {
-    margin: 0px;
+/* too allow "padding" but elements to span full width */
+.blockPad>* {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+.blockMainInfo {
+    border-bottom: 1px solid @mainLineColor;
 }
 /* block top */
 .blockTop {
@@ -398,23 +405,60 @@ div, span {
 .blockUserHolder {
     height: 40px;
     width: 40px;
-    float:left;
-    padding: 0px 8px 8px 0px;
+    position: absolute;
 } 
 .blockTextHolder {
-    float: left;
-    padding-top:6px;
+    padding-left: 52px;
+    line-height: 130%;
 }
 .blockUsername { 
     font-family: 'NeutraText', Helvetica, Arial;
-    font-weight: 700;
-    font-size: 13px;
+    font-weight: bold;
+    font-size: 15px;
+    display: inline-block;
 }
 .blockTimelapse {
     font-family: 'NeutraText', Helvetica, Arial;
-    font-weight: 400;
-    font-size: 12px;
+    font-size: 13px;
     color: #ccc;
+    display: inline-block
+}
+.blockLoadMoreCommentsCont {
+    width: 100%;
+    text-align: right;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+.blockLoadMoreCommentsCont>div {
+    display: inline-block;
+}
+.blockLoadMoreCommentsWrap {
+    text-align: center;
+    position: relative;
+    top: 4px;
+}
+    .blockLoadMoreCommentsCount {
+        font-weight: bold;
+        position: absolute;
+        margin-top: 10px;
+        height: 25px;
+        width: 30px;
+        color: #fff;
+    }
+    .blockLoadMoreCommentsLogo {
+        height: 25px;
+        width: 30px;
+    }
+    .blockLoadMoreCommentsLogo img {
+        width: 100%;
+    }
+.profileThumb {
+    width: 40px;
+    border-radius: 20px;
+    position: absolute;
+}
+p.postComment {
+    padding-left: 52px;
 }
 .shopName {
     color: #aaa;

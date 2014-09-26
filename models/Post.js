@@ -32,7 +32,9 @@ module.exports = function(sequelize, DataTypes) {
                     Post.belongsTo(models.User, {foreignKey: 'User_userId'});
 
                     //Profile picture
-                    Post.hasOne(models.User, {as: 'UserProfilePicture', foreignKey: 'Post_postId_profilePicture', constraints: false});
+                    //This relationship is to enable post.hasProfilePictureUser so that user can be alerted
+                    //at deletion.
+                    Post.hasOne(models.User, {as: 'ProfilePictureUser', foreignKey: 'Post_postId_profilePicture', constraints: false});
 
                     //comment
                     Post.hasMany(models.Comment, {foreignKey: 'Post_postId'});
