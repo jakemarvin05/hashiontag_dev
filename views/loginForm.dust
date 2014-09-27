@@ -118,6 +118,10 @@ img.bg {
                 //start flasher
                 submitFlasher.run($button, 'button');
 
+                //get the current button name, cache it, replace with 'logging in'.
+                $button.attr('data-attr-html', $button.html());
+                $button.html('Logging in...');
+
                 //taking too long message timeout
                 takingTooLong = true;
                 setTimeout(function() {
@@ -144,7 +148,6 @@ img.bg {
                 //done
                 posting.done(function(data) {
                     if(data.success) { 
-                        $button.html('Redirecting...');
                         return window.location.replace("{p.home}");
                     }
 
@@ -161,6 +164,7 @@ img.bg {
                             aF.protoAlert('Something went wrong, please check your connection and try again later.');
                         }
                         submitFlasher.kill();
+                        $button.html($button.attr('data-attr-html'));
                         takingTooLong = false;
                     }
                 });
@@ -168,6 +172,7 @@ img.bg {
                 //fail
                 posting.fail(function() {
                     submitFlasher.kill();
+                    $button.html($button.attr('data-attr-html'));
                     takingTooLong = false;
                     aF.protoAlert('Something went wrong, please check your connection and try again later.');
                 });

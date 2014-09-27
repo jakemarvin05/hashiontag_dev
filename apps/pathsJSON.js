@@ -1,21 +1,19 @@
-function globalJSON() {
-  var globalJSON = {
-    paths: {
-      absPath: '', //leave it as '[empty]' for dev. Eventually will be full domain path.
+function pathsJSON() {
+  var pathsJSON = {
+    absPath: '', //leave it as '[empty]' for dev. Eventually will be full domain path.
 
-      //top level paths
-      home: '',
-      login: '',
-      logout: '',
-      signup: '',
-      img: '',
+    //top level paths
+    home: '',
+    login: '',
+    logout: '',
+    signup: '',
+    img: '',
 
-      //assets paths that uses assetPath() to initialize its values
-      assets: '',
-      js: '',
-      css: '',
-      fonts: ''
-    }
+    //assets paths that uses assetPath() to initialize its values
+    assets: '',
+    js: '',
+    css: '',
+    fonts: ''
   }
   //topLevel Paths
   function tLPath() {
@@ -38,13 +36,13 @@ function globalJSON() {
     //let the forloop do its job
     for (var key in paths) {
       if (paths.hasOwnProperty(key)) {
-        globalJSON.paths[key] = globalJSON.paths.absPath + paths[key];
+        pathsJSON[key] = pathsJSON.absPath + paths[key];
       }
     }
   }tLPath();
 
   function assetsPath() {
-    var assetsPath = globalJSON.paths.absPath + '/assets';
+    var assetsPath = pathsJSON.absPath + '/assets';
 
     //set other assets path relative to the main assets folder:
     var paths = {
@@ -57,12 +55,12 @@ function globalJSON() {
     //let the forloop do its job
     for (var key in paths) {
       if (paths.hasOwnProperty(key)) {
-        globalJSON.paths[key] = assetsPath + paths[key];
+        pathsJSON[key] = assetsPath + paths[key];
       }
     }
   }assetsPath();
-return globalJSON;
+return pathsJSON;
 }
-globalJSON = globalJSON(); // compile
-//console.log(globalJSON);
-module.exports = globalJSON;
+pathsJSON = pathsJSON(); // compile
+//console.log(pathsJSON);
+module.exports = pathsJSON;

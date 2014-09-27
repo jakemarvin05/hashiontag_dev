@@ -82,6 +82,12 @@
     <script src="{p.js}/velocity/velocity.ui.min.js"></script>
     <script src="{p.js}/vvUtils.js"></script>
 
+{?print}
+<script>
+var print = {print|s};
+</script>
+{/print}
+
 {?renderJSON}
 <script>
 var renderJSON = {renderJSON|s};

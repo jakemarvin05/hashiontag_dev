@@ -18,8 +18,8 @@ var streamFactory = {
     mainStreamPrefix: 'mainStream_',
     mainBlock: '.mainColBlock',
     $mainBlock: $( '.mainColBlock' ),
-    userImg: '.blockUserHolder',
-    $userImg: $('.blockUserHolder'),
+    userImg: '.blockProfileThumb',
+    $userImg: $('.blockProfileThumb'),
     userBlock: '.blockUsername',
     tLBlock: '.blockTimelapse',
     desc: '.description',
@@ -172,8 +172,6 @@ var streamFactory = {
 
             toPrepend = '';
         }
-
-        toPrepend = '<p>' + toPrepend + '</p>'
             
         return toPrepend;
     },
@@ -238,44 +236,40 @@ var streamFactory = {
         //image
         var imgURL = '';
 
-        imgURL = _.mediaDir + '/' + obj.imgUUID + '.jpg';
+        if(!obj.imgUUID || obj.imgUUID === null) {
+            imgURL = _.errorImg;
+            var img = new Image();
+            img.src = _.errorImg;
 
-        $.get(imgURL)
-            .done(function() { 
+        } else {
 
-                    $( mStreamId + ' ' + _.imageBlock )
-                        .html('<img src="' + imgURL + '" alt="' + strip(obj.desc) + '">')
-                        .attr('href', imgURL)
-                        .attr('content', obj.desc);
+            imgURL = _.mediaDir + '/' + obj.imgUUID + '.jpg';
 
-            }).fail(function() { 
+            var img = new Image();
+            img.onerror = function() {
+                img.onerror = function() {return false;};
+                this.src = _.errorImg;
+            }
 
+            img.src = imgURL;
+            img.id = obj.imgUUID;
+            img.alt = strip(obj.desc);
+        }
 
-                // TEMP, for BC
-                var bcURL = _.mediaDir + '/' + obj.postId + '.jpg';
-                $.get(bcURL)
-                    .done(function() {
-                        $( mStreamId + ' ' + _.imageBlock )
-                            .html('<img src="' + bcURL + '" alt="' + obj.desc + '">')
-                            .attr('href', bcURL)
-                            .attr('content', obj.desc);
-                    }).fail(function() {
-
-                        $( mStreamId + ' ' + _.imageBlock ).html('<img src="' + _.errorImg + '">');
-                        $( mStreamId + ' ' + _.imageBlock + ' img').unwrap();
-
-                    })
-
-                // $( mStreamId + ' ' + _.imageBlock ).html('<img src="' + _.errorImg + '">');
-                // $( mStreamId + ' ' + _.imageBlock + ' img').unwrap();
-                    
-            });
+        $( mStreamId + ' ' + _.imageBlock )
+            .append(img)
+            .attr('href', imgURL)
+            .attr('content', obj.desc);
 
         //comments
         var comments = obj.comments,
             commentCount = _.objCount(comments);
 
         if(commentCount > 0) {
+            if(commentCount > 3) {
+                $( mStreamId + ' ' + '.blockLoadMoreCommentsCount').html(commentCount);
+                $( mStreamId + ' ' + '.blockLoadMoreCommentsCont').show();
+            }
 
             for(j=0; j<commentCount; j++) {
 
@@ -288,9 +282,9 @@ var streamFactory = {
 
                 var commentUser = '<a href="/' + obj.user.userNameDisp + '">' + obj.user.userNameDisp + '</a>';
 
-                var html = commentUserPP + '<p class="postComment">' + commentUser + ': ' + comment.comment + '(<span class="postTimeStamp" data-ts="' + comment.createdAt + '">' + timestampAgo + '</span>)</p>';
+                var html = commentUserPP + '<div class="postComment">' + commentUser + '&nbsp;<span class="commentTimeStamp" data-ts="' + comment.createdAt + '">(' + timestampAgo + ')</span>&nbsp;' + comment.comment + '</div>';
                 
-                $( mStreamId ).find('.postCommentContainer').append(html);
+                $( mStreamId ).find('.postCommentCont').append(html);
 
             }
 
@@ -298,7 +292,7 @@ var streamFactory = {
         //likes
         var toPrepend = _.likeText(obj);
         
-        $( mS + _.postInt ).prepend(toPrepend);
+        $( mS + '.blockLikeText' ).prepend(toPrepend);
 
         return $(mStreamId).fadeIn('fast'); 
     }

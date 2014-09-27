@@ -15,7 +15,7 @@ var isLoggedIn = require('../apps/passport/isLoggedIn.js');
 var db = require('../models');
 
 // globalJSON
-var gJSON = require('../apps/globalJSON.js');
+var globalJSON = require('../apps/globalJSON.js');
 
 module.exports = router;
 
@@ -23,17 +23,19 @@ module.exports = router;
 router.get('/', function(req, res) {
     //sys.puts(sys.inspect(req));
 
+    var gJSON = globalJSON(req);
+
     var eventEmitter = new events.EventEmitter();
 
     //bind the final callback first
     eventEmitter.on('streamJSONDone', function thenRender(renderJSON) {
         res.render('index', { 
             title: meta.header(),
-            isLoggedIn: isLoggedIn(req),
-            gJSON: gJSON,
+            isLoggedIn: req.isAuthenticated(),
             p: gJSON.paths,
             renderJSON: renderJSON,
-            isStream: 'stream'
+            isStream: 'stream',
+            print: JSON.stringify(gJSON.print)
         });
 
     });

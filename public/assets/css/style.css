@@ -227,6 +227,9 @@ th {
 .icon-me:before {
   content: "\e604";
 }
+.icon-tag:before {
+  content: "\e605";
+}
 /* Stylesheet content lists
 ===================================================
 1. Body, p, h1-h3, other globals
@@ -311,7 +314,7 @@ span {
   height: 70px;
   position: fixed;
   border-bottom: 1px solid #b93337;
-  z-index: 9999;
+  z-index: 999;
   -webkit-transition: 0.5s;
   transition: 0.5s;
 }
@@ -584,31 +587,49 @@ span {
   border-bottom: 1px solid #cccccc;
 }
 /* block top */
-.blockTop img {
+.blockProfileThumb {
+  display: inline-block;
+  vertical-align: middle;
+}
+.blockProfileThumb img {
   width: 40px;
   height: 40px;
   border-radius: 40px;
 }
 .blockUserHolder {
-  height: 40px;
-  width: 40px;
-  position: absolute;
-}
-.blockTextHolder {
-  padding-left: 52px;
-  line-height: 130%;
+  display: inline-block;
+  vertical-align: middle;
 }
 .blockUsername {
   font-family: 'NeutraText', Helvetica, Arial;
   font-weight: bold;
   font-size: 15px;
-  display: inline-block;
 }
 .blockTimelapse {
   font-family: 'NeutraText', Helvetica, Arial;
   font-size: 13px;
   color: #ccc;
+}
+.blockInteract {
+  float: right;
   display: inline-block;
+  text-transform: uppercase;
+  font-size: 15px;
+}
+.mainColBlock .likeButton,
+.mainColBlock .moreInfo {
+  display: inline-block;
+  vertical-align: middle;
+  padding: 10px;
+}
+.blockLikeText {
+  text-align: center;
+  color: #ccc;
+  font-size: 14px;
+}
+.blockTextHolder {
+  padding: 20px 10px;
+  line-height: 130%;
 }
 .blockLoadMoreCommentsCont {
   width: 100%;
@@ -644,8 +665,32 @@ span {
   border-radius: 20px;
   position: absolute;
 }
-p.postComment {
+.postCommentCont {
+  margin-top: 10px;
+}
+.postComment {
   padding-left: 52px;
+  min-height: 45px;
+  line-height: 130%;
+  margin-bottom: 10px;
+}
+.commentTimeStamp {
+  font-family: 'NeutraText', Helvetica, Arial;
+  font-size: 13px;
+  color: #ccc;
+  vertical-align: middle;
+}
+.postInteractions {
+  text-align: right;
+}
+.postInteractions textarea {
+  width: 100%;
+  text-align: left;
+  min-height: 50px;
+}
+.postInteractions .sendComment {
+  margin-top: -49px;
+  position: relative;
 }
 .shopName {
   color: #aaa;
@@ -823,4 +868,14 @@ button.darkButton {
 }
 button.darkButton:hover {
   background: #b93337;
+}
+button.darkerButton {
+  border: 1px solid #b93337;
+  background: #b93337;
+  color: #fff;
+  -webkit-transition: background 0.5s;
+  transition: background 0.5s;
+}
+button.darkerButton:hover {
+  background: #ef4549;
 }

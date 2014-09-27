@@ -23,11 +23,15 @@ module.exports = function(passport) {
 
     // used to deserialize the user
     passport.deserializeUser(function(id, done) {
-        db.User.find({ where: {userId: id} }).success(function(user){
-            done(null, user);
-          }).error(function(err){
-            done(err, null);
-          });
+        db.User
+        .find({
+            where: {userId: id},
+            attributes: ['userId', 'userNameDisp', 'profilePicture']
+        }).then(function(user){
+            return done(null, user);
+        }).catch(function(err){
+            return done(err, null);
+        });
     });
 
     // =========================================================================

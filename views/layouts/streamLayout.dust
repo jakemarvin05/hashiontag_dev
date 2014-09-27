@@ -6,10 +6,30 @@
     <div class="blockPad">
         <header class="blockMainInfo">
             <div class="blockTop">
-                <div class="blockUserHolder"></div>
-                <div class="blockTextHolder">
+                <div class="blockProfileThumb">
+                    <!--<button class="likeButton" data-id="" data-action="like" style="display:none;">Like</button>
+                    <button class="likeButton" data-id="" data-action="unlike" style="display:none;">Unlike</button>-->
+                </div>
+
+                <div class="blockUserHolder">
                     <div class="blockUsername"></div>
                     <div class="blockTimelapse"></div>
+                </div>
+
+                <div class="blockInteract">
+                    <div class="likeButton">
+                        <div class="icon-heart"></div>
+                        <span>like</span>
+                    </div>
+                    <div class="moreInfo">
+                        <div class="icon-tag"></div>
+                        <span>info</span>
+                    </div>
+                </div>
+
+                <div class="blockLikeText"></div>
+
+                <div class="blockTextHolder">
                     <div class="description"></div>
                 </div>
             </div>
@@ -19,20 +39,18 @@
             <h3 class="price" itemprop="price"></h3>
             -->
 
-            <div class="blockLoadMoreCommentsCont">
+            <div class="blockLoadMoreCommentsCont" style="display:none;">
                 load more
                 <div class="blockLoadMoreCommentsWrap">
-                    <div class="blockLoadMoreCommentsCount">999</div>
+                    <div class="blockLoadMoreCommentsCount"></div>
                     <div class="blockLoadMoreCommentsLogo"><img src="{p.img}/comments_icon.png"></div>
                 </div>
+            </div>
         </header>
-        <div class="postCommentContainer"></div>
+        <div class="postCommentCont"></div>
         <div class="postInteractions">
-            <button class="likeButton" data-id="" data-action="like" style="display:none;">Like</button>
-            <button class="likeButton" data-id="" data-action="unlike" style="display:none;">Unlike</button>
-
             <textarea placeholder="Add a comment..."></textarea>
-            <button class="sendComment" data-id="">Send</button>
+            <button class="sendComment darkerButton" data-id="">Send</button>
             <img src="{p.img}/ajax-loader.gif" class="ajaxLoader" style="display:none;">
         </div>
     </div>
