@@ -1,3 +1,5 @@
+/* addPost.js is called by posting.js */
+
 var fname = 'addPost';
 var fs = require('fs');
 
@@ -38,44 +40,30 @@ module.exports = function addingPost(req, uuid, path, fields, deleteTemp, throwE
         });
     }
 
-    hashTags = uniqBy(hashTags, JSON.stringify);
-    addTags = uniqBy(addTags, JSON.stringify);
+    if(hashTags) { 
+        hashTags = uniqBy(hashTags, JSON.stringify); 
+        var ht = 0;
+        while(hashTags[ht]) {
+            var h = hashTags[ht];
+            var hRe = new RegExp(h, 'g');
+            DESC = DESC.replace(hRe, '<a href="/api/search/' + h + '">' + h + '</a>');
+            ht++;
+        }
+    }
+    if(addTags) { 
+        addTags = uniqBy(addTags, JSON.stringify); 
+        //lowercas'ify the addTags array
+        var at = 0;
+        while(addTags[at]) {
+            addTags[at] = addTags[at].toLowerCase().substring(1);
+            at++;
+        }
+
+    }
     console.log(hashTags);
     console.log(addTags);
 
-    var ht = 0;
-    while(hashTags[ht]) {
-        var h = hashTags[ht];
-        var hRe = new RegExp(h, 'g');
-        DESC = DESC.replace(hRe, '<a href="/api/search/' + h + '">' + h + '</a>');
-        ht++;
-    }
-
-    //lowercas'ify the addTags array
-    var at = 0;
-    while(addTags[at]) {
-        addTags[at] = addTags[at].toLowerCase().substring(1);
-        at++;
-    }
-
-    //now find them all to see if they exist.
-    global.db.User.findAll({
-        where: {
-            userName: addTags
-        },
-        attributes: ['userName','userNameDisp']
-    }).then(function(users) {
-        if(users) {
-            var i=0;
-            while(users[i]) {
-                var user = users[i];
-                var u = '@' + user.values['userNameDisp'];
-                var uRe = new RegExp(u, 'gi');
-                DESC = DESC.replace(uRe, '<a href="/' + u + '">' + u + '</a>');
-                console.log(DESC);
-                i++;
-            }
-        }
+    function finalCreate() {
         if(hasEmails) {
             var hml = 0;
             while(emails[hml]) {
@@ -83,8 +71,6 @@ module.exports = function addingPost(req, uuid, path, fields, deleteTemp, throwE
                 hml++;
             }
         }
-    }).then(function() {
-
         //create the post
         return global.db.Post.create({ 
             desc: DESC,
@@ -100,20 +86,43 @@ module.exports = function addingPost(req, uuid, path, fields, deleteTemp, throwE
             if(typeof deleteTemp === 'function') {
                 deleteTemp();
             }
-
         });
-    }).catch(function(err) {
-        console.log(err);
+    }
 
-        //delete away image if error in creating post.
-        fs.unlink(path, function(err) {
-            if(err) {
-                console.log(fname + ' Err: Error deleting' + uuid + '.jpg');
-                console.log(err);
+    if(addTags) {
+        //now find them all to see if they exist.
+        global.db.User.findAll({
+            where: {
+                userName: addTags
+            },
+            attributes: ['userName','userNameDisp']
+        }).then(function(users) {
+            if(users) {
+                var i=0;
+                while(users[i]) {
+                    var user = users[i];
+                    var u = '@' + user.values['userNameDisp'];
+                    var uRe = new RegExp(u, 'gi');
+                    DESC = DESC.replace(uRe, '<a href="/' + u + '">' + u + '</a>');
+                    console.log(DESC);
+                    i++;
+                }
             }
+            return finalCreate();
+
+        }).catch(function(err) {
+
+                console.log(err);
+                //delete away image if error in creating post.
+                fs.unlink(path, function(err) {
+                    if(err) {
+                        console.log(fname + ' Err: Error deleting' + uuid + '.jpg');
+                        console.log(err);
+                    }
+                });
+                return throwErr(err);
         });
-
-        return throwErr(err);
-    });
-
+    } else {
+        finalCreate();
+    }
 }

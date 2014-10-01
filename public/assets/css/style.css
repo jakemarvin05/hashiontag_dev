@@ -271,11 +271,11 @@ h3 {
 }
 a {
   text-decoration: none;
-  color: #b93337;
+  color: #d91639;
 }
 a:visited {
   text-decoration: none;
-  color: #b93337;
+  color: #d91639;
 }
 a:hover {
   text-decoration: none;
@@ -304,6 +304,15 @@ span {
   display: inline-block;
   vertical-align: middle;
 }
+/* all the full width elements never go below 320px */
+footer,
+.globalWrapper,
+.spanAll {
+  min-width: 320px;
+}
+.spanAll {
+  width: 100%;
+}
 /*-------------------------------------------------
 2. Header, nav
 -------------------------------------------------*/
@@ -313,7 +322,6 @@ span {
 .navWrapper {
   height: 70px;
   position: fixed;
-  border-bottom: 1px solid #b93337;
   z-index: 999;
   -webkit-transition: 0.5s;
   transition: 0.5s;
@@ -355,22 +363,11 @@ span {
 }
 #navNormal {
   float: right;
-  /* width: 100%; */
-
   height: 100%;
   text-align: center;
   display: inline-block;
-  /*
-    @media (min-width: 0px) and (max-width: 767px) {
-       display: none;
-    } 
-    @media (min-width: 768px) {
-        display: inline-block ;
-    }*/
-
 }
-.navButtons,
-.navButtonsCondensed {
+.navButtons {
   display: inline-block;
   color: #ffffff;
   font-family: 'NeutraText', Helvetica, Arial;
@@ -380,29 +377,23 @@ span {
   vertical-align: middle;
   width: 30px;
   padding: 5px;
+  -webkit-transition: 0.5s;
+  transition: 0.5s;
 }
 @media (min-width: 0px) and (max-width: 480px) {
-  .navButtons,
-  .navButtonsCondensed {
-    margin: 0px 10px;
+  .navButtons {
+    margin: 0px 10px 0px 0px;
   }
 }
 @media (min-width: 481px) and (max-width: 767px) {
-  .navButtons,
-  .navButtonsCondensed {
+  .navButtons {
     margin: 0px;
   }
 }
 @media (min-width: 768px) {
-  .navButtons,
-  .navButtonsCondensed {
-    margin: 0px 20px;
+  .navButtons {
+    margin: 0px 20px 0px 0px;
   }
-}
-.navButtons {
-  margin-left: 0px;
-  -webkit-transition: 0.5s;
-  transition: 0.5s;
 }
 @media (min-width: 0px) and (max-width: 480px) {
   .navButtons [class^="icon-"],
@@ -431,114 +422,37 @@ span {
     display: inline;
   }
 }
-/*
-.navButtons {
-    @media (min-width: 0px) and (max-width: 480px) {
-        padding: 17px 15px;
-    }
-    @media (min-width: 481px) {
-        padding: 17px 10px 17px 10px;
-    }
-    @media (min-width: 767px) and (max-width: 1024px) {
-       letter-spacing: 0px!important;
-    }
-}
-*/
-.navButtons:hover,
-.navButtonsCondensed:hover {
+.navButtons:hover {
   /* background-color: #B93337; */
 
-  color: #b93337;
+  color: #d91639;
   cursor: pointer;
 }
-.navSelected {
-  color: #b93337 !important;
-}
-.navSelected:hover {
+.navActive {
+  color: #d91639 !important;
   cursor: default !important;
 }
-#navDropdown {
-  display: none;
-  position: absolute;
-  top: 70px;
-  margin-left: -64px;
-}
-#navCondensed .navButtons {
-  padding-left: 20px;
-  padding-right: 20px;
-}
-#navCondensed {
-  display: none;
-  /*
-        @media (min-width: 0px) and (max-width: 767px) {
-            display: inline;
-        }
-        @media (min-width: 0px) and (max-width: 480px) {
-            // padding-left: 15px;
-            // padding-right: 15px;
-        }
-        @media (min-width: 768px) {
-            display: none;
-        } */
-
-}
-.navSearchField {
-  color: #ffffff;
-}
-#navSearch {
-  display: inline-block;
-}
-#navSearch .glyphicon {
-  color: #000;
-}
-.navButtonsCondensed {
-  padding: 10px 0px 10px 0px;
-  display: block;
-  width: 100px;
-  text-align: center;
-  border-bottom: 1px solid #ffffff;
-}
-#navSearchInput {
-  background-color: #ccc;
-  border: 3px solid #cccccc;
-  border-radius: 5px;
-  height: 25px;
-  position: relative;
-  top: -12px;
-  margin-left: 10px;
-  margin-right: 5px;
-  -webkit-transition: 0.5s;
-  transition: 0.5s;
-}
-@media (min-width: 0px) and (max-width: 480px) {
-  #navSearchInput {
-    width: 120px;
-  }
-}
-@media (min-width: 481px) {
-  #navSearchInput {
-    width: 190px;
-  }
-}
-.navSearchField .glyphicon {
-  position: relative;
-  top: -9px;
-}
-@media (min-width: 0px) and (max-width: 480px) {
-  .navSearchField .glyphicon {
-    display: none;
-  }
+.navSelected:hover {
+  color: #d91639 !important;
+  cursor: default !important;
 }
 .headerCompensate {
   padding-top: 70px;
 }
 #main {
   margin: auto;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 15px;
 }
 /*-------------------------------------------------
 3. Block headings, blocks styles.
 -------------------------------------------------*/
 .mainColBlock {
+  padding-top: 1px;
+  /*padding hack for #main to be full height */
+
   margin: auto;
 }
 @media (min-width: 0px) and (max-width: 539px) {
@@ -551,7 +465,6 @@ span {
     width: 540px;
   }
 }
-.leftColBlock article,
 .mainColBlock article {
   background-color: #fff;
   margin: 10px auto 10px auto;
@@ -560,7 +473,6 @@ span {
   -o-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
 }
-.leftColBlock article:after,
 .mainColBlock article:after {
   content: "";
   display: table;
@@ -574,6 +486,10 @@ span {
 .blockTitle h1 {
   font-family: 'NeutraText', Helvetica, Arial;
   font-size: 30px;
+}
+.blockImgHolder img {
+  width: 100%;
+  max-width: 100%;
 }
 .blockPad {
   padding: 8px 0px;
@@ -621,6 +537,17 @@ span {
   display: inline-block;
   vertical-align: middle;
   padding: 10px;
+  cursor: pointer;
+}
+.likeButton:hover,
+.moreInfo:hover {
+  color: #ccc;
+}
+.likeButton[data-action="unlike"] {
+  color: #d91639;
+}
+.moreInfo.active {
+  color: #d91639;
 }
 .blockLikeText {
   text-align: center;
@@ -660,13 +587,16 @@ span {
 .blockLoadMoreCommentsLogo img {
   width: 100%;
 }
+.postCommentCont {
+  margin-top: 10px;
+}
+.postCommentWrap {
+  min-height: 45px;
+}
 .profileThumb {
   width: 40px;
   border-radius: 20px;
   position: absolute;
-}
-.postCommentCont {
-  margin-top: 10px;
 }
 .postComment {
   padding-left: 52px;
@@ -687,17 +617,11 @@ span {
   width: 100%;
   text-align: left;
   min-height: 50px;
+  padding-right: 60px;
 }
 .postInteractions .sendComment {
   margin-top: -49px;
   position: relative;
-}
-.shopName {
-  color: #aaa;
-}
-.mainColBlock .blockImgHolder img {
-  width: 640px;
-  max-width: 100%;
 }
 /* leftCol specifics */
 /*-------------------------------------------------
@@ -705,131 +629,6 @@ span {
 -------------------------------------------------*/
 #footer {
   text-align: center;
-}
-/*-------------------------------------------------
-I. Responsive grid
--------------------------------------------------*/
-/* Reusable column setup */
-.col {
-  float: left;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  -moz-background-clip: padding-box !important;
-  -webkit-background-clip: padding-box !important;
-  background-clip: padding-box !important;
-}
-/* all the full width elements never go below 320px */
-footer,
-.globalWrapper,
-.spanAll {
-  min-width: 320px;
-}
-/* 1. 1 Column Grid 0px - 480px 
-    ----------------------------------------------------------------------------- 
-    1) Display only center column.
-    2) Slide toggle to switch between left and center col available.
-    3) Minified toggle for right col remains.
-
-    Span 1:    100%
-    Span 2:    Hidden
-    Span all:  100% 
-    ----------------------------------------------------------------------------- */
-@media (min-width: 0px) and (max-width: 480px) {
-  .span1 {
-    margin-left: 0;
-    width: 100%;
-  }
-  .spanAll {
-    margin-left: 0;
-    width: 100%;
-  }
-  #leftCol {
-    display: none;
-  }
-  #rightCol {
-    display: none;
-  }
-}
-/* 2. 2 Column Grid 481px - 640px 
-    ----------------------------------------------------------------------------- 
-    1) Display only left and center column.
-    2) Right column is hidden.
-    3) Minified toggle for right col becomes available.
-
-    Span 1:    69.0%
-    Span 2:    30.0%
-    Span all:    100%   
-    ----------------------------------------------------------------------------- */
-@media (min-width: 481px) and (max-width: 640px) {
-  .span1 {
-    width: 69.0%;
-  }
-  .span2 {
-    width: 30.0%;
-  }
-  .spanAll {
-    margin-left: 0;
-    width: 100%;
-  }
-  #leftCol {
-    display: block;
-  }
-  #rightCol {
-    display: none;
-  }
-}
-/* 3. 3 Column Grid 640px onwards
-    ----------------------------------------------------------------------------- 
-    1) Display everything
-
-    Span 1:    60.0%
-    Span 2:    40.0%
-    Span all:  100%   
-    ----------------------------------------------------------------------------- */
-@media (min-width: 641px) and (max-width: 768px) {
-  .span1 {
-    width: 60.0%;
-  }
-  .span2 {
-    width: 40.0%;
-  }
-  .spanAll {
-    margin-left: 0;
-    width: 100%;
-  }
-  #leftCol {
-    display: block;
-  }
-  #rightCol {
-    display: block;
-  }
-}
-/* 4. Grid 769px onwards
-    ----------------------------------------------------------------------------- 
-    1) Display everything
-
-    Span 1:    70.0% * 768
-    Span 2:    30.0% * 768
-    Span all:  100%   
-    ----------------------------------------------------------------------------- */
-@media (min-width: 769px) {
-  .span1 {
-    width: 537.5999999999999px;
-  }
-  .span2 {
-    width: 230.39999999999998px;
-  }
-  .spanAll {
-    margin-left: 0;
-    width: 100%;
-  }
-  #leftCol {
-    display: block;
-  }
-  #rightCol {
-    display: block;
-  }
 }
 /*-------------------------------------------------
 II. Form styling
@@ -860,18 +659,18 @@ button {
   text-transform: uppercase;
 }
 button.darkButton {
-  border: 1px solid #b93337;
+  border: 1px solid #d91639;
   background: #ef4549;
   color: #fff;
   -webkit-transition: background 0.5s;
   transition: background 0.5s;
 }
 button.darkButton:hover {
-  background: #b93337;
+  background: #d91639;
 }
 button.darkerButton {
-  border: 1px solid #b93337;
-  background: #b93337;
+  border: 1px solid #d91639;
+  background: #d91639;
   color: #fff;
   -webkit-transition: background 0.5s;
   transition: background 0.5s;

@@ -95,7 +95,9 @@ module.exports = function posting(req, res, socket) {
                             postId: post.postId
                         });
                     });
-
+                    // addPost(req, newUUID, newPath, fields, null, throwErr, function(post) {
+                    //     return res.redirect('/p/' + post.postId);
+                    // });
                 });
             } //if 'store'
 
@@ -265,6 +267,9 @@ module.exports = function posting(req, res, socket) {
                                     postId: post.postId
                                 });
                             });
+                            // return addPost(req, newUUID, finalPath, fields, deleteTemp, throwErr, function(post) {
+                            //     return res.redirect('/p/' + post.postId);
+                            // });
                         }
 
                     }); // write()

@@ -12,19 +12,22 @@ require('../apps/passport/passport_cfg.js')(passport);
 var isLoggedIn = require('../apps/passport/isLoggedIn.js');
 
 // sequelize
-var db = require('../models');
+var db = require('../models/');
 
 // globalJSON
 var globalJSON = require('../apps/globalJSON.js');
 
 module.exports = router;
 
+router.get('/error', function(req, res) {
+    res.send('error');
+});
+
 // Homepage
 router.get('/', function(req, res) {
     //sys.puts(sys.inspect(req));
 
     var gJSON = globalJSON(req);
-
     var eventEmitter = new events.EventEmitter();
 
     //bind the final callback first
@@ -32,10 +35,12 @@ router.get('/', function(req, res) {
         res.render('index', { 
             title: meta.header(),
             isLoggedIn: req.isAuthenticated(),
-            p: gJSON.paths,
-            renderJSON: renderJSON,
+            p: gJSON.pathsJSON.paths,
+            f: gJSON.pathsJSON.files,
+            print: JSON.stringify(gJSON.print),
+            renderJSON: JSON.parse(JSON.stringify(renderJSON)),
             isStream: 'stream',
-            print: JSON.stringify(gJSON.print)
+            page: "index"
         });
 
     });
@@ -45,38 +50,53 @@ router.get('/', function(req, res) {
 
 });
 
-router.get('/error', function(req, res) {
-    res.send('error');
-});
-
-
 //ME
 router.get('/me', function(req, res) {
     //sys.puts(sys.inspect(req));
-
+    var gJSON = globalJSON(req);
     var eventEmitter = new events.EventEmitter();
 
     //bind the final callback first
-    eventEmitter.on('ownPostJSONDone', function thenRender(renderJSON) {
-        res.render('index', { 
+    eventEmitter.on('profileJSONDone', function thenRender(renderJSON) {
+        var reason = false;
+
+        if(renderJSON === 'redirect') {
+            return res.redirect('/');
+        }
+
+        if(renderJSON === 'userNotFound') {
+            reason = renderJSON;
+            renderJSON = false;
+        }
+        if(renderJSON === 'reqNotAuthUserIsPrivate') {
+            reason = renderJSON;
+            renderJSON = false;
+        }
+        console.log(renderJSON);
+
+        res.render('profile', { 
             title: meta.header(),
             isLoggedIn: isLoggedIn(req),
-            gJSON: gJSON,
-            p: gJSON.paths,
-            renderJSON: renderJSON,
-            isStream: 'ownPosts'
+            p: gJSON.pathsJSON.paths,
+            f: gJSON.pathsJSON.files,
+            print: JSON.stringify(gJSON.print),
+            renderJSON: JSON.stringify(renderJSON),
+            renderJSONraw: renderJSON,
+            reason: reason,
+            page: 'me'
         });
 
     });
 
     //now run callback dependents
-    var ownPostJSON = require('../apps/stream/ownPostJSON.js')(req, eventEmitter);
+    var profileJSON = require('../apps/profileJSON.js')(req, eventEmitter, true);
 
 });
 
 //edit profile
 router.get('/me/edit', function(req, res) {
 
+    var gJSON = globalJSON(req);
     var eventEmitter = new events.EventEmitter();
 
     //bind the final callback first
@@ -86,8 +106,9 @@ router.get('/me/edit', function(req, res) {
 
             title: meta.header(),
             isLoggedIn: isLoggedIn(req),
-            gJSON: gJSON,
-            p: gJSON.paths,
+            p: gJSON.pathsJSON.paths,
+            f: gJSON.pathsJSON.files,
+            print: JSON.stringify(gJSON.print),
             user: user
 
         });
@@ -109,18 +130,18 @@ router.post('/api/editProfile', function(req, res) {
 });
 
 /* signup, LOGINS LOGOUTS */
-router.get('/signup', function(req, res) {
-    res.render('signup', { 
-        title: meta.header(),
-        gJSON: gJSON,
-        p: gJSON.paths,
-        message: req.flash('signupMessage'),
+// router.get('/signup', function(req, res) {
+//     res.render('signup', { 
+//         title: meta.header(),
+//         gJSON: gJSON,
+//         p: gJSON.paths,
+//         message: req.flash('signupMessage'),
         
-        //scripts required
-        sValidator: true,
-        sSignup: true
-    });
-});
+//         //scripts required
+//         sValidator: true,
+//         sSignup: true
+//     });
+// });
 
 router.post('/signup', 
     passport.authenticate('local-signup', {
@@ -131,15 +152,10 @@ router.post('/signup',
 );
 
 router.get('/login', function(req, res) {
-    res.render('login', { 
-        title: meta.header(),
-        gJSON: gJSON,
-        p: gJSON.paths,
-        message: req.flash('loginMessage')
-    });
+    res.redirect('/');
 });
 
-router.post('/login', function(req, res) {
+router.post('/api/login', function(req, res) {
         //console.log(res);
     passport.authenticate('local-login', function(err, user) {
 
@@ -176,6 +192,7 @@ router.get('/logout', function(req, res) {
 
 router.get('/post', function(req, res) {
 
+    var gJSON = globalJSON(req);
     var uap = require('ua-parser').parseUA(req.headers['user-agent']);
 
     var family = uap.family.toLowerCase();
@@ -209,9 +226,11 @@ router.get('/post', function(req, res) {
     return res.render('post', { 
         title: meta.header(),
         isLoggedIn: isLoggedIn(req),
-        gJSON: gJSON,
-        p: gJSON.paths,
-        CSRender: CSRender
+        p: gJSON.pathsJSON.paths,
+        f: gJSON.pathsJSON.files,
+        print: JSON.stringify(gJSON.print),
+        CSRender: CSRender,
+        page: 'post'
     });
 });
 
@@ -229,6 +248,7 @@ router.get('/search', function(req, res) {
 });
 
     router.post('/search', function(req, res) {
+        var gJSON = globalJSON(req);
         var eventEmitter = new events.EventEmitter();
 
         //bind the final callback first
@@ -236,8 +256,9 @@ router.get('/search', function(req, res) {
             res.render('search', { 
                 title: meta.header(),
                 isLoggedIn: isLoggedIn(req),
-                gJSON: gJSON,
-                p: gJSON.paths,
+                p: gJSON.pathsJSON.paths,
+                f: gJSON.pathsJSON.files,
+                print: JSON.stringify(gJSON.print),
                 renderJSON: renderJSON,
                 isStream: false
             });
@@ -248,13 +269,13 @@ router.get('/search', function(req, res) {
         var searchUsers = require('../apps/searchUsers.js')(req, eventEmitter);
     });
 
-router.post('/follow', function(req, res) {
+router.post('/api/follow', function(req, res) {
     var follow = require('../apps/follow/follow.js');
     follow(req, res);
 });
 
 router.get('/following', function(req, res) {
-
+    var gJSON = globalJSON(req);
     var follower = require('../apps/follow/follower.js');
 
         var eventEmitter = new events.EventEmitter();
@@ -264,8 +285,9 @@ router.get('/following', function(req, res) {
             res.render('search', { 
                 title: meta.header(),
                 isLoggedIn: isLoggedIn(req),
-                gJSON: gJSON,
-                p: gJSON.paths,
+                p: gJSON.pathsJSON.paths,
+                f: gJSON.pathsJSON.files,
+                print: JSON.stringify(gJSON.print),
                 renderJSON: renderJSON,
                 isStream: false
             });
@@ -278,6 +300,7 @@ router.get('/following', function(req, res) {
 });
 
 router.get('/followers', function(req, res) {
+    var gJSON = globalJSON(req);
     var follower = require('../apps/follow/follower.js');
 
         var eventEmitter = new events.EventEmitter();
@@ -287,8 +310,9 @@ router.get('/followers', function(req, res) {
             res.render('search', { 
                 title: meta.header(),
                 isLoggedIn: isLoggedIn(req),
-                gJSON: gJSON,
-                p: gJSON.paths,
+                p: gJSON.pathsJSON.paths,
+                f: gJSON.pathsJSON.files,
+                print: JSON.stringify(gJSON.print),
                 renderJSON: renderJSON,
                 streamType: false
             });
@@ -315,18 +339,8 @@ router.post('/api/comment', function(req, res) {
 
 });
 
-router.post('/like', function(req, res) {
-
-    if (req.xhr) {
-
-        var addRemoveLike = require('../apps/addRemoveLike.js')(req, res);
-
-    } else {
-
-        res.redirect('/');
-
-    }
-
+router.post('/api/like', function(req, res) {
+    require('../apps/addRemoveLike.js')(req, res);
 });
 
 router.post('/api/notification', function(req, res) {
@@ -399,34 +413,122 @@ router.get('/:find/:model/:where', function(req, res) {
     }  
 });
 
-//user routes
-router.get('/:user', function(req, res, next) {
+//TODO: deal with Hashtags!!
 
-    if(req.params.user === 'socket.io') {
-        return next(err);
-    }
+// router.get(/\b#\w\w+/, function(req, res) {
+//     res.send('its a hashtag');
+// });
+router.get('/test', function(req, res) {
+    db.Following.find(
+        {where: db.Sequelize.and(
+            {FollowerId:2},
+            {FollowId:1}
+        )}
+    ).then(function(user) {
+        res.send(user);
+    });
+});
 
+router.get('/p/:pid', function(req,res) {
+    //sys.puts(sys.inspect(req));
+
+    var gJSON = globalJSON(req);
     var eventEmitter = new events.EventEmitter();
 
     //bind the final callback first
-    eventEmitter.on('profileJSONDone', function thenRender(renderJSON) {
-        res.render('profile', { 
+    eventEmitter.on('singlePostJSONDone', function thenRender(renderJSON) {
+        res.render('singlePost', { 
             title: meta.header(),
-            isLoggedIn: isLoggedIn(req),
-            gJSON: gJSON,
-            p: gJSON.paths,
-            renderJSON: renderJSON,
-            isSearch: true,
-            isProfile: true,
-            userId: ( JSON.parse(renderJSON) ).userId
+            isLoggedIn: req.isAuthenticated(),
+            p: gJSON.pathsJSON.paths,
+            f: gJSON.pathsJSON.files,
+            print: JSON.stringify(gJSON.print),
+            renderJSON: JSON.parse(JSON.stringify(renderJSON)),
+            isStream: 'stream',
+            page: 'singlePost'
         });
 
     });
 
     //now run callback dependents
-    var getProfile = require('../apps/getProfile.js')(req, eventEmitter);
+    var streamJSON = require('../apps/stream/singlePostJSON.js')(req, eventEmitter);
 
 });
+
+//:user
+router.get('/:user', function(req, res) {
+    //sys.puts(sys.inspect(req));
+    var gJSON = globalJSON(req);
+    var eventEmitter = new events.EventEmitter();
+
+    //bind the final callback first
+    eventEmitter.on('profileJSONDone', function thenRender(renderJSON) {
+        var reason = false;
+
+        if(renderJSON === 'redirect') {
+            return res.redirect('/');
+        }
+
+        if(renderJSON === 'userNotFound') {
+            reason = renderJSON;
+            renderJSON = false;
+        }
+        if(renderJSON === 'reqNotAuthUserIsPrivate') {
+            reason = renderJSON;
+            renderJSON = false;
+        }
+        //console.log(renderJSON);
+
+        res.render('profile', { 
+            title: meta.header(),
+            isLoggedIn: isLoggedIn(req),
+            p: gJSON.pathsJSON.paths,
+            f: gJSON.pathsJSON.files,
+            print: JSON.stringify(gJSON.print),
+            renderJSON: JSON.stringify(renderJSON),
+            renderJSONraw: renderJSON,
+            reason: reason
+        });
+
+    });
+
+    //now run callback dependents
+    var profileJSON = require('../apps/profileJSON.js')(req, eventEmitter, false);
+
+});
+
+// router.get('/:user', function(req, res, next) {
+
+//     if(req.params.user === 'socket.io') {
+//         return next(err);
+//     }
+
+//     //if first character is "#", 
+//     if(req.params.user.substring(0,1) === '@') {
+//         req.params.user = req.params.user.substring(1);
+//     }
+
+//     var eventEmitter = new events.EventEmitter();
+
+//     //bind the final callback first
+//     eventEmitter.on('profileJSONDone', function thenRender(renderJSON) {
+//         res.render('profile', { 
+//             title: meta.header(),
+//             isLoggedIn: isLoggedIn(req),
+//             gJSON: gJSON,
+//             p: gJSON.paths,
+//             renderJSON: renderJSON,
+//             isSearch: true,
+//             isProfile: true,
+//             userId: ( JSON.parse(renderJSON) ).userId
+//         });
+
+//     });
+
+//     //now run callback dependents
+//     var getProfile = require('../apps/getProfile.js')(req, eventEmitter);
+
+// });
 
 
 

@@ -1,4 +1,4 @@
-<article class="streamLayout" id="layoutId">
+<article class="streamLayout clearfix" id="layoutId" style="display:inline-block;">
     <div class="blockImgHolder">
         <a class="fancybox">
         </a>
@@ -40,7 +40,7 @@
             -->
 
             <div class="blockLoadMoreCommentsCont" style="display:none;">
-                load more
+                <span class="blockLoadMoreText">load more</span>
                 <div class="blockLoadMoreCommentsWrap">
                     <div class="blockLoadMoreCommentsCount"></div>
                     <div class="blockLoadMoreCommentsLogo"><img src="{p.img}/comments_icon.png"></div>

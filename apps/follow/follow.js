@@ -1,4 +1,4 @@
-var db = require('../../models');
+var db = global.db;
 
 module.exports = function follow(req, res) {
 
@@ -34,8 +34,8 @@ module.exports = function follow(req, res) {
                 } else {
 
                     console.log('Error: User trying to follow someone he/she is already following.')
-                    
-                    return res.json({success:false, msg:'You are already following him/her!'});
+                    //but we don't care
+                    return res.json({success:true});
                 }
 
 
@@ -47,7 +47,6 @@ module.exports = function follow(req, res) {
 
         if(req.body.action === 'unfollow') {
 
-
             req.user.hasFollow(userIdToAction).then(function(user) {
 
                 console.log(user);
@@ -55,23 +54,24 @@ module.exports = function follow(req, res) {
 
                     console.log('remove');
 
-                    //parent.removeChild(childID) to be used once implemented.
-                    //return req.user.removeFollow(userIdToAction);
+                    return req.user.removeFollow(userIdToAction);
 
-                    return db.User.find({where:{userId: userIdToAction}, attributes:['userId']});
+                    // // destroy + db.Sequelize.and doesn't work.....
+                    // return db.Following.destroy({
+                    //     where: db.Sequelize.and(
+                    //         {FollowerId: req.user.userId}, 
+                    //         {FollowId: userIdToAction}
+                    //     )
+                    // });
 
                 } else {
 
                     console.log('Error: User is trying to unfollow someone who he or she is not following.');
-                    
-                    return res.json({success:false, msg:'You have already unfollowed him/her.'});
+                    //but we don't care
+                    return res.json({success:true});
                     
                 }
 
-
-            }).then(function(userToUnfollow) {
-
-                return req.user.removeFollow(userToUnfollow);
 
             }).then(function() {
 
@@ -80,8 +80,6 @@ module.exports = function follow(req, res) {
             }).catch(throwErr);
 
         }        
-
-  
     } else {
 
         //either never login, or is yourself.

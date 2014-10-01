@@ -17,7 +17,8 @@ module.exports = function(sequelize, DataTypes) {
                 allowNull: false,
                 validate: {
                     len:[6,20],
-                    is: ["^[a-z0-9_]+$", "i"]
+                    is: ["^[a-z0-9_]+$", "i"],
+                    not: ["<script[\s\S]*?>[\s\S]*?<\/script>", "g"]
                 }
             },
             userNameDisp: {
@@ -57,6 +58,11 @@ module.exports = function(sequelize, DataTypes) {
             profilePicture: {
                 type: DataTypes.STRING,
                 allowNull: true
+            },
+            isPrivate: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false
             }
         }, {
             timestamps: true,
@@ -134,15 +140,6 @@ module.exports = function(sequelize, DataTypes) {
                     
                     return sequelize
                             .query('SELECT * FROM "' + User.tableName + '" WHERE "' + User.getSearchVector() + '" @@ plainto_tsquery(\'english\', ' + query + ')', User);
-                }
-            },
-            getterMethods: {
-                //testing...
-                joinedDateProfile: function() {
-                    var joined = this.get('createdAt'),
-                        theMoment = moment(joined),
-                        formattedDate = theMoment.format('Do MMMM YYYY');
-                    return formattedDate;
                 }
             }
         }

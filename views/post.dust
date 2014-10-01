@@ -22,7 +22,7 @@ socket.on('disconnect', function(){
 
 socket.on('uploadProgress', function(data){
     var percentage = data.bytesReceived/data.bytesExpected
-    $('#progress').val(parseInt(percentage)*100+'%');
+    $('#ProgressBar').css('width', parseInt(percentage)*100+'%');
 });
 </script>
 
@@ -33,12 +33,8 @@ VV.img.CSRender = {CSRender};
 
 {>blockHeaderAfterHook/}
 
-<section id="leftCol" class="col span2">
-</section><!-- left_col -->
-
 <section id="main">
     <div class="mainColBlock">
-        <h1>Post</h1>
 
         {?isLoggedIn}
 
@@ -102,6 +98,21 @@ VV.img.CSRender = {CSRender};
                 height: 25px;
                 cursor: move;
             }
+
+
+        #progressBarCont {
+            height: 20px;
+            width: 280px;
+            background-color: #ccc;
+            margin: auto;
+        }
+            #progressBar {
+                height: 100%;
+                width: 0%;
+                background-color: #d91639;
+                -webkit-transition: width 0.5s;
+                transition: width 0.5s;
+            }
         </style>
 
         <div id="cropPortCont">
@@ -150,14 +161,19 @@ VV.img.CSRender = {CSRender};
             <textarea id="desc" name="desc" required></textarea>
             <button id="postIt">Post</button>
         </div>
+
+        <div id="progressBarCont" style="display:none">
+            <div id="progressBar"></div>
+        </div>
         
     
-        <p>
+        <!--<p>
             Progress: <input id="progress" name="progressPercent" required></input>
-        </p>
+        </p>-->
 
         {:else}
-            You are not logged in. To post, please log in <a href="{#p}{login}{/p}">here</a>
+        <h1>Post</h1>
+        You are not logged in. To post, please log in <a href="{#p}{login}{/p}">here</a>
         {/isLoggedIn}
     </div>
     <!-- end your stream -->
@@ -584,7 +600,9 @@ $("#doneScaling").click(function(){
 
 $("#postIt").click(function(){
 
-    loader.run($('#cropPort'));
+    //loader.run($('#cropPort'));
+    $("#postCont").velocity("transition.slideLeftOut", 300);
+    $("#progressBarCont").velocity("transition.slideRightIn", 300);
 
     if(VV.img.CSRender !== false) {
         //var submittedCanvas = document.getElementById('img_preview');
@@ -633,9 +651,10 @@ $("#postIt").click(function(){
 
         VV.img.upload(attrs, function(data) {
             //redirect to post
-            //window.location.href = '/';
-            console.log(data.postId);
             loader.kill();
+            window.location.href = '/p/' + data.postId;
+            console.log(data.postId);
+            
         });
 
     } else {
@@ -658,9 +677,10 @@ $("#postIt").click(function(){
         }
 
         VV.img.upload(attrs, function(data) {
-            //window.location.href = '/';
-            console.log(data.postId);
             loader.kill();
+            window.location.href = '/p/' + data.postId;
+            console.log(data.postId);
+            
         });
     }    
 }); //submit onclick

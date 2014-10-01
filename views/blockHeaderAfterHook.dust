@@ -28,22 +28,39 @@
         <nav id="navNormal" class="clearfix"> 
             <div class='vaDiv'></div>
             {?isLoggedIn}
+
+            {@eq key=page value="post"}
+            <div class="navButtons navActive">
+                <div class="icon-camera"></div>
+                <span>Post</span>
+            </div>
+            {:else}
             <a href="{p.post}">
                 <div class="navButtons">
                     <div class="icon-camera"></div>
                     <span>Post</span>
                 </div>
             </a>
+            {/eq}
+
+
+
+            {@eq key=page value="me"}
+            <div class="navButtons navActive">
+                <div class="icon-me"></div>
+                <span>Me</span>
+            </div>
+            {:else}
             <a href="{p.me}">
                 <div class="navButtons">
                     <div class="icon-me"></div>
                     <span>Me</span>
                 </div>
             </a>
-            <!--<a href="{p.home}">
-                <img src="{p.img}/logo2.png" id="logo">
-            </a>-->
-            <a href="{p.me}">
+            {/eq}
+
+
+            <a href="#">
                 <div class="navButtons">
                     <div class="icon-heart"></div>
                     <span>Likes</span>
@@ -56,9 +73,15 @@
                 </div>
             </a>
             {:else}
-            <a href="#">
-                <button class="darkButton">Continue Without Login</button>
-            </a>
+                {@eq key=page value="index"}
+                <a href="#">
+                    <button class="darkButton">Continue Without Login</button>
+                </a>
+                {:else}
+                <a href="/">
+                    <button class="darkButton">Login</button>
+                </a>                
+                {/eq}
             {/isLoggedIn}
             <!-- Removed navigation 
 
@@ -77,24 +100,6 @@
             -->
         </nav>
 
-        <!--<nav id="navCondensed">
-            <span class="navButtons"><span class="glyphicon glyphicon-th-list"></span></span>
-                <span id="navDropdown">
-                    <a href="{p.home}"><span class="navButtonsCondensed navSelected">Home</span></a>
-                    {?isLoggedIn}
-                    <a href="{p.following}"><span class="navButtonsCondensed">Following</span></a>
-                    <a href="{p.followers}"><span class="navButtonsCondensed">Followers</span></a>
-                    <a href="{p.post}"><span class="navButtonsCondensed">Post</span></a>
-                    <a href="{p.me}"><span class="navButtonsCondensed">Me</span></a>
-                    <a href="{p.logout}"><span class="navButtonsCondensed">Logout</span></a>
-                    {:else}
-                    <a href="{p.login}"><span class="navButtonsCondensed">Login</span></a>
-                    <a href="{p.signup}"><span class="navButtonsCondensed">Signup</span></a>
-                    {/isLoggedIn}
-                </span>
-        </nav>-->
-
-        <!--<span class="navSearchField"><form id="navSearch" method="post" action="{p.search}" style="display:none;"><input type="text" name="navSearchInput" id="navSearchInput"><span class="glyphicon glyphicon-search"></span></form></span>-->
         <script>
         $( '#navSearch .glyphicon' ).click(function(){
             $( '#navSearch' ).submit();

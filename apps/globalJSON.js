@@ -10,10 +10,10 @@ module.exports = function gJSON(req) {
 
     //user headers
     var userHeaders = false;
-    if(req.isAuthenticated()) {
-        userHeader = {
+    if(req.isAuthenticated()) {;
+        userHeaders = {
             userId: req.user.userId,
-            userDispName: req.user.userDispName,
+            userNameDisp: req.user.userNameDisp,
             profilePicture: req.user.profilePicture
         }
     }
@@ -24,7 +24,7 @@ module.exports = function gJSON(req) {
     //join statics
 
     //pathsJSON
-    globalJSON.paths = pathsJSON;
+    globalJSON.pathsJSON = pathsJSON;
 
     return globalJSON;
 

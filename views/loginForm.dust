@@ -94,7 +94,7 @@ img.bg {
 </script>
 <div id="loginCont">
     <div class="vaDiv"></div>
-    <form id="loginForm" action="/login">
+    <form id="loginForm" action="api/login">
         <img id="splashLogo" src="{p.img}/logo-splash.png">
         <div id="errHolderWrong" style="display:none"></div>
         <input type="text" id="user" name="user" placeholder="Your username or email">
@@ -157,8 +157,8 @@ img.bg {
                             $eHW.html('Either your username or password is wrong. Please try again.');
                             $eHW.css('color','red');
                             $eHW.velocity('transition.slideDownIn', 200);
-                            $user.velocity('callout.shake');
-                            $password.velocity('callout.shake');
+                            $user.velocity('callout.shakeShort');
+                            $password.velocity('callout.shakeShort');
 
                         } else {
                             aF.protoAlert('Something went wrong, please check your connection and try again later.');

@@ -1,0 +1,248 @@
+var db = global.db;
+var fn = 'profileJSON: ';
+
+/* TODO !!! DEAL WITH PRIVATE CASES */
+
+module.exports = function profileJSON(req, eventEmitter, isSelf) {
+
+    //if first character is "@", cut it away before use.
+    if(req.params.user) {
+        if(req.params.user.substring(0,1) === '@') {
+            req.params.user = req.params.user.substring(1);
+        }
+    }
+
+    var throwErr = function(error) {
+        console.log(error);
+        return eventEmitter.emit('profileJSONDone', false);
+    }
+    //to store the returned results
+    var returnedUser = {};
+
+    //generics
+    var attributes = [ 'userId', 'userNameDisp', 'email', 'name', 'about', 'profilePicture', 'isPrivate' ];
+    var include = [{
+        //the user's posts
+        model: db.Post,
+        include: [{
+                //the posts' comments
+                model: db.Comment,
+                attributes: ['comment','createdAt'],
+                include: [{
+                    model: db.User,
+                    attributes: ['userNameDisp','profilePicture']
+                }],
+        }]//db.Comment include closure
+    }];// db.Post include closure
+    var order = [ 
+        [db.Post, 'createdAt', 'DESC'], 
+        [db.Post, db.Comment, 'createdAt','ASC'] 
+    ];
+
+    //isAuth
+    var isAuth = req.isAuthenticated();
+
+    /* Process flow:
+    1) The route "/me" will pass in isSelf = true. Authenticate and
+        return results.
+
+    2) In requesting for other users, we first retrieve "isPrivate". If profile is public:
+        a) We check if user is authenticated, for the purposes to retrieving following/follower
+           relationship.
+        b) If not authenticated, just retrieve the profile.
+
+    3) If profile is not public, we need to check 1 condition and 2 sub-conditions:
+        a) Requestor is authenticated and
+            i) Either the profile is her/his own, or
+            ii) User being requested is following the requestor.
+    */
+
+    // 1) Check if the profile user is "/me".
+    if(isSelf) {
+        console.log(fn+'Authenticating and getting own profile...');
+        if(isAuth) {
+            return getProfile(req.user.userId, true);
+        } else {
+            return eventEmitter.emit( 'profileJSONDone', 'redirect' );
+        }
+    }
+    function getProfile(userId, ownProfile, isPublicView) {
+        return db.User.find({
+            where: {userId: userId},
+            attributes: attributes,
+            include: include,
+            order: order
+        }).then(function(user) {
+            console.log('got the user');
+            //remove the DAO and store the JSON
+            returnedUser = JSON.parse(JSON.stringify(user));
+
+            //// GET relationships
+
+            /* the returns [] correspond to:
+             * 1) following count
+             * 2) follower count 
+             * 3) is requestor following target user
+             * 4) is target user following requestor
+             * 5) is this the user's own profile
+            */
+
+            /* Sequence of returns:
+             * 1) isPublic view: We first return cases where user is not authenticated
+             *    and profile is public.
+             * 2) is not own profile: Then we deal with the cases in which user is viewing
+             *    own profile.
+             * 3) All cases that fall through (1) & (2) are "legit" cases.
+            */
+
+
+            //public profile
+            if(isPublicView) {
+                return [
+                    //user following how many others
+                    db.Following.findAndCountAll({
+                        where: {FollowerId: user.userId},
+                        attributes: ['id']
+                    },
+                    { raw: true }),
+                    db.Following.findAndCountAll({
+                        where: {FollowId: user.userId},
+                        attributes: ['id']
+                    },
+                    { raw: true }),
+                    false,
+                    false,
+                    false
+                ]
+            }
+
+            //user is logged in and is own profile
+            if(ownProfile) {
+                return [
+                    //user following how many others
+                    db.Following.findAndCountAll({
+                        where: {FollowerId: user.userId},
+                        attributes: ['id']
+                    },
+                    { raw: true }),
+                    //user being followed by how many
+                    db.Following.findAndCountAll({
+                        where: {FollowId: user.userId},
+                        attributes: ['id']
+                    },
+                    { raw: true }),
+                    false,
+                    false,
+                    true
+                ]
+
+            }
+            
+            //user is logged in and is viewing other profiles.
+            return [
+                //user following how many others
+                db.Following.findAndCountAll({
+                    where: {FollowerId: user.userId},
+                    attributes: ['id']
+                },
+                { raw: true }),
+                db.Following.findAndCountAll({
+                    where: {FollowId: user.userId},
+                    attributes: ['id']
+                },
+                { raw: true }),
+                req.user.hasFollow(user.userId),
+                req.user.hasFollower(user.userId),
+                false
+            ]
+
+        }).spread(function(followingCount, followerCount, hasFollow, hasFollower, ownProfile) {
+            returnedUser.followingCount = followingCount.count;
+            returnedUser.followerCount = followerCount.count;
+
+            //so many booleans because of damned Dust template!
+
+            if(isPublicView) {
+                returnedUser.isPublicView = true;
+                returnedUser.isFollowable = false;
+                return eventEmitter.emit( 'profileJSONDone', returnedUser );
+            }
+
+            if(ownProfile) {
+                returnedUser.isOwnProfile = true;
+                returnedUser.isFollowable = false;
+                return eventEmitter.emit( 'profileJSONDone', returnedUser );
+            }
+
+            returnedUser.viewerFollowedTarget = hasFollow;
+            returnedUser.targetFollowedViewer = hasFollower;
+            returnedUser.isFollowable = true;
+            return eventEmitter.emit( 'profileJSONDone', returnedUser );
+
+        }).cancellable()
+        .catch(function(error) {
+            return throwErr(error);
+        });
+    }
+
+    // 2) In requesting for other users, we first retrieve "isPrivate".
+    db.User.find({
+        where: { userName: req.params.user.toLowerCase() },
+        attributes: ['userId', 'isPrivate']
+    }).then(function(user) {
+        //user don't exist
+        if(!user) {
+            return eventEmitter.emit('profileJSONDone', 'userNotFound');
+        } 
+        console.log(user.isPrivate);
+        // 3) If profile is not public... check authentication and 2 sub-conditions
+        if(user.isPrivate) {
+            if(isAuth) {
+                // a) Requestor is authenticated
+                if(req.user.userId === user.userId) {
+                    //i) The profile is her/his own
+                    return getProfile(user.userId, true);
+                } else {
+
+
+                    //ii) Check if "user being requested" is following the requestor.
+                    var targetUser = user;
+                    req.user.hasFollower(user.userId)
+                        .then(function(isOkay) {
+                            if(isOkay) {
+                                //passed all conditions
+                                return getProfile(targetUser.userId, false);
+                            }
+                            //user is private and not following requestor.
+                            return eventEmitter.emit('profileJSONDone', 'userIsPrivate');
+                        })
+                        .catch(function(error) {
+                            return throwErr(error);
+                        });
+
+
+                } // req.user.userId === user.userId if/else chain
+            }
+
+            //request is not authenticated.
+            return eventEmitter.emit('profileJSONDone', 'reqNotAuthUserIsPrivate');
+
+
+        } //closure for user.isPrivate
+
+        //user exist and is public. Get the full monty.
+        // 2a) We check if user is authenticated, for the purposes to retrieving following/follower
+        //   relationship.
+        if(isAuth) {
+            return getProfile(user.userId, false);
+        } else {
+            //2b) If not authenticated, just retrieve the profile.
+            //the arguments in getProfile are: 1) userid, 2) Is Own Profile, 3) is public view
+            return getProfile(user.userId, false, true);
+        }
+
+
+    }).catch(function(err) {
+        throwErr(err);
+    });
+}

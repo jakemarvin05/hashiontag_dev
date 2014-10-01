@@ -14,7 +14,7 @@ var fs        = require('fs'),
             native: true, //requires c binding
 
         }),
-    //localhost
+    // //localhost
     // sequelize = new Sequelize('postgres', 'postgres', 'password'
     //     ,{
     //         host: "localhost",
@@ -46,7 +46,7 @@ Object.keys(db).forEach(function(modelName) {
 // db.Post.sync();
 // db.Comment.sync();
 //db.Notification.sync();
-sequelize.sync()
+//sequelize.sync()
  
 module.exports = lodash.extend({
     sequelize: sequelize,

@@ -1,5 +1,3 @@
-if((typeof VV) === 'undefined') { var VV = {} }
-
 VV.utils = {}
 
 VV.utils.Flasher = {
@@ -64,3 +62,13 @@ VV.utils.stripHTML = function(html) {
 VV.utils.htmlEntities = function(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+VV.utils.escape = function(str) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+};
+VV.utils.stripScriptTags = function(str) {
+    return String(str).replace('<script>', '').replace('</script>', '');
+}
+
+module.exports = VV.utils;

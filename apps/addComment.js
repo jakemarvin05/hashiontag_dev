@@ -20,11 +20,11 @@ module.exports = function addComment(req, res) {
     if(req.isAuthenticated()) {
 
         console.log('addComment: saving comment....');
+        // var customUtils = require('./customUtils.js');
+        // var stripped = appUtils.stripScriptTags(req.body.comment);
     
         db.Comment.create({
-
             comment: req.body.comment
-
         }).then(function(comment) {
 
             commentJSON = {

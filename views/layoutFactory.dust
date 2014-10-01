@@ -5,91 +5,166 @@
 {! TODO!!: FIX THIS COMPLICATED AND UNMODULARISE PIECE OF SHIT !}
 
 
-{?renderJSON}{?isStream}
-    
+{?renderJSON}
 <script>
-function strip(html) {
-   var tmp = document.createElement("DIV");
-   tmp.innerHTML = html;
-   return tmp.textContent || tmp.innerText || "";
-}
-var streamFactory = {
+/* 
+This is being extended by profile page 
 
-    mainStreamPrefix: 'mainStream_',
-    mainBlock: '.mainColBlock',
-    $mainBlock: $( '.mainColBlock' ),
-    userImg: '.blockProfileThumb',
-    $userImg: $('.blockProfileThumb'),
-    userBlock: '.blockUsername',
-    tLBlock: '.blockTimelapse',
-    desc: '.description',
-    postInt: '.postInteractions',
-    commentButton: '.sendComment',
-    likeButton: '.likeButton[data-action="like"]',
-    unlikeButton: '.likeButton[data-action="unlike"]',
-    imageBlock: '.fancybox',
-    layoutHTML: function() {
-        $( '.mainColBlock .streamLayout' ).wrap('<div></div>');
-        var html = $( '.streamLayout' ).parent('div').html();
-        $( '.streamLayout' ).unwrap();
-        return html;
-    },
+Profile page re-writes:
+
+(Fill in here....)
+
+*/
+var streamFactory = {
+    streamContClass: 'mainColBlock',
+    $cont: '',
+    streamPrefix: 'mainStream_',
+    layoutHTML: false,
+    stream: '',
     mediaDir: '{p.mediaDir}',
     errorImg: '{p.img}/image404.jpg',
+    posts: false
+}
+streamFactory.getLayoutHTML = function() {
+    $layout = $('.streamLayout');
+    $layout.css('display', 'none');
+    $layout.wrap('<div></div>');
+    this.layoutHTML = $layout.parent('div').html();
+    $layout.unwrap();
+    $layout.remove();
+}
+streamFactory.noObj = function() {
+    var message = 'Nothing here...';
+    $( '.streamLayout .description').html(message);
+}
+streamFactory.init = function(posts) {
+    this.append.parent = this;
+    this.posts = posts;
+    var postCount = VV.utils.objCount(this.posts);
 
-    objCount: function(obj) {
-        if( (typeof obj != undefined) && obj ) {
+    //if(postCount < 1) { return this.noObj(); }
+    if(!this.layoutHTML) { this.getLayoutHTML(); }
+    this.$cont = $('.' + this.streamContClass);
+    this.buildBlocks(postCount);
+}
+streamFactory.buildBlocks = function(postCount) {
+    for(var i=0; i<postCount; i++) {
+        //if(this.posts[i].postId > 55) {
+            var post = this.posts[i];
+            var streamId = this.streamPrefix + post.postId;
 
-            return Object.keys(obj).length;
-
-        } else {
+            //create the block
+            var newBlock = this.layoutHTML.replace('layoutId', streamId);
+            this.$cont.append(newBlock);
+            var $stream = $('#' + streamId);
+            this.append.init($stream, i);
+        //}
         
-            return 0;
+
+    }//for loop
+
+}
+
+streamFactory.append = {}
+
+streamFactory.append.profileThumb = function(post) {
+    var user = post.user;
+    var theParent = this.parent;
+
+    var pp = (user.profilePicture) ? theParent.mediaDir + '/' + user.profilePicture + '.jpg' : theParent.errorImg;
+
+    var blockProfileThumbHTML  = '<a href="/' + post.user.userNameDisp + '">';
+        blockProfileThumbHTML += '<img src="' + pp + '"></a>';
+
+    return blockProfileThumbHTML;
+}
+
+streamFactory.append.userName = function(post) {
+    var blockUserNameHTML  = '<a href="/' + post.user.userNameDisp + '">';
+        blockUserNameHTML += post.user.userNameDisp + '</a>';
+    return blockUserNameHTML;
+}
+
+streamFactory.append.identifier = function($el, post) {
+    return $el.attr('data-uid', post.user.userId).attr('data-pid', post.postId);
+}
+streamFactory.append.effect = function($el, callback) {
+    return $el.velocity('fadeIn', 300, callback);
+}
+streamFactory.append.effectChain = function(i) {
+    //  console.log(streamFactory.posts[i].postId);
+    var self = this.parent;
+    //set this link to complete fadein.
+    self.posts[i].fd = true;
+
+    //is there a next chain? If not stop the chaining.
+    if(!self.posts[i+1]) { return false; }
+
+    //check if next in chain is loaded.
+    if(self.posts[i+1].ld) {
+        //fadein, and call loadChain to carry on the chain.
+        var $nextPost = $('#' + self.streamPrefix + self.posts[i+1].postId);
+        // console.log($nextPost);
+        return self.append.effect($nextPost, function() { self.append.effectChain(i+1); });
+    }
+}
+streamFactory.append.image = function($stream, i) {
+    //image
+    var imgURL = '',
+        img = new Image(),
+        x = i,
+        theParent = this.parent;
+        post = theParent.posts[x],
+
+    img.onload = function() {
+        //cache the i.
+        var $post = $stream;
+        var i = x;
+
+        //set the link "load" status to true.
+        theParent.posts[i].ld = true;
+
+        //if first link in chain
+        if(i === 0) {
+            //fade it in.
+            return theParent.append.effect($post, function() { theParent.append.effectChain(i); }); 
         }
-    },
-    noObj: function() {
-
-        {@select key=streamType}
-            {@eq value="ownPosts"}
-            var message = 'You don\'t have any posts. <a href="{p.post}">Post something!</a>';
-            {/eq}
-            {@eq value="following"}
-            var message = 'No stream for you... follow some people!';
-            {/eq}
-
-            {@default}var message = 'Nothing here...';{/default}
-        {/select}
-
-        $( '.streamLayout .description').html(message);
-
-    },
-    getRandom: function(arr, size) {
-        var shuffled = arr.slice(0), i = arr.length, temp, index;
-        while (i--) {
-            index = Math.floor((i + 1) * Math.random());
-            temp = shuffled[index];
-            shuffled[index] = shuffled[i];
-            shuffled[i] = temp;
+        //check the previous link, has it faded in?
+        if(theParent.posts[i-1].fd) {
+            return theParent.append.effect($post, function() { theParent.append.effectChain(i); });
         }
-        return shuffled.slice(0, size);
-    },
-    likeText: function(obj) {
-        var _ = this;
+    }
 
+    if(!post.imgUUID || post.imgUUID === null) {
+        imgURL = theParent.errorImg;
+    } else {
+        //bind the error handling
+        img.onerror = function() {
+            this.onerror = function() {return false;};
+            this.src = theParent.errorImg;
+        }
+        imgURL = theParent.mediaDir + '/' + post.imgUUID + '.jpg';
+        img.id = post.imgUUID;
+        img.alt = VV.utils.stripHTML(post.desc);
+    }
+    img.src = imgURL;
+    $stream.find('.fancybox').append(img).attr('alt', img.alt).attr('href', imgURL);
+}
+streamFactory.append.likeText = function(post) {
+        var theParent = this.parent;
         var toPrepend = '';
 
-        if(obj.totalLikes > 0) {
-            var likersFollowed = obj.likes,
-                likersFollowedCount = Object.keys(likersFollowed).length,
+        if(post.totalLikes > 0) {
+            var likersFollowed = post.likes,
+                likersFollowedCount = VV.utils.objCount(likersFollowed),
                 show = 3,
                 loopRuns = 0,
                 likersDispHTML = '',
                 likersDisp = {};
 
             if(likersFollowedCount > 0) {
-
                 if(likersFollowedCount > show) {
-                    likersDisp = _.getRandom(likersFollowed, show);
+                    likersDisp = VV.utils.getRandom(likersFollowed, show);
                     loopRuns = show;
                 } else {
                     likersDisp = likersFollowed;
@@ -97,9 +172,7 @@ var streamFactory = {
                 }
 
                 for(k=0;k<loopRuns;k++) {
-                    console.log(likersDisp[k]);
                     var name = likersDisp[k].user.userNameDisp;
-
                     if(k>0) {
                         likersDispHTML += ', ';
                     }
@@ -109,56 +182,46 @@ var streamFactory = {
 
             //TODO: Do away with text-based like description....
             var andLikes = '';
-            if(likersFollowedCount > 3) {
+            if(likersFollowedCount > 0) {
 
                 //sally, mary, jane and 99 others like this.
+                var offset = Math.min(likersFollowedCount, show)
+                var offsetCount = String(post.totalLikes - offset);
 
-                var offsetCount = String(obj.totalLikes - 3);
+                if(offsetCount > 0) {
+                    andLikes  = ' and ';
+                    andLikes += '<span class="postLikesCount" data-likescount="' + offsetCount + '">';
+                    andLikes += offsetCount;
+                    andLikes += '</span>';
+                    if(offsetCount === 1) {
+                        andLikes += ' other'; 
+                    } else {
+                        andLikes += ' others';   
+                    }
+                }
 
-                andLikes  = ' and ';
-                andLikes += '<span class="postLikesCount" data-likescount="' + offsetCount + '">';
-                andLikes += offsetCount;
-                andLikes += '</span>';
-                andLikes += ' others like this.';
+                if(post.totalLikes > 0 ) {
+                    if(post.totalLikes === 1) {
+                        andLikes += ' likes this.';
+                    } else {
+                        andLikes += ' like this.';
+                    }
+                } 
 
-            } else if(likersFollowedCount > 0) {
-
-                //sally, mary and 99 others like this.
-
-                var offsetCount = String(obj.totalLikes - likersFollowedCount);
-
-                andLikes  = ' and ';
-                andLikes += '<span class="postLikesCount" data-likescount="' + offsetCount + '">';
-                andLikes += offsetCount;
-                andLikes += '</span>';
-                andLikes += ' others like this.';
-
-            } else if(obj.totalLikes > 1) {
+            } else if(post.totalLikes > 1) {
 
                 // 2-99 people like this.
-
-                var offsetCount = String(obj.totalLikes);
+                var offsetCount = String(post.totalLikes);
 
                 andLikes  = '<span class="postLikesCount" data-likescount="' + offsetCount + '">';
                 andLikes += offsetCount;
                 andLikes += '</span>';
                 andLikes += ' people like this.';
 
-            } else if(obj.hasLiked) {
-
-                //totalLikes is 1 and you liked this -> You are the only one.
-
-                // You like this.
-
-                andLikes = 'You like this.';
-
-            } else {
-
-                // person liked it and it isn't you.
+            } else if(post.totalLikes === 1 && !post.hasLiked) {
 
                 // 1 person likes this.
-
-                var offsetCount = String(obj.totalLikes);
+                var offsetCount = String(post.totalLikes);
 
                 andLikes  = '<span class="postLikesCount" data-likescount="' + offsetCount + '">';
                 andLikes += offsetCount;
@@ -169,136 +232,123 @@ var streamFactory = {
             toPrepend = likersDispHTML + '<span class="postAndLikes">' + andLikes + '</span>';
 
         } else {
-
             toPrepend = '';
         }
-            
         return toPrepend;
-    },
-    build: function() {
-        var _ = this,
-            layoutHTML = _.layoutHTML(),
-            postCount = _.objCount(renderJSON.posts);
+}
+streamFactory.append.commentBlock = function($stream, post) {
+    var comments = post.comments,
+        commentCount = VV.utils.objCount(comments),
+        showComments = 3;
 
-        if ( postCount < 1 ) { 
-
-            _.noObj();
-
-        } else {
-            
-            $( _.mainBlock + ' ' + '.streamLayout' ).remove();
-            for( i=0; i<postCount; i++ ) {
-                
-                var obj = renderJSON.posts[i];
-                var mStreamId = _.mainStreamPrefix + obj.postId;
-               
-
-                //create the block
-                var newBlock = layoutHTML.replace('layoutId', mStreamId);
-                _.$mainBlock.append( newBlock );
-
-                //append contents
-                _.append(mStreamId, obj);
-
-            }//for loop
+    if(commentCount > 0) {
+        if(commentCount > showComments) {
+            $stream.find('.blockLoadMoreCommentsCount').html(commentCount);
+            $stream.find('.blockLoadMoreCommentsCont').show();
         }
-    },
-    append: function(mStreamId, obj) {
-        var _ = this,
-            mStreamId = '#' + mStreamId,
-            mS = mStreamId + ' ';
-
-        $( mStreamId ).hide();
-
-        //ids
-        $( mStreamId )
-            .attr('data-uid', obj.user.userId)
-            .attr('data-pid', obj.postId);
-
-        var pp = (obj.user.profilePicture) ? '{p.mediaDir}/' + obj.user.profilePicture + '.jpg' : '{p.img}/noprofilepicture.jpg';
-        
-
-        $( mS + _.userImg).html('<a href="/' + obj.user.userNameDisp + '"><img src="' + pp + '"></a>');
-        $( mS + _.userBlock ).html('<a href="/' + obj.user.userNameDisp + '">' + obj.user.userNameDisp + '</a>');
-        $( mS + _.tLBlock ).html(obj.timeLapse);
-        $( mS + _.desc ).html(obj.desc);
-        $( mS + _.commentButton ).attr('data-id', obj.postId);
-
-        if(obj.hasLiked) {
-            $( mS + _.unlikeButton).show();
-            $( mS + _.likeButton).remove();
-        } else {
-            $( mS + _.likeButton).show();   
-            $( mS + _.unlikeButton).remove();       
+        var j = commentCount;
+        var runs = 0;
+        var toShow = true;
+        while(j--) {
+            if(runs === 3) { toShow = false; }
+            this.eachComment($stream, comments[j], toShow);
+            runs++;
         }
-        
-
-        //image
-        var imgURL = '';
-
-        if(!obj.imgUUID || obj.imgUUID === null) {
-            imgURL = _.errorImg;
-            var img = new Image();
-            img.src = _.errorImg;
-
-        } else {
-
-            imgURL = _.mediaDir + '/' + obj.imgUUID + '.jpg';
-
-            var img = new Image();
-            img.onerror = function() {
-                img.onerror = function() {return false;};
-                this.src = _.errorImg;
-            }
-
-            img.src = imgURL;
-            img.id = obj.imgUUID;
-            img.alt = strip(obj.desc);
-        }
-
-        $( mStreamId + ' ' + _.imageBlock )
-            .append(img)
-            .attr('href', imgURL)
-            .attr('content', obj.desc);
-
-        //comments
-        var comments = obj.comments,
-            commentCount = _.objCount(comments);
-
-        if(commentCount > 0) {
-            if(commentCount > 3) {
-                $( mStreamId + ' ' + '.blockLoadMoreCommentsCount').html(commentCount);
-                $( mStreamId + ' ' + '.blockLoadMoreCommentsCont').show();
-            }
-
-            for(j=0; j<commentCount; j++) {
-
-                var comment = comments[j],
-                    timestampAgo = moment(comment.createdAt).fromNow();
-
-                var pp = (obj.user.profilePicture) ? '{p.mediaDir}/' + obj.user.profilePicture + '.jpg' : '{p.img}/noprofilepicture.jpg';
-
-                var commentUserPP = '<a href="/' + obj.user.userNameDisp + '"><img class="profileThumb" src="' + pp + '"></a>';
-
-                var commentUser = '<a href="/' + obj.user.userNameDisp + '">' + obj.user.userNameDisp + '</a>';
-
-                var html = commentUserPP + '<div class="postComment">' + commentUser + '&nbsp;<span class="commentTimeStamp" data-ts="' + comment.createdAt + '">(' + timestampAgo + ')</span>&nbsp;' + comment.comment + '</div>';
-                
-                $( mStreamId ).find('.postCommentCont').append(html);
-
-            }
-
-        }
-        //likes
-        var toPrepend = _.likeText(obj);
-        
-        $( mS + '.blockLikeText' ).prepend(toPrepend);
-
-        return $(mStreamId).fadeIn('fast'); 
     }
-}; 
-streamFactory.build();
+}
+streamFactory.append.eachComment = function($stream, comment, toShow, append) {
+    var hide = '',
+        user = comment.user,
+        commentText = VV.utils.htmlEntities(comment.comment);
 
+    commentId = 'commentId' + comment.commentId;
+
+    if(!toShow) { hide = ' style="display:none" ';}
+    //in append, we want to trigger the effect. So hide it first.
+    if(append) { hide = ' style="display:none" '; }
+
+    var timestampAgo = '';
+    if(comment.createdAt) {
+        timestampAgo = moment(comment.createdAt).fromNow();
+        timestampAgo = '&nbsp;<span class="commentTimeStamp" data-ts="' + comment.createdAt + '">(' + timestampAgo + ')</span>';
+    }
+
+    var pp = (user.profilePicture) ? '{p.mediaDir}/' + user.profilePicture + '.jpg' : '{p.img}/noprofilepicture.jpg';
+
+    var commentUserPP = '<a href="/' + user.userNameDisp + '"><img class="profileThumb" src="' + pp + '"></a>';
+
+    var commentUser = '<a href="/' + user.userNameDisp + '">' + user.userNameDisp + '</a>';
+
+    var html = '<div class="postCommentWrap"' + hide + ' id="' + commentId + '">';
+        html += commentUserPP;
+        html += '<div class="postComment">' + commentUser;
+        html += timestampAgo;
+        html += '&nbsp;' + commentText + '</div></div>';
+
+    if(append) {
+        $stream.find('.postCommentCont').append(html);
+    } else {
+        $stream.find('.postCommentCont').prepend(html);
+    }
+    return $('#' + commentId);
+}
+
+streamFactory.append.init = function($stream, i) {
+
+    var post = this.parent.posts[i];
+    //set the data attributes
+    this.identifier($stream, post);
+
+    /*
+    * Image. Also triggers chain fading.
+    */
+    this.image($stream, i);
+
+    /*
+    * top left block: profile picture, name, timelapse
+    */
+
+    //profile thumb
+    var blockProfileThumbHTML  = this.profileThumb(post);
+    $stream.find('.blockProfileThumb').html(blockProfileThumbHTML);
+
+    //display name
+    var blockUserNameHTML  = this.userName(post);
+    $stream.find('.blockUsername').html(blockUserNameHTML);
+
+    //time lapse
+    $stream.find('.blockTimelapse').html(post.timeLapse);
+
+    /*
+    * description
+    */
+    $stream.find('.description').html(post.desc);
+
+
+    /*
+    * Like Button
+    */
+    var $likeButton = $stream.find('.likeButton');
+    if(post.hasLiked) {
+        $likeButton.attr('data-action', 'unlike');
+        //$likeButton.find('span').html('unlike');
+    }
+    //all action related buttons are tagged with identifiers.
+    this.identifier($likeButton, post);
+
+    /*
+    * Comments
+    */
+    var $commentButton = $stream.find('.sendComment');
+    this.identifier($commentButton, post);
+    this.commentBlock($stream, post);
+
+    //likes
+    var likeText = this.parent.append.likeText(post);
+    $stream.find('.blockLikeText' ).prepend(likeText);
+}
+
+{!
 var notificationFactory = {
     $appendTarget: $('#leftCol'),
 
@@ -346,13 +396,13 @@ var notificationFactory = {
     }
 }
 notificationFactory.build();
+!}
 </script>
 {:else}
 <script>
 $( '.streamLayout .description').html('No stream for you... follow some people!');
 </script>
-
-{/isStream}{/renderJSON}
+{/renderJSON}
 
 
 {! ==================================================
@@ -595,127 +645,3 @@ $( document ).ready(function() {
 });
 </script>
 {/isSearch}{/renderJSON}
-
-
-{! ==================================================
-    Profile
-
-    user post factory
-!}
-{?renderJSON}{?isProfile}
-<script>
-$( document ).ready(function() {
-    var streamFactory = {
-
-        mainStreamPrefix: '#mainStream_',
-        mainBlock: '.mainColBlock',
-        $mainBlock: $( '.mainColBlock' ),
-        userBlock: '.blockUsername',
-        tLBlock: '.blockTimelapse',
-        desc: '.description',
-        imageBlock: '.fancybox',
-        layoutHTML: function() {
-            $( '.mainColBlock .streamLayout' ).wrap('<div></div>');
-            var html = $( '.streamLayout' ).parent('div').html();
-            $( '.streamLayout' ).unwrap();
-            return html;
-        },
-        mediaDir: '{p.mediaDir}',
-        errorImg: '{p.img}/image404.jpg',
-
-        objCount: function() {
-            if( (typeof renderJSON != undefined) && renderJSON ) {
-
-                //.posts
-                return Object.keys(renderJSON.posts).length;
-
-            } else {
-            
-                return 0;
-            }
-        },
-        noObj: function() {
-
-            $( '.streamLayout .description').html(renderJSON.userNameDisp + ' has no posts.');
-
-        },
-        build: function() {
-            var _ = this,
-                layoutHTML = _.layoutHTML();
-
-            var objCount = _.objCount();
-
-            if ( objCount < 1 ) { 
-
-                _.noObj();
-
-            } else {
-                
-                $( _.mainBlock + ' ' + '.streamLayout' ).remove();
-
-                for( i=0; i<objCount; i++) {
-
-                    //.posts
-                    var obj = renderJSON.posts[i];
-                    var mStreamId = _.mainStreamPrefix + obj.postId;
-
-                    //create the block
-                    _.$mainBlock.append(layoutHTML);
-                    $( '.streamLayout#layoutId' ).attr('id', 'mainStream_' + obj.postId );
-
-                    //append contents
-                    _.append(mStreamId, obj);
-
-                }
-            }
-        },
-        append: function(mStreamId, obj) {
-            var _ = this;
-
-            $( mStreamId + ' ' + _.tLBlock ).html(obj.timeLapse);
-            $( mStreamId + ' ' + _.desc ).html(obj.desc);
-
-
-            //images
-            var imgURL = '';
-
-            imgURL = _.mediaDir + '/' + obj.postId + '.jpg';
-
-            $.get(imgURL)
-                .done(function() { 
-
-                        $( mStreamId + ' ' + _.imageBlock )
-                            .html('<img src="' + imgURL + '" alt="' + obj.desc + '">')
-                            .attr('href', imgURL)
-                            .attr('content', obj.desc);
-
-                }).fail(function() { 
-
-                        $( mStreamId + ' ' + _.imageBlock ).html('<img src="' + _.errorImg + '">');
-                        $( mStreamId + ' ' + _.imageBlock + ' img').unwrap();
-
-                });
-
-            //comments
-            var comments = obj.comments,
-                commentCount = _.objCount(comments);
-
-            if(commentCount > 0) {
-
-                for(i=0; i<commentCount; i++) {
-
-                    var comment = comments[i],
-                        timestampAgo = moment(comment.createdAt).fromNow();
-
-                    var html = '<p class="postComment">' + comment.user.userNameDisp + ': ' + comment.comment + '(<span class="postTimeStamp" data-ts="' + comment.createdAt + '">' + timestampAgo + '</span>)</p>';
-                    
-                    $( mStreamId ).children('.postCommentContainer').append(html);
-
-                }
-
-            }
-        }
-    }; streamFactory.build();
-});
-</script>
-{/isProfile}{/renderJSON}

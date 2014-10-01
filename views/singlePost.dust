@@ -1,7 +1,6 @@
 {>blockHeader/}
 {>blockHeaderAfterHook/}
 
-{?isLoggedIn}
 <section id="main">
 
     <div class="mainColBlock">
@@ -12,11 +11,6 @@
     <!-- start your posts -->
     
 </section><!-- main -->
-{:else}
-
-{>loginForm/}
-
-{/isLoggedIn}
 
 {>blockFooter/}
   

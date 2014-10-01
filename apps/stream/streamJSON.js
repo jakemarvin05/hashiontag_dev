@@ -1,4 +1,4 @@
-var db = require('../../models');
+var db = global.db;
 
 module.exports = function streamJSON(req, eventEmitter) {
 
@@ -34,7 +34,7 @@ module.exports = function streamJSON(req, eventEmitter) {
                         attributes: [ 'userNameDisp', 'userId', 'profilePicture' ]
                     }, { 
                         model: db.Comment,
-                        attributes: ['comment', 'createdAt'],
+                        attributes: ['commentId', 'comment', 'createdAt'],
                         include: [{
                             model: db.User,
                             attributes: [ 'userNameDisp','profilePicture' ]

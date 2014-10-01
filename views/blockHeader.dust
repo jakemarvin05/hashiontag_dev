@@ -79,7 +79,8 @@
     <script src="{p.js}/alert.js"></script>
     <script src="{p.js}/hammer/hammer.min.js"></script>
     <script src="{p.js}/velocity/velocity.min.js"></script>
-    <script src="{p.js}/velocity/velocity.ui.min.js"></script>
+    <!--TODO: Minify velocity.ui.js -->
+    <script src="{p.js}/velocity/velocity.ui.js"></script>
     <script src="{p.js}/vvUtils.js"></script>
 
 {?print}

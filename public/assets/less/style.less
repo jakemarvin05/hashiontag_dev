@@ -73,7 +73,7 @@ II. All other media queries
 1. Body, p, h1-h3, other globals
 -------------------------------------------------*/
 @mainRed: #ef4549;
-@mainRedDark: #B93337;
+@mainRedDark: #d91639;
 @mainFontColor: #565757; //almost black
 @mainLineColor: #ccc;
 
@@ -135,6 +135,15 @@ div, span {
     display: inline-block;
     vertical-align: middle;
 }
+
+/* all the full width elements never go below 320px */
+footer, .globalWrapper, .spanAll {
+    min-width: 320px;
+}
+
+.spanAll {
+    width: 100%;
+}
 /*-------------------------------------------------
 2. Header, nav
 -------------------------------------------------*/
@@ -152,84 +161,73 @@ div, span {
 .navWrapper {
     height: @navBarHeight;
     position: fixed;
-    border-bottom: 1px solid @mainRedDark;
     z-index: 999;
     -webkit-transition: 0.5s;
     transition: 0.5s;
 }
-#opacBar {
-    height: @navBarHeight;
-    width: 100%;
-    background-color: #ef4549;
-    -webkit-transition: 0.5s;
-    transition: 0.5s;
-    position: absolute;
-}
-#navBar {
-    height: 100%;
-    color: #000;
-    -webkit-transition: 0.5s;
-    transition: 0.5s;
-    padding: 0px 15px;
-    position: relative;
-}
-#logoCont {
-    float: left;
-    height: 100%;
-    overflow: hidden;
-    width: 272px;
-    @media (min-width: 0px) and (max-width: 480px) {
-        max-width: 66px;
-    }   
-}
-    #logoInner {
+    #opacBar {
+        height: @navBarHeight;
+        width: 100%;
+        background-color: #ef4549;
+        -webkit-transition: 0.5s;
+        transition: 0.5s;
+        position: absolute;
+    }
+    #navBar {
         height: 100%;
-        width: 300px;
+        color: #000;
+        -webkit-transition: 0.5s;
+        transition: 0.5s;
+        padding: 0px 15px;
+        position: relative;
     }
-    #logo {
-        height: 44px;
-        vertical-align: middle;
+    #logoCont {
+        float: left;
+        height: 100%;
+        overflow: hidden;
+        width: 272px;
+        @media (min-width: 0px) and (max-width: 480px) {
+            max-width: 66px;
+        }   
     }
+        #logoInner {
+            height: 100%;
+            width: 300px;
+        }
+        #logo {
+            height: 44px;
+            vertical-align: middle;
+        }
 
-#navNormal {
-    float: right;
-    /* width: 100%; */
-    height: 100%;
-    text-align: center; 
-    display: inline-block;
-    /*
-    @media (min-width: 0px) and (max-width: 767px) {
-       display: none;
-    } 
-    @media (min-width: 768px) {
-        display: inline-block ;
-    }*/
-}
-.navButtons, .navButtonsCondensed {
-    display: inline-block;
-    color: @navBarFont;
-    font-family: 'NeutraText', Helvetica, Arial;
-    font-weight: bold;
-    font-size: 13px;
-    text-transform: uppercase;
-    vertical-align: middle;
-    width: 30px;
-    padding: 5px;
-    @media (min-width: 0px) and (max-width: 480px) {
-        margin: 0px 10px;
-    } 
-    @media (min-width: 481px) and (max-width: 767px) {
-        margin: 0px;
+    #navNormal {
+        float: right;
+        height: 100%;
+        text-align: center; 
+        display: inline-block;
+
     }
-    @media (min-width: 768px){
-        margin: 0px 20px;
+    .navButtons {
+        display: inline-block;
+        color: @navBarFont;
+        font-family: 'NeutraText', Helvetica, Arial;
+        font-weight: bold;
+        font-size: 13px;
+        text-transform: uppercase;
+        vertical-align: middle;
+        width: 30px;
+        padding: 5px;
+        -webkit-transition: 0.5s;
+        transition: 0.5s;
+        @media (min-width: 0px) and (max-width: 480px) {
+            margin: 0px 10px 0px 0px;
+        } 
+        @media (min-width: 481px) and (max-width: 767px) {
+            margin: 0px;
+        }
+        @media (min-width: 768px){
+            margin: 0px 20px 0px 0px;
+        }
     }
-}
-.navButtons {
-    margin-left: 0px;
-    -webkit-transition: 0.5s;
-    transition: 0.5s;
-}
     .navButtons [class^="icon-"], [class*=" icon-"] {
         @media (min-width: 0px) and (max-width: 480px) {
             font-size: 28px;
@@ -249,112 +247,37 @@ div, span {
             display: inline;
         }
     }
-/*
-.navButtons {
-    @media (min-width: 0px) and (max-width: 480px) {
-        padding: 17px 15px;
-    }
-    @media (min-width: 481px) {
-        padding: 17px 10px 17px 10px;
-    }
-    @media (min-width: 767px) and (max-width: 1024px) {
-       letter-spacing: 0px!important;
-    }
-}
-*/
-.navButtons:hover, .navButtonsCondensed:hover {
-    /* background-color: #B93337; */
-    color: @navBarFontHover;
-    cursor: pointer;
-}
-.navSelected {
-    color: @mainRedDark!important;
-}
-.navSelected:hover{
-    cursor: default !important;
-}
 
-#navDropdown { 
-    display:none;
-    position: absolute;
-    top: @navBarHeight;
-    margin-left: -64px
-}
-#navCondensed .navButtons {
-    padding-left: 20px;
-    padding-right: 20px;
-}
-#navCondensed {
-    display:none;
-    /*
-        @media (min-width: 0px) and (max-width: 767px) {
-            display: inline;
-        }
-        @media (min-width: 0px) and (max-width: 480px) {
-            // padding-left: 15px;
-            // padding-right: 15px;
-        }
-        @media (min-width: 768px) {
-            display: none;
-        } */
-}
-.navSearchField {
-    color: @navBtnDark;
-}
-    #navSearch {
-        display: inline-block;
+    .navButtons:hover {
+        /* background-color: #B93337; */
+        color: @navBarFontHover;
+        cursor: pointer;
     }
-    #navSearch .glyphicon {
-        color: #000;
+    .navActive {
+        color: @mainRedDark!important;
+        cursor: default !important;
+    }
+    .navSelected:hover{
+        color: @mainRedDark!important;
+        cursor: default !important;
     }
 
-.navButtonsCondensed {
-    padding: 10px 0px 10px 0px;
-    display: block;
-    width: 100px;
-    text-align: center;
-    border-bottom: 1px solid @navBarColor;
-}
-#navSearchInput {
-    background-color: #ccc;
-    border: 3px solid @navBtnLight;
-    border-radius: 5px;
-    height: 25px;
-    position: relative;
-    top:-12px;
-    margin-left: 10px;
-    margin-right: 5px;
-    -webkit-transition: 0.5s;
-    transition: 0.5s;
-}
-#navSearchInput {
-    @media (min-width: 0px) and (max-width: 480px) {
-        width: 120px;
-    }
-    @media (min-width: 481px) {
-        width: 190px;
-    }
-}
-.navSearchField .glyphicon {
-    position: relative;
-    top: -9px;
-}
-.navSearchField .glyphicon {
-    @media (min-width: 0px) and (max-width: 480px) {
-        display:none;
-    }
-}
 .headerCompensate {
     padding-top: @navBarHeight;
 }
 #main {
     margin:auto;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 15px;
 }
 
 /*-------------------------------------------------
 3. Block headings, blocks styles.
 -------------------------------------------------*/
 .mainColBlock {
+    padding-top: 1px; /*padding hack for #main to be full height */
     margin: auto;
     @media (min-width: 0px) and (max-width: 539px) {
         width: 100%;
@@ -364,7 +287,7 @@ div, span {
     }
 }
 
-.leftColBlock article, .mainColBlock article {
+.mainColBlock article {
     background-color: #fff;
     margin: 10px auto 10px auto;
     -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
@@ -372,11 +295,13 @@ div, span {
     -o-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
     box-shadow: 0 1px 1px rgba(0,0,0,0.31);
 }
-.leftColBlock article:after, .mainColBlock article:after {
+.mainColBlock article:after {
     content: "";
     display: table;
     clear: both;
 }
+
+
 /* generic block elements */
 .blockTitle {
     text-align: center;
@@ -386,6 +311,15 @@ div, span {
     font-family: 'NeutraText', Helvetica, Arial;
     font-size: 30px;
 }
+
+.blockImgHolder img {
+    width: 100%;
+    max-width: 100%;
+}
+
+
+
+
 .blockPad {
     padding: 8px 0px;
 }
@@ -394,123 +328,137 @@ div, span {
     padding-left: 8px;
     padding-right: 8px;
 }
+
+
 .blockMainInfo {
     border-bottom: 1px solid @mainLineColor;
 }
-/* block top */
-.blockProfileThumb {
-    display: inline-block;
-    vertical-align: middle;
-}
-    .blockProfileThumb img {
-        width: 40px;
-        height: 40px;
-        border-radius: 40px;
-    }
-.blockUserHolder {
-    display: inline-block;
-    vertical-align: middle;
-} 
-.blockUsername { 
-    font-family: 'NeutraText', Helvetica, Arial;
-    font-weight: bold;
-    font-size: 15px;
-}
-.blockTimelapse {
-    font-family: 'NeutraText', Helvetica, Arial;
-    font-size: 13px;
-    color: #ccc;
-}
-.blockInteract {
-    float: right;
-    display: inline-block;
-    text-transform: uppercase;
-    font-size: 15px;
-}
-    .mainColBlock .likeButton, .mainColBlock .moreInfo {
+    /* block top */
+    .blockProfileThumb {
         display: inline-block;
         vertical-align: middle;
-        padding: 10px;
     }
-
-.blockLikeText {
-    text-align: center;
-    color: #ccc;
-    font-size: 14px;
-}
-
-.blockTextHolder {
-    padding: 20px 10px;
-    line-height: 130%;
-}
-.blockLoadMoreCommentsCont {
-    width: 100%;
-    text-align: right;
-    text-transform: uppercase;
-    font-size: 13px;
-}
-.blockLoadMoreCommentsCont>div {
-    display: inline-block;
-}
-.blockLoadMoreCommentsWrap {
-    text-align: center;
-    position: relative;
-    top: 4px;
-}
-    .blockLoadMoreCommentsCount {
-        font-weight: bold;
-        position: absolute;
-        margin-top: 10px;
-        height: 25px;
-        width: 30px;
-        color: #fff;
-    }
-    .blockLoadMoreCommentsLogo {
-        height: 25px;
-        width: 30px;
-    }
-    .blockLoadMoreCommentsLogo img {
-        width: 100%;
-    }
-.profileThumb {
-    width: 40px;
-    border-radius: 20px;
-    position: absolute;
-}
-.postCommentCont {
-    margin-top: 10px
-}
-.postComment {
-    padding-left: 52px;
-    min-height: 45px;
-    line-height: 130%;
-    margin-bottom: 10px;
-}
-    .commentTimeStamp {
-        font-family: 'NeutraText', Helvetica, Arial;
-        font-size: 13px;
-        color: #ccc;
+        .blockProfileThumb img {
+            width: 40px;
+            height: 40px;
+            border-radius: 40px;
+        }
+    .blockUserHolder {
+        display: inline-block;
         vertical-align: middle;
+    } 
+        .blockUsername { 
+            font-family: 'NeutraText', Helvetica, Arial;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .blockTimelapse {
+            font-family: 'NeutraText', Helvetica, Arial;
+            font-size: 13px;
+            color: #ccc;
+        }
+
+    .blockInteract {
+        float: right;
+        display: inline-block;
+        text-transform: uppercase;
+        font-size: 15px;
     }
-.postInteractions {
-    text-align: right;
-}
-    .postInteractions textarea {
+        .mainColBlock .likeButton, .mainColBlock .moreInfo {
+            display: inline-block;
+            vertical-align: middle;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .likeButton:hover, .moreInfo:hover {
+            color: #ccc;
+        }
+        .likeButton[data-action="unlike"] {
+            color: @mainRedDark;
+        }
+        .moreInfo.active {
+            color: @mainRedDark;
+        }
+
+    .blockLikeText {
+        text-align: center;
+        color: #ccc;
+        font-size: 14px;
+    }
+
+    .blockTextHolder {
+        padding: 20px 10px;
+        line-height: 130%;
+    }
+
+
+    .blockLoadMoreCommentsCont {
         width: 100%;
-        text-align: left;
-        min-height: 50px;
+        text-align: right;
+        text-transform: uppercase;
+        font-size: 13px;
     }
-    .postInteractions .sendComment {
-        margin-top: -49px;
-        position: relative;
+        .blockLoadMoreCommentsCont>div {
+            display: inline-block;
+        }
+        .blockLoadMoreCommentsWrap {
+            text-align: center;
+            position: relative;
+            top: 4px;
+        }
+            .blockLoadMoreCommentsCount {
+                font-weight: bold;
+                position: absolute;
+                margin-top: 10px;
+                height: 25px;
+                width: 30px;
+                color: #fff;
+            }
+            .blockLoadMoreCommentsLogo {
+                height: 25px;
+                width: 30px;
+            }
+                .blockLoadMoreCommentsLogo img {
+                    width: 100%;
+                }
+
+    .postCommentCont {
+        margin-top: 10px
+    } 
+    .postCommentWrap {
+        min-height: 45px;
+    }               
+        .profileThumb {
+            width: 40px;
+            border-radius: 20px;
+            position: absolute;
+        }
+        .postComment {
+            padding-left: 52px;
+            min-height: 45px;
+            line-height: 130%;
+            margin-bottom: 10px;
+        }
+            .commentTimeStamp {
+                font-family: 'NeutraText', Helvetica, Arial;
+                font-size: 13px;
+                color: #ccc;
+                vertical-align: middle;
+            }
+
+    .postInteractions {
+        text-align: right;
     }
-.shopName {
-    color: #aaa;
-}
-.mainColBlock .blockImgHolder img {
-    width:640px;
-    max-width: 100%;
-}
+        .postInteractions textarea {
+            width: 100%;
+            text-align: left;
+            min-height: 50px;
+            padding-right: 60px;
+        }
+        .postInteractions .sendComment {
+            margin-top: -49px;
+            position: relative;
+        }
 
 /* leftCol specifics */
 .leftColBlock {
@@ -526,166 +474,11 @@ div, span {
     text-align:center;
 }
 
-/*-------------------------------------------------
-I. Responsive grid
--------------------------------------------------*/
-
-/* Reusable column setup */
-.col {
-    float: left;
-    -webkit-box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    box-sizing:border-box;
-    -moz-background-clip:padding-box !important;
-    -webkit-background-clip:padding-box !important;
-    background-clip:padding-box !important;
-}
-/* all the full width elements never go below 320px */
-footer, .globalWrapper, .spanAll {
-    min-width: 320px;
-}
-    /* 1. 1 Column Grid 0px - 480px 
-    ----------------------------------------------------------------------------- 
-    1) Display only center column.
-    2) Slide toggle to switch between left and center col available.
-    3) Minified toggle for right col remains.
-
-    Span 1:    100%
-    Span 2:    Hidden
-    Span all:  100% 
-    ----------------------------------------------------------------------------- */
-
-    @media (min-width: 0px) and (max-width: 480px) {    
-     
-        .span1 {
-            margin-left:0;
-            width:100%;
-        }
-        .spanAll {
-            margin-left:0;
-            width:100%;            
-        }
-        #leftCol {
-            display: none;
-        }
-        #main {
-        }
-        #rightCol {
-            display: none;
-        }
-
-    }
-
-    /* 2. 2 Column Grid 481px - 640px 
-    ----------------------------------------------------------------------------- 
-    1) Display only left and center column.
-    2) Right column is hidden.
-    3) Minified toggle for right col becomes available.
-
-    Span 1:    69.0%
-    Span 2:    30.0%
-    Span all:    100%   
-    ----------------------------------------------------------------------------- */
-
-    @media (min-width: 481px) and (max-width: 640px) {
-
-        .span1 {
-            width:69.0%;
-        }
-        .span2 {
-            width:30.0%;
-        }
-        .spanAll {
-            margin-left:0;
-            width:100%;
-        }
-
-        #leftCol {
-            display: block;
-        }
-        #main {
-        }
-        #rightCol {
-            display: none;
-        }
-
-    }
-
-    /* 3. 3 Column Grid 640px onwards
-    ----------------------------------------------------------------------------- 
-    1) Display everything
-
-    Span 1:    60.0%
-    Span 2:    40.0%
-    Span all:  100%   
-    ----------------------------------------------------------------------------- */
-
-    @media (min-width: 641px) and (max-width: 768px) {
-
-        .span1 {
-            width:60.0%;
-        }
-        .span2 {
-            width:40.0%;
-        }
-        .spanAll {
-            margin-left:0;
-            width:100%;
-        }
-        #leftCol {
-            display: block;
-        }
-        #main {
-        }
-        #rightCol {
-            display: block;
-        }
-
-    }
-    /* 4. Grid 769px onwards
-    ----------------------------------------------------------------------------- 
-    1) Display everything
-
-    Span 1:    70.0% * 768
-    Span 2:    30.0% * 768
-    Span all:  100%   
-    ----------------------------------------------------------------------------- */
-
-    @media (min-width: 769px) {
-
-        .span1 {
-            width:(768px*0.7);
-        }
-        .span2 {
-            width:(768px*0.3);
-        }
-        .spanAll {
-            margin-left:0;
-            width:100%;
-        }
-        #leftCol {
-            display: block;
-        }
-        #main {
-        }
-        #rightCol {
-            display: block;
-        }
-    }
 
 /*-------------------------------------------------
 II. Form styling
 -------------------------------------------------*/
 
-// input:focus,
-// select:focus,
-// textarea:focus,
-// button:focus {
-//     outline: none;
-//     -webkit-appearance: none;
-//     -moz-appearance: none;
-//     appearance: none;
-// }
 textarea:focus, input:focus{
     outline: 0;
 }

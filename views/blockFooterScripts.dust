@@ -1,41 +1,3 @@
-{! ==================================================
-    Globals/Dependent Libraries 
-!}
-
-<script src="{p.js}/moment.min.js"></script>
-
-<script>
-function grid() {
-    $(window).on('keydown', function(e){
-        if (e.keyCode == 71) {
-            $( 'div' ).css('outline', '1px dotted red');
-            $( 'span' ).css('outline', '1px dotted red');
-        }
-        if (e.keyCode == 72) {
-            $( 'div' ).css('outline', '0px');
-            $( 'span' ).css('outline', '0px');
-        }
-    });
-}
-</script>
-
-<!-- condensed navigation -->
-<script>
-$( '#navCondensed .navButtons').click( function () {
-    $( '#navDropdown' ).slideToggle( 'fast' );
-});
-</script>
-
-{! *** end Globals !}
-
-{! ==================================================
-    Layout Factories
-!}
-
-    
-{>layoutFactory/}
-
-
 
 {! ==================================================
     /login, /signup
@@ -69,155 +31,126 @@ $( document ).ready( function () {
 
 <!-- sendComment button -->
 <script>
-$( "button.sendComment" ).click(function() {
- console.log('clicked');
- var self = this;
-    // Stop form from submitting normally
-    event.preventDefault();
-
-    var thisBlock = $( this ).closest('.streamLayout'),
-        postId = thisBlock.attr('data-pid'),
-        postOwnerId = thisBlock.attr('data-uid'),
-        thisBlock = $( this ).closest('.streamLayout'),
-        commentInput = $( this ).closest('.postInteractions').find('textarea'),
-        comment = commentInput.val(),
-        ajaxLoader = thisBlock.find('.ajaxLoader');
-
-        $(this).fadeOut('fast', function() {
-            ajaxLoader.fadeIn('fast');
-        });
- 
-    // Send the data using post
-    var posting = $.post( "{p.absPath}/api/comment", { postId: postId, postOwnerId: postOwnerId, comment: comment } );
- 
+$('.sendComment').click(function() {
+    var postId = $(this).attr('data-pid'),
+        postOwnerId = $(this).attr('data-uid'),
+        $thisBlock = $(this).closest('.streamLayout'),
+        $commentInput = $thisBlock.find('.postCommentInput'),
+        comment = $commentInput.val(),
+        $commentButton = $thisBlock.find('.sendComment');
     
+    //prevent spam commenting.
+    $commentButton.attr('disabled', 'disabled');
+    setTimeout(function() {
+        $commentButton.removeAttr('disabled');
+    }, 3000);
+
+    // AJAX post
+    var posting = $.post( "{p.absPath}/api/comment", { postId: postId, postOwnerId: postOwnerId, comment: comment } );
+
+    //prepare the comment
+    var commentJSON = {
+        comment: comment,
+        commentId: Date.now(),
+        user: {
+            profilePicture: print.userHeaders.profilePicture,
+            userNameDisp: print.userHeaders.userNameDisp
+        }
+    }
+    var $submittedComment = streamFactory.append.eachComment($thisBlock, commentJSON, true, true);
+
+    $submittedComment.velocity('transition.slideDownIn');
+
+    $commentInput.velocity('callout.flashShort');
+    //flashShort is 400ms. At 200ms, clear the comment text.
+    setTimeout(function() { 
+        $commentInput.val('');
+    }, 200);
+    $commentButton.velocity('callout.flashShort');
+
     //done
     posting.done(function( data ) {
         console.log(data);
         if(data.success) {
             console.log('comment added');
-            var comment = data.commentJSON;
-            var timestampAgo = moment(comment.timestamp).fromNow();
-            var html = '<p class="postComment" data-ts="' + comment.timestamp + '">' + comment.userNameDisp + ': ' + comment.comment + '(' + timestampAgo + ')</p>';
-
-            thisBlock.children('.postCommentContainer').append(html);
-
-            commentInput.val('');
-
-            ajaxLoader.stop().fadeOut('fast', function() {
-                $(self).stop().fadeIn('fast');
-            });
-
         } else {
-            ajaxLoader.stop().fadeOut('fast', function() {
-                $(self).stop().fadeIn('fast');
-            });
-
             console.log('error');
+            $submittedComment.remove();
             alertFactory.commentError();
-        }
-        
+        }  
     });
-
-
     //fail
     posting.fail(function() {
-        ajaxLoader.stop().fadeOut('fast', function() {
-            $(self).stop().fadeIn('fast');
             alertFactory.commentError();
-        });
     });
 });
 </script>
 
 <!-- Like Button -->
 <script>
-var likeUnlike = function(elem) {
+var likeButton = {
+    main: function($el) {
 
-    var thisBlock = $( elem ).closest('.streamLayout'),
-        postId = thisBlock.attr('data-pid'),
-        postOwnerId = thisBlock.attr('data-uid'),
-        buttonCont = $( elem ).closest('.postInteractions'),
-        action = $( elem ).attr('data-action'),
-        likeButtonHTML = '<button class="likeButton" data-action="like" style="display:none;">Like</button>',
-        unlikeButtonHTML = '<button class="likeButton" data-action="unlike" style="display:none;">unlike</button>';
+        var thisBlock = $el.closest('.streamLayout'),
+            postId = $el.attr('data-pid'),
+            postOwnerId = $el.attr('data-uid'),
+            action = $el.attr('data-action'),
+            $likeButton = $el;
 
-    if($( elem ).attr('data-action') == 'like') {
-        var theOtherButton = unlikeButtonHTML;
-    }
+        //disable the button
+        $likeButton.unbind('click.vv');
+        $likeButton.css('cursor','default');
+        setTimeout(function() {
+            likeButton.init($el);
+        }, 1000);
 
-    if($( elem ).attr('data-action') == 'unlike') {
-        var theOtherButton = likeButtonHTML;
-    }
-        
-
-    var blink = {
-        disabler: function(elem) {
-            elem.attr('disabled','disabled');
-        },
-        blinker: function(elem) {
-            var self = this;
-            elem.fadeOut('fast', function() {
-                elem.fadeIn('fast', function() {
-                    self.blinker(elem);
-                });
-            });
-        },
-        run: function(elem) {
-            this.disabler(elem);
-            this.blinker(elem);
+        //change the state
+        function changeState() {
+            if(action === 'like') {
+                $likeButton.velocity('callout.pulse', 200);
+                $likeButton.attr('data-action','unlike');
+            } else {
+                $likeButton.attr('data-action','like');
+            }
         }
+        changeState();
+
+
+        // Send the data using post
+        var posting = $.post( "{p.absPath}/api/like", { 
+            postId: postId, 
+            postOwnerId: postOwnerId, 
+            action: action 
+        });
         
-    }
+        //done
+        posting.done(function( data ) {
+            console.log(data);
 
-    //blink it.
-    blink.run(elem);
- 
-    // Send the data using post
-    var posting = $.post( "{p.absPath}/like", { postId: postId, postOwnerId: postOwnerId, action: action } );
- 
-    
-    //done
-    posting.done(function( data ) {
-        console.log(data);
+            if(data.success) {
+                console.log('success');
+            } else {
+                console.log('error');
+                changeState();
+                alertFactory.protoAlert('Please either login or check your internet connection.');
+            }
+        });
 
-        if(data.success) {
-            console.log('success');
-
-            buttonCont.find('textarea').before(theOtherButton);
-            $(elem).stop().fadeOut('fast', function() {
-                $(elem).remove();
-                
-                buttonCont
-                .find('.likeButton')
-                .fadeIn('fast')
-                .click(function(event) {
-                    event.preventDefault();
-                    likeUnlike($(this));
-                });
-            });
-
-        } else {
-            $(elem).stop().fadeOut('fast').fadeIn('fast').removeAttr('disabled');
-
-            console.log('error');
+        //fail
+        posting.fail(function() {
+            changeState();
             alertFactory.protoAlert('Please either login or check your internet connection.');
-        }
-        
-    });
-
-
-    //fail
-    posting.fail(function() {
-        $(elem).stop().fadeOut('fast').fadeIn('fast').removeAttr('disabled');
-        alertFactory.protoAlert('Please either login or check your internet connection.');
-
-    });
-};
-$( "button.likeButton" ).click(function(event) {
-    event.preventDefault();
-    likeUnlike($(this));
-});
+        });
+    },
+    init: function($el) {
+        $el.css('cursor','pointer');
+        var self = this;
+        $el.on('click.vv', function() {
+            self.main($(this));
+        });
+    }
+}
+likeButton.init($('.likeButton'));
 </script>
 </body>
 </html>
