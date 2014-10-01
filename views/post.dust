@@ -1,5 +1,7 @@
 {>blockHeader/}
 
+{! TODO: SOMETHING IS WRONG WITH POST.dust #imgfield "accepts" criteria !}
+
 <script src="{p.js}/socket.io.js"></script>
 <script>
 var socket = io.connect();
@@ -21,8 +23,9 @@ socket.on('disconnect', function(){
 });
 
 socket.on('uploadProgress', function(data){
-    var percentage = data.bytesReceived/data.bytesExpected
-    $('#ProgressBar').css('width', parseInt(percentage)*100+'%');
+    var percentage = data.bytesReceived/data.bytesExpected;
+    console.log(percentage);
+    $('#progressBar').css('width', parseInt(percentage)*100+'%');
 });
 </script>
 

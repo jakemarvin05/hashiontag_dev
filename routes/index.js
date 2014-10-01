@@ -26,29 +26,97 @@ router.get('/error', function(req, res) {
 // Homepage
 router.get('/', function(req, res) {
     //sys.puts(sys.inspect(req));
-
     var gJSON = globalJSON(req);
     var eventEmitter = new events.EventEmitter();
 
-    //bind the final callback first
-    eventEmitter.on('streamJSONDone', function thenRender(renderJSON) {
+    //do something about the "preview"
+    if(req.query.p === 'preview' || req.isAuthenticated()) {
+
+        //bind the final callback first
+        eventEmitter.on('streamJSONDone', function thenRender(renderJSON) {
+            res.render('index', { 
+                title: meta.header(),
+                isLoggedIn: req.isAuthenticated(),
+                p: gJSON.pathsJSON.paths,
+                f: gJSON.pathsJSON.files,
+                print: JSON.stringify(gJSON.print),
+                renderJSON: JSON.parse(JSON.stringify(renderJSON)),
+                isStream: 'stream',
+                page: "index"
+            });
+
+        });
+
+        //now run callback dependents
+        if(req.query.p === 'preview') { var preview = true; }
+        var streamJSON = require('../apps/stream/streamJSON.js')(req, preview, eventEmitter);
+
+    } else {
         res.render('index', { 
             title: meta.header(),
             isLoggedIn: req.isAuthenticated(),
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
-            print: JSON.stringify(gJSON.print),
-            renderJSON: JSON.parse(JSON.stringify(renderJSON)),
-            isStream: 'stream',
             page: "index"
         });
+    }
+});
 
-    });
+router.get('/login', function(req, res) {
+    res.redirect('/');
+});
 
-    //now run callback dependents
-    var streamJSON = require('../apps/stream/streamJSON.js')(req, eventEmitter);
+router.post('/api/login', function(req, res) {
+        //console.log(res);
+    passport.authenticate('local-login', function(err, user) {
+
+        if (err) { return res.json({ error: 'unknown'}) }
+        if (!user) { return res.json({error : 'userpassword'}); }
+        
+        req.login(user, {}, function(err) {
+            if (err) { return res.json({error:err}); }
+            
+            //=="true" because .rememberMe is a string
+            if (req.body.rememberMe == "true" ) {
+
+                req.session.cookie.maxAge = 315360000000; // 10 years
+
+            } else {
+                
+                req.session.cookie.maxAge = 3600000; //1 hour
+            }
+
+            return res.json({success: true});
+
+        });
+        
+    })(req, res);
 
 });
+
+/* signup TEMPORARILY IN USE */
+router.get('/signup', function(req, res) {
+    var gJSON = globalJSON(req);
+    
+    res.render('signup', { 
+        title: meta.header(),
+        gJSON: gJSON,
+        p: gJSON.paths,
+        message: req.flash('signupMessage'),
+        
+        //scripts required
+        sValidator: true,
+        sSignup: true
+    });
+});
+
+router.post('/api/signup', 
+    passport.authenticate('local-signup', {
+        successRedirect : '/login', // redirect to the secure profile section
+        failureRedirect : '/signup', // redirect back to the signup page if there is an error
+        failureFlash : true // allow flash messages
+    })
+);
 
 //ME
 router.get('/me', function(req, res) {
@@ -126,60 +194,6 @@ router.get('/me/edit', function(req, res) {
 router.post('/api/editProfile', function(req, res) {
 
     require('../apps/updateProfile.js')(req)
-
-});
-
-/* signup, LOGINS LOGOUTS */
-// router.get('/signup', function(req, res) {
-//     res.render('signup', { 
-//         title: meta.header(),
-//         gJSON: gJSON,
-//         p: gJSON.paths,
-//         message: req.flash('signupMessage'),
-        
-//         //scripts required
-//         sValidator: true,
-//         sSignup: true
-//     });
-// });
-
-router.post('/signup', 
-    passport.authenticate('local-signup', {
-        successRedirect : '/login', // redirect to the secure profile section
-        failureRedirect : '/signup', // redirect back to the signup page if there is an error
-        failureFlash : true // allow flash messages
-    })
-);
-
-router.get('/login', function(req, res) {
-    res.redirect('/');
-});
-
-router.post('/api/login', function(req, res) {
-        //console.log(res);
-    passport.authenticate('local-login', function(err, user) {
-
-        if (err) { return res.json({ error: 'unknown'}) }
-        if (!user) { return res.json({error : 'userpassword'}); }
-        
-        req.login(user, {}, function(err) {
-            if (err) { return res.json({error:err}); }
-            
-            //=="true" because .rememberMe is a string
-            if (req.body.rememberMe == "true" ) {
-
-                req.session.cookie.maxAge = 315360000000; // 10 years
-
-            } else {
-                
-                req.session.cookie.maxAge = 3600000; //1 hour
-            }
-
-            return res.json({success: true});
-
-        });
-        
-    })(req, res);
 
 });
 

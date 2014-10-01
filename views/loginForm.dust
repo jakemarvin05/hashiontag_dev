@@ -25,6 +25,7 @@ img.bg {
 #loginCont {
     width: 320px;
     margin: auto;
+    text-align: center;
 }
     @media (min-width: 0px) and (max-width: 480px) {
         #splashLogo { 
@@ -36,22 +37,29 @@ img.bg {
             width: 280px; 
         }
     }
-    #loginForm {
+    #formCont {
         display:inline-block;
         vertical-align: middle;
         text-align: center;
         padding: 0px 10px;
         width: 90%;
     }
-    #loginForm input[type="text"], #loginForm input[type="password"], #loginForm button {
-        display: inline-block;
-        width: 212px;
-    }
-    #loginForm>input,  #loginForm>div, #loginForm>button {
-        margin-top: 8px;
-    }
-        #rememberMe {
-            vertical-align: baseline;
+        #loginForm {
+            display:block;
+        }
+        #loginForm input[type="text"], #loginForm input[type="password"], #loginForm button {
+            display: inline-block;
+            width: 212px;
+        }
+        #loginForm>input,  #loginForm>div, #loginForm>button {
+            margin-top: 8px;
+        }
+            #rememberMe {
+                vertical-align: baseline;
+            }
+
+        .formBottomLinks {
+            padding: 10px
         }
 </style>
 <img class="bg" src="{p.img}/splashbg.jpg">
@@ -94,93 +102,97 @@ img.bg {
 </script>
 <div id="loginCont">
     <div class="vaDiv"></div>
-    <form id="loginForm" action="api/login">
+    <div id="formCont">
         <img id="splashLogo" src="{p.img}/logo-splash.png">
-        <div id="errHolderWrong" style="display:none"></div>
-        <input type="text" id="user" name="user" placeholder="Your username or email">
-        <input type="password" id="password" name="password" placeholder="Your password">
-        <div>
-            <input type="checkbox" id="rememberMe" name="rememberMe" value="true"> Remember me
-        </div>
-        <button class="darkButton" id="submit" type="submit">Login</button>
-        <div id="errHolderTooLong" style="display:none"></div>
-        <script>
-        $(function() {
-            var submitFlasher = Object.create(VV.utils.Flasher);
-            var takingTooLong = false;
-            $('#loginForm').on('submit', function(e) {
-                e.preventDefault(); var $button = $('button[type="submit"]');
-                
-                //reset any errors
-                var $eHW = $('#errHolderWrong');
-                $eHW.velocity('transition.slideUpOut', 200);
 
-                //start flasher
-                submitFlasher.run($button, 'button');
+        <form id="loginForm" action="api/login"> 
+            <div id="errHolderWrong" style="display:none"></div>
+            <input type="text" id="user" name="user" placeholder="Your username or email">
+            <input type="password" id="password" name="password" placeholder="Your password">
+            <div>
+                <input type="checkbox" id="rememberMe" name="rememberMe" value="true"> Remember me
+            </div>
+            <button class="darkButton" id="submit" type="submit">Login</button>
+            <div id="errHolderTooLong" style="display:none"></div>
+            <script>
+            $(function() {
+                var submitFlasher = Object.create(VV.utils.Flasher);
+                var takingTooLong = false;
+                $('#loginForm').on('submit', function(e) {
+                    e.preventDefault(); var $button = $('#loginForm').find('button[type="submit"]');
+                    
+                    //reset any errors
+                    var $eHW = $('#errHolderWrong');
+                    $eHW.velocity('transition.slideUpOut', 200);
 
-                //get the current button name, cache it, replace with 'logging in'.
-                $button.attr('data-attr-html', $button.html());
-                $button.html('Logging in...');
+                    //start flasher
+                    submitFlasher.run($button, 'button');
 
-                //taking too long message timeout
-                takingTooLong = true;
-                setTimeout(function() {
-                    if(takingTooLong) {
-                        $('#errHolderTooLong').html('Your login seems to be taking longer than usual. Please refresh and try again.');
-                        $('#errHolderTooLong').velocity('transition.slideDownIn', 200);
-                    }  
-                }, 20000);
-                
-                
-                // Get some values from elements on the page:
-                var $form = $('#loginForm'),
-                    $user = $form.find('input[name="user"]')
-                    user = $user.val(),
-                    $password = $form.find('input[name="password"]')
-                    password = $password.val(),
-                    rememberMe = $form.find('input[name="rememberMe"]').is(':checked'),
-                    url = $form.attr("action"),
-                    submitButton = $form.find('button[id="submit"]');
+                    //get the current button name, cache it, replace with 'logging in'.
+                    $button.attr('data-attr-html', $button.html());
+                    $button.html('Logging in...');
 
-                // Send the data using post
-                var posting = $.post( url, { user: user, password: password, rememberMe: rememberMe } );
-                
-                //done
-                posting.done(function(data) {
-                    if(data.success) { 
-                        return window.location.replace("{p.home}");
-                    }
+                    //taking too long message timeout
+                    takingTooLong = true;
+                    setTimeout(function() {
+                        if(takingTooLong) {
+                            $('#errHolderTooLong').html('Your login seems to be taking longer than usual. Please refresh and try again.');
+                            $('#errHolderTooLong').velocity('transition.slideDownIn', 200);
+                        }  
+                    }, 20000);
+                    
+                    
+                    // Get some values from elements on the page:
+                    var $form = $('#loginForm'),
+                        $user = $form.find('input[name="user"]')
+                        user = $user.val(),
+                        $password = $form.find('input[name="password"]')
+                        password = $password.val(),
+                        rememberMe = $form.find('input[name="rememberMe"]').is(':checked'),
+                        url = $form.attr("action"),
+                        submitButton = $form.find('button[id="submit"]');
 
-                    if(data.error) {
-                        console.log(data.error);
-                        if(data.error === 'userpassword') {
-                            $eHW.html('Either your username or password is wrong. Please try again.');
-                            $eHW.css('color','red');
-                            $eHW.velocity('transition.slideDownIn', 200);
-                            $user.velocity('callout.shakeShort');
-                            $password.velocity('callout.shakeShort');
-
-                        } else {
-                            aF.protoAlert('Something went wrong, please check your connection and try again later.');
+                    // Send the data using post
+                    var posting = $.post( url, { user: user, password: password, rememberMe: rememberMe } );
+                    
+                    //done
+                    posting.done(function(data) {
+                        if(data.success) { 
+                            return window.location.replace("{p.home}");
                         }
+
+                        if(data.error) {
+                            console.log(data.error);
+                            if(data.error === 'userpassword') {
+                                $eHW.html('Either your username or password is wrong. Please try again.');
+                                $eHW.css('color','red');
+                                $eHW.velocity('transition.slideDownIn', 200);
+                                $user.velocity('callout.shakeShort');
+                                $password.velocity('callout.shakeShort');
+
+                            } else {
+                                aF.protoAlert('Something went wrong, please check your connection and try again later.');
+                            }
+                            submitFlasher.kill();
+                            $button.html($button.attr('data-attr-html'));
+                            takingTooLong = false;
+                        }
+                    });
+
+                    //fail
+                    posting.fail(function() {
                         submitFlasher.kill();
                         $button.html($button.attr('data-attr-html'));
                         takingTooLong = false;
-                    }
-                });
-
-                //fail
-                posting.fail(function() {
-                    submitFlasher.kill();
-                    $button.html($button.attr('data-attr-html'));
-                    takingTooLong = false;
-                    aF.protoAlert('Something went wrong, please check your connection and try again later.');
+                        aF.protoAlert('Something went wrong, please check your connection and try again later.');
+                    });
                 });
             });
-        });
-        </script>
-        <div>
+            </script>
+        </form> <!-- loginForm -->
+
+        <div class="formBottomLinks">
             Forget Password | Signup | Learn More
         </div>
-    </form>
+    </div> <!-- formCont -->
 </div>

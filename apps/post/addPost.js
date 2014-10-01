@@ -25,8 +25,8 @@ module.exports = function addingPost(req, uuid, path, fields, deleteTemp, throwE
     var hashTags = DESC.match(/#\w+/g),
         addTags = DESC.match(/@\w+/g);
 
-        console.log(hashTags);
-        console.log(addTags);
+        console.log(fname + 'hashtags: ' + hashTags);
+        console.log(fname + 'addtags: ' + addTags);
 
         //not in use yet.
         //startags = DESC.match(/\*\w+/g);
@@ -60,8 +60,8 @@ module.exports = function addingPost(req, uuid, path, fields, deleteTemp, throwE
         }
 
     }
-    console.log(hashTags);
-    console.log(addTags);
+    console.log(fname + 'hashtags: ' + hashTags);
+    console.log(fname + 'addtags: ' + addTags);
 
     function finalCreate() {
         if(hasEmails) {

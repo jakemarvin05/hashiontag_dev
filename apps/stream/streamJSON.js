@@ -1,6 +1,6 @@
 var db = global.db;
 
-module.exports = function streamJSON(req, eventEmitter) {
+module.exports = function streamJSON(req, preview, eventEmitter) {
 
     var throwErr = function(error) {
 
@@ -11,11 +11,12 @@ module.exports = function streamJSON(req, eventEmitter) {
 
     console.log('streamJSON: authenticating');
 
-    if(req.isAuthenticated()) {
+    if(!preview) {
         console.log('streamJSON: user is authenticated.. finding posts...');
 
         var idArray = [];
 
+        //this getFollows call is very heavy... consider using the method in singlePostJSON
         req.user.getFollows().then(function(users) {
 
             for(var i in users) {
