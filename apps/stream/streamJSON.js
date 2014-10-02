@@ -1,6 +1,6 @@
 var db = global.db;
 
-module.exports = function streamJSON(req, preview, eventEmitter) {
+module.exports = function streamJSON(req, eventEmitter, preview) {
 
     var throwErr = function(error) {
 
@@ -12,8 +12,8 @@ module.exports = function streamJSON(req, preview, eventEmitter) {
     console.log('streamJSON: authenticating');
 
     if(!preview) {
-        console.log('streamJSON: user is authenticated.. finding posts...');
 
+        console.log('streamJSON: user is authenticated.. finding posts...');
         var idArray = [];
 
         //this getFollows call is very heavy... consider using the method in singlePostJSON
@@ -135,8 +135,6 @@ module.exports = function streamJSON(req, preview, eventEmitter) {
 
     } else {
 
-        ////DEV for the time being, return everything.
-
         db.Post.findAll({
             include: [{   
                 model: db.User,
@@ -174,8 +172,6 @@ module.exports = function streamJSON(req, preview, eventEmitter) {
             }();
 
         }).catch(throwErr);
-
-
 
         // sequelize.query('
         //     SELECT *

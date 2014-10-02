@@ -30,12 +30,33 @@ router.get('/', function(req, res) {
     var eventEmitter = new events.EventEmitter();
 
     //do something about the "preview"
-    if(req.query.p === 'preview' || req.isAuthenticated()) {
-        var preview = false;
-        if(req.query.p === 'preview') { var preview = true; }
+    if(req.isAuthenticated()) {
 
         //bind the final callback first
         eventEmitter.on('streamJSONDone', function thenRender(renderJSON) {
+
+
+            /* Every page has a generic set of variables:
+
+                title:      (self explanatory)
+
+                p:          this is the global path file that allows in-template use of universal
+                            paths like this: <img src="{p.img}/image.jpg">
+
+                f:          global file paths. Points to commonly used files. Like the error img:
+                            {p.errorImg} will give you the path yourdefaultdomain.com/images/errorImg.jpg
+
+                print:      the generic javascript variables you want to print on every header.
+
+                renderJSON: this is the JSON that you want to pass to the client side if there is
+                            client-side rendering going on.
+
+                page:       give each page a unique name so that you can use it as a condition inside the templates.
+
+            */
+
+
+
             res.render('index', { 
                 /* generics */
                 title: meta.header(),
@@ -49,16 +70,16 @@ router.get('/', function(req, res) {
                 showStream: true,
 
                 //isPreview is used to block like buttons and comment box from
-                //being generated in the view.
-                isPreview: preview
+                //being generated in the view. We don't really need it here. It
+                //default to false
+                //isPreview: false
 
             });
 
         });
 
         //now run callback dependents
-        
-        var streamJSON = require('../apps/stream/streamJSON.js')(req, preview, eventEmitter);
+        var streamJSON = require('../apps/stream/streamJSON.js')(req, eventEmitter);
 
     } else {
         res.render('index', { 
@@ -67,9 +88,45 @@ router.get('/', function(req, res) {
             f: gJSON.pathsJSON.files,
             page: "index",
 
-            showStream: false
+            showStream: false,
+            showNav: "continue"
         });
     }
+});
+
+// Homepage
+router.get('/preview', function(req, res) {
+    //sys.puts(sys.inspect(req));
+    var gJSON = globalJSON(req);
+    var eventEmitter = new events.EventEmitter();
+    var preview = true;
+
+    //bind the final callback first
+    eventEmitter.on('streamJSONDone', function thenRender(renderJSON) {
+
+        res.render('index', { 
+            /* generics */
+            title: meta.header(),
+            p: gJSON.pathsJSON.paths,
+            f: gJSON.pathsJSON.files,
+            print: JSON.stringify(gJSON.print),
+            renderJSON: JSON.parse(JSON.stringify(renderJSON)),
+            page: "preview",
+
+            /* specifics */
+            showStream: true,
+            showNav: "login",
+
+            //isPreview is used to block like buttons and comment box from
+            //being generated in the view.
+            isPreview: true
+
+        });
+
+    });
+
+    //now run callback dependents
+    var streamJSON = require('../apps/stream/streamJSON.js')(req, eventEmitter, preview);
 });
 
 router.get('/login', function(req, res) {

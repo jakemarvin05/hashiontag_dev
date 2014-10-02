@@ -2,19 +2,19 @@
 {>blockHeaderAfterHook/}
 
 {?showStream}
-<section id="main">
+    <section id="main">
 
-    <div class="mainColBlock">
-        {>"layouts/streamLayout"/}
-    </div>
-    <!-- end your stream -->
+        <div class="mainColBlock">
+            {>"layouts/streamLayout"/}
+        </div>
+        <!-- end your stream -->
 
-    <!-- start your posts -->
-    
-</section><!-- main -->
+        <!-- start your posts -->
+        
+    </section><!-- main -->
 {:else}
 
-{>loginForm/}
+    {>loginForm/}
 
 {/showStream}
 

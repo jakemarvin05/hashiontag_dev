@@ -157,7 +157,7 @@ streamFactory.append.likeText = function(post) {
         if(post.totalLikes > 0) {
             var likersFollowed = post.likes,
                 likersFollowedCount = VV.utils.objCount(likersFollowed),
-                show = 3,
+                show = 3, //show how many related likers
                 loopRuns = 0,
                 likersDispHTML = '',
                 likersDisp = {};
@@ -185,8 +185,11 @@ streamFactory.append.likeText = function(post) {
             if(likersFollowedCount > 0) {
 
                 //sally, mary, jane and 99 others like this.
+
+                //Number of related likers shown is defined by "show".
+                //So the offsetted number of likers is minimum of show or likersFollowed.
                 var offset = Math.min(likersFollowedCount, show)
-                var offsetCount = String(post.totalLikes - offset);
+                var offsetCount = post.totalLikes - offset;
 
                 if(offsetCount > 0) {
                     andLikes  = ' and ';
@@ -211,7 +214,7 @@ streamFactory.append.likeText = function(post) {
             } else if(post.totalLikes > 1) {
 
                 // 2-99 people like this.
-                var offsetCount = String(post.totalLikes);
+                var offsetCount = post.totalLikes;
 
                 andLikes  = '<span class="postLikesCount" data-likescount="' + offsetCount + '">';
                 andLikes += offsetCount;
@@ -221,7 +224,7 @@ streamFactory.append.likeText = function(post) {
             } else if(post.totalLikes === 1 && !post.hasLiked) {
 
                 // 1 person likes this.
-                var offsetCount = String(post.totalLikes);
+                var offsetCount = post.totalLikes;
 
                 andLikes  = '<span class="postLikesCount" data-likescount="' + offsetCount + '">';
                 andLikes += offsetCount;

@@ -25,59 +25,62 @@
             </div>
         </div>
 
+
         <nav id="navNormal" class="clearfix"> 
             <div class='vaDiv'></div>
-            {?isLoggedIn}
-            
-            <div class="navButtons 
-            {@eq key=page value="post"}
-                navActive
-            {/eq}
-            ">
-                <div class="icon-camera"></div>
-                <span>Post</span>
-            </div>
+            {! If there is a showNav value, select its value and show the exception navBar !}
+            {?showNav}
+                {@select key=showNav}
+                    {@eq value="continue"}
+                        <a href="{p.absPath}/preview">
+                            <button class="darkButton">Continue Without Login</button>
+                        </a>
+                    {/eq}
+                    {@eq value="login"}
+                        <a href="/">
+                            <button class="darkButton">Login</button>
+                        </a> 
+                    {/eq}
+                {/select}
 
-            
-            <div class="navButtons 
-            {@eq key=page value="me"}
-                navActive
-            {/eq}
-            ">
-                <div class="icon-me"></div>
-                <span>Me</span>
-            </div>
-
-
-            <a href="#">
-                <div class="navButtons">
-                    <div class="icon-heart"></div>
-                    <span>Likes</span>
-                </div>
-            </a>
-            <a href="#">
-                <div class="navButtons">
-                    <div class="icon-glass"></div>
-                    <span>Search</span>
-                </div>
-            </a>
+            {! Else default to the standard one !}
             {:else}
-                {@eq key=page value="index"}
-                    {?isPreview}
-                    <a href="/">
-                        <button class="darkButton">Login</button>
-                    </a> 
-                    {:else}
-                    <a href="{p.absPath}/?p=preview">
-                        <button class="darkButton">Continue Without Login</button>
-                    </a>
-                    {/isPreview}
-                {:else}
-                    <a href="/">
-                        <button class="darkButton">Login</button>
-                    </a> 
-                {/eq}
-            {/isLoggedIn}
+                <a href="{p.post}">
+                    <div class="navButtons 
+                    {@eq key=page value="post"}
+                        navActive
+                    {/eq}
+                    ">
+                        <div class="icon-camera"></div>
+                        <span>Post</span>
+                    </div>
+                </a>
+
+                <a href="{p.me}">
+                    <div class="navButtons 
+                    {@eq key=page value="me"}
+                        navActive
+                    {/eq}
+                    ">
+                        <div class="icon-me"></div>
+                        <span>Me</span>
+                    </div>
+                </a>
+
+                <a href="#">
+                    <div class="navButtons">
+                        <div class="icon-heart"></div>
+                        <span>Likes</span>
+                    </div>
+                </a>
+                <a href="#">
+                    <div class="navButtons">
+                        <div class="icon-glass"></div>
+                        <span>Search</span>
+                    </div>
+                </a>
+            {/showNav}
+
             <!-- Removed navigation 
 
             LOGOUT PUT WHERE??
