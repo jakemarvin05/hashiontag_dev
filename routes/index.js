@@ -166,9 +166,13 @@ router.get('/signup', function(req, res) {
     var gJSON = globalJSON(req);
     
     res.render('signup', { 
+        /* generics */
         title: meta.header(),
-        gJSON: gJSON,
-        p: gJSON.paths,
+        p: gJSON.pathsJSON.paths,
+        f: gJSON.pathsJSON.files,
+        print: JSON.stringify(gJSON.print),
+        page: "signup",
+
         message: req.flash('signupMessage'),
         
         //scripts required
@@ -207,7 +211,6 @@ router.get('/me', function(req, res) {
             reason = renderJSON;
             renderJSON = false;
         }
-        console.log(renderJSON);
 
         res.render('profile', { 
             title: meta.header(),

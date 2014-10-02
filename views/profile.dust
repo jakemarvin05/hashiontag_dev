@@ -314,15 +314,14 @@ profilePostFactory.append.userName = function(post) {
         blockUserNameHTML += renderJSON.userNameDisp + '</a>';
     return blockUserNameHTML;
 }
-profilePostFactory.append.effect = function($el, callback) {
+profilePostFactory.append.effect = function($el) {
     return $el.velocity('fadeIn', {
         duration: 300,
-        display: 'inline-block',
-        complete: callback()
+        display: 'inline-block'
     });
 }
 
-profilePostFactory.init(renderJSON.posts);
+profilePostFactory.init(renderJSON.posts, {burst: 0});
 </script>
 <!-- Follow Button -->
 <script>

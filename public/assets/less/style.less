@@ -279,17 +279,14 @@ footer, .globalWrapper, .spanAll {
 .mainColBlock {
     padding-top: 1px; /*padding hack for #main to be full height */
     margin: auto;
-    @media (min-width: 0px) and (max-width: 539px) {
-        width: 100%;
-    }
-    @media (min-width: 540px) {
-        width: 540px;
-    }
+    max-width: 540px;
+
 }
 
 .mainColBlock article {
     background-color: #fff;
     margin: 10px auto 10px auto;
+    border-top: 1px solid #e0e0e0;
     -moz-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
     -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.31);
     -o-box-shadow: 0 1px 1px rgba(0,0,0,0.31);

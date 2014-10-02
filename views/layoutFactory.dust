@@ -23,11 +23,14 @@ var streamFactory = {
     stream: '',
     mediaDir: '{p.mediaDir}',
     errorImg: '{p.img}/image404.jpg',
-    posts: false
+    burst: 5, // this dictates how many pictures you want to load first.
+    posts: false,
+    count: false
+
 }
 streamFactory.getLayoutHTML = function() {
     $layout = $('.streamLayout');
-    $layout.css('display', 'none');
+    //$layout.css('display', 'none');
     $layout.wrap('<div></div>');
     this.layoutHTML = $layout.parent('div').html();
     $layout.unwrap();
@@ -37,10 +40,16 @@ streamFactory.noObj = function() {
     var message = 'Nothing here...';
     $( '.streamLayout .description').html(message);
 }
-streamFactory.init = function(posts) {
+streamFactory.init = function(posts, options) {
+    if(options) {
+        if(options.burst !== 'undefined') { this.burst = options.burst; }
+        if(options.streamContClass) { this.streamContClass = options.streamContClass; }
+    }
+
     this.append.parent = this;
     this.posts = posts;
     var postCount = VV.utils.objCount(this.posts);
+    this.postCount = postCount;
 
     //if(postCount < 1) { return this.noObj(); }
     if(!this.layoutHTML) { this.getLayoutHTML(); }
@@ -48,6 +57,9 @@ streamFactory.init = function(posts) {
     this.buildBlocks(postCount);
 }
 streamFactory.buildBlocks = function(postCount) {
+    //cache the burst count to images
+    if(this.burst>0) { this.append.imageBurstCount = this.burst; }
+
     for(var i=0; i<postCount; i++) {
         //if(this.posts[i].postId > 55) {
             var post = this.posts[i];
@@ -89,8 +101,15 @@ streamFactory.append.identifier = function($el, post) {
     return $el.attr('data-uid', post.user.userId).attr('data-pid', post.postId);
 }
 streamFactory.append.effect = function($el, callback) {
-    return $el.velocity('fadeIn', 300, callback);
+    var speed = 300;
+    if(callback) {
+        return $el.velocity('fadeIn', speed, callback);
+    } else {
+        $el.velocity('fadeIn', speed);
+    }
 }
+
+{! deprecated 2Oct14. Reason: no longer loading images sequentially 
 streamFactory.append.effectChain = function(i) {
     //  console.log(streamFactory.posts[i].postId);
     var self = this.parent;
@@ -108,31 +127,89 @@ streamFactory.append.effectChain = function(i) {
         return self.append.effect($nextPost, function() { self.append.effectChain(i+1); });
     }
 }
-streamFactory.append.image = function($stream, i) {
+!}
+
+streamFactory.append.imageBurst = function ($stream, i) {
+
+    //if it so happens that the burst overtook the DOM building (very very unlikely...)
+    //we simply load append sequentially as per normal.
+    if(this.imageBurstComplete) {
+        this.image($stream, i);
+    }
+
+    //check if i is within the burst range, after which we stopping the appending and push all the deferred
+    //loading into the caching array.
+    //Trigger to load the rest of the images with tied to the onload listener for each of these burst images.
+    if(i<this.parent.burst) {
+        this.image($stream, i, true);
+    } else {
+        var literal = { $str: $stream, n: i }
+        this.imageDeferredArray.push(literal);
+    }
+}
+streamFactory.append.imageBurstCount = false;
+streamFactory.append.imageBurstComplete = false;
+streamFactory.append.imageDeferredArray = [];
+streamFactory.append.image = function($stream, i, burst) {
     //image
     var imgURL = '',
         img = new Image(),
         x = i,
-        theParent = this.parent;
+        theParent = this.parent,
         post = theParent.posts[x],
+        burst = burst;
+
+        //set it to transparent for fading.
+        img.style.opacity = 0;
+
+    //console.log('appending ' + i);
 
     img.onload = function() {
-        //cache the i.
-        var $post = $stream;
+        //cache the i. not too sure if not doing this will cause a bug
         var i = x;
+        //if this is a burst image, decrement the count
+        if(burst) {
+            //console.log('bursting and loaded: this is the ' + i);
+            theParent.append.imageBurstCount -= 1;
+            if(theParent.append.imageBurstCount === 0) {
+                //console.log('burst count has decremented to 0....');
+                //set the status to complete
+                theParent.append.imageBurstComplete = true;
 
-        //set the link "load" status to true.
-        theParent.posts[i].ld = true;
+                //time to append all deferred images.
+                var defItem = 0;
+                while(theParent.append.imageDeferredArray[defItem]) {
+                    var item = theParent.append.imageDeferredArray[defItem];
+                    theParent.append.image(item.$str, item.n);
+                    defItem++;
+                }
+            }
+        }
 
-        //if first link in chain
-        if(i === 0) {
-            //fade it in.
-            return theParent.append.effect($post, function() { theParent.append.effectChain(i); }); 
-        }
-        //check the previous link, has it faded in?
-        if(theParent.posts[i-1].fd) {
-            return theParent.append.effect($post, function() { theParent.append.effectChain(i); });
-        }
+        var $imgHolder = $stream.find('.imgLoaderHolder');
+        //get the container to hold the height cause we are gonna switch out.
+        $stream.find('.blockImgHolder').css('height', $imgHolder.height() + 'px');
+        $imgHolder.remove();
+        $stream.find('.fancybox').append(img).attr('alt', img.alt).attr('href', imgURL);
+
+        theParent.append.effect($(img));
+
+        {! DEPRECATED!!
+
+                    //set the link "load" status to true.
+                    theParent.posts[i].ld = true;
+
+                    //if first link in chain
+                    if(i === 0) {
+                        //fade it in.
+                        return theParent.append.effect($stream, function() { theParent.append.effectChain(i); }); 
+                    }
+                    //check the previous link, has it faded in?
+                    if(theParent.posts[i-1].fd) {
+                        return theParent.append.effect($stream, function() { theParent.append.effectChain(i); });
+                    }
+
+        !}
     }
 
     if(!post.imgUUID || post.imgUUID === null) {
@@ -148,7 +225,6 @@ streamFactory.append.image = function($stream, i) {
         img.alt = VV.utils.stripHTML(post.desc);
     }
     img.src = imgURL;
-    $stream.find('.fancybox').append(img).attr('alt', img.alt).attr('href', imgURL);
 }
 streamFactory.append.likeText = function(post) {
         var theParent = this.parent;
@@ -305,7 +381,17 @@ streamFactory.append.init = function($stream, i) {
     /*
     * Image. Also triggers chain fading.
     */
-    this.image($stream, i);
+
+    //burst > 0 means we are in burst mode. we only want to load the burst images first. 
+    if(this.parent.burst > 0) {
+        this.imageBurst($stream, i);
+    } else {
+        //burst set to 0 means no burst. so we load all.
+        this.image($stream, i);
+    }
+
+    
+
 
     /*
     * top left block: profile picture, name, timelapse

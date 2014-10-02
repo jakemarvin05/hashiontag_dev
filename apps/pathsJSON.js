@@ -66,7 +66,8 @@ function pathsJSON() {
 
 
     var files = {
-        errProfilePic: pathsJSON.paths['img'] + '/noprofilepicture.jpg'
+        errProfilePic: pathsJSON.paths['img'] + '/noprofilepicture.jpg',
+        imgLoaderHolder: pathsJSON.paths['img'] + '/imgLoaderHolder.png'
     }
 
     pathsJSON.files = files;

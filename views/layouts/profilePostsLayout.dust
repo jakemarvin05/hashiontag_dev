@@ -1,14 +1,17 @@
-{! Current not much different between this and streamLayout.dust except for inline-block styling on article.
+{! Not much different between this and streamLayout.dust 
 
+Except for inline-block styling on article.
+
+And the blank image.
 
 Explore if it is possible to just share the 2
 
-
-    !}
+!}
 
 <article class="streamLayout clearfix" id="layoutId" style="display:inline-block;">
     <div class="blockImgHolder">
         <a class="fancybox">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIW2NkAAIAAAoAAggA9GkAAAAASUVORK5CYII=" class="imgLoaderHolder">
         </a>
     </div>
     <div class="blockPad">
