@@ -17,10 +17,12 @@
                 </div>
 
                 <div class="blockInteract">
+                    {?isPreview}{:else}
                     <div class="likeButton" data-action="like">
                         <div class="icon-heart"></div>
                         <span class="blockInteractText">like</span>
                     </div>
+                    {/isPreview}
                     <div class="moreInfo">
                         <div class="icon-tag"></div>
                         <span class="blockInteractText">info</span>
@@ -47,10 +49,13 @@
                 </div>
             </div>
         </header>
+        
         <div class="postCommentCont"></div>
+        {?isPreview}{:else}
         <div class="postInteractions">
             <textarea class="postCommentInput" placeholder="Add a comment..."></textarea>
             <button class="sendComment darkerButton" data-id="">Send</button>
         </div>
+        {/isPreview}
     </div>
 </article>

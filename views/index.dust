@@ -1,7 +1,7 @@
 {>blockHeader/}
 {>blockHeaderAfterHook/}
 
-{?isLoggedIn}
+{?showStream}
 <section id="main">
 
     <div class="mainColBlock">
@@ -16,14 +16,15 @@
 
 {>loginForm/}
 
-{/isLoggedIn}
+{/showStream}
 
 {>blockFooter/}
   
-{>layoutFactory/}
-
-<script>
-streamFactory.init(renderJSON.posts);
-</script>
+{?renderJSON}
+    {>layoutFactory/}
+    <script>
+    streamFactory.init(renderJSON.posts);
+    </script>
+{/renderJSON}
 
 {>blockFooterScripts/}

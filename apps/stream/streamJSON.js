@@ -137,42 +137,43 @@ module.exports = function streamJSON(req, preview, eventEmitter) {
 
         ////DEV for the time being, return everything.
 
-        db.Post.findAll(
-            {
-                include: [
-                    {   
-                        model: db.User,
-                        attributes: [ 'userNameDisp' ]
-                    }
-                    , { 
-                        model: db.Comment,
-                        attributes: [ 'comment', 'createdAt'],
-                        include: [
-                            {
-                                model: db.User,
-                                attributes: [ 'userNameDisp' ]
-                            }
-                        ]
-                    }
-                ]
-
-                , order: [
-
-                    ['createdAt', 'DESC'], 
-                    [db.Comment, 'createdAt', 'ASC'] 
-                ]
-            }
-        ).success(function(posts) {
+        db.Post.findAll({
+            include: [{   
+                model: db.User,
+                attributes: [ 'userNameDisp', 'userId', 'profilePicture' ]
+            }, { 
+                model: db.Comment,
+                attributes: ['commentId', 'comment', 'createdAt'],
+                include: [{
+                    model: db.User,
+                    attributes: [ 'userNameDisp','profilePicture' ]
+                }]
+            }, {
+                model: db.Like,
+                attributes: [ 'User_userId' ],
+                include: [{
+                    model: db.User,
+                    attributes: [ 'userNameDisp' ]
+                }]
+            }], 
+            order: [
+                ['createdAt', 'DESC'], 
+                [db.Comment, 'createdAt', 'ASC'] 
+            ],
+            limit: 20
+        }).then(function(posts) {
 
             console.log('streamJSON: db retrieval complete, returning the array...');
+            //console.log(JSON.stringify(posts));
 
-            console.log(JSON.stringify(posts));
+            var renderJSON = {};
+            renderJSON.posts = posts;
 
             return function () {
-                eventEmitter.emit( 'streamJSONDone', JSON.stringify(posts) );
+                eventEmitter.emit( 'streamJSONDone', JSON.stringify(renderJSON) );
             }();
 
-        }).error(throwErr);
+        }).catch(throwErr);
 
 
 

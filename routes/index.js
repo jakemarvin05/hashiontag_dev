@@ -31,33 +31,43 @@ router.get('/', function(req, res) {
 
     //do something about the "preview"
     if(req.query.p === 'preview' || req.isAuthenticated()) {
+        var preview = false;
+        if(req.query.p === 'preview') { var preview = true; }
 
         //bind the final callback first
         eventEmitter.on('streamJSONDone', function thenRender(renderJSON) {
             res.render('index', { 
+                /* generics */
                 title: meta.header(),
-                isLoggedIn: req.isAuthenticated(),
                 p: gJSON.pathsJSON.paths,
                 f: gJSON.pathsJSON.files,
                 print: JSON.stringify(gJSON.print),
                 renderJSON: JSON.parse(JSON.stringify(renderJSON)),
-                isStream: 'stream',
-                page: "index"
+                page: "index",
+
+                /* specifics */
+                showStream: true,
+
+                //isPreview is used to block like buttons and comment box from
+                //being generated in the view.
+                isPreview: preview
+
             });
 
         });
 
         //now run callback dependents
-        if(req.query.p === 'preview') { var preview = true; }
+        
         var streamJSON = require('../apps/stream/streamJSON.js')(req, preview, eventEmitter);
 
     } else {
         res.render('index', { 
             title: meta.header(),
-            isLoggedIn: req.isAuthenticated(),
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
-            page: "index"
+            page: "index",
+
+            showStream: false
         });
     }
 });
@@ -494,14 +504,21 @@ router.get('/:user', function(req, res) {
         //console.log(renderJSON);
 
         res.render('profile', { 
+            /*generic */
             title: meta.header(),
-            isLoggedIn: isLoggedIn(req),
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
             print: JSON.stringify(gJSON.print),
             renderJSON: JSON.stringify(renderJSON),
             renderJSONraw: renderJSON,
-            reason: reason
+            page: 'profile',
+
+            /*specifics*/
+            reason: reason,
+
+            //isPreview is used to block like buttons and comment box from
+            //being generated in the view.
+            isPreview: !req.isAuthenticated(),
         });
 
     });

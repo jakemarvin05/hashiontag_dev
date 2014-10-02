@@ -28,36 +28,25 @@
         <nav id="navNormal" class="clearfix"> 
             <div class='vaDiv'></div>
             {?isLoggedIn}
-
+            
+            <div class="navButtons 
             {@eq key=page value="post"}
-            <div class="navButtons navActive">
+                navActive
+            {/eq}
+            ">
                 <div class="icon-camera"></div>
                 <span>Post</span>
             </div>
-            {:else}
-            <a href="{p.post}">
-                <div class="navButtons">
-                    <div class="icon-camera"></div>
-                    <span>Post</span>
-                </div>
-            </a>
-            {/eq}
 
-
-
+            
+            <div class="navButtons 
             {@eq key=page value="me"}
-            <div class="navButtons navActive">
+                navActive
+            {/eq}
+            ">
                 <div class="icon-me"></div>
                 <span>Me</span>
             </div>
-            {:else}
-            <a href="{p.me}">
-                <div class="navButtons">
-                    <div class="icon-me"></div>
-                    <span>Me</span>
-                </div>
-            </a>
-            {/eq}
 
 
             <a href="#">
@@ -74,13 +63,19 @@
             </a>
             {:else}
                 {@eq key=page value="index"}
-                <a href="#">
-                    <button class="darkButton">Continue Without Login</button>
-                </a>
+                    {?isPreview}
+                    <a href="/">
+                        <button class="darkButton">Login</button>
+                    </a> 
+                    {:else}
+                    <a href="{p.absPath}/?p=preview">
+                        <button class="darkButton">Continue Without Login</button>
+                    </a>
+                    {/isPreview}
                 {:else}
-                <a href="/">
-                    <button class="darkButton">Login</button>
-                </a>                
+                    <a href="/">
+                        <button class="darkButton">Login</button>
+                    </a> 
                 {/eq}
             {/isLoggedIn}
             <!-- Removed navigation 
