@@ -154,35 +154,45 @@ header.profileHeader>div {
     } 
 
 
-    .blockProfileThumb, .blockUserHolder, .blockLikeText, .blockTextHolder, .blockLoadMoreText, .postCommentCont, .postInteractions {
+    .profilePostsBlock .blockProfileThumb,
+    .profilePostsBlock .blockUserHolder,
+    .profilePostsBlock .blockLikeText,
+    .profilePostsBlock .blockTextHolder,
+    .profilePostsBlock .blockLoadMoreText,
+    .profilePostsBlock .postCommentCont,
+    .profilePostsBlock .postInteractions {
         display: none;
     }
 
     /* Display Hacks */
-    .blockPad {
+    .profilePostsBlock .blockPad {
         height: 36px;
         margin-top: -10px;
         margin-bottom: 8px;
     }
-    .blockMainInfo {
+    .profilePostsBlock .blockMainInfo {
         border: 0px;
     }
-    .blockTop {
+    .profilePostsBlock .blockTop {
         position: absolute;
     }
-        .blockInteract {
+        .profilePostsBlock .blockInteract {
             padding-top: 8px;
         }
 
-            .blockInteract .blockInteractText {
+            .profilePostsBlock .blockInteract .blockInteractText {
                 display: none;
             }
 
-            .blockInteract div[class^="icon-"] {
+            .profilePostsBlock .blockInteract div[class^="icon-"] {
                 font-size: 18px;
             }
-            .blockInteract>div {
+            .profilePostsBlock .blockInteract>div {
                 display: inline-block;
+            }
+
+            .profilePostsBlock .blockImgHolder img {
+                cursor: pointer;
             }
 
 </style>
@@ -320,7 +330,24 @@ profilePostFactory.append.effect = function($el) {
     });
 }
 
+profilePostFactory.append.imageLink = function($stream, img) {
+
+    var strId = '#' + $stream.attr('id');
+    img.onclick = function() {
+        $.fancybox.open([{
+            href : strId,
+            title : ''
+        }], {
+            padding : 10   
+        });
+    }
+
+}
 profilePostFactory.init(renderJSON.posts, {burst: 0});
+
+
+
+
 </script>
 <!-- Follow Button -->
 <script>

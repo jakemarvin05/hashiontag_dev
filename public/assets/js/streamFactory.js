@@ -163,6 +163,9 @@ streamFactory.append.imageBurst = function ($stream, i) {
 streamFactory.append.imageBurstCount = false;
 streamFactory.append.imageBurstComplete = false;
 streamFactory.append.imageDeferredArray = [];
+streamFactory.append.imageLink = function($stream, img, imgURL) {
+    $stream.find('.fancybox').attr('alt', img.alt).attr('href', imgURL);
+}
 streamFactory.append.image = function($stream, i, burst) {
     console.log('streamFactory.append.image' + i);
     //image
@@ -206,7 +209,7 @@ streamFactory.append.image = function($stream, i, burst) {
         //get the container to hold the height cause we are gonna switch out.
         $blockHolder.css('height', $imgHolder.height() + 'px');
         $imgHolder.remove();
-        $stream.find('.fancybox').append(img).attr('alt', img.alt).attr('href', imgURL);
+        $stream.find('.fancybox').append(img);x
         //reset the height attr.
         $blockHolder.css('height', 'auto');
 
@@ -245,6 +248,8 @@ streamFactory.append.image = function($stream, i, burst) {
         img.alt = VV.utils.stripHTML(post.desc);
     }
     img.src = imgURL;
+
+    this.imageLink($stream, img, imgURL);
 }
 streamFactory.append.likeText = function(post) {
     console.log('streamFactory.append.likeText');

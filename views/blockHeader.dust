@@ -84,6 +84,12 @@
     <script src="{p.js}/velocity/velocity.ui.js"></script>
     <script src="{p.js}/vvUtils.js"></script>
 
+    <!-- preloads -->
+    <script>
+    var preload1 = new Image(); 
+    preload1.src ="{f.imgLoaderHolder}";
+    </script>
+
 {?printHead}
 <script>
 var printHead = {printHead|s};
