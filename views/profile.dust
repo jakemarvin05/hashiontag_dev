@@ -176,9 +176,11 @@ header.profileHeader>div {
     .profilePostsBlock .blockTop {
         position: absolute;
     }
-        .profilePostsBlock .blockInteract {
-            padding-top: 8px;
+        .profilePostsBlock .blockInteract>div {
+            padding: 10px 0px!important;
         }
+
+
 
             .profilePostsBlock .blockInteract .blockInteractText {
                 display: none;
