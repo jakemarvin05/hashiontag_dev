@@ -1,6 +1,7 @@
 // load all the things we need
 var LocalStrategy = require('passport-local').Strategy;
 var db = require('../../models'); //required once
+var Promise = require('bluebird');
 
 // expose this function to our app using module.exports
 module.exports = function(passport) {
@@ -67,56 +68,105 @@ module.exports = function(passport) {
         /* Error handling */
         var throwErr = function(error) {
             console.log(error);
-        return done( null, false, req.flash('signupMessage', ppMessages.errors.somethingWW) );
+        return done(error);
         }
 
         // asynchronous
         // User.find wont fire unless data is sent back
-        //process.nextTick(function() {
+        process.nextTick(function() {
+
             console.log('check if username already exist..');
 
-            var userName = user.toLowerCase();
-            var userNameDisp = user;
+            var userName = req.body.username.toLowerCase();
+            var userNameDisp = req.body.username;
             var email = req.body.email.toLowerCase();
             // check if username already exist
-            db.User.find({ where: 
-                db.Sequelize.or(
-                    {userName: userName},
-                    {email: email}
-                )
-            }).then(function(user) {
 
-                console.log('db query is complete');
-
-                // check to see if theres already a user with that username
-                if (user) {
-
-                    console.log('username or email already exist');
-
-                return done( null, false, req.flash('signupMessage', ppMessages.errors.userTaken) );
-                } else {
-
-                    console.log('creating user...');
-                    // if there is no user with that username
-
-                    // create the user
-                    var newUser = db.User.build({
-                        // set the user's local credentials
-                          userName: userName
-                        , userNameDisp: userNameDisp
-                        , email: email
-                        , password: password
-                    });
-
-                    // save the user
-                    newUser.save().then(function() {
-                        console.log('saving...');
-                    return done(null, newUser, req.flash('loginMessage', ppMessages.success.afterSignup));                         
-                    }).catch(throwErr);  
+            //first call
+            function firstCall() {
+                return db.User.find({where: {userName: userName}, attributes: ['userId']});
+            }
+            function secondCall() {
+                return db.User.find({where: {email: email}, attributes: ['userId']});
+            }
+            
+            Promise.join(firstCall(), secondCall(), function(userExists, emailExists) {
+                if(userExists) {
+                    var message = 'Username';
                 }
-            }).catch(throwErr);  
+                if(emailExists) {
+                    if(message) {
+                        //Username and Email
+                        message += ' and Email';
+                    } else {
+                        //Email
+                        var message = 'Email';
+                    }
+                }
+                
+                if(message) {
+                    message += ' already taken';
+                    return done(null, false, message);
+                }
 
-        //}); //nextTick()
+                //all is good
+
+                // create the user
+                var newUser = db.User.build({
+                    // set the user's local credentials
+                    userName: userName,
+                    userNameDisp: userNameDisp,
+                    email: email,
+                    password: password,
+                });
+
+
+                return newUser.save();
+            }).then(function(user) {
+                if(user) {
+                    console.log('New user signup. Username: ' + user.userName);
+                    return done(null, user);
+                }
+            }).catch(throwErr);
+
+
+
+            // db.User.find({ where: 
+            //     db.Sequelize.or(
+            //         {userName: userName},
+            //         {email: email}
+            //     )
+            // }).then(function(user) {
+
+            //     console.log('db query is complete');
+
+            //     // check to see if theres already a user with that username
+            //     if (user) {
+            //         console.log('username "' + req.body.username + '" or email already exist');
+            //         return done(null, false, 'usernameTaken');
+            //     } else {
+
+            //         console.log('creating user...');
+            //         // if there is no user with that username
+
+            //         // create the user
+            //         var newUser = db.User.build({
+            //             // set the user's local credentials
+            //               userName: userName
+            //             , userNameDisp: userNameDisp
+            //             , email: email
+            //             , password: password
+            //         });
+
+            //         // save the user
+            //         newUser.save().then(function() {
+            //             console.log('saving...');
+            //         return done(null, newUser, req.flash('loginMessage', ppMessages.success.afterSignup));                         
+            //         }).catch(throwErr);  
+            //     }
+            // }).catch(throwErr);  
+
+        }); //nextTick()
 
     }));
 

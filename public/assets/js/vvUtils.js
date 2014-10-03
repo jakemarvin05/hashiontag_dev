@@ -64,3 +64,55 @@ VV.utils.stripHTML = function(html) {
 VV.utils.htmlEntities = function(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+
+
+VV.utils.checkNested = function(obj) {
+  var args = Array.prototype.slice.call(arguments),
+      obj = args.shift();
+  for (var i = 0; i < args.length; i++) {
+    if (!obj || !obj.hasOwnProperty(args[i])) {
+      return false;
+    }
+    obj = obj[args[i]];
+  }
+  return true;
+}
+
+
+VV.utils.alertFactory = {
+    protoAlert: function(msg) {
+
+
+
+        if(typeof msg !== 'string') {
+            var text = msg.text,
+                title = msg.title;
+        } else {
+            var text = msg,
+                title = "Alert" //default title
+        }
+        var uid = new Date().getTime();
+        $('body').append('<div id="error' + uid + '" style="display:none;">' + text + '</div>');
+        console.log(msg.text);
+        $.fancybox.open([
+                {
+                        href : '#error' + uid,
+                        title : title
+                }
+
+        ], {
+                padding : 40   
+        });     
+    },
+    commentError: function() {
+        var msg = {
+            text: 'Error: Please either login or check your internet connection',
+            title: 'Error'
+        }
+        
+        this.protoAlert(msg);
+    }
+}
+var aF = VV.utils.alertFactory;
+//for backward compatibility
+var alertFactory = VV.utils.alertFactory;

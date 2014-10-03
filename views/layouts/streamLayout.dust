@@ -1,3 +1,5 @@
+<script>var preload = new Image(); preload.src ="{f.imgLoaderHolder}";</script>
+
 <article class="streamLayout" id="layoutId">
     <div class="blockImgHolder">
         <a class="fancybox">

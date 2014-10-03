@@ -1,0 +1,264 @@
+<style>
+/*For vertical centering */
+html, body, .globalWrapper, #loginCont {
+    height: 100%;
+}
+img.bg {
+    min-height: 100%;
+    min-width: 1024px;
+    width: 100%;
+    height: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+@media screen and (max-width: 1024px) {
+    img.bg {
+        left: 50%;
+        margin-left: -512px; /* 50% */
+    }
+}
+#logoCont {
+    max-width: 66px;
+}
+#loginCont {
+    width: 320px;
+    margin: auto;
+    text-align: center;
+}
+    @media (min-width: 0px) and (max-width: 480px) {
+        #splashLogo { 
+            width: 240px; 
+        }
+    } 
+    @media (min-width: 481px) {
+        #splashLogo { 
+            width: 280px; 
+        }
+    }
+    #formCont {
+        display:inline-block;
+        vertical-align: middle;
+        text-align: center;
+        padding: 0px 10px;
+        width: 90%;
+    }
+        .indexForms {
+            display:block;
+        }
+        .indexForms input[type="text"], .indexForms input[type="password"], .indexForms button {
+            display: inline-block;
+            width: 212px;
+        }
+        .indexForms>input,  .indexForms>div, .indexForms>button {
+            margin-top: 8px;
+        }
+            input[name="rememberMe"] {
+                vertical-align: baseline;
+            }
+
+        .formBottomLinks {
+            padding: 10px
+        }
+        .errHolder label {
+            display:block;
+        }
+
+        #signupForm p>label {
+            display: block;
+        }
+</style>
+<img class="bg" src="{p.img}/splashbg.jpg">
+
+<script>
+//crossfader
+(function() {
+    var swap = new Image();
+    var swap2 = new Image();
+    var load = false;
+    var interval = 10000;
+    swap.onload = function() {
+        load = true;
+    }
+    $(window).load(function() {
+        swap.src = "{p.img}/splashbg2.jpg";
+        setTimeout(function() {loopFade()}, interval);
+        function loopFade() {
+
+            if(!load) {
+                return setTimeout(function() {loopFade()}, 1000);
+            }
+            $('img.bg').velocity("fadeOut", 500, function(el) {
+                swap2.src = $(el).attr('src');
+                $(el).attr('src', swap.src);
+
+                fadeInOut(el);
+
+            });
+
+            function fadeInOut(el) {
+                $(el).velocity("fadeIn", 500, function(el) {
+                    swap.src = swap2.src;
+                    swap2.src = $(el).attr('src'); 
+                    setTimeout(function() {loopFade()}, interval);
+                });
+            }
+        }
+    });
+})();
+</script>
+
+<div id="loginCont">
+    <div class="vaDiv"></div>
+    
+    <div id="formCont">
+        {! Hide this form if it is signup !}
+        <form class="indexForms" id="loginForm" action="api/login" {@eq key=page value="signup"}style="display:none;"{/eq}> 
+            <img id="splashLogo" src="{p.img}/logo-splash.png">
+            <div class="errHolder" style="display: none; color: red;"></div>
+            <input type="text" name="user" placeholder="Your username or email" required>
+            <input type="password" name="password" placeholder="Your password" required>
+            <div>
+                <input type="checkbox" name="rememberMe" value="true"> Remember me
+            </div>
+            <button class="darkButton" type="submit">Login</button>
+            <div id="errHolderTooLong" style="display:none"></div>
+            <div class="formBottomLinks">
+                Forget Password | <span id="signupFormLink" class="clickable">Signup</span> | Learn More
+            </div>
+            <script>
+            $('#signupFormLink').click(function() {
+                $('#loginForm').velocity('transition.slideLeftOut', 200, function() {
+                    $('#signupForm').velocity('transition.slideRightIn', 200);
+                });
+            })
+            </script>
+        </form>
+
+        <script>
+        $(function() {
+            var submitFlasher = Object.create(VV.utils.Flasher);
+            var takingTooLong = false;
+            $('#loginForm').on('submit', function(e) {
+                e.preventDefault(); var $button = $('#loginForm').find('button[type="submit"]');
+                
+                //reset any errors
+                var $eHW = $(this).find('.errHolder');
+                $eHW.velocity('transition.slideUpOut', 200, function($el) {
+                    $el.empty();
+                });
+
+                //start flasher
+                submitFlasher.run($button, 'button');
+
+                //get the current button name, cache it, replace with 'logging in'.
+                $button.attr('data-attr-html', $button.html());
+                $button.html('Logging in...');
+
+                //taking too long message timeout
+                takingTooLong = true;
+                setTimeout(function() {
+                    if(takingTooLong) {
+                        $('#errHolderTooLong').html('<label>Your login seems to be taking longer than usual. Please refresh and try again.</label>');
+                        $('#errHolderTooLong').velocity('transition.slideDownIn', 200);
+                    }  
+                }, 20000);
+                
+                
+                // Get some values from elements on the page:
+                var $form = $('#loginForm'),
+                    $user = $form.find('input[name="user"]')
+                    user = $user.val(),
+                    $password = $form.find('input[name="password"]')
+                    password = $password.val(),
+                    rememberMe = $form.find('input[name="rememberMe"]').is(':checked'),
+                    url = $form.attr("action"),
+                    submitButton = $form.find('button[id="submit"]');
+
+                // Send the data using post
+                var posting = $.post( url, { user: user, password: password, rememberMe: rememberMe } );
+                
+                //done
+                posting.done(function(data) {
+                    if(data.success) { 
+                        return window.location.replace("{p.home}");
+                    }
+
+                    if(data.error) {
+                        console.log(data.error);
+                        if(data.error === 'userpassword') {
+                            $eHW.html('<label>Either your username or password is wrong. Please try again.</label>');
+                            $eHW.velocity('transition.slideDownIn', 200);
+                            $user.velocity('callout.shakeShort');
+                            $password.velocity('callout.shakeShort');
+
+                        } else {
+                            aF.protoAlert('Something went wrong, please check your connection and try again later.');
+                        }
+                        submitFlasher.kill();
+                        $button.html($button.attr('data-attr-html'));
+                        takingTooLong = false;
+                    }
+                });
+
+                //fail
+                posting.fail(function() {
+                    submitFlasher.kill();
+                    $button.html($button.attr('data-attr-html'));
+                    takingTooLong = false;
+                    aF.protoAlert('Something went wrong, please check your connection and try again later.');
+                });
+            });
+        });
+        </script>
+
+        <!-- loginForm -->
+
+
+        <!-- Signup Form -->
+        {! Hide this form if page is login !}
+        <form class="indexForms" id="signupForm" action="api/signup" {@eq key=page value="login"}style="display:none;"{/eq}> 
+            <h1>Signup</h1>
+            <p>
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Your username">
+            </p>
+            <p>
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email" placeholder="Your email">
+            </p>
+            <p>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Your password">
+            </p>
+            <p>
+                <label for="passwordR">Re-type password</label>
+                <input type="password" id="passwordR" name="passwordR" placeholder="Re-type your password">
+            </p>
+            <div class="errHolder" style="display: none; color: red;"></div>
+            <button class="darkButton" type="submit">Sign Up</button>
+            <div id="errHolderTooLong" style="display:none"></div>
+
+            {@eq key=page value="signup"}
+            <div id="signupformBottomLinks">
+                Learn More
+            </div>
+            {:else}
+            <div id="signupformBottomLinks">
+                <span id="backToLogin" class="clickable">Back to Login</span> | Learn More
+            </div>
+            {/eq}
+        </form>
+        <script>
+        $('#backToLogin').click(function() {
+            $('#signupForm').velocity('transition.slideLeftOut', 200, function() {
+                $('#loginForm').velocity('transition.slideRightIn', 200);
+            });
+        })
+        </script>
+        <script src="{p.js}/jquery.validate.min.js"></script>
+        <script src="{p.js}/signUpCode.js"></script>
+        <!-- signUpForm -->
+    </div> <!-- formCont -->
+</div>

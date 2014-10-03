@@ -21,14 +21,15 @@ var streamFactory = {
     streamPrefix: 'mainStream_',
     layoutHTML: false,
     stream: '',
-    mediaDir: '{p.mediaDir}',
-    errorImg: '{p.img}/image404.jpg',
+    mediaDir: printHead.p.mediaDir,
+    errorImg: printHead.p.img + '/image404.jpg',
     burst: 5, // this dictates how many pictures you want to load first.
     posts: false,
     count: false
 
 }
 streamFactory.getLayoutHTML = function() {
+    console.log('streamFactory.getLayoutHTML');
     $layout = $('.streamLayout');
     //$layout.css('display', 'none');
     $layout.wrap('<div></div>');
@@ -37,10 +38,12 @@ streamFactory.getLayoutHTML = function() {
     $layout.remove();
 }
 streamFactory.noObj = function() {
+    console.log('streamFactory.noObj');
     var message = 'Nothing here...';
     $( '.streamLayout .description').html(message);
 }
 streamFactory.init = function(posts, options) {
+    console.log('streamFactory.init');
     if(options) {
         if(options.burst !== 'undefined') { this.burst = options.burst; }
         if(options.streamContClass) { this.streamContClass = options.streamContClass; }
@@ -57,6 +60,7 @@ streamFactory.init = function(posts, options) {
     this.buildBlocks(postCount);
 }
 streamFactory.buildBlocks = function(postCount) {
+    console.log('streamFactory.buildBlocks');
     //cache the burst count to images
     if(this.burst>0) { this.append.imageBurstCount = this.burst; }
 
@@ -80,6 +84,7 @@ streamFactory.buildBlocks = function(postCount) {
 streamFactory.append = {}
 
 streamFactory.append.profileThumb = function(post) {
+    console.log('streamFactory.append.profileThumb');
     var user = post.user;
     var theParent = this.parent;
 
@@ -92,15 +97,31 @@ streamFactory.append.profileThumb = function(post) {
 }
 
 streamFactory.append.userName = function(post) {
+    console.log('streamFactory.append.userName');
     var blockUserNameHTML  = '<a href="/' + post.user.userNameDisp + '">';
         blockUserNameHTML += post.user.userNameDisp + '</a>';
     return blockUserNameHTML;
 }
 
 streamFactory.append.identifier = function($el, post) {
+    console.log('streamFactory.append.identifier');
     return $el.attr('data-uid', post.user.userId).attr('data-pid', post.postId);
 }
 streamFactory.append.effect = function($el, callback) {
+    console.log('streamFactory.append.effect');
+
+    var hasUA = VV.utils.checkNested(printHead, "userHeader", "ua");
+
+    //exception handling base on User agent.
+    if(hasUA) {
+        //for mobile, no effects :(
+        if(printHead.userHeader.ua.isMobile) {
+            if(callback) { callback(); }
+            return $el.css('opacity', 1);
+        }
+    }
+
+    //default
     var speed = 300;
     if(callback) {
         return $el.velocity('fadeIn', speed, callback);
@@ -130,7 +151,7 @@ streamFactory.append.effectChain = function(i) {
 !}
 
 streamFactory.append.imageBurst = function ($stream, i) {
-
+    console.log('streamFactory.append.imageBurst');
     //if it so happens that the burst overtook the DOM building (very very unlikely...)
     //we simply load append sequentially as per normal.
     if(this.imageBurstComplete) {
@@ -151,6 +172,7 @@ streamFactory.append.imageBurstCount = false;
 streamFactory.append.imageBurstComplete = false;
 streamFactory.append.imageDeferredArray = [];
 streamFactory.append.image = function($stream, i, burst) {
+    console.log('streamFactory.append.image' + i);
     //image
     var imgURL = '',
         img = new Image(),
@@ -165,6 +187,7 @@ streamFactory.append.image = function($stream, i, burst) {
     //console.log('appending ' + i);
 
     img.onload = function() {
+        console.log('img.onload');
         //cache the i. not too sure if not doing this will cause a bug
         var i = x;
         //if this is a burst image, decrement the count
@@ -187,10 +210,13 @@ streamFactory.append.image = function($stream, i, burst) {
         }
 
         var $imgHolder = $stream.find('.imgLoaderHolder');
+        var $blockHolder = $stream.find('.blockImgHolder');
         //get the container to hold the height cause we are gonna switch out.
-        $stream.find('.blockImgHolder').css('height', $imgHolder.height() + 'px');
+        $blockHolder.css('height', $imgHolder.height() + 'px');
         $imgHolder.remove();
         $stream.find('.fancybox').append(img).attr('alt', img.alt).attr('href', imgURL);
+        //reset the height attr.
+        $blockHolder.css('height', 'auto');
 
         theParent.append.effect($(img));
 
@@ -217,7 +243,9 @@ streamFactory.append.image = function($stream, i, burst) {
     } else {
         //bind the error handling
         img.onerror = function() {
+            console.log('img.onerror');
             this.onerror = function() {return false;};
+            console.log('this.onerror2');
             this.src = theParent.errorImg;
         }
         imgURL = theParent.mediaDir + '/' + post.imgUUID + '.jpg';
@@ -227,6 +255,7 @@ streamFactory.append.image = function($stream, i, burst) {
     img.src = imgURL;
 }
 streamFactory.append.likeText = function(post) {
+    console.log('streamFactory.append.likeText');
         var theParent = this.parent;
         var toPrepend = '';
 
@@ -252,7 +281,7 @@ streamFactory.append.likeText = function(post) {
                     if(k>0) {
                         likersDispHTML += ', ';
                     }
-                    likersDispHTML += '<a href="{p.absPath}/' + name + '">' + name +'</a>';
+                    likersDispHTML += '<a href="' + printHead.p.absPath + '/' + name + '">' + name +'</a>';
                 }
             }
 
@@ -316,6 +345,7 @@ streamFactory.append.likeText = function(post) {
         return toPrepend;
 }
 streamFactory.append.commentBlock = function($stream, post) {
+    console.log('streamFactory.append.commentBlock');
     var comments = post.comments,
         commentCount = VV.utils.objCount(comments),
         showComments = 3;
@@ -336,6 +366,7 @@ streamFactory.append.commentBlock = function($stream, post) {
     }
 }
 streamFactory.append.eachComment = function($stream, comment, toShow, append) {
+    console.log('streamFactory.append.eachComment');
     var hide = '',
         user = comment.user,
         commentText = VV.utils.htmlEntities(comment.comment);
@@ -352,7 +383,7 @@ streamFactory.append.eachComment = function($stream, comment, toShow, append) {
         timestampAgo = '&nbsp;<span class="commentTimeStamp" data-ts="' + comment.createdAt + '">(' + timestampAgo + ')</span>';
     }
 
-    var pp = (user.profilePicture) ? '{p.mediaDir}/' + user.profilePicture + '.jpg' : '{p.img}/noprofilepicture.jpg';
+    var pp = (user.profilePicture) ? printHead.p.mediaDir + '/' + user.profilePicture + '.jpg' : printHead.p.img + '/noprofilepicture.jpg';
 
     var commentUserPP = '<a href="/' + user.userNameDisp + '"><img class="profileThumb" src="' + pp + '"></a>';
 
@@ -373,7 +404,7 @@ streamFactory.append.eachComment = function($stream, comment, toShow, append) {
 }
 
 streamFactory.append.init = function($stream, i) {
-
+    console.log('streamFactory.append.init');
     var post = this.parent.posts[i];
     //set the data attributes
     this.identifier($stream, post);
@@ -460,7 +491,7 @@ var notificationFactory = {
                     var setterName = notifications[i].setter.userNameDisp,
                         html = '';
 
-                    var html = '<div><a href="{p.absPath}/' + setterName + '">';
+                    var html = '<div><a href=' + printHead.p.absPath + '/' + setterName + '">';
                         html += setterName + '</a> ';
 
                         if(notifications[i].type == 'like') {
@@ -680,7 +711,7 @@ $( document ).ready(function() {
         blink.run(elem);
      
         // Send the data using post
-        var posting = $.post( "{p.absPath}/follow", { userId: userId, action: action } );
+        var posting = $.post( printHead.p.absPath + "/follow", { userId: userId, action: action } );
      
         
         //done

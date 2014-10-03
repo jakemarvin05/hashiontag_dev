@@ -23,6 +23,19 @@ router.get('/error', function(req, res) {
     res.send('error');
 });
 
+router.get('/test2', function(req, res) {
+    var gJSON = globalJSON(req);
+    res.render('test2', { 
+        title: meta.header(),
+        p: gJSON.pathsJSON.paths,
+        f: gJSON.pathsJSON.files,
+        page: "index",
+
+        showStream: false,
+        showNav: "continue"
+    });
+});
+
 // Homepage
 router.get('/', function(req, res) {
     //sys.puts(sys.inspect(req));
@@ -46,7 +59,7 @@ router.get('/', function(req, res) {
                 f:          global file paths. Points to commonly used files. Like the error img:
                             {p.errorImg} will give you the path yourdefaultdomain.com/images/errorImg.jpg
 
-                print:      the generic javascript variables you want to print on every header.
+                printHead:      the generic javascript variables you want to print on every header.
 
                 renderJSON: this is the JSON that you want to pass to the client side if there is
                             client-side rendering going on.
@@ -62,7 +75,7 @@ router.get('/', function(req, res) {
                 title: meta.header(),
                 p: gJSON.pathsJSON.paths,
                 f: gJSON.pathsJSON.files,
-                print: JSON.stringify(gJSON.print),
+                printHead: JSON.stringify(gJSON.printHead),
                 renderJSON: JSON.parse(JSON.stringify(renderJSON)),
                 page: "index",
 
@@ -86,7 +99,7 @@ router.get('/', function(req, res) {
             title: meta.header(),
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
-            page: "index",
+            page: "login",
 
             showStream: false,
             showNav: "continue"
@@ -109,7 +122,7 @@ router.get('/preview', function(req, res) {
             title: meta.header(),
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
-            print: JSON.stringify(gJSON.print),
+            printHead: JSON.stringify(gJSON.printHead),
             renderJSON: JSON.parse(JSON.stringify(renderJSON)),
             page: "preview",
 
@@ -161,33 +174,44 @@ router.post('/api/login', function(req, res) {
 
 });
 
-/* signup TEMPORARILY IN USE */
 router.get('/signup', function(req, res) {
     var gJSON = globalJSON(req);
     
-    res.render('signup', { 
+    res.render('index', { 
         /* generics */
         title: meta.header(),
         p: gJSON.pathsJSON.paths,
         f: gJSON.pathsJSON.files,
-        print: JSON.stringify(gJSON.print),
+        printHead: JSON.stringify(gJSON.printHead),
         page: "signup",
 
-        message: req.flash('signupMessage'),
-        
-        //scripts required
-        sValidator: true,
-        sSignup: true
+        showNav: "login"
     });
 });
 
-router.post('/api/signup', 
-    passport.authenticate('local-signup', {
-        successRedirect : '/login', // redirect to the secure profile section
-        failureRedirect : '/signup', // redirect back to the signup page if there is an error
-        failureFlash : true // allow flash messages
-    })
-);
+router.post('/api/signup', function(req, res, next) {
+
+    passport.authenticate('local-signup', function(err, user, info) {
+        if(err) { 
+            return res.json({error: 'unknown'}); 
+        }
+        if(!user) { 
+            return res.json({error: info}); 
+        }
+        //log the user in
+        req.logIn(user, function(err) {
+            console.log('Error after registration: ' + err);
+            if(err) { return res.json({error: 'unknown'}); }
+            return res.json({success: true});
+        });
+    })(req, res, next);
+
+    // passport.authenticate('local-signup', {
+    //     successRedirect : '/login', // redirect to the secure profile section
+    //     failureRedirect : '/signup', // redirect back to the signup page if there is an error
+    //     failureFlash : true // allow flash messages
+    // })
+});
 
 //ME
 router.get('/me', function(req, res) {
@@ -217,7 +241,7 @@ router.get('/me', function(req, res) {
             isLoggedIn: isLoggedIn(req),
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
-            print: JSON.stringify(gJSON.print),
+            printHead: JSON.stringify(gJSON.printHead),
             renderJSON: JSON.stringify(renderJSON),
             renderJSONraw: renderJSON,
             reason: reason,
@@ -246,7 +270,7 @@ router.get('/me/edit', function(req, res) {
             isLoggedIn: isLoggedIn(req),
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
-            print: JSON.stringify(gJSON.print),
+            printHead: JSON.stringify(gJSON.printHead),
             user: user
 
         });
@@ -312,7 +336,7 @@ router.get('/post', function(req, res) {
         isLoggedIn: isLoggedIn(req),
         p: gJSON.pathsJSON.paths,
         f: gJSON.pathsJSON.files,
-        print: JSON.stringify(gJSON.print),
+        printHead: JSON.stringify(gJSON.printHead),
         CSRender: CSRender,
         page: 'post'
     });
@@ -342,7 +366,7 @@ router.get('/search', function(req, res) {
                 isLoggedIn: isLoggedIn(req),
                 p: gJSON.pathsJSON.paths,
                 f: gJSON.pathsJSON.files,
-                print: JSON.stringify(gJSON.print),
+                printHead: JSON.stringify(gJSON.printHead),
                 renderJSON: renderJSON,
                 isStream: false
             });
@@ -371,7 +395,7 @@ router.get('/following', function(req, res) {
                 isLoggedIn: isLoggedIn(req),
                 p: gJSON.pathsJSON.paths,
                 f: gJSON.pathsJSON.files,
-                print: JSON.stringify(gJSON.print),
+                printHead: JSON.stringify(gJSON.printHead),
                 renderJSON: renderJSON,
                 isStream: false
             });
@@ -396,7 +420,7 @@ router.get('/followers', function(req, res) {
                 isLoggedIn: isLoggedIn(req),
                 p: gJSON.pathsJSON.paths,
                 f: gJSON.pathsJSON.files,
-                print: JSON.stringify(gJSON.print),
+                printHead: JSON.stringify(gJSON.printHead),
                 renderJSON: renderJSON,
                 streamType: false
             });
@@ -526,7 +550,7 @@ router.get('/p/:pid', function(req,res) {
             isLoggedIn: req.isAuthenticated(),
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
-            print: JSON.stringify(gJSON.print),
+            printHead: JSON.stringify(gJSON.printHead),
             renderJSON: JSON.parse(JSON.stringify(renderJSON)),
             isStream: 'stream',
             page: 'singlePost'
@@ -568,7 +592,7 @@ router.get('/:user', function(req, res) {
             title: meta.header(),
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
-            print: JSON.stringify(gJSON.print),
+            printHead: JSON.stringify(gJSON.printHead),
             renderJSON: JSON.stringify(renderJSON),
             renderJSONraw: renderJSON,
             page: 'profile',

@@ -52,9 +52,10 @@
     <link href="{p.css}/bootstrap-glyphicons.css" rel="stylesheet">
     
     <!-- jQuery and UI -->
-    <script src="{p.js}/jquery-1.10.1.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <!--<script src="{p.js}/jquery-1.10.1.min.js"></script>-->
     <!--<script src="{p.js}/jquery-ui-1.10.4/js/jquery-ui-1.10.4.min.js"></script>-->
-    <link href="{p.js}/jquery-ui-1.10.4/css/ui-lightness/jquery-ui-1.10.4.min.css" rel="stylesheet">
+    <!--<link href="{p.js}/jquery-ui-1.10.4/css/ui-lightness/jquery-ui-1.10.4.min.css" rel="stylesheet">-->
 
     <!-- fancyBox image gallery -->
     <link rel="stylesheet" href="{p.js}/fancybox/source/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen" />
@@ -76,18 +77,18 @@
     <script src="{p.js}/html5shiv-printshiv.min.js"></script>
     <script src="{p.js}/respond.min.js"></script>
     <![endif]-->
-    <script src="{p.js}/alert.js"></script>
+    <!--<script src="{p.js}/alert.js"></script>-->
     <script src="{p.js}/hammer/hammer.min.js"></script>
     <script src="{p.js}/velocity/velocity.min.js"></script>
     <!--TODO: Minify velocity.ui.js -->
     <script src="{p.js}/velocity/velocity.ui.js"></script>
     <script src="{p.js}/vvUtils.js"></script>
 
-{?print}
+{?printHead}
 <script>
-var print = {print|s};
+var printHead = {printHead|s};
 </script>
-{/print}
+{/printHead}
 
 {?renderJSON}
 <script>

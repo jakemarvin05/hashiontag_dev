@@ -54,6 +54,7 @@ module.exports = function follow(req, res) {
 
                     console.log('remove');
 
+                    //TODO!!! This is not working
                     return req.user.removeFollow(userIdToAction);
 
                     // // destroy + db.Sequelize.and doesn't work.....

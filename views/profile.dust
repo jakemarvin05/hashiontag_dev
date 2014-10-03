@@ -288,8 +288,7 @@ header.profileHeader>div {
 
 {>blockFooter/}
 
-{>layoutFactory/}
-
+<script src="{p.js}/streamFactory.js"></script>
 <script>
 var profilePostFactory = Object.create(streamFactory);
 

@@ -1,24 +1,3 @@
-
-{! ==================================================
-    /login, /signup
-    !}
-
-{?sValidator}
-<script src="{#p}{js}{/p}/jquery.validate.min.js"></script>
-{/sValidator}
-
-{! *** /login, /signup !}
-
-
-
-{! ==================================================
-    /signup
-    !}
-{?sSignup}
-<script src="{#p}{js}{/p}/signUpCode.js"></script>
-{/sSignup}
-{! *** /signup !}
-
 <!-- fancyBox init -->
 <script>
 $( document ).ready( function () {
@@ -53,8 +32,8 @@ $('.sendComment').click(function() {
         comment: comment,
         commentId: Date.now(),
         user: {
-            profilePicture: print.userHeaders.profilePicture,
-            userNameDisp: print.userHeaders.userNameDisp
+            profilePicture: printHead.userHeaders.profilePicture,
+            userNameDisp: printHead.userHeaders.userNameDisp
         }
     }
     var $submittedComment = streamFactory.append.eachComment($thisBlock, commentJSON, true, true);

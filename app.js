@@ -18,6 +18,8 @@ var cons = require('consolidate');
 /* sequelize */
 var db = require('./models');
 global.db = db;
+var Promise = require('bluebird');
+global.Promise = Promise;
 
 /* passport and its friends */
 var passport = require('passport');

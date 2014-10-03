@@ -14,14 +14,14 @@
     </section><!-- main -->
 {:else}
 
-    {>loginForm/}
+    {>loginSignupForm/}
 
 {/showStream}
 
 {>blockFooter/}
   
 {?renderJSON}
-    {>layoutFactory/}
+    <script src="{p.js}/streamFactory.js"></script>
     <script>
     streamFactory.init(renderJSON.posts);
     </script>
