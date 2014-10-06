@@ -1,16 +1,123 @@
 {>blockHeader/}
 {>blockHeaderAfterHook/}
+<style>
+p.searchNote {
+    margin: 10px auto auto 0px;
+    text-align: center;
+    color: #ccc;
+}
+#search {
+    width: 80%;
+    max-width: 300px;
+    display: block;
+    margin: 0px auto;
+}
+.searchLoaderCont {
+    width: 100%;
+    height: 20px;
+}
+    .searchLoader {
+        width: 100%;
+        height: 100%;
+        text-align: center;
+    }
+
+        .searchLoaderStud {
+            display: inline-block;
+            height: 5px;
+            width: 5px;
+            background-color: #ccc;
+            margin: 2px;
+            vertical-align: middle;
+        }
+        .searchQueryMessage {
+            text-align: center;
+            padding: 4px;
+            width: 320px;
+            margin: auto;
+            height: 20px;
+            overflow: hidden;
+            color: #ef4549;
+            font-size: 13px;
+        }
 
 
+.userLayout .blockProfileThumb {
+    display: inline-block;
+    vertical-align: middle;
+    padding: 5px;
+}
+    .userLayout .blockProfileThumb img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50px;
+    }
+.userLayout {
+    height: 60px;
+    overflow: hidden;
+}
+article.userLayout {
+    margin: 0px;
+}
+.userLayout .blockTextHolder {
+    padding: 0px;
+    line-height: 130%;
+    display: inline-block;
+    vertical-align: middle;
+    width: 130px;
+    max-height: 54px;
+    overflow: hidden;
+    word-wrap: break-word;
+}
 
-<section id="leftCol" class="col span2">
-    <div class="blockTitle">
-            <h1>Search results</h1>
+    .blockUsername {
+        font-size: 18px;
+    }
+    .blockName {
+        font-size: 14px;
+    }
+
+.userLayout .blockAbout, .userLayout .blockAboutM {
+    max-height: 50px;
+    overflow: hidden;
+    line-height: 130%;
+    color: #ccc;
+    display: inline-block;
+    vertical-align: middle;
+}
+.userLayout .blockAbout {
+    width: 320px;
+}
+.userLayout .blockAboutM {
+    width: 115px;
+    font-size: 13px;
+}
+@media (max-width: 539px) {
+    .userLayout .blockAbout {
+        display:none;
+    }
+}
+@media (min-width: 539px) {
+    .userLayout .blockAboutM {
+        display:none;
+    }
+}
+
+</style>
+
+<section id="main">
+    <p class="searchNote">(to search hashtags, use '#'.)</p>
+    <input type="text" id="search" name="search" placeholder="Type to begin...">
+    <div class="searchLoaderCont">
+        <div class="searchLoader" style="display:none;">
+            
+            <div class="searchLoaderStud" id="searchLoader1"></div>
+            <div class="searchLoaderStud" id="searchLoader2"></div>
+            <div class="searchLoaderStud" id="searchLoader3"></div>
+            <div class="vaDiv"></div>
+        </div>
+        <div class="searchQueryMessage" style="display:none;"></div>
     </div>
-
-</section><!-- left_col -->
-
-<section id="main" class="col span1">
 
     <div class="mainColBlock">
         {>"layouts/userSLayout"/}
@@ -18,70 +125,308 @@
 
     <!-- end your stream -->
 </section><!-- main -->
-    
 <script>
-$( document ).ready(function() {
-    var searchFactory = {
+if(typeof VV === 'undefined') { VV = {} }
+VV.search = {
+    timeout: [],
+    timeoutDuration: 1200,
+    proceed: false,
+    ajaxFired: false,
+    ajaxedQuery: false,
+    enterBlock: false,
+    ajax: '',
+    $sqm: '',
+    getSQM: function() {
+        return this.$sqm = $('.searchQueryMessage');
+    },
+    $sl: '',
+    getSL: function() {
+        return this.$sl = $('.searchLoader');
+    },
+    $studs: '',
+    getStuds: function() {
+        return this.$studs = $('.searchLoader .searchLoaderStud');
+    },
+    $resultCont: '',
+    getResultCont: function() {
+        return this.$resultCont = $('.mainColBlock');
+    }
+}
+VV.search.cachedQuery = {}
+VV.search.cacheManager = function(query) {
 
-        mainBlock: '.mainColBlock',
-        $mainBlock: $( '.mainColBlock' ),
-        userBlock: '.blockUsername',
+    if(this.ajaxedQuery) {
+        if(query === this.ajaxedQuery) { 
+            console.log('same query, returning');
 
-        layoutHTML: $( '.mainColBlock' ).html(),
-
-        objCount: function() {
-            if( (typeof renderJSON != undefined) && renderJSON ) {
-
-                return Object.keys(renderJSON).length;
-
-            } else {
-            
-                return 0;
+            //check if the results is hidden. if yes, show it.
+            if(this.$resultCont.css('display') === 'none') {
+                this.$resultCont.velocity('stop').velocity('transition.slideRightIn', 200);
+                return true;
             }
-        },
-        noObj: function() {
-
-            $( '.userLayout .blockUsername' ).html('No users found.');
-
-        },
-        build: function() {
-            var _ = this;
-
-            var objCount = _.objCount();
-
-            if( objCount < 1 ) { 
-
-                _.noObj();
-
-            } else {
-                console.log(1);
-                console.log(_.mainBlock + ' ' + '.userLayout');
-                $( _.mainBlock + ' .userLayout' ).remove();
-                console.log(2);
-
-                for( i=0; i<objCount; i++) {
-                    console.log(3);
-                    var obj = renderJSON[i];
-                    var divId = 'user_' + i;
-
-                    //create the block
-                    _.$mainBlock.append( _.layoutHTML);
-                    $( '#layoutId' ).attr('id', 'user_' + i );
-
-                    //append contents
-                    _.append(divId, obj);
-
+        } else {
+            //query is not the same, but check if it has been cached.
+            if(this.cachedQuery[query]) {
+                console.log('cached query, returning the cache');
+                this.ajaxedQuery = query;
+                if(this.$resultCont.css('display') === 'none') {
+                    this.$resultCont.html(this.cachedQuery[query]);
+                    this.$resultCont.velocity('stop').velocity('transition.slideRightIn', 200);
+                    return true;
+                } else {
+                    this.$resultCont.velocity('stop').hide();
+                    this.$resultCont.html(this.cachedQuery[query]).velocity('transition.slideRightIn', 200);
+                    return true;
                 }
             }
-        },
-        append: function(divId, obj) {
-            $( '#' + divId + ' ' + this.userBlock ).html('<a href="{p.absPath}/' + obj.userNameDisp + '">' + obj.userNameDisp + '</a>');
         }
-    }; searchFactory.build();
-});
+    }
+}
+VV.search.searchAjax = function(query) {
+    //just to be safe, we abort ajax and clear all timeouts.
+    if(typeof this.ajax.abort === "function") { this.ajax.abort();}
+    for(var i in this.timeout) {
+        clearTimeout(this.timeout[i]);
+    }
+
+    //then empty the container
+    this.$resultCont.html('');
+
+    //start the new ajax.
+    this.ajaxFired = true;
+    console.log('ajax fired');
+    var self = this;
+    // AJAX post
+    this.ajax = $.post( "{p.absPath}/api/search", {query: query});
+
+    //done
+    this.ajax.done(function(data) {   
+        console.log(data);
+        if(data.success) {
+            console.log('append results');
+            self.ajaxedQuery = query;
+            userFactory.init(data.userArray);
+            //cache the query... for the fickled minded...
+            if(self.ajaxedQuery) { self.cachedQuery[self.ajaxedQuery] = self.$resultCont.html(); }
+        } else {
+            console.log('error');
+            return self.loaderEffect.kill(function() {
+                self.$sqm
+                    .html('An error has occured. Please refresh and try again.')
+                    .velocity('fadeIn', 200);
+            });
+        }  
+        return self.loaderEffect.kill();
+    });
+    //fail
+    this.ajax.fail(function(err) {
+        if(err.statusText === 'abort') { return false; }
+
+        console.log('error');
+        self.loaderEffect.kill(function() {
+            self.$sqm
+                .html('An error has occured. Please refresh and try again.')
+                .velocity('fadeIn', 200);
+        });
+
+    });
+
+}
+VV.search.queryTooShort = function() {
+    this.$sqm
+        .html('Your search query is too short...')
+        .velocity('stop').velocity('fadeIn', 200);
+}
+
+VV.search.loaderEffect = {
+    run: function() {
+        var speed = 200;
+        this.parent.$sl.velocity('stop').velocity('fadeIn', speed);
+        this.parent.$studs.each(function(i, el) {
+            $(el).delay(i*speed).velocity({'backgroundColor': '#ef4549'}, {duration: speed, delay: speed, loop: true})
+        });
+    },
+    kill: function(callback) {
+        this.parent.$sl.velocity('fadeOut', 200, function() {
+            if(callback) return callback();
+        });
+        this.parent.$studs
+            .velocity('stop')
+            .css('background-color', '#ccc');
+    }
+}
+VV.search.reset = function() {
+    console.log('resetting');
+    console.log(this.timeout);
+    for(var i in this.timeout) {
+        clearTimeout(this.timeout[i]);
+    }
+    this.timeout = [];
+    if(this.ajaxFired) { this.ajax.abort(); console.log('abort ajax'); }
+    this.$sqm.velocity('stop').hide();
+    this.loaderEffect.kill();
+    //hide the results. but don't clear it yet.
+    this.$resultCont.velocity('stop').hide();  
+}
+VV.search.init = function() {
+    this.getSQM();
+    this.getSL();
+    this.getStuds();
+    this.getResultCont();
+    this.loaderEffect.parent = this;
+
+    var self = this;
+
+    $('#search').keyup(function(e) {
+        var charCode = event.which || event.keyCode;
+        console.log(charCode);
+
+        self.entered = false;
+
+        if(charCode != '13') {
+            self.enterBlock = false;
+            self.entered = false;
+            console.log('enter is unblocked');
+        } else {
+            if(self.enterBlock && charCode == '13') {
+                console.log('blocked!');
+                return false;
+            }
+            self.entered = true;
+        }
+
+        console.log('keydown that went through event');
+
+        //setting up a new enter block if is enter key
+        //block future enter entries for a duration
+        if(self.entered) {
+            self.enterBlock = true;
+            console.log('enter is blocked');
+            setTimeout(function() {
+                self.enterBlock = false;
+                console.log('enter is unblocked');
+            }, 2000);
+        }
+
+        //enter was not blocked, or key is something else.
+        //now we want to start the function...
+
+        //resetting actions
+        // 1) clear the previous timeout function, 2) abort the ajax if fired.
+
+        self.reset();
+
+        var query = $(this).val(),
+            qLength = query.length;
+
+        if(qLength === 0) { return false; }
+
+        var offset = 0;
+        if(query.indexOf('@') === 0) { offset = 4 };
+        if(query.indexOf('#') === 0) { offset = 1 };
+        
+        console.log(qLength);
+
+        //if too short, set timeout function for alert message.
+        if(qLength < 3+offset) {
+            if(self.entered) { 
+                console.log('immediately returning');
+                return self.queryTooShort();
+            }
+            var timeout = setTimeout(function() {
+                self.queryTooShort();
+            }, self.timeoutDuration);
+            return self.timeout.push(timeout);
+        }
+
+        //query is okay
+        if(self.entered) {
+            self.loaderEffect.run();
+            return self.searchAjax(query);
+        }
+
+        //we let enter key run the search again. But block the search if the query is the same if no enter is pressed.  
+        var cachedQueryShown = self.cacheManager(query);
+        if(cachedQueryShown) { return true; }
+
+
+        //when we reach here it means:
+        //1) the user's entry is a valid key. (entered key was not blocked also)
+        //2) the user didn't press enter key, which would overwrite caching.
+        //3) the query is a different one from the one immediately preceding.
+        //4) the cache didn't contain the user's query.
+
+        //set the ajax call ticking....
+        console.log('setting ajax timeout');
+
+        var timeout = setTimeout(function() {
+            self.loaderEffect.run();
+            return self.searchAjax(query);
+        }, self.timeoutDuration);
+        return self.timeout.push(timeout);
+
+    });
+}
+VV.search.init();
 </script>
 
+<script src="{p.js}/streamFactory.js"></script>
+<script>
+userFactory = Object.create(streamFactory);
+userFactory.streamPrefix = 'userBlock_';
+userFactory.layoutClass = 'userLayout';
+userFactory.buildBlocks = function(postCount) {
 
+    for(var i=0; i<postCount; i++) {
+        //if(this.posts[i].postId > 55) {
+            var post = this.posts[i];
+            var streamId = this.streamPrefix + 'u' + post.userId;
+
+            //create the block
+            var newBlock = this.layoutHTML.replace('layoutId', streamId);
+            this.$cont.append(newBlock);
+            var $stream = $('#' + streamId);
+            this.append.init($stream, i);
+        //}
+    }//for loop
+
+    //transition the blocks in.
+    $('.' + this.streamContClass).velocity('transition.slideRightIn', 200);
+}
+
+userFactory.append.fullName = function(user) {
+    var blockNameHTML = user.name;
+    return blockNameHTML;
+}
+userFactory.append.about = function(about, len) {
+    if(about === null) { return ''; }
+    var about = VV.utils.stripHTML(about);
+    var length = about.length;
+    if(length > len) {
+        about = VV.utils.trim(about, len);
+    }
+    return '"' + about + '"';
+}
+userFactory.append.init = function($stream, i) {
+    var user = this.parent.posts[i];
+    //profile thumb
+    var blockProfileThumbHTML = this.profileThumb(user);
+    $stream.find('.blockProfileThumb').html(blockProfileThumbHTML);
+
+    //display name
+    var blockUserNameHTML = this.userName(user);
+    $stream.find('.blockUsername').html(blockUserNameHTML);
+
+    var blockNameHTML = this.fullName(user);
+    $stream.find('.blockName').html(blockNameHTML);
+
+    var blockAboutHTML = this.about(user.about, 140);
+    $stream.find('.blockAbout').html(blockAboutHTML);
+
+    var blockAboutMHTML = this.about(user.about, 60);
+    $stream.find('.blockAboutM').html(blockAboutMHTML);
+}
+userFactory.init();
+</script>
 {>blockFooter/}
-
 {>blockFooterScripts/}

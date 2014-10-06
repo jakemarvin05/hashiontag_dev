@@ -1,7 +1,10 @@
 //statics
 var pathsJSON = require('../apps/pathsJSON.js');
+var moment = require('moment');
 
 module.exports = function gJSON(req, options) {
+    
+    console.log(moment().format());
 
     //defaults
     var parseUA = true;

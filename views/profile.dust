@@ -167,7 +167,7 @@ header.profileHeader>div {
     /* Display Hacks */
     .profilePostsBlock .blockPad {
         height: 36px;
-        margin-top: -10px;
+        margin-top: -8px;
         margin-bottom: 8px;
     }
     .profilePostsBlock .blockMainInfo {
@@ -179,8 +179,6 @@ header.profileHeader>div {
         .profilePostsBlock .blockInteract>div {
             padding: 10px 0px!important;
         }
-
-
 
             .profilePostsBlock .blockInteract .blockInteractText {
                 display: none;
@@ -298,6 +296,11 @@ header.profileHeader>div {
     <!-- end your stream -->
 </section><!-- main -->
 
+{! This is used to contain the fancybox popup duplicate !}
+<div id="fancyboxCont" style="display:none;">
+    <article></article>
+</div>
+
 {>blockFooter/}
 
 <script src="{p.js}/streamFactory.js"></script>
@@ -328,7 +331,7 @@ profilePostFactory.append.userName = function(post) {
 profilePostFactory.append.effect = function($el) {
     return $el.velocity('fadeIn', {
         duration: 300,
-        display: 'inline-block'
+        display: 'block'
     });
 }
 
@@ -336,15 +339,31 @@ profilePostFactory.append.imageLink = function($stream, img) {
 
     var strId = '#' + $stream.attr('id');
     img.onclick = function() {
+        //get the stream's html and put it into the "fancybox cont"
+        $('#fancyboxCont article').html($(strId).html());
+
+        //then make fancybox open it.
         $.fancybox.open([{
-            href : strId,
+            href : '#fancyboxCont',
             title : ''
         }], {
-            padding : 10   
+            padding : 10
         });
     }
 
 }
+profilePostFactory.append.imageOnLoad = function($stream, img) {
+    var $imgHolder = $stream.find('.imgLoaderHolder');
+    var $blockHolder = $stream.find('.blockImgHolder');
+    //get the container to hold the height cause we are gonna switch out.
+    $blockHolder.css('height', $imgHolder.height() + 'px');
+    $imgHolder.remove();
+    $blockHolder.append(img);
+    //reset the height attr.
+    $blockHolder.css('height', 'auto');
+    this.effect($(img));
+}
+
 profilePostFactory.init(renderJSON.posts, {burst: 0});
 
 

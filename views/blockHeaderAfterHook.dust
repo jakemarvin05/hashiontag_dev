@@ -67,18 +67,30 @@
                     </div>
                 </a>
 
-                <a href="#">
-                    <div class="navButtons">
+
+                <a href="{p.likes}">
+                    <div class="navButtons 
+                    {@eq key=page value="likes"}
+                        navActive
+                    {/eq}
+                    ">
                         <div class="icon-heart"></div>
                         <span>Likes</span>
                     </div>
                 </a>
-                <a href="#">
-                    <div class="navButtons">
+
+
+                <a href="{p.search}">
+                    <div class="navButtons 
+                    {@eq key=page value="search"}
+                        navActive
+                    {/eq}
+                    ">
                         <div class="icon-glass"></div>
                         <span>Search</span>
                     </div>
                 </a>
+
             {/showNav}
 
             <!-- Removed navigation 

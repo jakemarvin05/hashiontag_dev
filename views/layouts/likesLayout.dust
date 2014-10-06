@@ -16,15 +16,14 @@
                 </div>
 
                 <div class="blockInteract">
-                    {?isPreview}{:else}
+                    {! Think of somewhere else to shift this likes button
                     <div class="likeButton" data-action="like">
                         <div class="icon-heart"></div>
                         <span class="blockInteractText">like</span>
                     </div>
-                    {/isPreview}
+                    !}
                     <div class="moreInfo">
                         <div class="icon-tag"></div>
-                        <span class="blockInteractText">info</span>
                     </div>
                 </div>
 

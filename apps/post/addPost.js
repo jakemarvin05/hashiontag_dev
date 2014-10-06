@@ -7,7 +7,7 @@ module.exports = function addingPost(req, uuid, path, fields, deleteTemp, throwE
 
     var DESC = fields['desc'];
 
-    //take out email addresses
+    //take out email addresses, because it messes with @tagging.
     var hasEmails = false;
     var emails = DESC.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
 
@@ -45,8 +45,21 @@ module.exports = function addingPost(req, uuid, path, fields, deleteTemp, throwE
         var ht = 0;
         while(hashTags[ht]) {
             var h = hashTags[ht];
+            
+            //create the RegExp to replace my description later.
             var hRe = new RegExp(h, 'g');
-            DESC = DESC.replace(hRe, '<a href="/api/search/' + h + '">' + h + '</a>');
+            
+            //clean out non-alphanumerics 
+            h = h.replace(/\W/g, '');
+
+            //replace all original instances of the unsanitized hashtag (using hRe)
+            //with the sanitized hashtag.
+            DESC = DESC.replace(hRe, '<a href="/api/search?ht=' + h + '">' + h + '</a>');
+
+            //further process hashtag by lowercasing it.
+            //then store the completely sanitized hashtag back
+            hashTags[ht] = h.toLowerCase();
+
             ht++;
         }
     }
@@ -81,6 +94,18 @@ module.exports = function addingPost(req, uuid, path, fields, deleteTemp, throwE
             if(typeof callback === 'function') {
                 callback(post);
             }
+            //asynchronouse hashtag adding. non-critical process so we don't really care.
+            if(hashTags) {
+                var postId = post.values['postId'];
+                post.addHashtags(hashTags)
+                    .then(function() {
+                        console.log('hashtags: ' + hashTags + ' added for post id ' + postId);
+                    })
+                    .catch(function(err) {
+                        console.log(err);
+                    });
+            }
+
         }).then(function() {
             //asynchrous background deletion :)
             if(typeof deleteTemp === 'function') {

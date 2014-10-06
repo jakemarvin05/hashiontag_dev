@@ -184,6 +184,9 @@ footer, .globalWrapper, .spanAll {
         padding: 0px 15px;
         position: relative;
     }
+        #navBar a {
+            display: inline-block;
+        }
     #logoCont {
         float: left;
         height: 100%;
@@ -217,21 +220,24 @@ footer, .globalWrapper, .spanAll {
         font-size: 13px;
         text-transform: uppercase;
         vertical-align: middle;
-        width: 30px;
-        padding: 5px;
-        -webkit-transition: 0.5s;
-        transition: 0.5s;
+        width: 36px;
+        text-align: center;
+        padding: 10px 0px;
+        -webkit-transition: color 0.5s;
+        transition: color 0.5s;
         @media (min-width: 0px) and (max-width: 480px) {
-            margin: 0px 10px 0px 0px;
+            margin: 0px 5px;
         } 
         @media (min-width: 481px) and (max-width: 767px) {
-            margin: 0px;
+            
         }
         @media (min-width: 768px){
-            margin: 0px 20px 0px 0px;
+            
         }
     }
     .navButtons [class^="icon-"], [class*=" icon-"] {
+        display: block;
+        margin: auto;
         @media (min-width: 0px) and (max-width: 480px) {
             font-size: 28px;
         } 
@@ -270,12 +276,14 @@ footer, .globalWrapper, .spanAll {
 }
 #main {
     margin:auto;
+    padding-top: 1px; //hack for first child's margin-top to work.
     @media (min-width: 541px) {
         border-left: 1px solid #ccc;
         border-right: 1px solid #ccc;
         border-bottom: 1px solid #ccc;
     } 
     padding-bottom: 15px;
+    box-sizing: border-box;
 }
 
 /*-------------------------------------------------

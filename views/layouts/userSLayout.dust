@@ -1,8 +1,11 @@
 <article class="userLayout" id="layoutId">
-    <div class="blockTop blockInner">
-        <div class="blockUserHolder"></div>
+    <div class="blockTop">
+        <div class="blockProfileThumb"></div>
         <div class="blockTextHolder">
             <div class="blockUsername"></div>
+            <div class="blockName"></div>
         </div>
+        <div class="blockAbout"></div>
+        <div class="blockAboutM"></div>
     </div>
 </article>

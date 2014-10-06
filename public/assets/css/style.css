@@ -345,6 +345,9 @@ footer,
   padding: 0px 15px;
   position: relative;
 }
+#navBar a {
+  display: inline-block;
+}
 #logoCont {
   float: left;
   height: 100%;
@@ -378,25 +381,27 @@ footer,
   font-size: 13px;
   text-transform: uppercase;
   vertical-align: middle;
-  width: 30px;
-  padding: 5px;
-  -webkit-transition: 0.5s;
-  transition: 0.5s;
+  width: 36px;
+  text-align: center;
+  padding: 10px 0px;
+  -webkit-transition: color 0.5s;
+  transition: color 0.5s;
 }
 @media (min-width: 0px) and (max-width: 480px) {
   .navButtons {
-    margin: 0px 10px 0px 0px;
+    margin: 0px 5px;
   }
 }
 @media (min-width: 481px) and (max-width: 767px) {
-  .navButtons {
-    margin: 0px;
-  }
+  
 }
 @media (min-width: 768px) {
-  .navButtons {
-    margin: 0px 20px 0px 0px;
-  }
+  
+}
+.navButtons [class^="icon-"],
+[class*=" icon-"] {
+  display: block;
+  margin: auto;
 }
 @media (min-width: 0px) and (max-width: 480px) {
   .navButtons [class^="icon-"],
@@ -444,7 +449,9 @@ footer,
 }
 #main {
   margin: auto;
+  padding-top: 1px;
   padding-bottom: 15px;
+  box-sizing: border-box;
 }
 @media (min-width: 541px) {
   #main {

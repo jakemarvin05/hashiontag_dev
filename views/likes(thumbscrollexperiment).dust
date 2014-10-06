@@ -1,0 +1,359 @@
+{>blockHeader/}
+{>blockHeaderAfterHook/}
+
+<style>
+#main {
+    max-width: 100%;
+    overflow:hidden;
+}
+.mainTopWrap {
+    position: fixed;
+    width: 100%;
+    background-color: #fff;
+    z-index: 9;
+}
+#main h2 {
+    text-align: center;
+    color: #ccc;
+    font-weight: normal;
+    width: 100%;
+    margin:10px;
+}
+#main span.likesPostCount {
+    font-weight: bold;
+}
+.likesLongBlockWrap {
+    width: 100%;
+    padding-top: 88px;
+}
+.likesLongBlock {
+    width: 2000em;
+    overflow: hidden;
+    position: relative;
+}
+    .likesLongBlock article {
+        width: 200px;
+        display: inline-block;
+        vertical-align: top;
+        margin: 10px;
+        border-top: 1px solid #e0e0e0;
+        -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
+        -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
+        -o-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
+    }
+        #likesRowScrollerWrap {
+            width: 100%;
+            overflow: hidden;
+        }
+        #likesRowScroller {
+            width: 2000em;
+            position: relative;
+        }
+            #likesRowScroller div {
+                float: left;
+                width:50px;  
+            }
+            #likesRowScroller img {
+                width: 100%;
+            }
+
+        #likesLongBlock .blockUsername {
+            max-width: 105px;
+            word-wrap: break-word;
+        }
+</style>
+
+<section id="main">
+    <div class="mainTopWrap">
+        {@eq key=renderJSONraw.postCounts value=1}
+        <h2>You collected <span class="likesPostCount">1</span> post.</h2>
+        {:else}
+        <h2>You collected <span class="likesPostCount">{renderJSONraw.postCounts}</span> posts.</h2>
+        {/eq}
+
+        <div id="likesRowScrollerWrap">
+            <div id="likesRowScroller" class="clearfix">
+                <div id="rowScrollerRemove"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+    function center(winWidth) {
+        var $holderImg = $('#rowScrollerRemove');
+        var halfHolder = $holderImg.width()/2;
+            $holderImg.remove();
+        var winWidthHalf = winWidth/2;
+
+        $('#likesRowScroller').css('margin-left', winWidthHalf-halfHolder + 'px');
+    }
+    center($(window).width());
+    </script>
+
+    <div class="likesLongBlockWrap">
+        <div class="likesLongBlock">
+            {>"layouts/likesLayout"/}
+        </div>
+    </div>
+    <!-- end your stream -->
+</section><!-- main -->
+
+{>blockFooter/}
+
+<script src="{p.js}/streamFactory.js"></script>
+<script>
+var likesPostFactory = Object.create(streamFactory);
+
+likesPostFactory.streamContClass = 'likesLongBlock';
+
+likesPostFactory.buildBlocks = function(postCount) {
+    
+    //cache the burst count to the append method
+    if(this.burst>0) { this.append.imageBurstCount = this.burst; }
+
+    likesPostFactory.append.likesRowScrollerInit(postCount);
+
+    for(var i=0; i<postCount; i++) {
+        //if(this.posts[i].postId > 55) {
+            var post = this.posts[i];
+            var streamId = this.streamPrefix + post.postId;
+
+            //create the block
+            var newBlock = this.layoutHTML.replace('layoutId', streamId);
+            this.$cont.append(newBlock);
+            var $stream = $('#' + streamId);
+            this.append.likesRowScroller(post.imgUUID, streamId);
+            this.append.init($stream, i);
+        //}
+        
+
+    }//for loop
+
+}
+likesPostFactory.append.likesRowScrollerInit = function(postCount) {
+    var el = document.getElementById('likesRowScroller');
+    el.setAttribute('data-postcount', postCount);
+    var elWrapper = document.getElementById('likesRowScrollerWrap');
+    elWrapper.setAttribute('data-postcount', postCount);
+    return this.likesRowScrollerElement = el;
+}
+likesPostFactory.append.likesRowScrollerElement = '';
+likesPostFactory.append.likesRowScroller = function(imgUUID, streamId) {
+    var theParent = this.parent;
+
+    var blankThumbDiv = document.createElement('div');
+    var blankThumb = new Image();
+    blankThumb.src = preload1.src;
+    blankThumbDiv.setAttribute('data-img', imgUUID);
+    blankThumbDiv.setAttribute('data-stream', streamId);
+    blankThumbDiv.appendChild(blankThumb);
+
+    this.likesRowScrollerElement.appendChild(blankThumbDiv);
+
+    if(imgUUID === null) { return false; }
+
+    //var el_thumbDiv = this.likesRowScrollerElement.getElementsByClassName(imgUUID);
+
+    var thumb = new Image();
+    thumb.onload = function() {
+        var el = blankThumbDiv;
+        el.innerHTML = '';
+        el.appendChild(this);
+        theParent.append.effect($(this));
+    }
+    thumb.setAttribute('data-img', imgUUID);
+    thumb.src = printHead.p.mediaDir + '/' + imgUUID + '.jpg';
+    thumb.style.opacity = 0;
+}
+
+likesPostFactory.init(renderJSON.posts, {burst: 5});
+
+/*****************
+* Drag shifting *
+*****************/
+var thumbScroller = {}
+thumbScroller.$wrap = '';
+thumbScroller.dragElements = {}
+thumbScroller.cache = {
+    startX: 0,
+    startY: 0
+}
+thumbScroller.init = function() {
+    var self = this;
+    var $thumb = $('#likesRowScroller');
+    var $block = $('.likesLongBlock');
+    this.dragElements.thumb =  {
+        $el: $thumb,
+        width: 50,
+        x: 0
+    }
+    this.dragElements.block =  {
+        $el: $block,
+        width: 220, //should include the left and right margins.
+        x: 0
+    }
+    this.$wrap = $('#likesRowScrollerWrap');
+    this.$wrap.on('mousedown.ls touchstart.ls', function (e) {
+        self.mousedown(e);
+    });
+
+    this.initLimits();
+    this.relation();
+
+
+    // Unbind drag event to mouseup/touchend at window
+    $(window).on("mouseup touchend", function () {
+        //console.log("Mouseup Event");
+        self.$wrap.unbind('mousemove.ls touchmove.ls');
+    });
+}
+thumbScroller.initLimits = function() {
+    var pc = this.$wrap.attr('data-postcount'),
+        elems = this.dragElements;
+    elems.thumb.leftLimit = -elems.thumb.width * (pc-1);
+    elems.thumb.rightLimit = 0;
+    elems.block.leftLimit = -elems.block.width * (pc-1);
+    elems.block.rightLimit= 0;
+}
+thumbScroller.relation = function() {
+    var dragElems = this.dragElements
+    this.dragElements.thumb_block = {
+        multiplier: dragElems.block.width / dragElems.thumb.width
+    }
+}
+thumbScroller.mousedown = function(e) {
+    var self = this;
+    if(e.button === 0 || e.type === "touchstart") {
+        if(e.type==="touchstart") {
+            if(e.originalEvent.touches.length === 2) {
+                return false;
+            }
+            e.stopPropagation(); e.preventDefault();
+            e=e.originalEvent.touches[0]||e.originalEvent.changedTouches[0];
+        }
+        //pass the start posit to mousemove
+        this.cache.startX = e.pageX;
+        this.$wrap.on("mousemove.ls touchmove.ls", function (e) {
+            self.mousemove(e);
+        });
+    }
+}
+
+thumbScroller.mousemove = function(e) {
+    //console.log('mousemove');
+    e.stopPropagation(); e.preventDefault();
+    if (e.type==='touchmove') e=e.originalEvent.touches[0]||e.originalEvent.changedTouches[0];
+
+    this.cache.endX = e.pageX;
+    //self.endY = e.pageY;
+    return this.shifter();
+}
+thumbScroller.shifter = function () {
+    var thumb = this.dragElements.thumb;
+    thumb.x += this.cache.endX - this.cache.startX; //thumb moving right is positive X
+
+    // Update image position based on Boundary
+    if (thumb.x > thumb.rightLimit) {
+        thumb.x = thumb.rightLimit;
+    } else if (thumb.x < thumb.leftLimit) {
+        thumb.x = thumb.leftLimit;
+    }
+
+    // Reset starting offsets
+    this.cache.startX = this.cache.endX; 
+
+    // Shift the thumb image
+    thumb.$el.css({'left': thumb.x + "px"});  
+
+    // Shift the articles
+    var block = this.dragElements.block;
+    var moveBlock = thumb.x * this.dragElements.thumb_block.multiplier;
+    console.log(moveBlock);
+
+    block.$el.css({'left': moveBlock + "px"});
+    setTimeout(function() {
+        block.$el.css({'transition': '0s'});
+    }, 1000);
+}
+thumbScroller.kill = function($el) {
+    $el.unbind('mousedown.ds touchstart.ds mousemove.ds touchmove.ds');
+}
+
+thumbScroller.init();
+
+
+
+var dragShifting = {}
+dragShifting.$target = '';
+dragShifting.getTarget = function() { return dragShifting.$target = $('#img_preview'); }
+dragShifting.mousedown = function(self, e) {
+    //console.log("Mousedown Event");
+    self.getTarget(); //set $target
+    if(self.$target.length === 0) { return false; }
+    if(e.button === 0 || e.type === "touchstart") {
+        if(e.type==="touchstart") {
+            if(e.originalEvent.touches.length === 2) {
+                return false;
+            }
+            e.stopPropagation(); e.preventDefault();
+            e=e.originalEvent.touches[0]||e.originalEvent.changedTouches[0];
+        }
+        var imgW = self.$target.width(),
+            imgH = self.$target.height();
+
+        self.startX = e.pageX;
+        self.startY = e.pageY;    
+        self.minX = VV.img.CROP_PORT - imgW;
+        self.minY = VV.img.CROP_PORT - imgH;
+        self.maxX = 0;
+        self.maxY = 0;
+
+        $('#cropPort').on("mousemove.ds touchmove.ds", function (e) {
+            self.mousemove(self, e)
+        });
+    }
+}
+dragShifting.mousemove = function(self, e) {
+    //console.log('mousemove');
+    e.stopPropagation(); e.preventDefault();
+    if (e.type==='touchmove') e=e.originalEvent.touches[0]||e.originalEvent.changedTouches[0];
+
+    self.endX = e.pageX;
+    self.endY = e.pageY;
+    return self.shifter(self);
+}
+dragShifting.shifter = function (self) {
+    VV.img.IMG_X += self.endX - self.startX;
+    VV.img.IMG_Y += self.endY - self.startY;
+    // Update image position based on Boundary
+    if (VV.img.IMG_X < self.minX) {
+        VV.img.IMG_X = self.minX;
+    } else if (VV.img.IMG_X > self.maxX) {
+        VV.img.IMG_X = self.maxX;
+    }
+    if (VV.img.IMG_Y < self.minY) {
+        VV.img.IMG_Y = self.minY;
+    } else if (VV.img.IMG_Y > self.maxY) {
+        VV.img.IMG_Y = self.maxY;
+    }
+    // Reset starting offsets
+    self.startX = self.endX; self.startY = self.endY;
+    // Render image
+    self.$target.css({
+        'margin-top': VV.img.IMG_Y.toString() + "px",
+        'margin-left': VV.img.IMG_X.toString() + "px"
+    });  
+    $('#cropPortBg img').css({
+        'top': VV.img.IMG_Y.toString() + "px",
+        'left': VV.img.IMG_X.toString() + "px"
+    });  
+}
+dragShifting.kill = function($el) {
+    $el.unbind('mousedown.ds touchstart.ds mousemove.ds touchmove.ds');
+}
+
+
+
+</script>
+
+{>blockFooterScripts/}

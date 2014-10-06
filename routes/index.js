@@ -51,20 +51,22 @@ router.get('/', function(req, res) {
 
             /* Every page has a generic set of variables:
 
-                title:      (self explanatory)
+                title:          (self explanatory)
 
-                p:          this is the global path file that allows in-template use of universal
-                            paths like this: <img src="{p.img}/image.jpg">
+                p:              this is the global path file that allows in-template use of universal
+                                paths like this: <img src="{p.img}/image.jpg">
 
-                f:          global file paths. Points to commonly used files. Like the error img:
-                            {p.errorImg} will give you the path yourdefaultdomain.com/images/errorImg.jpg
+                f:              global file paths. Points to commonly used files. Like the error img:
+                                {p.errorImg} will give you the path yourdefaultdomain.com/images/errorImg.jpg
 
                 printHead:      the generic javascript variables you want to print on every header.
 
-                renderJSON: this is the JSON that you want to pass to the client side if there is
-                            client-side rendering going on.
+                renderJSON:     this is the JSON that you want to pass to the client side if there is
+                                client-side rendering going on.
 
-                page:       give each page a unique name so that you can use it as a condition inside the templates.
+                renderJSONraw:  (optional) unstringified renderJSON for dust use.
+
+                page:           give each page a unique name so that you can use it as a condition inside the templates.
 
             */
 
@@ -76,7 +78,7 @@ router.get('/', function(req, res) {
                 p: gJSON.pathsJSON.paths,
                 f: gJSON.pathsJSON.files,
                 printHead: JSON.stringify(gJSON.printHead),
-                renderJSON: JSON.parse(JSON.stringify(renderJSON)),
+                renderJSON: JSON.stringify(renderJSON),
                 page: "index",
 
                 /* specifics */
@@ -123,7 +125,7 @@ router.get('/preview', function(req, res) {
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
             printHead: JSON.stringify(gJSON.printHead),
-            renderJSON: JSON.parse(JSON.stringify(renderJSON)),
+            renderJSON: JSON.stringify(renderJSON),
             page: "preview",
 
             /* specifics */
@@ -147,7 +149,6 @@ router.get('/login', function(req, res) {
 });
 
 router.post('/api/login', function(req, res) {
-        //console.log(res);
     passport.authenticate('local-login', function(err, user) {
 
         if (err) { return res.json({ error: 'unknown'}) }
@@ -171,7 +172,6 @@ router.post('/api/login', function(req, res) {
         });
         
     })(req, res);
-
 });
 
 router.get('/signup', function(req, res) {
@@ -348,11 +348,77 @@ router.post('/api/post', function(req, res) {
     require('../apps/post/posting.js')(req, res, socketId);
 });
 
+// Homepage
+router.get('/likes', function(req, res) {
+
+    var gJSON = globalJSON(req);
+    var eventEmitter = new events.EventEmitter();
+
+    //do something about the "preview"
+    if(req.isAuthenticated()) {
+
+        //bind the final callback first
+        eventEmitter.on('streamJSONDone', function thenRender(renderJSON) {
+
+            res.render('likes', { 
+                /* generics */
+                title: meta.header(),
+                p: gJSON.pathsJSON.paths,
+                f: gJSON.pathsJSON.files,
+                printHead: JSON.stringify(gJSON.printHead),
+                renderJSON: JSON.stringify(renderJSON),
+                renderJSONraw: renderJSON,
+                page: "likes",
+
+                /* specifics */
+                showStream: true,
+
+                //isPreview is used to block like buttons and comment box from
+                //being generated in the view. We don't really need it here. It
+                //default to false
+                //isPreview: false
+
+            });
+
+        });
+
+        //now run callback dependents
+        var streamJSON = require('../apps/stream/streamJSON.js')(req, eventEmitter, {showType: 'likes'});
+
+    } else {
+        res.redirect('/');
+    }
+});
+
 
 router.get('/search', function(req, res) {
+    //sys.puts(sys.inspect(req));
+    var gJSON = globalJSON(req);
 
-    res.send('what were you trying to do?')
-    
+    if(req.isAuthenticated()) {
+
+        res.render('search', { 
+            /* generics */
+            title: meta.header(),
+            p: gJSON.pathsJSON.paths,
+            f: gJSON.pathsJSON.files,
+            printHead: JSON.stringify(gJSON.printHead),
+            //renderJSON: JSON.stringify(renderJSON),
+            page: "search",
+
+            /* specifics */
+
+
+            //isPreview is used to block like buttons and comment box from
+            //being generated in the view. We don't really need it here. It
+            //default to false
+            //isPreview: false
+
+        });
+
+    } else {
+        res.redirect('/');
+    }
 });
 
     router.post('/search', function(req, res) {
@@ -376,6 +442,14 @@ router.get('/search', function(req, res) {
         //now run callback dependents
         var searchUsers = require('../apps/searchUsers.js')(req, eventEmitter);
     });
+
+
+router.post('/api/search', function(req, res) {
+    if(!req.isAuthenticated()) { return res.json({success: false}); }
+    if(typeof req.body.query === 'undefined' || req.body.query === '') { return res.json({success: false}); }
+
+    require('../apps/search.js')(req, res);
+});
 
 router.post('/api/follow', function(req, res) {
     var follow = require('../apps/follow/follow.js');
@@ -537,6 +611,8 @@ router.get('/test', function(req, res) {
     });
 });
 
+
+/* POSTS and USERNAMES */
 router.get('/p/:pid', function(req,res) {
     //sys.puts(sys.inspect(req));
 
@@ -562,6 +638,8 @@ router.get('/p/:pid', function(req,res) {
     var streamJSON = require('../apps/stream/singlePostJSON.js')(req, eventEmitter);
 
 });
+
+//we need an exception routing here before it goes to user
 
 //:user
 router.get('/:user', function(req, res) {

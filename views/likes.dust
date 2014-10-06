@@ -1,0 +1,127 @@
+{>blockHeader/}
+{>blockHeaderAfterHook/}
+
+<style>
+#main {
+    max-width: 100%;
+}
+.mainTopWrap {
+
+    width: 100%;
+    background-color: #fff;
+}
+#main h2 {
+    text-align: center;
+    color: #ccc;
+    font-weight: normal;
+    width: 100%;
+    margin: 10px 0px;
+}
+#main span.likesPostCount {
+    font-weight: bold;
+}
+.likesLongBlockWrap {
+    width: 100%;
+    padding-top: 88px;
+}
+    .likesBlock article {
+        float: left;
+        width: 25%;
+    }
+    @media (min-width: 0px) and (max-width: 767px) {
+        .likesBlock article {
+            width: 25%;
+        }
+    } 
+    @media (min-width: 768px) {
+        .likesBlock article {
+            width: 20%;
+        }
+    }
+
+
+
+        .likesBlock .blockImgHolder img {
+            cursor: pointer;
+        }
+
+    .likesBlock .blockPad {
+        display:none;
+    }
+
+</style>
+
+<section id="main" class="clearfix">
+    <div class="mainTopWrap">
+        {@eq key=renderJSONraw.postCounts value=1}
+        <h2>You collected <span class="likesPostCount">1</span> post.</h2>
+        {:else}
+        <h2>You collected <span class="likesPostCount">{renderJSONraw.postCounts}</span> posts.</h2>
+        {/eq}
+    </div>
+
+    <div class="likesBlock">
+        {>"layouts/likesLayout"/}
+    </div>
+
+    <!-- end your stream -->
+</section><!-- main -->
+{! This is used to contain the fancybox popup duplicate !}
+<div id="fancyboxCont" style="display:none;">
+    <article></article>
+</div>
+
+{>blockFooter/}
+
+<script src="{p.js}/streamFactory.js"></script>
+<script>
+var likesPostFactory = Object.create(streamFactory);
+
+likesPostFactory.streamContClass = 'likesBlock';
+
+likesPostFactory.append.identifier = function($el, post) {
+    return $el.attr('data-uid', post.User_userId).attr('data-pid', post.postId);
+}
+
+likesPostFactory.append.effect = function($el) {
+    return $el.velocity('fadeIn', {
+        duration: 300,
+        display: 'block'
+    });
+}
+
+likesPostFactory.append.imageLink = function($stream, img) {
+    var strId = '#' + $stream.attr('id');
+    img.onclick = function() {
+
+        //get the stream's html and put it into the "fancybox cont"
+        $('#fancyboxCont article').html($(strId).html());
+
+        //then make fancybox open it.
+        $.fancybox.open([{
+            href : '#fancyboxCont',
+            title : ''
+        }], {
+            padding : 10
+        });
+    }
+
+}
+likesPostFactory.append.imageOnLoad = function($stream, img) {
+    var $imgHolder = $stream.find('.imgLoaderHolder');
+    var $blockHolder = $stream.find('.blockImgHolder');
+    //get the container to hold the height cause we are gonna switch out.
+    $blockHolder.css('height', $imgHolder.height() + 'px');
+    $imgHolder.remove();
+    $blockHolder.append(img);
+    //reset the height attr.
+    $blockHolder.css('height', 'auto');
+    this.effect($(img));
+}
+
+likesPostFactory.init(renderJSON.posts, {burst: 5});
+
+
+</script>
+
+{>blockFooterScripts/}

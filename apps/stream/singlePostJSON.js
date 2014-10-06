@@ -1,5 +1,4 @@
 var db = global.db;
-var async = require('async');
 
 module.exports = function singlePostJSON(req, eventEmitter) {
 

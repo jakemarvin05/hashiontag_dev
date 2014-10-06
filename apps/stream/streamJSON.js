@@ -1,57 +1,116 @@
 var db = global.db;
 
-module.exports = function streamJSON(req, eventEmitter, preview) {
+module.exports = function streamJSON(req, eventEmitter, opts) {
 
+    /* OPTIONS */
+    if(opts) {
+        if(opts.showType) {
+            var showType = opts.showType;
+        }
+    }
+
+    /* Error handling */
     var throwErr = function(error) {
-
         console.log(error);
-
         return eventEmitter.emit('streamJSONDone', false);
     }
 
-    console.log('streamJSON: authenticating');
+    /* DEFAULT DB calls */
+    var where = {};
+    var include = [{   
+        model: db.User,
+        attributes: [ 'userNameDisp', 'userId', 'profilePicture' ]
+    }, { 
+        model: db.Comment,
+        attributes: ['commentId', 'comment', 'createdAt'],
+        include: [{
+            model: db.User,
+            attributes: [ 'userNameDisp','profilePicture' ]
+        }]
+    }, {
+        model: db.Like,
+        attributes: [ 'User_userId' ],
+        include: [{
+            model: db.User,
+            attributes: [ 'userNameDisp' ]
+        }]
+    }];
+    var order = [
+        ['createdAt', 'DESC'], 
+        [db.Comment, 'createdAt', 'ASC'] 
+    ]
 
-    if(!preview) {
+    /*DEFAULT HOLDERS TO USE*/
+    var renderJSON = {
+        posts: '',
+        notifications: ''
+    }
+    var idArray = [];
+    var postCounts = false;
 
-        console.log('streamJSON: user is authenticated.. finding posts...');
-        var idArray = [];
+    /* Likes Splicer */
+    function likesSplicer(posts) {
+        var count1 = Object.keys(posts).length;
+        if(count1 === 0) { return posts; }
+        postCounts = count1;
 
-        //this getFollows call is very heavy... consider using the method in singlePostJSON
-        req.user.getFollows().then(function(users) {
+        for(var j=0;j<count1;j++) {
+            var post = posts[j],
+                targets = post.likes,
+                count2 = Object.keys(targets).length;
+
+            post.hasLiked = false;
+            post.totalLikes = count2;
+
+            var l = 0;
+            //console.time('while');
+            while(targets[l]) {
+
+                var theUser = targets[l].User_userId;
+
+                if(theUser === req.user.userId) {
+                    post.hasLiked = true;
+                    //splice myself away
+                    //console.log('self spliced ' + theUser);
+                    targets.splice(l, 1);
+
+                } else if(idArray.indexOf(theUser) < 0) {
+                    //splice away all that user is not following
+                    //console.log('non-following spliced ' + theUser);
+                    targets.splice(l, 1);
+                } else {
+                    l++;
+                }
+            }
+            //console.timeEnd('while');
+
+
+        } //for loop closure
+        return posts;
+    }
+
+
+
+    /* Here goes... */
+
+    if(typeof showType === 'undefined') {
+        console.log('streamJSON: no showType.. finding posts...');
+
+        req.user.getFollows({attributes: ['userId']}).then(function(users) {
 
             for(var i in users) {
                 idArray.push(users[i].values['userId']);
             }
-            console.log('streamJSON: got the follows...getting posts');
 
+            console.log('streamJSON: got the follows...getting posts');
+            var where = { User_userId : idArray};
             return [
 
                 db.Post.findAll({
-                    where: {
-                        User_userId: idArray
-                    }, 
-                    include: [{   
-                        model: db.User,
-                        attributes: [ 'userNameDisp', 'userId', 'profilePicture' ]
-                    }, { 
-                        model: db.Comment,
-                        attributes: ['commentId', 'comment', 'createdAt'],
-                        include: [{
-                            model: db.User,
-                            attributes: [ 'userNameDisp','profilePicture' ]
-                        }]
-                    }, {
-                        model: db.Like,
-                        attributes: [ 'User_userId' ],
-                        include: [{
-                            model: db.User,
-                            attributes: [ 'userNameDisp' ]
-                        }]
-                    }], 
-                    order: [
-                        ['createdAt', 'DESC'], 
-                        [db.Comment, 'createdAt', 'ASC'] 
-                    ]
+                    where: where, 
+                    include: include, 
+                    order: order,
+                    limit: 20
                 }
                         // {raw: true,
                         // nest: true}
@@ -74,127 +133,144 @@ module.exports = function streamJSON(req, eventEmitter, preview) {
         }).spread(function(posts, notifications) {
 
             console.log('streamJSON: db retrieval complete, likes splicing...');
-
             //console.log(idArray);
             //console.log(posts);
+
             //unDAO'ify the results.
             var posts = JSON.parse(JSON.stringify(posts));
-            
-            var count1 = Object.keys(posts).length;
-            //var count1 = posts.length;
 
-
-            for(j=0;j<count1;j++) {
-
-                var targets = posts[j].likes,
-                    count2 = Object.keys(targets).length;
-                    //count2 = targets.length;
-
-                posts[j].hasLiked = false;
-                posts[j].totalLikes = count2;
-
-
-                var l = 0;
-                //console.time('while');
-                while(targets[l]) {
-
-                    var theUser = targets[l].User_userId;
-
-                    if(theUser === req.user.userId) {
-                        posts[j].hasLiked = true;
-                        //splice myself away
-                        //console.log('self spliced ' + theUser);
-                        targets.splice(l, 1);
-
-                    } else if(idArray.indexOf(theUser) < 0) {
-                        //splice away all that user is not following
-                        //console.log('non-following spliced ' + theUser);
-                        targets.splice(l, 1);
-                    } else {
-                        l++;
-                    }
-                }
-                //console.timeEnd('while');
-
-
-            } //for loop closure
-
+            var posts = likesSplicer(posts);
 
             //join notifications and posts
-            var renderJSON = {};
-
             renderJSON.posts = posts;
             renderJSON.notifications = notifications;
 
             //console.log(JSON.stringify(posts));
 
-            return eventEmitter.emit( 'streamJSONDone', JSON.stringify(renderJSON) );
+            return eventEmitter.emit('streamJSONDone', renderJSON);
 
-            
         }).catch(throwErr);
 
-    } else {
+    } else if(showType === 'preview') {
 
         db.Post.findAll({
-            include: [{   
-                model: db.User,
-                attributes: [ 'userNameDisp', 'userId', 'profilePicture' ]
-            }, { 
-                model: db.Comment,
-                attributes: ['commentId', 'comment', 'createdAt'],
-                include: [{
-                    model: db.User,
-                    attributes: [ 'userNameDisp','profilePicture' ]
-                }]
-            }, {
-                model: db.Like,
-                attributes: [ 'User_userId' ],
-                include: [{
-                    model: db.User,
-                    attributes: [ 'userNameDisp' ]
-                }]
-            }], 
-            order: [
-                ['createdAt', 'DESC'], 
-                [db.Comment, 'createdAt', 'ASC'] 
-            ],
+            include: include, 
+            order: order,
             limit: 20
         }).then(function(posts) {
 
             console.log('streamJSON: db retrieval complete, returning the array...');
             //console.log(JSON.stringify(posts));
 
-            var renderJSON = {};
+            //var renderJSON = {};
             renderJSON.posts = posts;
 
             return function () {
-                eventEmitter.emit( 'streamJSONDone', JSON.stringify(renderJSON) );
+                eventEmitter.emit('streamJSONDone', renderJSON);
             }();
 
         }).catch(throwErr);
 
-        // sequelize.query('
-        //     SELECT *
-        //     FROM "Posts"
-        //     JOIN
-        //     (SELECT "PostId", "1" as "liked"
-        //     FROM "Liking"
-        //     JOIN "Post"
-        //     WHERE "Liking"."User_userId" = ' + req.user.userId + ') "PostArray"
-        //     ON "Posts"."postId" = "PostArray"."postId"
+    } else if(showType === 'likes') {
 
-        // ').success(function(posts) {
+        console.log('streamJSON: likes showType.. finding posts...');
 
-        //     console.log('streamJSON: db retrieval complete, returning the array...');
+        db.User.find().then(function() {
 
-        //     console.log(JSON.stringify(posts));
+            return [
+                //first call
+                req.user.getFollows({attributes: ['userId']}),
+                //second call
+                db.Like.findAll({
+                    where: {User_userId: req.user.userId},
+                    attributes: ['likeId','Post_postId'],
+                    include: {
+                        model: db.Post,
+                        include: [{   
+                                model: db.User,
+                                attributes: [ 'userNameDisp', 'userId', 'profilePicture' ]
+                            }, { 
+                                model: db.Comment,
+                                attributes: ['commentId', 'comment', 'createdAt'],
+                                include: [{
+                                    model: db.User,
+                                    attributes: [ 'userNameDisp','profilePicture' ]
+                                }]
+                            }, {
+                                model: db.Like,
+                                attributes: [ 'User_userId' ],
+                                include: [{
+                                    model: db.User,
+                                    attributes: [ 'userNameDisp' ]
+                                }]
+                            }]
+                    },
+                    order: [
+                        ['likeId', 'DESC'],
+                        [db.Post, db.Comment, 'createdAt', 'ASC'] 
+                    ]
+                })
+            ]
+        }).spread(function(users, likePosts) {
 
-        //     return function () {
-        //         eventEmitter.emit( 'streamJSONDone', JSON.stringify(posts) );
-        //     }();
+            for(var i in users) {
+                idArray.push(users[i].values['userId']);
+            }
 
-        // }).error(throwErr);
+            var likePosts = JSON.parse(JSON.stringify(likePosts));
 
-    return false;
+            //modify the outcome
+            //need to float posts out of the nesting.
+            var i = 0;
+            var posts = {}
+            var lastLikeId;
+            while(likePosts[i]) {
+                var likePost = likePosts[i];
+                posts[i] = likePost.post;
+                lastLikeId = likePost.likeId;
+                i++;
+            }
+            renderJSON.lastLikeId = lastLikeId
+
+            return renderJSON.posts = posts;
+
+        }).then(function() {
+
+            console.log('streamJSON: db retrieval complete, likes splicing...');
+            //console.log(idArray);
+            //console.log(posts);
+
+            //console.log(renderJSON.posts);
+
+
+            renderJSON.posts = likesSplicer(renderJSON.posts);
+            renderJSON.postCounts = postCounts + 1;
+            return eventEmitter.emit( 'streamJSONDone', renderJSON);
+
+        }).catch(throwErr);
     }
 }
+
+//some archived code
+
+// sequelize.query('
+//     SELECT *
+//     FROM "Posts"
+//     JOIN
+//     (SELECT "PostId", "1" as "liked"
+//     FROM "Liking"
+//     JOIN "Post"
+//     WHERE "Liking"."User_userId" = ' + req.user.userId + ') "PostArray"
+//     ON "Posts"."postId" = "PostArray"."postId"
+
+// ').success(function(posts) {
+
+//     console.log('streamJSON: db retrieval complete, returning the array...');
+
+//     console.log(JSON.stringify(posts));
+
+//     return function () {
+//         eventEmitter.emit( 'streamJSONDone', JSON.stringify(posts) );
+//     }();
+
+// }).error(throwErr);

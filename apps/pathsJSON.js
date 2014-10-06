@@ -31,6 +31,7 @@ function pathsJSON() {
             img: '/images',
             post: '/post',
             me: '/me',
+            likes: '/likes',
             search: '/search',
             following: '/following',
             followers: '/followers',

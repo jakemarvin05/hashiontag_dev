@@ -60,6 +60,22 @@ VV.utils.stripHTML = function(html) {
    tmp.innerHTML = html;
    return tmp.textContent || tmp.innerText || "";
 }
+VV.utils.trim = function(string, length, dontStrip) {
+    var string = string;
+    if(!dontStrip) { 
+        var string = this.stripHTML(string);
+    }
+    string = string.substring(0,length);
+    var i = length - 1;
+    var run = true;
+    while(run) {
+        if(string[i] == " ") {
+            run = false;
+        }
+        i--;
+    }
+    return string.substring(0, i+1) + "...";
+}
 
 VV.utils.htmlEntities = function(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

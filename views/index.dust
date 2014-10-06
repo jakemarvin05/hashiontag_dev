@@ -3,9 +3,10 @@
 
 {?showStream}
     <section id="main">
-
         <div class="mainColBlock">
+
             {>"layouts/streamLayout"/}
+
         </div>
         <!-- end your stream -->
 
