@@ -11,17 +11,6 @@ module.exports = function search(req, res) {
         console.log(users);
         console.log('search: db retrieval complete');
 
-        // var userArray = {};
-
-        // for(var i in users) {
-        //     var user = users[i];
-        //     userArray[i] = {
-        //         userId: user.values['userId'],
-        //         userNameDisp: user.values['userNameDisp'],
-        //         name: user.values['name'],
-        //         imgUUID: user.values['imgUUID']
-        //     }
-        // }
         results = {
             success: true,
             userArray: users
@@ -45,9 +34,24 @@ module.exports = function search(req, res) {
     if(hasAdd) {
         //username trying to key a @screenname, trim it
         var searchParam = input.replace('@', '');
-    } 
+        db.User.search(searchParam)
+            .then(parseUsers)
+            .catch(throwErr);
+    }
+    if(hasHash) {
+        var searchParam = input.replace('#', '');
+        searchParam = "\"Hashtag\".\"hashtagId\" LIKE '" + searchParam + "%'";
+        db.Hashtag.findAll({
+            where: [searchParam],
+        }).then(function(hashtags) {
+            results = {
+                success: true,
+                hashArray: hashtags
+            }
+            res.json(results);
+        }).catch(throwErr);
+    }
     db.User.search(searchParam)
         .then(parseUsers)
         .catch(throwErr);
-
 }

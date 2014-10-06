@@ -89,7 +89,7 @@ module.exports = function posting(req, res, socket) {
                 fs.rename(img.path, newPath, function() {
                     
                     addPost(req, newUUID, newPath, fields, null, throwErr, function(post) {
-                        return res.json({
+                        res.json({
                             success: true,
                             actionCompleted: 'stored',
                             postId: post.postId

@@ -32,8 +32,6 @@ streamFactory.getLayoutHTML = function() {
 }
 streamFactory.noObj = function() {
     //console.log('streamFactory.noObj');
-    var message = 'Nothing here...';
-    $( '.streamLayout .description').html(message);
 }
 streamFactory.init = function(posts, options) {
     if(!this.layoutHTML) { this.getLayoutHTML(); }
@@ -43,6 +41,7 @@ streamFactory.init = function(posts, options) {
     if(options) {
         if(options.burst !== 'undefined') { this.burst = options.burst; }
         if(options.streamContClass) { this.streamContClass = options.streamContClass; }
+        if(options.streamType) { this.streamType = options.streamType; }
     }
 
     this.append.parent = this;
@@ -50,8 +49,8 @@ streamFactory.init = function(posts, options) {
     var postCount = VV.utils.objCount(this.posts);
     this.postCount = postCount;
 
-    //if(postCount < 1) { return this.noObj(); }
     this.$cont = $('.' + this.streamContClass);
+    if(postCount < 1) { return this.noObj(); }
     this.buildBlocks(postCount);
 }
 streamFactory.buildBlocks = function(postCount) {
@@ -190,27 +189,6 @@ streamFactory.append.effect = function($el, callback) {
         $el.velocity('fadeIn', { duration: speed, display: "block" });
     }
 }
-
-/* deprecated 2Oct14. Reason: no longer loading images sequentially 
-streamFactory.append.effectChain = function(i) {
-    //  console.log(streamFactory.posts[i].postId);
-    var self = this.parent;
-    //set this link to complete fadein.
-    self.posts[i].fd = true;
-
-    //is there a next chain? If not stop the chaining.
-    if(!self.posts[i+1]) { return false; }
-
-    //check if next in chain is loaded.
-    if(self.posts[i+1].ld) {
-        //fadein, and call loadChain to carry on the chain.
-        var $nextPost = $('#' + self.streamPrefix + self.posts[i+1].postId);
-        // console.log($nextPost);
-        return self.append.effect($nextPost, function() { self.append.effectChain(i+1); });
-    }
-}
-*/
-
 streamFactory.append.imageBurst = function ($stream, i) {
     //console.log('streamFactory.append.imageBurst');
     //if it so happens that the burst overtook the DOM building (very very unlikely...)
@@ -233,6 +211,7 @@ streamFactory.append.imageBurstCount = false;
 streamFactory.append.imageBurstComplete = false;
 streamFactory.append.imageDeferredArray = [];
 streamFactory.append.imageLink = function($stream, img, imgURL) {
+    console.log('imageLink');
     $stream.find('.blockImgHolder').append('<a class="fancybox" alt="' + img.alt + '" href="' + imgURL + '"></a>');
 }
 streamFactory.append.imageOnLoad = function($stream, img) {
@@ -287,32 +266,6 @@ streamFactory.append.image = function($stream, i, burst) {
         }
 
         theParent.append.imageOnLoad($theStream, this);
-        // var $imgHolder = $stream.find('.imgLoaderHolder');
-        // var $blockHolder = $stream.find('.blockImgHolder');
-        // //get the container to hold the height cause we are gonna switch out.
-        // $blockHolder.css('height', $imgHolder.height() + 'px');
-        // $imgHolder.remove();
-        // $blockHolder.append(this);
-        // //reset the height attr.
-        // $blockHolder.css('height', 'auto');
-        // theParent.append.effect($(this));
-
-
-        /* DEPRECATED
-        //set the link "load" status to true.
-        theParent.posts[i].ld = true;
-
-        //if first link in chain
-        if(i === 0) {
-            //fade it in.
-            return theParent.append.effect($stream, function() { theParent.append.effectChain(i); }); 
-        }
-        //check the previous link, has it faded in?
-        if(theParent.posts[i-1].fd) {
-            return theParent.append.effect($stream, function() { theParent.append.effectChain(i); });
-        }
-        */
-   
     }
 
     if(!post.imgUUID || post.imgUUID === null) {
@@ -330,7 +283,7 @@ streamFactory.append.image = function($stream, i, burst) {
         img.alt = VV.utils.stripHTML(post.desc);
     }
     img.src = imgURL;
-    theParent.append.imageLink($stream, img, imgURL);
+    this.imageLink($stream, img, imgURL);
 }
 streamFactory.append.likeText = function(post) {
     //console.log('streamFactory.append.likeText');

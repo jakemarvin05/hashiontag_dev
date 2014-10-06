@@ -59,6 +59,10 @@ p.searchNote {
 article.userLayout {
     margin: 0px;
 }
+.userLayout .htext {
+    text-align: center;
+    margin-top: 20px;
+}
 .userLayout .blockTextHolder {
     padding: 0px;
     line-height: 130%;
@@ -205,7 +209,8 @@ VV.search.searchAjax = function(query) {
         if(data.success) {
             console.log('append results');
             self.ajaxedQuery = query;
-            userFactory.init(data.userArray);
+            if(data.hashArray) { userFactory.init(data.hashArray, {streamType: "hashtag"}); }
+            if(data.userArray) { userFactory.init(data.userArray, {streamType: "user"}); }
             //cache the query... for the fickled minded...
             if(self.ajaxedQuery) { self.cachedQuery[self.ajaxedQuery] = self.$resultCont.html(); }
         } else {
@@ -375,12 +380,22 @@ VV.search.init();
 userFactory = Object.create(streamFactory);
 userFactory.streamPrefix = 'userBlock_';
 userFactory.layoutClass = 'userLayout';
+userFactory.noObj = function() {
+    console.log('no object');
+    this.$cont.append(this.layoutHTML);
+    this.$cont.find('.blockTop').html('<h2 class="htext">No results...</h2>');
+    this.$cont.velocity('transition.slideRightIn', 200);
+}
 userFactory.buildBlocks = function(postCount) {
 
     for(var i=0; i<postCount; i++) {
         //if(this.posts[i].postId > 55) {
             var post = this.posts[i];
-            var streamId = this.streamPrefix + 'u' + post.userId;
+            if(this.streamType === "user" ) {
+                var streamId = this.streamPrefix + 'u' + post.userId;
+            } else {
+                var streamId = this.streamPrefix + 'u' + post.hashtagId;
+            }
 
             //create the block
             var newBlock = this.layoutHTML.replace('layoutId', streamId);
@@ -408,23 +423,31 @@ userFactory.append.about = function(about, len) {
     return '"' + about + '"';
 }
 userFactory.append.init = function($stream, i) {
-    var user = this.parent.posts[i];
-    //profile thumb
-    var blockProfileThumbHTML = this.profileThumb(user);
-    $stream.find('.blockProfileThumb').html(blockProfileThumbHTML);
 
-    //display name
-    var blockUserNameHTML = this.userName(user);
-    $stream.find('.blockUsername').html(blockUserNameHTML);
+    if(this.parent.streamType === "user") {
+        var user = this.parent.posts[i];
+        //profile thumb
+        var blockProfileThumbHTML = this.profileThumb(user);
+        $stream.find('.blockProfileThumb').html(blockProfileThumbHTML);
 
-    var blockNameHTML = this.fullName(user);
-    $stream.find('.blockName').html(blockNameHTML);
+        //display name
+        var blockUserNameHTML = this.userName(user);
+        $stream.find('.blockUsername').html(blockUserNameHTML);
 
-    var blockAboutHTML = this.about(user.about, 140);
-    $stream.find('.blockAbout').html(blockAboutHTML);
+        var blockNameHTML = this.fullName(user);
+        $stream.find('.blockName').html(blockNameHTML);
 
-    var blockAboutMHTML = this.about(user.about, 60);
-    $stream.find('.blockAboutM').html(blockAboutMHTML);
+        var blockAboutHTML = this.about(user.about, 140);
+        $stream.find('.blockAbout').html(blockAboutHTML);
+
+        var blockAboutMHTML = this.about(user.about, 60);
+        $stream.find('.blockAboutM').html(blockAboutMHTML);
+    } else {
+        var hashtag = this.parent.posts[i];
+
+        $stream.find('.blockTop').html('<a href="/hashtag?ht=' + hashtag.hashtagId + '"><h2 class="htext">#' + hashtag.hashtagId + '</h2></a>');
+    }
+
 }
 userFactory.init();
 </script>

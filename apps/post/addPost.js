@@ -1,7 +1,10 @@
 /* addPost.js is called by posting.js */
 
+/* TODO REFACTOR THIS */
+
 var fname = 'addPost';
 var fs = require('fs');
+var db = global.db;
 
 module.exports = function addingPost(req, uuid, path, fields, deleteTemp, throwErr, callback) {
 
@@ -52,17 +55,25 @@ module.exports = function addingPost(req, uuid, path, fields, deleteTemp, throwE
             //clean out non-alphanumerics 
             h = h.replace(/\W/g, '');
 
-            //replace all original instances of the unsanitized hashtag (using hRe)
-            //with the sanitized hashtag.
-            DESC = DESC.replace(hRe, '<a href="/api/search?ht=' + h + '">' + h + '</a>');
+            //now check the length
+            if(h.length > 50) {
+                //too long. ignore and take it out.
+                hashTags.splice(ht, 1);
+                //need to decrement back the count:
+                ht--;
+            } else {
+                //replace all original instances of the unsanitized hashtag (using hRe)
+                //with the sanitized hashtag.
+                DESC = DESC.replace(hRe, '<a href="/api/search?ht=' + h + '">#' + h + '</a>');
 
-            //further process hashtag by lowercasing it.
-            //then store the completely sanitized hashtag back
-            hashTags[ht] = h.toLowerCase();
-
+                //further process hashtag by lowercasing it.
+                //then store the completely sanitized hashtag back
+                hashTags[ht] = h.toLowerCase();
+            }
             ht++;
         }
     }
+
     if(addTags) { 
         addTags = uniqBy(addTags, JSON.stringify); 
         //lowercas'ify the addTags array
@@ -76,6 +87,44 @@ module.exports = function addingPost(req, uuid, path, fields, deleteTemp, throwE
     console.log(fname + 'hashtags: ' + hashTags);
     console.log(fname + 'addtags: ' + addTags);
 
+    function addHashTags(hashTags, post) {
+        //asynchronouse hashtag adding. non-critical process so we don't really care.
+        console.log(fname + ' creating hashTags...');
+        console.log(hashTags);
+        if(hashTags) {
+            var postId = post.values['postId'];
+            var hashTags = hashTags;
+            
+            //arrange the hashtags for bulkCreation
+            var bulk = [];
+            for(var i in hashTags) {
+                var push = { hashtagId: hashTags[i]}
+                bulk.push(push);
+            }
+            db.Hashtag
+                .bulkCreate(bulk)
+                .then(function() {
+                    console.log('hashtags: ' + hashTags + ' added for post id ' + postId);
+                    return post.addHashtags(hashTags);
+                })
+                .catch(function(err) {
+                    console.log(err);
+                });
+        }
+    }
+
+    var errorFn = function(err) {
+        console.log(err);
+        //delete away image if error in creating post.
+        fs.unlink(path, function(err) {
+            if(err) {
+                console.log(fname + ' Err: Error deleting' + uuid + '.jpg');
+                console.log(err);
+            }
+        });
+        return throwErr(err);
+    }
+
     function finalCreate() {
         if(hasEmails) {
             var hml = 0;
@@ -85,38 +134,31 @@ module.exports = function addingPost(req, uuid, path, fields, deleteTemp, throwE
             }
         }
         //create the post
-        return global.db.Post.create({ 
+        db.Post.create({ 
             desc: DESC,
             User_userId: req.user.userId,
             imgUUID: uuid
         }).then(function(post) {
+            console.log(hashTags);
+            addHashTags(hashTags, post);
             console.log(fname + ' Fields inserted.');
             if(typeof callback === 'function') {
                 callback(post);
             }
             //asynchronouse hashtag adding. non-critical process so we don't really care.
-            if(hashTags) {
-                var postId = post.values['postId'];
-                post.addHashtags(hashTags)
-                    .then(function() {
-                        console.log('hashtags: ' + hashTags + ' added for post id ' + postId);
-                    })
-                    .catch(function(err) {
-                        console.log(err);
-                    });
-            }
-
+            
+            
         }).then(function() {
             //asynchrous background deletion :)
             if(typeof deleteTemp === 'function') {
                 deleteTemp();
             }
-        });
+        }).catch(errorFn);
     }
 
     if(addTags) {
         //now find them all to see if they exist.
-        global.db.User.findAll({
+        db.User.findAll({
             where: {
                 userName: addTags
             },
@@ -133,20 +175,10 @@ module.exports = function addingPost(req, uuid, path, fields, deleteTemp, throwE
                     i++;
                 }
             }
-            return finalCreate();
+            console.log(hashTags);
+            finalCreate();
 
-        }).catch(function(err) {
-
-                console.log(err);
-                //delete away image if error in creating post.
-                fs.unlink(path, function(err) {
-                    if(err) {
-                        console.log(fname + ' Err: Error deleting' + uuid + '.jpg');
-                        console.log(err);
-                    }
-                });
-                return throwErr(err);
-        });
+        }).catch(errorFn);
     } else {
         finalCreate();
     }

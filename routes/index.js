@@ -348,7 +348,6 @@ router.post('/api/post', function(req, res) {
     require('../apps/post/posting.js')(req, res, socketId);
 });
 
-// Homepage
 router.get('/likes', function(req, res) {
 
     var gJSON = globalJSON(req);
@@ -421,27 +420,27 @@ router.get('/search', function(req, res) {
     }
 });
 
-    router.post('/search', function(req, res) {
-        var gJSON = globalJSON(req);
-        var eventEmitter = new events.EventEmitter();
+    // router.post('/search', function(req, res) {
+    //     var gJSON = globalJSON(req);
+    //     var eventEmitter = new events.EventEmitter();
 
-        //bind the final callback first
-        eventEmitter.on('searchUsersDone', function thenRender(renderJSON) {
-            res.render('search', { 
-                title: meta.header(),
-                isLoggedIn: isLoggedIn(req),
-                p: gJSON.pathsJSON.paths,
-                f: gJSON.pathsJSON.files,
-                printHead: JSON.stringify(gJSON.printHead),
-                renderJSON: renderJSON,
-                isStream: false
-            });
+    //     //bind the final callback first
+    //     eventEmitter.on('searchUsersDone', function thenRender(renderJSON) {
+    //         res.render('search', { 
+    //             title: meta.header(),
+    //             isLoggedIn: isLoggedIn(req),
+    //             p: gJSON.pathsJSON.paths,
+    //             f: gJSON.pathsJSON.files,
+    //             printHead: JSON.stringify(gJSON.printHead),
+    //             renderJSON: renderJSON,
+    //             isStream: false
+    //         });
 
-        });
+    //     });
 
-        //now run callback dependents
-        var searchUsers = require('../apps/searchUsers.js')(req, eventEmitter);
-    });
+    //     //now run callback dependents
+    //     var searchUsers = require('../apps/searchUsers.js')(req, eventEmitter);
+    // });
 
 
 router.post('/api/search', function(req, res) {
@@ -449,6 +448,11 @@ router.post('/api/search', function(req, res) {
     if(typeof req.body.query === 'undefined' || req.body.query === '') { return res.json({success: false}); }
 
     require('../apps/search.js')(req, res);
+});
+
+router.get('/hashtag', function(req, res) {
+
+    res.send('coming soon'...);
 });
 
 router.post('/api/follow', function(req, res) {
