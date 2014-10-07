@@ -7,6 +7,7 @@ module.exports = function notification(req, res, dataObj) {
     dataObj = {
         post: ,
         postOwner: ,
+        taggedUser: ,
         notificationSetter: ,
         action: 
 
@@ -184,8 +185,49 @@ module.exports = function notification(req, res, dataObj) {
 
     }
 
+/** TAG **/
+
+    if(dataObj.action === 'tag'){
+        console.log('-------------------------------------------------------------')
+        console.log('These userIds: '+ dataObj.taggedUser);
+        console.log('Is notified by this userId: '+ dataObj.notificationSetter);
+        console.log('Through Tag in comments in postId: '+ dataObj.post);
+        console.log('-------------------------------------------------------------')
+
+        //THIS FUNCTIONALITY CAN BE REFRACTORED AS IT WAS REPEATING FOR LIKE, COMMENT and TAG
+        //Create notification Instance
+        for(var i=0;i<dataObj.taggedUser.length;i++){
+            /*db.Notification.create({
+                type: 'tag',
+                User_userId_receiver: dataObj.postOwner[i],
+                User_userId_setter: dataObj.notificationSetter,
+                Post_postId: postId
+
+            }).then(function(){
+
+                return console.log('notification: notification has been set');*/
+            createNotification(dataObj.action, dataObj.taggedUser[i], dataObj.notificationSetter, dataObj.post);
+
+        }
+    }
+
 //remove comment
+    // 1. Someone like your post
+    // 2. someone commented on your post
+    // 3. Somone tagged you in post.
+    // 4. other invitation such as games, etc
+    // 5. New follow request
 
+}
 
+function createNotification(action, receiverId, setterId, postId){
+    db.Notification.create({
+        type: action,
+        User_userId_receiver: receiverId,
+        User_userId_setter: setterId,
+        Post_postId: postId
 
+    }).then(function(){
+        return console.log('userId: '+setterId+' do '+action+' to userId: '+receiverId+' on postId: '+postId);
+    });
 }

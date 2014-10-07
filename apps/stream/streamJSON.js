@@ -106,10 +106,33 @@ module.exports = function streamJSON(req, eventEmitter, opts) {
             var where = { User_userId : idArray};
             return [
 
-                db.Post.findAll({
-                    where: where, 
-                    include: include, 
-                    order: order,
+                db.Stream.findAll({
+                    where: {User_userId: req.user.userId}, 
+                    include: [{
+                        model: db.Post,
+                        include: [{   
+                            model: db.User,
+                            attributes: [ 'userNameDisp', 'userId', 'profilePicture' ]
+                        }, { 
+                            model: db.Comment,
+                            attributes: ['commentId', 'comment', 'createdAt'],
+                            include: [{
+                                model: db.User,
+                                attributes: [ 'userNameDisp','profilePicture' ]
+                            }]
+                        }, {
+                            model: db.Like,
+                            attributes: [ 'User_userId' ],
+                            include: [{
+                                model: db.User,
+                                attributes: [ 'userNameDisp' ]
+                            }]
+                        }]
+                    }], 
+                    order: [
+                        [db.Post, 'createdAt', 'DESC'], 
+                        [db.Post, db.Comment, 'createdAt', 'ASC'] 
+                    ],
                     limit: 20
                 }
                         // {raw: true,
@@ -130,14 +153,24 @@ module.exports = function streamJSON(req, eventEmitter, opts) {
                 })
             ]
 
-        }).spread(function(posts, notifications) {
+        }).spread(function(streams, notifications) {
 
             console.log('streamJSON: db retrieval complete, likes splicing...');
             //console.log(idArray);
-            //console.log(posts);
+            //console.log(streams);
+
+            var i = 0;
+            var posts = {};
+            while(streams[i]) {
+                posts[i] = streams[i].post;
+                i++;
+            }
+
+            console.log(posts);
+
 
             //unDAO'ify the results.
-            var posts = JSON.parse(JSON.stringify(posts));
+            //var posts = JSON.parse(JSON.stringify(posts));
 
             var posts = likesSplicer(posts);
 
@@ -175,6 +208,11 @@ module.exports = function streamJSON(req, eventEmitter, opts) {
 
         console.log('streamJSON: likes showType.. finding posts...');
 
+        var order = [
+            ['likeId', 'DESC'],
+            [db.Post, db.Comment, 'createdAt', 'ASC'] 
+        ];
+
         db.User.find().then(function() {
 
             return [
@@ -186,29 +224,9 @@ module.exports = function streamJSON(req, eventEmitter, opts) {
                     attributes: ['likeId','Post_postId'],
                     include: {
                         model: db.Post,
-                        include: [{   
-                                model: db.User,
-                                attributes: [ 'userNameDisp', 'userId', 'profilePicture' ]
-                            }, { 
-                                model: db.Comment,
-                                attributes: ['commentId', 'comment', 'createdAt'],
-                                include: [{
-                                    model: db.User,
-                                    attributes: [ 'userNameDisp','profilePicture' ]
-                                }]
-                            }, {
-                                model: db.Like,
-                                attributes: [ 'User_userId' ],
-                                include: [{
-                                    model: db.User,
-                                    attributes: [ 'userNameDisp' ]
-                                }]
-                            }]
+                        include: include
                     },
-                    order: [
-                        ['likeId', 'DESC'],
-                        [db.Post, db.Comment, 'createdAt', 'ASC'] 
-                    ]
+                    order: order
                 })
             ]
         }).spread(function(users, likePosts) {
@@ -232,9 +250,86 @@ module.exports = function streamJSON(req, eventEmitter, opts) {
             }
             renderJSON.lastLikeId = lastLikeId
 
-            return renderJSON.posts = posts;
+            renderJSON.posts = posts;
 
-        }).then(function() {
+            console.log('streamJSON: db retrieval complete, likes splicing...');
+            //console.log(idArray);
+            //console.log(posts);
+
+            //console.log(renderJSON.posts);
+
+            renderJSON.posts = likesSplicer(renderJSON.posts);
+            renderJSON.postCounts = postCounts + 1;
+            return eventEmitter.emit( 'streamJSONDone', renderJSON);
+
+        }).catch(throwErr);
+    } else if(showType === 'hashtag') {
+
+        if(typeof req.params.hashtag === 'undefined') { return res.direct('/'); }
+
+        console.log('streamJSON: hashtags showType.. finding posts...');
+
+        db.Hashtag.find(req.params.hashtag).then(function(hashtag) {
+
+            //console.log(include);
+            hashtag.getPosts({
+                limit: 20,
+                include: [{
+                    model: db.Post
+                }],
+                order: order
+            })
+
+
+            // if(req.isAuthenticated()) {
+            //     return [
+            //         //first call
+            //         req.user.getFollows({attributes: ['userId']}),
+            //         //second call
+            //         hashtag.getPosts({
+            //             limit: 20,
+            //             include: include,
+            //             order: order
+            //         })
+            //     ]
+            // }
+
+            // return [
+            //     //first call
+            //     false,
+            //     //second call
+            //     hashtag.getPosts({
+            //         limit: 20,
+            //         include: include,
+            //         order: order
+            //     })
+            // ]
+
+
+        }).spread(function(users, posts) {
+
+            if(users) {
+                for(var i in users) {
+                    idArray.push(users[i].values['userId']);
+                }
+            }
+
+            var posts = JSON.parse(JSON.stringify(posts));
+
+            //modify the outcome
+            //need to float posts out of the nesting.
+            // var i = 0;
+            // var posts = {}
+            // var lastLikeId;
+            // while(likePosts[i]) {
+            //     var likePost = likePosts[i];
+            //     posts[i] = likePost.post;
+            //     lastLikeId = likePost.likeId;
+            //     i++;
+            // }
+            //renderJSON.lastLikeId = lastLikeId
+
+            renderJSON.posts = posts;
 
             console.log('streamJSON: db retrieval complete, likes splicing...');
             //console.log(idArray);
@@ -243,8 +338,8 @@ module.exports = function streamJSON(req, eventEmitter, opts) {
             //console.log(renderJSON.posts);
 
 
-            renderJSON.posts = likesSplicer(renderJSON.posts);
-            renderJSON.postCounts = postCounts + 1;
+            if(users) { renderJSON.posts = likesSplicer(renderJSON.posts); }
+            //renderJSON.postCounts = postCounts + 1;
             return eventEmitter.emit( 'streamJSONDone', renderJSON);
 
         }).catch(throwErr);

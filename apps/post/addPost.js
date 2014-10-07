@@ -64,7 +64,7 @@ module.exports = function addingPost(req, uuid, path, fields, deleteTemp, throwE
             } else {
                 //replace all original instances of the unsanitized hashtag (using hRe)
                 //with the sanitized hashtag.
-                DESC = DESC.replace(hRe, '<a href="/api/search?ht=' + h + '">#' + h + '</a>');
+                DESC = DESC.replace(hRe, '<a href="/hashtag/' + h + '">#' + h + '</a>');
 
                 //further process hashtag by lowercasing it.
                 //then store the completely sanitized hashtag back

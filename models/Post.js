@@ -20,6 +20,11 @@ module.exports = function(sequelize, DataTypes) {
             imgUUID: {
                 type: DataTypes.STRING,
                 allowNull: false
+            },
+            postScore:{
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                defaultValue: 0
             }
         }, {
             timestamps: true,
@@ -49,6 +54,8 @@ module.exports = function(sequelize, DataTypes) {
                     //Hashtags
                     Post.hasMany(models.Hashtag, {foreignKey: 'Post_postId', through: 'Posts_Hashtags'});
 
+                    //Stream
+                    Post.hasMany(models.Stream, {foreignKey: 'Post_postId'});
                 }
             },
             getterMethods: {

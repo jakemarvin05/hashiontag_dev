@@ -10,14 +10,17 @@ module.exports = function(sequelize, DataTypes) {
                 primaryKey: true,
                 allowNull: false,
                 autoIncrement: true
+            },
+            affinity: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                defaultValue: 0
             }
-
         }, {
             timestamps: true,
             updatedAt: false,
             tableName: 'Following', //PascalCase
         }
     );
- 
 return Following;
 };

@@ -158,7 +158,7 @@ VV.search = {
 }
 VV.search.cachedQuery = {}
 VV.search.cacheManager = function(query) {
-
+    var query = query.toLowerCase()
     if(this.ajaxedQuery) {
         if(query === this.ajaxedQuery) { 
             console.log('same query, returning');
@@ -212,7 +212,7 @@ VV.search.searchAjax = function(query) {
             if(data.hashArray) { userFactory.init(data.hashArray, {streamType: "hashtag"}); }
             if(data.userArray) { userFactory.init(data.userArray, {streamType: "user"}); }
             //cache the query... for the fickled minded...
-            if(self.ajaxedQuery) { self.cachedQuery[self.ajaxedQuery] = self.$resultCont.html(); }
+            if(self.ajaxedQuery) { self.cachedQuery[self.ajaxedQuery.toLowerCase()] = self.$resultCont.html(); }
         } else {
             console.log('error');
             return self.loaderEffect.kill(function() {
@@ -445,7 +445,7 @@ userFactory.append.init = function($stream, i) {
     } else {
         var hashtag = this.parent.posts[i];
 
-        $stream.find('.blockTop').html('<a href="/hashtag?ht=' + hashtag.hashtagId + '"><h2 class="htext">#' + hashtag.hashtagId + '</h2></a>');
+        $stream.find('.blockTop').html('<a href="/hashtag/' + hashtag.hashtagId + '"><h2 class="htext">#' + hashtag.hashtagId + '</h2></a>');
     }
 
 }

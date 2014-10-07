@@ -1,47 +1,44 @@
 var db = require('../models');
-
-module.exports = function editProfile(req) {
-
-if(req.isAuthenticated()){
-
-        if( req.user.userId===parseFloat(req.body.userId) ) {
-            console.log("Entered if function");
-            req.user.updateAttributes(
-                {
-                    name:req.body.name, 
-                    about:req.body.about
-                }
-            ).then(function(user) {
-                console.log('here')
+module.exports = function editProfile(req,res) {
+    if(req.isAuthenticated()){
+        console.log("Entered if function");
+        console.log(req.user);
+        db.User.find({where: {userId: req.user.userId}}).success(function(user){
+            var profilePicture = req.user.profilePicture;
+            if (typeof req.body.profilePicture != "undefined"){
+                profilePicture = req.body.profilePicture;
+            }
+            user.updateAttributes({
+                name:req.body.name, 
+                about:req.body.about,
+                email:req.body.email,
+                profilePicture:profilePicture
+            }).then(function(user) {
+                console.log('here');
                 if(user) {
                     //console.log(true);
                     return res.json({success:true});
-                }
-
-                else {
+                } else {
                     console.log("Error 1");
                     return res.json({success:false});
-
                 }
             }).catch(function(err) {
+                var msg = [];
                 console.log(err);
-                /*console.log("Error 2");
-                console.log(req.body.name);
-                console.log(typeof(req.body.name));
-                console.log(req.body.about);
-                console.log(typeof(req.body.about));*/
-                return res.json({success:false});
+                if (typeof err.name == "object"){ // "Name" is a reserved keyword
+                    msg.push("Invalid name provided.");
+                }
+                if (typeof err.email != "undefined"){
+                    msg.push("Invalid email provided.");
+                }
+                if (typeof err.about != "undefined"){
+                    msg.push("Invalid description provided.");
+                }
+                if (msg.length==0){
+                    msg.push("An unknown error has occured.");
+                }
+                return res.json({success:false,message:msg});
             });
-
-        } else {
-            console.log("Error 3");
-            return res.json({success:false});
-        }
-        
-    }
-    else{
-        
-        console.log("Error 4");
-        return res.json({success:false});
+        });
     }
 }

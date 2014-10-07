@@ -34,14 +34,15 @@ module.exports = function search(req, res) {
     if(hasAdd) {
         //username trying to key a @screenname, trim it
         var searchParam = input.replace('@', '');
-        db.User.search(searchParam)
+        return db.User.search(searchParam)
             .then(parseUsers)
             .catch(throwErr);
     }
     if(hasHash) {
         var searchParam = input.replace('#', '');
+        /* TODO: WHEN UNPLURALISE THE TABLES, THIS NEEDS TO BE CHANGED!! */
         searchParam = "\"Hashtag\".\"hashtagId\" LIKE '" + searchParam + "%'";
-        db.Hashtag.findAll({
+        return db.Hashtag.findAll({
             where: [searchParam],
         }).then(function(hashtags) {
             results = {
@@ -51,7 +52,7 @@ module.exports = function search(req, res) {
             res.json(results);
         }).catch(throwErr);
     }
-    db.User.search(searchParam)
+    return db.User.search(input)
         .then(parseUsers)
         .catch(throwErr);
 }

@@ -19,6 +19,10 @@ var globalJSON = require('../apps/globalJSON.js');
 
 module.exports = router;
 
+router.get('/test', function(req,res) {
+    res.render('imgtest');
+})
+
 router.get('/error', function(req, res) {
     res.send('error');
 });
@@ -450,9 +454,37 @@ router.post('/api/search', function(req, res) {
     require('../apps/search.js')(req, res);
 });
 
-router.get('/hashtag', function(req, res) {
+router.get('/hashtag/:hashtag', function(req, res) {
 
-    res.send('coming soon'...);
+    var gJSON = globalJSON(req);
+    var eventEmitter = new events.EventEmitter();
+
+    //bind the final callback first
+    eventEmitter.on('streamJSONDone', function thenRender(renderJSON) {
+
+        res.render('hashtag', { 
+            /* generics */
+            title: meta.header(),
+            p: gJSON.pathsJSON.paths,
+            f: gJSON.pathsJSON.files,
+            printHead: JSON.stringify(gJSON.printHead),
+            renderJSON: JSON.stringify(renderJSON),
+            renderJSONraw: renderJSON,
+            page: "hashtag",
+
+            /* specifics */
+
+            //isPreview is used to block like buttons and comment box from
+            //being generated in the view.
+            isPreview: !req.isAuthenticated
+
+        });
+
+    });
+
+    //now run callback dependents
+    var streamJSON = require('../apps/stream/streamJSON.js')(req, eventEmitter, {showType: 'hashtag'});
+
 });
 
 router.post('/api/follow', function(req, res) {
@@ -545,6 +577,11 @@ router.post('/api/notification', function(req, res) {
 
 });
 
+
+router.get('/api/local/update', function(req) {
+     require('../apps/streamUpdate.js')();
+});
+
 router.get('/ua-parser', function(req, res) {
     var uap = require('ua-parser').parseUA(req.headers['user-agent']);
 
@@ -573,31 +610,6 @@ router.get('/ua-parser', function(req, res) {
     }
 });
 
-//dev
-router.get('/:find/:model/:where', function(req, res) {
-    if(req.params.find && req.params.model) {
-        console.log(req.params.model);
-        if(req.params.where) {
-            db[req.params.model][req.params.find](req.params.where)
-                .then(function(result) {
-                    res.json(result);
-                })
-                .catch(function() {
-                    res.send('error');
-                });
-        } else {
-            db[req.params.model][req.params.find]()
-                .then(function(result) {
-                    res.json(result);
-                })
-                .catch(function() {
-                    res.send('error');
-                });;
-        }    
-    } else {
-        res.send('error');
-    }  
-});
 
 //TODO: deal with Hashtags!!
 
@@ -746,6 +758,7 @@ router.get('/dbtest', function(req, res) {
     });
 
 });
+
 // router.get('/sync', function(req, res) {
 //   db.sequelize.sync({force:true}).on('success', function() {
 //     res.send('sync success');

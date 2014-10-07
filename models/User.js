@@ -52,7 +52,7 @@ module.exports = function(sequelize, DataTypes) {
                 type: DataTypes.STRING,
                 allowNull: true,
                 validate: {
-                    len:[1,140]
+                    len:[1,250]
                 }
             },
             profilePicture: {
@@ -102,6 +102,9 @@ module.exports = function(sequelize, DataTypes) {
                     
                         //User has many notifications that they set -> "SetNotifications".
                     User.hasMany(models.Notification, {as: 'SetNotifications', foreignKey: 'User_userId_setter'});
+
+                    //Stream
+                    User.hasMany(models.Stream, {foreignKey: 'User_userId'});
 
                 },
                 getSearchVector: function() {

@@ -1,4 +1,4 @@
-var db = require('../models'),
+var db = global.db,
     notification = require('./notification.js');
 
 
@@ -74,6 +74,9 @@ module.exports = function addRemoveLike(req, res) {
 
                 console.log('addRemoveLike: like created, setting user and post');
 
+                console.log('addRemoveLike: Incrementing relevant scores...\n');
+                addLikeIncrementScores(req);
+
                 //asynchronous notification setting
                 //if error occurs in notification setting it will be logged. but user doesn't need to know.
                 notification(req,res,dataObj);
@@ -96,6 +99,10 @@ module.exports = function addRemoveLike(req, res) {
                 //console.log(likes);
                 //console.log(likes.length);
                 //if(likes.length > 0) {
+
+                console.log('addRemoveLike: Decrementing relevant scores...\n');
+                removeLikeDecrementScores(req);
+
 
                 var idArray = [];
                 for(var i in likes) {
@@ -137,38 +144,61 @@ module.exports = function addRemoveLike(req, res) {
         return res.json({ success: false });
     }
 
-                
+}
 
+function addLikeIncrementScores(req){
 
-/***** TODO: Make transactions work! */
+    db.Post.find({
+        where: {postId: req.body.postId},
+        attributes: ['postScore', 'User_userId']
+    }).success(function(post) {
+        post
+        .increment('postScore', {by: 1})
+        .success(function(post){
+            post.save();
+        console.log('Incremented post scores....\n');
+        }).catch(function(err) {
+            console.log(err);
+        });
 
-                // return sequelize.transaction().then(function(t) {
-    //     console.log(t);
+        return db.Following.find({
+            where: {
+                FollowerId: req.user['userId'],
+                FollowId: post.getDataValue('User_userId')
+            },
+            attribute: ['affinity']
+        });
+    }).then(function(following) {
 
-    //     console.log('addRemoveLike: transaction started');
-    //     return db.Comment.create({
+        return following.increment('affinity', {by: 1});
 
-    //       comment: req.body.comment
+    }).then(function(following) {
+        return following.save();
+            console.log('Incremented affinity...\n');
+    }).catch(function(err) {
+        console.log(err);
+    })
+}
 
-    //     }, {
-
-    //       transaction: t
-
-    //     }).then(function(comment) {
-
-                //      console.log('addRemoveLike: comment created, saving it.');
-
-                //      comment.save();
-
-                //  }).then(function(comment) {
-
-                //      console.log('addRemoveLike: setting user and post..');
-                //      comment.setUser(req.user, {transaction: t});
-                //      comment.setPost(req.body.postId, {transaction: t});
-
-                //  }).then(t.commit.bind(t), t.rollback.bind(t));
+function removeLikeDecrementScores(req){
+    db.Post.find(req.body.postId).success(function(post) {
+        post.decrement('postScore', {by: 1}).success(function(post){
+            post.save();
+            console.log('Decremented post scores....\n');
+        });
         
-    //   });
+        db.Following.find({
+            where: {
+                FollowerId: req.user['userId'],
+                FollowId: post.getDataValue('User_userId')
+            }
 
-    //     }
+        }).success(function(following){
+            //console.log(following);
+            following.decrement('affinity', {by: 1}).success(function(following){
+                following.save();
+                console.log('Decremented affinity...\n');
+            });
+        });
+    })
 }

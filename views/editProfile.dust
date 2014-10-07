@@ -1,125 +1,299 @@
 {>blockHeader/}
-
-
-<section id="leftCol" class="col span2">
-    <div class="blockTitle">
-            <h1>Edit Profile</h1>
-    </div>
-
-</section><!-- left_col -->
-
-<section id="main" class="col span1">
-
-    <div class="mainColBlock">
-
-        <ul>
-            <label h2> User Name: </label>
-            <input type="text" name="userNameDisp" id="userNameDisp" disabled value="{user.userNameDisp}">
-
-            <hr>
-
-            <label h2> Current E-mail: </label>
-            <input type="text" name="email" id="email" disabled value="{user.email}">
-
-            <hr>
-
-            <label h2> Name </label>
-            <input type="text" name="name" id="name" value="{user.name}">
-
-            <hr>
-
-            <label h2> Description</label>
-            <input type="text" name="about" id="about" value="{user.about}">
-
-            <hr>
-
-            <button id="changeButton">Change</button>
-        </ul>
-
-    </div>
-
-    <!-- end your stream -->
-</section><!-- main -->
-
-<script>
-var editProfile = function(elem) {
-    //Save the current changes. (name and about)
-
-    var userId = "{user.userId}",
-        theName = function() {
-            return $('#name').val().toString();
-        },
-        about = function() {
-            return $('#about').val().toString();
-        }
-
-
-
-
-    var blink = {
-        disabler: function(elem) {
-            elem.attr('disabled','disabled');
-        },
-        blinker: function(elem) {
-            var self = this;
-            elem.fadeOut('fast', function() {
-                elem.fadeIn('fast', function() {
-                    self.blinker(elem);
-                });
-            });
-        },
-        run: function(elem) {
-            this.disabler(elem);
-            this.blinker(elem);
-        }
-        
+{>blockHeaderAfterHook/}
+<style>
+    #main {
+        text-align:center;
     }
+    label {
+        display:inline-block;
+        width:120px;
+    }
+    .header.profileHeader>div {
+        margin-left: auto;
+        margin-right: auto;
+        text-align:center;
+    }
+    .profileHeader {
+        border-bottom: 1px solid #ccc;
+        background: #f7f7f7;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    .profilePictureCont {
+        width: 100px;
+        margin: auto;
+    }
+    .profilePictureCont img {
+        width: 100%;
+    }
+    .profileUserNameDisp {
+        font-size: 26px;
+        font-weight: bold;
+        margin-top: 2px;
+    }
+    .profileInfoInlines {
 
-    //blink it.
-    blink.run(elem);
- 
+    }
+    .profileInfoInlines>div {
+        display: inline-block;
+        padding: 5px 2px;
+    }
+    .profileAbout {
+        margin-top: 20px;
+        width: 280px;
+    }
+    .profileRelationship {
+        margin-top: 20px;
+    }
+    .profileFollowBlock {
+        display:inline-block;
+        padding: 0px 10px;
+        height: 52px;
+        vertical-align: middle;
+    }
+    .profileFollowBlock:not(:first-child) {
+        border-left: 1px solid #ccc;
+    }
+    .profileFollowWrap {
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .profileFollowHdr, .profileFollowingHdr {
+        text-transform: uppercase;
+        color: #ccc;
+        font-size: 12px;
+        padding-top: 4px;
+    }
+    .profileFollowCount {
+        font-weight: bold;
+        font-size: 20px;
+    }
+    @media (min-width: 0px) and (max-width: 480px) {
+        .profileFollowButtonCont {
+            display: block;
+            border-left: 0px !important;
+        }
+    }
+    .profileFollowText {
+        font-size: 13px;
+        color: #ccc;
+        max-width: 200px;
+    }
+    #profileFollowButton {
+        font-size: 12px;
+        height: 24px;
+        width: 132px;
+        padding: 7px 0px;
+    }
+    .profilePostsBlock {
+        width: 100%;
+        text-align: center;
+    } 
+    .profilePostsBlock article {
+        display: inline-block;
+        text-align: left;
+        vertical-align: top;
+    }
+    /*profilePostsBlock and its article responsive */ 
+    @media (min-width: 0px) and (max-width: 320px) {
+        .profilePostsBlock {
+            padding: 2px;
+        }
+        .profilePostsBlock article {
+            width: 153px;
+            padding: 2px;
+        }
+    }  
+    @media (min-width: 321px) and (max-width: 480px) {
+        .profilePostsBlock {
+            padding: 2px;
+        }
+        .profilePostsBlock article {
+            width: 48.5%;
+            padding: 2px;
+        }
+    }  
+    @media (min-width: 481px) and (max-width: 640px) {
+        .profilePostsBlock {
+            padding: 2px;
+        }
+        .profilePostsBlock article {
+            width: 32.3%;
+            padding: 2px;
+        }
+    }
+    @media (min-width: 641px) and (max-width: 767px) {
+        .profilePostsBlock {
+            padding: 5px;
+        }
+        .profilePostsBlock article {
+            width: 23.4%;;
+            padding: 5px;
+        }
+    } 
+    @media (min-width: 768px){
+        .profilePostsBlock {
+            padding: 10px;
+        }
+        .profilePostsBlock article {
+            width: 166px;
+            padding: 10px;
+        }
+    }
+    .profilePostsBlock .blockProfileThumb,
+    .profilePostsBlock .blockUserHolder,
+    .profilePostsBlock .blockLikeText,
+    .profilePostsBlock .blockTextHolder,
+    .profilePostsBlock .blockLoadMoreText,
+    .profilePostsBlock .postCommentCont,
+    .profilePostsBlock .postInteractions {
+        display: none;
+    }
+    /* Display Hacks */
+    .profilePostsBlock .blockPad {
+        height: 36px;
+        margin-top: -8px;
+        margin-bottom: 8px;
+    }
+    .profilePostsBlock .blockMainInfo {
+        border: 0px;
+    }
+    .profilePostsBlock .blockTop {
+        position: absolute;
+    }
+    .profilePostsBlock .blockInteract>div {
+        padding: 10px 0px!important;
+    }
+    .profilePostsBlock .blockInteract .blockInteractText {
+        display: none;
+    }
+    .profilePostsBlock .blockInteract div[class^="icon-"] {
+        font-size: 18px;
+    }
+    .profilePostsBlock .blockInteract>div {
+        display: inline-block;
+    }
+    .profilePostsBlock .blockImgHolder img {
+        cursor: pointer;
+    }
+</style>
+<section id="main" class="col span1">
+    <header class="profileHeader">
+        Click to change profile photo:
+        <div id="profilePictureCont" class="profilePictureCont">
+            {?renderJSONraw.profilePicture}
+            <img id="profilePicture" src="{p.mediaDir}/{renderJSONraw.profilePicture}.jpg">
+            {:else}
+            <img id="profilePicture" src="{f.errProfilePic}">
+            {/renderJSONraw.profilePicture}
+        </div>
+        <div class="profileUserNameDisp">
+            @{renderJSONraw.userNameDisp}
+        </div>
+        <div class="profileInfo">
+            <label> Name: </label><input type="text" name="name" id="name" value="{renderJSONraw.name}"><br/>
+            <label> Current E-mail: </label><input type="text" name="email" id="email" value="{renderJSONraw.email}"><br/>
+            <label> About Me: </label><textarea name="about" id="about">{renderJSONraw.about}</textarea><br/>
+        </div>
+    </header>
+    <button id="changeButton">Change</button>
+</section><!-- main -->
+{! This is used to contain the fancybox popup duplicate !}
+<div id="fancyboxCont" style="display:none;">
+    <div class="profilePostsBlock">
+        {>"layouts/profilePostsLayout"/}
+    </div>
+    <article></article>
+</div>
+{>blockFooter/}
+<script src="{p.js}/streamFactory.js"></script>
+<script>
+// Save Profile
+var profile = {};
+var editProfile = function(elem) {
+    profile.userId = "{user.userId}";
+    profile.name = $('#name').val().toString();
+    profile.email = $('#email').val().toString();
+    profile.about = $('#about').val().toString(); 
     // Send the data using post
-    var posting = $.post( "{p.absPath}/api/edit", { userId: userId, name: theName(), about: about() } );
- 
-    
+    var posting = $.post( "{p.absPath}/api/editProfile", profile );
     //done
     posting.done(function( data ) {
         console.log(data);
-
         if(data.success) {
-            console.log('success');
-
-            elem.stop();
-            elem.removeAttr('disabled');
-
+            window.location.href = "{p.absPath}/me";
+        } else if (typeof data.message == "object") {
+            var msg = "";
+            for (var i = 0, l = data.message.length;i<l;i++){
+                msg+=data.message[i]+"<br/>";
+            }           
+            alertFactory.protoAlert('One or more errors has occured:<br/>'+msg);
         } else {
-            $(elem).stop().fadeOut('fast').fadeIn('fast').removeAttr('disabled');
-            console.log('error');
-            alertFactory.protoAlert('Please either login or check your internet connection.');
+            console.log(typeof data.message);
+            alertFactory.protoAlert('Oops! An unknown error has occured! Please refresh and try again.');
         }
-        
     });
-
-
     //fail
     posting.fail(function(err) {
-
-
         alertFactory.protoAlert(err);
-
         //alertFactory.protoAlert('Please either login or check your internet connection.');
-
     });
 };
-
-
 $( "button#changeButton" ).click(function(event) {
     event.preventDefault();
     editProfile($(this));
 });
-
-
+/* Change Profile Picture */
+$("#profilePictureCont").click(function(){
+    console.log("Clicked");
+    $.fancybox.open([{
+        href : '#fancyboxCont',
+        title : ''
+    }], {
+        padding : 10
+    });
+});
+var profilePostFactory = Object.create(streamFactory);
+profilePostFactory.streamContClass = 'profilePostsBlock';
+profilePostFactory.append.identifier = function($el, post) {
+    return $el.attr('data-uid', post.User_userId).attr('data-pid', post.postId);
+}
+profilePostFactory.append.profileThumb = function(post) {
+    return "";
+}
+profilePostFactory.append.userName = function(post) {
+    return "";
+}
+profilePostFactory.append.effect = function($el) {
+    return $el.velocity('fadeIn', {
+        duration: 300,
+        display: 'block'
+    });
+}
+profilePostFactory.append.imageLink = function($stream, img) {
+    img.onclick = function() {
+        $("#profilePicture").attr("src",img.src);
+        profile.profilePicture = img.src.filename();
+        $.fancybox.close();
+    }
+}
+profilePostFactory.append.imageOnLoad = function($stream, img) {
+    var $imgHolder = $stream.find('.imgLoaderHolder');
+    var $blockHolder = $stream.find('.blockImgHolder');
+    //get the container to hold the height cause we are gonna switch out.
+    $blockHolder.css('height', $imgHolder.height() + 'px');
+    $imgHolder.remove();
+    $blockHolder.append(img);
+    //reset the height attr.
+    $blockHolder.css('height', 'auto');
+    this.effect($(img));
+}
+profilePostFactory.init(renderJSON.posts, {burst: 0});
+String.prototype.filename=function(extension){
+    var s= this.replace(/\\/g, '/');
+    s= s.substring(s.lastIndexOf('/')+ 1);
+    return extension? s.replace(/[?#].+$/, ''): s.split('.')[0];
+}
+$(".blockPad").remove();
 </script>
-{>blockFooter/}
-
 {>blockFooterScripts/}
