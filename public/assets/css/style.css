@@ -475,7 +475,6 @@ footer,
 #main {
   margin: auto;
   padding-top: 1px;
-  padding-bottom: 15px;
   box-sizing: border-box;
 }
 @media (min-width: 541px) {

@@ -40,71 +40,58 @@ router.get('/test2', function(req, res) {
     });
 });
 
+/* Every page has a generic set of res.render variables:
+
+    title:          (self explanatory)
+
+    p:              this is the global path file that allows in-template use of universal
+                    paths like this: <img src="{p.img}/image.jpg">
+
+    f:              global file paths. Points to commonly used files. Like the error img:
+                    {p.errorImg} will give you the path yourdefaultdomain.com/images/errorImg.jpg
+
+    printHead:      the generic javascript variables you want to print on every header.
+
+    renderJSON:     this is the JSON that you want to pass to the client side if there is
+                    client-side rendering going on.
+
+    renderJSONraw:  (optional) unstringified renderJSON for dust use.
+
+    page:           give each page a unique name so that you can use it as a condition inside the templates.
+
+*/
+
+
+
 // Homepage
 router.get('/', function(req, res) {
     //sys.puts(sys.inspect(req));
     var gJSON = globalJSON(req);
-    var eventEmitter = new events.EventEmitter();
+
+    function renderTheStream(renderJSON) {
+        res.render('index', { 
+            /* generics */
+            title: meta.header(),
+            p: gJSON.pathsJSON.paths,
+            f: gJSON.pathsJSON.files,
+            printHead: JSON.stringify(gJSON.printHead),
+            renderJSON: JSON.stringify(renderJSON),
+            page: "index",
+
+            /* specifics */
+            showStream: true,
+        });
+    }
 
     //do something about the "preview"
     if(req.isAuthenticated()) {
-
-        //bind the final callback first
-        eventEmitter.on('streamJSONDone', function thenRender(renderJSON) {
-
-
-            /* Every page has a generic set of variables:
-
-                title:          (self explanatory)
-
-                p:              this is the global path file that allows in-template use of universal
-                                paths like this: <img src="{p.img}/image.jpg">
-
-                f:              global file paths. Points to commonly used files. Like the error img:
-                                {p.errorImg} will give you the path yourdefaultdomain.com/images/errorImg.jpg
-
-                printHead:      the generic javascript variables you want to print on every header.
-
-                renderJSON:     this is the JSON that you want to pass to the client side if there is
-                                client-side rendering going on.
-
-                renderJSONraw:  (optional) unstringified renderJSON for dust use.
-
-                page:           give each page a unique name so that you can use it as a condition inside the templates.
-
-            */
-
-
-
-            res.render('index', { 
-                /* generics */
-                title: meta.header(),
-                p: gJSON.pathsJSON.paths,
-                f: gJSON.pathsJSON.files,
-                printHead: JSON.stringify(gJSON.printHead),
-                renderJSON: JSON.stringify(renderJSON),
-                page: "index",
-
-                /* specifics */
-                showStream: true,
-
-                //isPreview is used to block like buttons and comment box from
-                //being generated in the view. We don't really need it here. It
-                //default to false
-                //isPreview: false
-
-            });
-
-        });
-
-        //now run callback dependents
-        var streamJSON = require('../apps/stream/streamJSON.js')(req, eventEmitter);
-
+        require('../apps/stream/streamJSON.js')(req, renderTheStream);
     } else {
         res.render('index', { 
             title: meta.header(),
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
+            printHead: JSON.stringify(gJSON.printHead),
             page: "login",
 
             showStream: false,
@@ -203,8 +190,7 @@ router.post('/api/signup', function(req, res, next) {
         }
         //log the user in
         req.logIn(user, function(err) {
-            console.log('Error after registration: ' + err);
-            if(err) { return res.json({error: 'unknown'}); }
+            if(err) { console.log('Error after registration: ' + err); return res.json({error: 'unknown'}); }
             return res.json({success: true});
         });
     })(req, res, next);
@@ -380,29 +366,6 @@ router.get('/search', function(req, res) {
     }
 });
 
-    // router.post('/search', function(req, res) {
-    //     var gJSON = globalJSON(req);
-    //     var eventEmitter = new events.EventEmitter();
-
-    //     //bind the final callback first
-    //     eventEmitter.on('searchUsersDone', function thenRender(renderJSON) {
-    //         res.render('search', { 
-    //             title: meta.header(),
-    //             isLoggedIn: isLoggedIn(req),
-    //             p: gJSON.pathsJSON.paths,
-    //             f: gJSON.pathsJSON.files,
-    //             printHead: JSON.stringify(gJSON.printHead),
-    //             renderJSON: renderJSON,
-    //             isStream: false
-    //         });
-
-    //     });
-
-    //     //now run callback dependents
-    //     var searchUsers = require('../apps/searchUsers.js')(req, eventEmitter);
-    // });
-
-
 router.post('/api/search', function(req, res) {
     if(!req.isAuthenticated()) { return res.json({success: false}); }
     if(typeof req.body.query === 'undefined' || req.body.query === '') { return res.json({success: false}); }
@@ -572,17 +535,6 @@ router.get('/ua-parser', function(req, res) {
 // router.get(/\b#\w\w+/, function(req, res) {
 //     res.send('its a hashtag');
 // });
-router.get('/test', function(req, res) {
-    db.Following.find(
-        {where: db.Sequelize.and(
-            {FollowerId:2},
-            {FollowId:1}
-        )}
-    ).then(function(user) {
-        res.send(user);
-    });
-});
-
 
 /* POSTS and USERNAMES */
 router.get('/p/:pid', function(req,res) {
@@ -637,7 +589,7 @@ router.get('/:user', function(req, res) {
         }
         //console.log(renderJSON);
 
-        res.render('profile', { 
+        res.render('me', { 
             /*generic */
             title: meta.header(),
             p: gJSON.pathsJSON.paths,
@@ -661,39 +613,6 @@ router.get('/:user', function(req, res) {
     var profileJSON = require('../apps/profileJSON.js')(req, eventEmitter, false);
 
 });
-
-// router.get('/:user', function(req, res, next) {
-
-//     if(req.params.user === 'socket.io') {
-//         return next(err);
-//     }
-
-//     //if first character is "#", 
-//     if(req.params.user.substring(0,1) === '@') {
-//         req.params.user = req.params.user.substring(1);
-//     }
-
-//     var eventEmitter = new events.EventEmitter();
-
-//     //bind the final callback first
-//     eventEmitter.on('profileJSONDone', function thenRender(renderJSON) {
-//         res.render('profile', { 
-//             title: meta.header(),
-//             isLoggedIn: isLoggedIn(req),
-//             gJSON: gJSON,
-//             p: gJSON.paths,
-//             renderJSON: renderJSON,
-//             isSearch: true,
-//             isProfile: true,
-//             userId: ( JSON.parse(renderJSON) ).userId
-//         });
-
-//     });
-
-//     //now run callback dependents
-//     var getProfile = require('../apps/getProfile.js')(req, eventEmitter);
-
-// });
 
 
 

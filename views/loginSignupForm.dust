@@ -145,8 +145,8 @@ img.bg {
                 
                 //reset any errors
                 var $eHW = $(this).find('.errHolder');
-                $eHW.velocity('transition.slideUpOut', 200, function($el) {
-                    $el.empty();
+                $eHW.velocity('transition.slideUpOut', 200, function(el) {
+                    $(el).empty();
                 });
 
                 //start flasher

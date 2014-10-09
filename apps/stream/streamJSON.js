@@ -1,6 +1,6 @@
 var db = global.db;
 
-module.exports = function streamJSON(req, eventEmitter, opts) {
+module.exports = function streamJSON(req, render, opts) {
 
     /* OPTIONS */
     if(opts) {
@@ -12,7 +12,7 @@ module.exports = function streamJSON(req, eventEmitter, opts) {
     /* Error handling */
     var throwErr = function(error) {
         console.log(error);
-        return eventEmitter.emit('streamJSONDone', false);
+        return render(false);
     }
 
     /* DEFAULT DB calls */
@@ -104,34 +104,65 @@ module.exports = function streamJSON(req, eventEmitter, opts) {
 
             console.log('streamJSON: got the follows...getting posts');
             var where = { User_userId : idArray};
+
+            //curated stream implementation. awaiting complete code....
+            // return [
+
+            //     db.Stream.findAll({
+            //         where: {User_userId: req.user.userId}, 
+            //         include: [{
+            //             model: db.Post,
+            //             include: [{   
+            //                 model: db.User,
+            //                 attributes: [ 'userNameDisp', 'userId', 'profilePicture' ]
+            //             }, { 
+            //                 model: db.Comment,
+            //                 attributes: ['commentId', 'comment', 'createdAt'],
+            //                 include: [{
+            //                     model: db.User,
+            //                     attributes: [ 'userNameDisp','profilePicture' ]
+            //                 }]
+            //             }, {
+            //                 model: db.Like,
+            //                 attributes: [ 'User_userId' ],
+            //                 include: [{
+            //                     model: db.User,
+            //                     attributes: [ 'userNameDisp' ]
+            //                 }]
+            //             }]
+            //         }], 
+            //         order: [
+            //             [db.Post, 'createdAt', 'DESC'], 
+            //             [db.Post, db.Comment, 'createdAt', 'ASC'] 
+            //         ],
+            //         limit: 20
+            //     }
+            //             // {raw: true,
+            //             // nest: true}
+            //     ),
+
+            //     req.user.getNotifications({
+            //         include: [
+            //             {
+            //                 model: db.User,
+            //                 as: 'Setter',
+            //                 attributes:['userId','userNameDisp']
+            //             }
+                        
+            //         ],
+            //         attributes: ['Post_postId','createdAt','type'],
+            //         order: [['createdAt', 'DESC']]
+            //     })
+            // ]
+
             return [
 
-                db.Stream.findAll({
-                    where: {User_userId: req.user.userId}, 
-                    include: [{
-                        model: db.Post,
-                        include: [{   
-                            model: db.User,
-                            attributes: [ 'userNameDisp', 'userId', 'profilePicture' ]
-                        }, { 
-                            model: db.Comment,
-                            attributes: ['commentId', 'comment', 'createdAt'],
-                            include: [{
-                                model: db.User,
-                                attributes: [ 'userNameDisp','profilePicture' ]
-                            }]
-                        }, {
-                            model: db.Like,
-                            attributes: [ 'User_userId' ],
-                            include: [{
-                                model: db.User,
-                                attributes: [ 'userNameDisp' ]
-                            }]
-                        }]
-                    }], 
+                db.Post.findAll({
+                    where: where, 
+                    include: include, 
                     order: [
-                        [db.Post, 'createdAt', 'DESC'], 
-                        [db.Post, db.Comment, 'createdAt', 'ASC'] 
+                        ['createdAt', 'DESC'], 
+                        [db.Comment, 'createdAt', 'ASC'] 
                     ],
                     limit: 20
                 }
@@ -159,12 +190,13 @@ module.exports = function streamJSON(req, eventEmitter, opts) {
             //console.log(idArray);
             //console.log(streams);
 
-            var i = 0;
-            var posts = {};
-            while(streams[i]) {
-                posts[i] = streams[i].post;
-                i++;
-            }
+            // //curated stream implementation
+            // var i = 0;
+            // var posts = {};
+            // while(streams[i]) {
+            //     posts[i] = streams[i].post;
+            //     i++;
+            // }
 
             //console.log(posts);
 
@@ -172,6 +204,10 @@ module.exports = function streamJSON(req, eventEmitter, opts) {
             //unDAO'ify the results.
             //var posts = JSON.parse(JSON.stringify(posts));
 
+            //comment this when stream is in implementation
+            var posts = streams;
+
+            
             var posts = likesSplicer(posts);
 
             //join notifications and posts
@@ -180,7 +216,7 @@ module.exports = function streamJSON(req, eventEmitter, opts) {
 
             //console.log(JSON.stringify(posts));
 
-            return eventEmitter.emit('streamJSONDone', renderJSON);
+            return render(renderJSON);
 
         }).catch(throwErr);
 
@@ -198,9 +234,7 @@ module.exports = function streamJSON(req, eventEmitter, opts) {
             //var renderJSON = {};
             renderJSON.posts = posts;
 
-            return function () {
-                eventEmitter.emit('streamJSONDone', renderJSON);
-            }();
+            return render(renderJSON);
 
         }).catch(throwErr);
 
@@ -260,7 +294,7 @@ module.exports = function streamJSON(req, eventEmitter, opts) {
 
             renderJSON.posts = likesSplicer(renderJSON.posts);
             renderJSON.postCounts = postCounts + 1;
-            return eventEmitter.emit( 'streamJSONDone', renderJSON);
+            return render(renderJSON);
 
         }).catch(throwErr);
     } else if(showType === 'hashtag') {
@@ -340,7 +374,7 @@ module.exports = function streamJSON(req, eventEmitter, opts) {
 
             if(users) { renderJSON.posts = likesSplicer(renderJSON.posts); }
             //renderJSON.postCounts = postCounts + 1;
-            return eventEmitter.emit( 'streamJSONDone', renderJSON);
+            return render(renderJSON);
 
         }).catch(throwErr);
     }
