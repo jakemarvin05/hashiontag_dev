@@ -280,6 +280,7 @@ streamFactory.append.image = function($stream, i, burst) {
         }
         imgURL = theParent.mediaDir + '/' + post.imgUUID + '.jpg';
         img.id = post.imgUUID;
+        img.dataset.imgid = post.imgUUID;
         img.alt = VV.utils.stripHTML(post.desc);
     }
     img.src = imgURL;

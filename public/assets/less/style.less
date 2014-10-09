@@ -152,6 +152,7 @@ footer, .globalWrapper, .spanAll {
 -------------------------------------------------*/
 
 @navBarHeight: 70px;
+@navBarHeightMobile: 60px;
 @navBarFont: #fff;
 @navBarFontHover: @mainRedDark;
 @navBarColor: #fff;
@@ -162,14 +163,24 @@ footer, .globalWrapper, .spanAll {
 */
 
 .navWrapper {
-    height: @navBarHeight;
+    @media (min-width: 0px) and (max-width: 320px) {
+        height: @navBarHeightMobile;
+    }   
+    @media (min-width: 321px){
+        height: @navBarHeight;
+    }   
     position: fixed;
     z-index: 999;
     -webkit-transition: 0.5s;
     transition: 0.5s;
 }
     #opacBar {
-        height: @navBarHeight;
+        @media (min-width: 0px) and (max-width: 320px) {
+            height: @navBarHeightMobile;
+        }   
+        @media (min-width: 321px) {
+            height: @navBarHeight;
+        }   
         width: 100%;
         background-color: #ef4549;
         -webkit-transition: 0.5s;
@@ -272,7 +283,12 @@ footer, .globalWrapper, .spanAll {
     }
 
 .headerCompensate {
-    padding-top: @navBarHeight;
+    @media (min-width: 0px) and (max-width: 320px) {
+        padding-top: @navBarHeightMobile;
+    }   
+    @media (min-width: 321px) {
+        padding-top: @navBarHeight;
+    }  
 }
 #main {
     margin:auto;

@@ -323,19 +323,37 @@ footer,
 /* main red: #ef4549
 */
 .navWrapper {
-  height: 70px;
   position: fixed;
   z-index: 999;
   -webkit-transition: 0.5s;
   transition: 0.5s;
 }
+@media (min-width: 0px) and (max-width: 320px) {
+  .navWrapper {
+    height: 60px;
+  }
+}
+@media (min-width: 321px) {
+  .navWrapper {
+    height: 70px;
+  }
+}
 #opacBar {
-  height: 70px;
   width: 100%;
   background-color: #ef4549;
   -webkit-transition: 0.5s;
   transition: 0.5s;
   position: absolute;
+}
+@media (min-width: 0px) and (max-width: 320px) {
+  #opacBar {
+    height: 60px;
+  }
+}
+@media (min-width: 321px) {
+  #opacBar {
+    height: 70px;
+  }
 }
 #navBar {
   height: 100%;
@@ -444,8 +462,15 @@ footer,
   color: #d91639 !important;
   cursor: default !important;
 }
-.headerCompensate {
-  padding-top: 70px;
+@media (min-width: 0px) and (max-width: 320px) {
+  .headerCompensate {
+    padding-top: 60px;
+  }
+}
+@media (min-width: 321px) {
+  .headerCompensate {
+    padding-top: 70px;
+  }
 }
 #main {
   margin: auto;

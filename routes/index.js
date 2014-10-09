@@ -118,7 +118,6 @@ router.get('/preview', function(req, res) {
     //sys.puts(sys.inspect(req));
     var gJSON = globalJSON(req);
     var eventEmitter = new events.EventEmitter();
-    var preview = true;
 
     //bind the final callback first
     eventEmitter.on('streamJSONDone', function thenRender(renderJSON) {
@@ -145,7 +144,7 @@ router.get('/preview', function(req, res) {
     });
 
     //now run callback dependents
-    var streamJSON = require('../apps/stream/streamJSON.js')(req, eventEmitter, preview);
+    var streamJSON = require('../apps/stream/streamJSON.js')(req, eventEmitter, {showType: "preview"});
 });
 
 router.get('/login', function(req, res) {
@@ -219,28 +218,15 @@ router.post('/api/signup', function(req, res, next) {
 
 //ME
 router.get('/me', function(req, res) {
+    if(!req.isAuthenticated()) { return res.redirect('/'); }
     //sys.puts(sys.inspect(req));
     var gJSON = globalJSON(req);
     var eventEmitter = new events.EventEmitter();
 
     //bind the final callback first
     eventEmitter.on('profileJSONDone', function thenRender(renderJSON) {
-        var reason = false;
 
-        if(renderJSON === 'redirect') {
-            return res.redirect('/');
-        }
-
-        if(renderJSON === 'userNotFound') {
-            reason = renderJSON;
-            renderJSON = false;
-        }
-        if(renderJSON === 'reqNotAuthUserIsPrivate') {
-            reason = renderJSON;
-            renderJSON = false;
-        }
-
-        res.render('profile', { 
+        res.render('me', { 
             title: meta.header(),
             isLoggedIn: isLoggedIn(req),
             p: gJSON.pathsJSON.paths,
@@ -248,7 +234,6 @@ router.get('/me', function(req, res) {
             printHead: JSON.stringify(gJSON.printHead),
             renderJSON: JSON.stringify(renderJSON),
             renderJSONraw: renderJSON,
-            reason: reason,
             page: 'me'
         });
 
@@ -260,38 +245,9 @@ router.get('/me', function(req, res) {
 });
 
 //edit profile
-router.get('/me/edit', function(req, res) {
+router.post('/api/updateprofile', function(req, res) {
 
-    var gJSON = globalJSON(req);
-    var eventEmitter = new events.EventEmitter();
-
-    //bind the final callback first
-    eventEmitter.on('editProfileDone', function thenRender(user) {
-
-        res.render('editProfile', { 
-
-            title: meta.header(),
-            isLoggedIn: isLoggedIn(req),
-            p: gJSON.pathsJSON.paths,
-            f: gJSON.pathsJSON.files,
-            printHead: JSON.stringify(gJSON.printHead),
-            user: user
-
-        });
-    });
-
-    eventEmitter.on('editProfileError', function thenRender() {
-        res.redirect('/');
-    });
-
-    require('../apps/editProfile.js')(req, eventEmitter);
-
-});
-
-//edit profile
-router.post('/api/editProfile', function(req, res) {
-
-    require('../apps/updateProfile.js')(req)
+    require('../apps/updateProfile.js')(req, res);
 
 });
 

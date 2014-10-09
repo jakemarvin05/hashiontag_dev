@@ -216,7 +216,7 @@ var editProfile = function(elem) {
     profile.email = $('#email').val().toString();
     profile.about = $('#about').val().toString(); 
     // Send the data using post
-    var posting = $.post( "{p.absPath}/api/editProfile", profile );
+    var posting = $.post( "{p.absPath}/api/updateprofile", profile );
     //done
     posting.done(function( data ) {
         console.log(data);

@@ -78,14 +78,14 @@ $('#signupForm').validate({
         
         // Get some values from elements on the page:
         var $form = $('#signupForm'),
-                $username = $form.find('input[name="username"]')
-                username = $username.val(),
-                $email = $form.find('input[name="email"]')
-                email = $email.val(),
-                $password = $form.find('input[name="password"]')
-                password = $password.val(),
-                url = $form.attr("action"),
-                submitButton = $form.find('button[id="submit"]');
+            $username = $form.find('input[name="username"]'),
+            username = $username.val(),
+            $email = $form.find('input[name="email"]'),
+            email = $email.val(),
+            $password = $form.find('input[name="password"]'),
+            password = $password.val(),
+            url = $form.attr("action"),
+            submitButton = $form.find('button[id="submit"]');
         // Send the data using post
         var posting = $.post( url, { username: username, email: email, password: password } );
         //done

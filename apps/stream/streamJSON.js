@@ -166,7 +166,7 @@ module.exports = function streamJSON(req, eventEmitter, opts) {
                 i++;
             }
 
-            console.log(posts);
+            //console.log(posts);
 
 
             //unDAO'ify the results.

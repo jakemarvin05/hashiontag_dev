@@ -20,7 +20,7 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
     var returnedUser = {};
 
     //generics
-    var attributes = [ 'userId', 'userNameDisp', 'email', 'name', 'about', 'profilePicture', 'isPrivate' ];
+    var attributes = [ 'userId', 'userNameDisp', 'email', 'name', 'gender', 'about', 'web', 'country', 'profilePicture', 'isPrivate' ];
     var include = [{
         //the user's posts
         model: db.Post,
@@ -179,8 +179,7 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
             returnedUser.isFollowable = true;
             return eventEmitter.emit( 'profileJSONDone', returnedUser );
 
-        }).cancellable()
-        .catch(function(error) {
+        }).catch(function(error) {
             return throwErr(error);
         });
     }

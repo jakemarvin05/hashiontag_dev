@@ -1,0 +1,948 @@
+{>blockHeader/}
+{>blockHeaderAfterHook/}
+<style>
+/* glyphicon overwrite */
+.glyphicon {
+    top: 3px;
+}
+header.profileHeader>div {
+    margin-left: auto;
+    margin-right: auto;
+    text-align:center;
+}
+.profileHeader {
+    border-bottom: 1px solid #ccc;
+    background: #f7f7f7;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    overflow: hidden;
+}
+
+        .profilePictureCont {
+            width: 100px;
+            max-width: 100%;
+            margin: auto;
+        }
+            .profilePictureCont img {
+                width: 100%;
+            }
+
+        .profileUserNameDisp {
+            font-size: 26px;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+
+        .profileInfoInlines {
+            width: 280px;
+            margin: auto;
+            word-wrap: break-word;
+        }
+            .profileInfoInlines>div {
+                display: inline-block;
+                padding: 5px 2px;
+            }
+
+        .profileAbout {
+            margin-top: 20px;
+            width: 280px;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #editProfileButton {
+            display: block;
+            margin: auto;
+            margin-top: 10px;
+            height: 28px;
+            font-size: 13px;
+            padding-top: 8px;
+        }
+
+        .profileRelationship {
+            margin-top: 20px;
+        }
+            .profileFollowBlock {
+                display:inline-block;
+                padding: 0px 10px;
+                height: 52px;
+                vertical-align: middle;
+            }
+            .profileFollowBlock:not(:first-child) {
+                border-left: 1px solid #ccc;
+            }
+
+                .profileFollowWrap {
+                    display: inline-block;
+                    vertical-align: middle;
+                }
+                    .profileFollowHdr, .profileFollowingHdr {
+                        text-transform: uppercase;
+                        color: #ccc;
+                        font-size: 12px;
+                        padding-top: 4px;
+                    }
+
+                    .profileFollowCount {
+                        font-weight: bold;
+                        font-size: 20px;
+                    }
+
+                    @media (min-width: 0px) and (max-width: 480px) {
+                        .profileFollowButtonCont {
+                            display: block;
+                            border-left: 0px !important;
+                        }
+                    }
+                    .profileFollowText {
+                        font-size: 13px;
+                        color: #ccc;
+                        max-width: 200px;
+                    }
+                    #profileFollowButton {
+                        font-size: 12px;
+                        height: 24px;
+                        width: 132px;
+                        padding: 7px 0px;
+                    }
+
+
+
+
+.profilePostsBlock {
+    width: 100%;
+    text-align: center;
+} 
+
+    .profilePostsBlock article {
+        display: inline-block;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    /*profilePostsBlock and its article responsive */ 
+    @media (min-width: 0px) and (max-width: 320px) {
+        .profilePostsBlock {
+            padding: 2px;
+        }
+        .profilePostsBlock article {
+            width: 153px;
+            padding: 2px;
+        }
+
+    }  
+    @media (min-width: 321px) and (max-width: 480px) {
+        .profilePostsBlock {
+            padding: 2px;
+        }
+        .profilePostsBlock article {
+            width: 48.5%;
+            padding: 2px;
+        }
+
+    }  
+    @media (min-width: 481px) and (max-width: 640px) {
+        .profilePostsBlock {
+            padding: 2px;
+        }
+        .profilePostsBlock article {
+            width: 32.3%;
+            padding: 2px;
+        }
+
+    }
+    @media (min-width: 641px) and (max-width: 767px) {
+        .profilePostsBlock {
+            padding: 5px;
+        }
+        .profilePostsBlock article {
+            width: 23.4%;;
+            padding: 5px;
+        }
+
+    } 
+    @media (min-width: 768px){
+        .profilePostsBlock {
+            padding: 10px;
+        }
+        .profilePostsBlock article {
+            width: 166px;
+            padding: 10px;
+        }
+
+    } 
+
+
+    .profilePostsBlock .blockProfileThumb,
+    .profilePostsBlock .blockUserHolder,
+    .profilePostsBlock .blockLikeText,
+    .profilePostsBlock .blockTextHolder,
+    .profilePostsBlock .blockLoadMoreText,
+    .profilePostsBlock .postCommentCont,
+    .profilePostsBlock .postInteractions {
+        display: none;
+    }
+
+    /* Display Hacks */
+    .profilePostsBlock .blockPad {
+        height: 36px;
+        margin-top: -8px;
+        margin-bottom: 8px;
+    }
+    .profilePostsBlock .blockMainInfo {
+        border: 0px;
+    }
+    .profilePostsBlock .blockTop {
+        position: absolute;
+    }
+        .profilePostsBlock .blockInteract>div {
+            padding: 10px 0px!important;
+        }
+
+            .profilePostsBlock .blockInteract .blockInteractText {
+                display: none;
+            }
+
+            .profilePostsBlock .blockInteract div[class^="icon-"] {
+                font-size: 18px;
+            }
+            .profilePostsBlock .blockInteract>div {
+                display: inline-block;
+            }
+
+            .profilePostsBlock .blockImgHolder img {
+                cursor: pointer;
+            }
+
+/* Form display elements */
+.profileEditClickToChange {
+    color: #ccc;
+    height: 45px;
+}
+.profileEditClickToChange>div {
+    height: 100%;
+}
+    .profileEditClickToChange p {
+        margin: -5px auto 10px auto;
+        font-size: 15px;
+    }
+    .profileEditPicButtons {
+        font-size: 28px;
+        display: none;
+        cursor: pointer;
+    }
+    .profileEditPicButtons>div {
+        display: inline-block;
+        border: 3px solid #ccc;
+        height: 40px;
+        width: 40px;
+        box-sizing: border-box;
+        border-radius: 30px;
+        padding-top: 3px;
+        text-align: center;
+    }
+        #profileEditPicCancel {
+            margin-left: 20px;
+        }
+
+
+    #profileInputs label {
+        width: 65px;
+        display: inline-block;
+        padding: 5px;
+        text-align: center;
+
+    }
+    #profileInputs input[type="text"], #profileInputs textarea, #profileInputs select {
+        width: 210px;
+        margin: 10px 0px;
+    }
+    #profileInputs textarea {
+        height: 90px;
+    }
+
+    #thumbnailScrollerWrap {
+        width: 100%;
+        overflow-x: scroll;
+        margin-bottom: 10px;
+    }
+    #thumbnailScroller {
+        position: relative;
+        margin: auto;
+    }
+    #thumbnailScroller img {
+        display: block;
+        float: left;
+    }
+    @media (min-width: 0px) and (max-width: 540px) {
+        #thumbnailScroller {
+            width: 2000em;
+        }
+        #thumbnailScroller img {
+            width: 60px;
+        }
+    }
+    /* overwrite the javascript set width */
+    @media (min-width: 541px){
+        #thumbnailScroller {
+            width: 100%!important;
+        }
+        #thumbnailScroller img {
+            width: 10%;
+        }
+    }    
+
+
+</style>
+<section id="main">
+
+    <header class="profileHeader">
+
+        <div id="thumbnailScrollerWrap" style="display:none;">
+            <div id="thumbnailScroller" class="clearfix">
+            </div>
+        </div>
+
+        <div class="profilePictureCont">
+            {?renderJSONraw.profilePicture}
+            <img src="{p.mediaDir}/{renderJSONraw.profilePicture}.jpg" data-imgid="{renderJSONraw.profilePicture}">
+            {:else}
+            <img src="{f.errProfilePic}">
+            {/renderJSONraw.profilePicture}
+        </div>
+
+        <div class="profileDetails" data-vel="normalDisplay">
+
+            <div class="profileUserNameDisp">
+                @{renderJSONraw.userNameDisp}
+            </div>
+
+            <div class="profileInfoInlines">
+                {?renderJSONraw.name}
+                <div class="profileFullName">
+                    <span data-form="name">{renderJSONraw.name}</span>
+                </div>
+                {/renderJSONraw.name}
+
+                {?renderJSONraw.gender}
+                <div class="profileGender">
+                    <span data-form="gender">{renderJSONraw.gender}</span>
+                </div>
+                {/renderJSONraw.gender}
+
+                {! email is compulsory so no condition required !}
+                <div class="profileEmail">
+                    <span class="glyphicon glyphicon-envelope"></span><span data-form="email">{renderJSONraw.email}</span>
+                </div>
+
+                {?renderJSONraw.country}
+                <div class="profileCountry">
+                    <span class="glyphicon glyphicon-map-marker"></span><span data-form="country">{renderJSONraw.country}</span>
+                </div>
+                {/renderJSONraw.country}
+
+                {?renderJSONraw.web}
+                <div class="profileWeb">
+                    <span class="glyphicon glyphicon-link"></span><span data-form="web">{renderJSONraw.web}</span>
+                </div>
+                {/renderJSONraw.web}
+
+            </div>
+
+            <div class="profileAbout">
+                {?renderJSONraw.about}
+                    "{renderJSONraw.about}"
+                {:else}
+                    "No description yet..."
+                {/renderJSONraw.about}
+            </div>
+
+            {?renderJSONraw.isOwnProfile}
+            <button id="editProfileButton" class="darkButton">Edit Profile</button>
+            {/renderJSONraw.isOwnProfile}
+
+        </div><!-- Profile Details -->
+
+        <!-- Edit Form -->
+        <div class="profileEditForm" style="display:none;" data-vel="editDisplay">
+            <div class="profileEditClickToChange">
+                <div id="profileEditPicText">
+                    <span class="glyphicon glyphicon-chevron-up"></span>
+                    <p>click to change profile photo</p>
+                </div>
+                <div class="profileEditPicButtons">
+                    <div id="profileEditPicOk">
+                        <span class="glyphicon glyphicon-ok"></span>
+                    </div>
+                    <div id="profileEditPicCancel">
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </div>
+                </div>
+            </div>
+
+            <form id="profileInputs">
+                <div class="profileInputsName">
+                    <label>Name</label><input type="text" name="name" id="name" value="{renderJSONraw.name}" placeholder="Your name" data-orgin="{renderJSONraw.name}">
+                </div>
+                <div class="profileInputsName">
+                    <label>Gender</label>
+                    <select name="gender" id="gender" data-origin="{renderJSONraw.gender}">
+                        <option value="" selected>-- choose gender --</option>
+                        <option value="female">Female</option>
+                        <option value="male">Male</option>
+                    </select>
+                    <script>
+                        var $g = $('#gender'); 
+                        if($g.attr('data-origin')) {
+                            $g.find('option[value="{renderJSONraw.gender}"]').attr('selected', 'selected');
+                        }
+                    </script>
+                </div>
+                <div class="profileInputsEmail">
+                    <label>E-mail</label><input type="text" name="email" id="email" value="{renderJSONraw.email}" placeholder="you cannot leave this blank..." required  data-orgin="{renderJSONraw.email}">
+                </div>
+
+                <div class="profileInputsWeb">
+                    <label>Web/Blog</label><input type="text" name="web" id="web" value="{renderJSONraw.web}" placeholder="-- empty --" data-orgin="{renderJSONraw.web}">
+                </div>
+
+                <div class="profileInputsCount">
+                    <label> Country </label><select name="country" id="country" data-orgin="{renderJSONraw.country}"></select>
+                    <script src="{p.js}/listOfCountries.js"></script>
+                    <script>selectCountry('country', '{renderJSONraw.country}');</script>
+                </div>
+                <div class="profileInputsAbout">
+                <label> About </label><textarea name="about" id="about"  data-orgin="{renderJSONraw.about}">{renderJSONraw.about}</textarea><br/>
+            
+                <button id="updateProfileButton" class="darkButton" type="submit"><span class="glyphicon glyphicon-ok"></span></button>
+
+                <button id="cancelButton" class="darkButton"><span class="glyphicon glyphicon-remove"></span></button>
+            </form>
+        </div>
+
+
+        <div class="profileRelationship" data-vel="normalDisplay">
+            <div class="profileFollowBlock">
+                <div class="vaDiv"></div>
+                <div class="profileFollowWrap">
+                    <div class="profileFollowHdr">
+                        Followers
+                    </div>
+                    <div class="profileFollowCount" id="profileFollowersCount">
+                        {renderJSONraw.followerCount}
+                    </div>
+                </div>
+            </div>
+
+            <div class="profileFollowBlock">
+                <div class="vaDiv"></div>
+                <div class="profileFollowWrap">
+                    <div class="profileFollowHdr">
+                        Following
+                    </div>
+                    <div class="profileFollowCount" id="profileFollowingCount">
+                        {renderJSONraw.followingCount}
+                    </div>
+                </div>
+            </div>
+            {?renderJSONraw.isFollowable}
+                <div class="profileFollowButtonCont profileFollowBlock">
+                    <div class="vaDiv"></div>
+                    <div class="profileFollowWrap">
+                        {?renderJSONraw.targetFollowedViewer}
+                            <div class="profileFollowText">
+                                @{renderJSONraw.userNameDisp} is following you.
+                            </div>
+                        {/renderJSONraw.targetFollowedViewer}
+                        <div class="profileFollowButtonDiv">
+                            {?renderJSONraw.viewerFollowedTarget}
+                                <button class="darkButton" id="profileFollowButton" data-action="unfollow" data-uid="{renderJSONraw.userId}" {?renderJSONraw.targetFollowedViewer}data-follow="follow back"{/renderJSONraw.targetFollowedViewer}>unfollow</button>
+                                {:else}
+                                <button class="darkButton" id="profileFollowButton" data-action="follow" data-uid="{renderJSONraw.userId}"  {?renderJSONraw.targetFollowedViewer}data-follow="follow back"{/renderJSONraw.targetFollowedViewer}>
+                                    {?renderJSONraw.targetFollowedViewer}
+                                        follow back
+                                    {:else}
+                                        follow
+                                    {/renderJSONraw.targetFollowedViewer}
+                                </button>
+                            {/renderJSONraw.viewerFollowedTarget}
+                        </div>
+                    </div>
+                </div>
+            {/renderJSONraw.isFollowable}
+        </div>
+    </header>
+
+
+    <div class="profilePostsBlock" data-vel="normalDisplay">
+        {>"layouts/profilePostsLayout"/}
+    </div>
+
+</section><!-- main -->
+
+{! This is used to contain the fancybox popup duplicate !}
+<div id="fancyboxCont" style="display:none;">
+    <article></article>
+</div>
+
+{>blockFooter/}
+
+<script src="{p.js}/streamFactory.js"></script>
+<script>
+var profilePostFactory = Object.create(streamFactory);
+
+profilePostFactory.streamContClass = 'profilePostsBlock';
+
+profilePostFactory.append.identifier = function($el, post) {
+    return $el.attr('data-uid', post.User_userId).attr('data-pid', post.postId);
+}
+profilePostFactory.append.profileThumb = function(post) {
+    var theParent = this.parent;
+    var profilePic = renderJSON.profilePicture;
+
+    var pp = (profilePic) ? theParent.mediaDir + '/' + profilePic + '.jpg' : theParent.errorImg;
+
+    var blockProfileThumbHTML  = '<a href="/' + renderJSON.userNameDisp + '">';
+        blockProfileThumbHTML += '<img src="' + pp + '"></a>';
+
+    return blockProfileThumbHTML;
+}
+profilePostFactory.append.userName = function(post) {
+    var blockUserNameHTML  = '<a href="/' + renderJSON.userNameDisp + '">';
+        blockUserNameHTML += renderJSON.userNameDisp + '</a>';
+    return blockUserNameHTML;
+}
+profilePostFactory.append.effect = function($el) {
+    return $el.velocity('fadeIn', {
+        duration: 300,
+        display: 'block'
+    });
+}
+
+profilePostFactory.append.imageLink = function($stream, img) {
+
+    var strId = '#' + $stream.attr('id');
+    img.onclick = function() {
+        //get the stream's html and put it into the "fancybox cont"
+        $('#fancyboxCont article').html($(strId).html());
+
+        //then make fancybox open it.
+        $.fancybox.open([{
+            href : '#fancyboxCont',
+            title : ''
+        }], {
+            padding : 10
+        });
+    }
+
+}
+profilePostFactory.append.imageOnLoad = function($stream, img) {
+    var $imgHolder = $stream.find('.imgLoaderHolder');
+    var $blockHolder = $stream.find('.blockImgHolder');
+    //get the container to hold the height cause we are gonna switch out.
+    $blockHolder.css('height', $imgHolder.height() + 'px');
+    $imgHolder.remove();
+    $blockHolder.append(img);
+    //reset the height attr.
+    $blockHolder.css('height', 'auto');
+    this.effect($(img));
+}
+
+profilePostFactory.init(renderJSON.posts, {burst: 0});
+
+</script>
+<!-- Follow Button -->
+<script>
+var followButton = {
+    main: function($el) {
+
+        var targetUserId = $el.attr('data-uid'),
+            action = $el.attr('data-action'),
+            $followButton = $el,
+            $followersCount = $('#profileFollowersCount'),
+            followersCount = parseFloat($followersCount.html()),
+            followText = $followButton.attr('data-follow'); //this is to capture the "follow back" if it exist.
+
+
+        //disable the button
+        $followButton.attr('disabled','disabled');
+        setTimeout(function() {
+            $followButton.removeAttr('disabled');
+        }, 1000);
+
+        //change the state
+        function changeState() {
+            if(action === 'follow') {
+                $followButton.velocity('callout.pulse', 200);
+                $followButton.attr('data-action','unfollow');
+                $followButton.html('unfollow');
+                $followersCount.html(followersCount+1);
+            } else {
+                $followButton.attr('data-action','follow');
+                $followersCount.html(followersCount-1);
+                if(followText) {
+                    $followButton.html(followText);
+                } else {
+                    $followButton.html('follow');
+                }
+            }
+        }
+        changeState();
+
+
+        // Send the data using post
+        var posting = $.post( "{p.absPath}/api/follow", { 
+            userId: targetUserId, 
+            action: action 
+        });
+        
+        //done
+        posting.done(function(data) {
+            console.log(data);
+
+            if(data.success) {
+                console.log('success');
+            } else {
+                console.log('error');
+                changeState();
+                alertFactory.protoAlert('Please either login or check your internet connection.');
+            }
+        });
+
+        //fail
+        posting.fail(function() {
+            changeState();
+            alertFactory.protoAlert('Please either login or check your internet connection.');
+        });
+    },
+    init: function($el) {
+        var self = this;
+        $el.click(function(e) {
+            e.preventDefault();
+            return self.main($el);
+        });
+    }
+}
+followButton.init($('#profileFollowButton'));
+</script>
+
+<script>
+function editProfile() {
+    var $header = $('.profileHeader'),
+        $editBtn = $('#editProfileButton'),
+        $updateBtn = $('#updateProfileButton'),
+        $cancelBtn = $('#cancelButton'),
+        $normalD = $('div[data-vel="normalDisplay"]'),
+        $editD = $('div[data-vel="editDisplay"]'),
+        $profilePic = $('.profilePictureCont'),
+        $profileEditPicButtons = $('.profileEditPicButtons'),
+        $profileEditPicOk = $('#profileEditPicOk'),
+        $profileEditPicCancel = $('#profileEditPicCancel'),
+        $profileEditPicText = $('#profileEditPicText'),
+        hasAppendedThumb = false; //reset this when the user load more post!
+
+    $editBtn.click(function () {
+        //set height temporarily to prevent container from collapsing.
+        $header.css('height', $header.height());
+
+        $normalD.velocity('transition.slideLeftOut', {
+            duration: 200,
+            complete: function() {
+                $editD.velocity('transition.slideRightIn', 200, function() {
+                    $header.css('height', 'auto');
+                });
+                
+                //bind the profile picture with the editing.
+                profilePicBinder.bind();
+            }
+        });
+        if(!hasAppendedThumb) { thumbNailer(); }
+
+    });
+    $updateBtn.click(function() {
+        //if the profilePicture is still enlarged, skrink it.
+        if($profilePic.attr('data-enlarged')) {
+            $profilePic.velocity({width: $profilePic.attr('data-width')}, 200);
+            keepThumnailer();
+        }
+    });
+
+    $cancelBtn.click(function(e) {
+        e.preventDefault();
+
+        $('#profileInputs input').each(function(i, elem) {
+            var o = $(elem).attr('data-orgin');
+            $(elem).val(o);
+        });
+        $('#profileInputs select').each(function(i, elem) {
+            var o = $(elem).attr('data-orgin');
+            if(o) {
+                $(elem).val(o);                
+            } else {
+                $(elem).val('');
+            }
+
+
+
+        });
+        $('#profileInputs textarea').each(function(i, elem) {
+            var o = $(elem).attr('data-orgin');
+            $(elem).val(o);
+        });
+
+        //change back and reduce back the picture size.
+        var imgid = renderJSON.profilePicture;
+        $('.profilePictureCont img').attr('src', printHead.p.mediaDir + '/' + imgid + '.jpg');
+        var width = $profilePic.attr('data-width');
+
+        //if the profilePicture is still enlarged, skrink it.
+        if($profilePic.attr('data-enlarged')) {
+            $profilePic.velocity({width: $profilePic.attr('data-width')}, 200);
+            keepThumnailer();
+        }
+
+        //transit back
+        $header.css('height', $header.height());
+        $editD.velocity('transition.slideLeftOut', {
+            duration: 200, 
+            complete: function() {
+                $normalD.velocity('transition.slideRightIn', 200, function() {
+                    $header.css('height', 'auto');
+                });
+            }
+        });
+
+        keepThumnailer();
+        profilePicBinder.unbind();
+    });
+
+    var profilePictureCacheWidth = function(pic) {
+        if(typeof $(pic).attr('data-width') === 'undefined') { 
+            var width = $(pic).css('width') || $(pic).width() + 'px';
+            $(pic).attr('data-width', width);
+        }
+    }
+    var keepThumnailer = function() {
+        $('#thumbnailScrollerWrap').velocity('transition.slideUpOut', 200);
+    }
+
+    var profileEditPic = {
+        flag: false,
+        ok: function() {
+            var self = this;
+            $profileEditPicOk.bind('click.picOk', function() {
+                //return so that it can't be doubletapped.
+                if(self.flag) { return false; }
+                
+                self.flag = true;
+                setTimeout(function() {
+                    self.flag = false;
+                }, 200)
+
+                //change out
+                $profileEditPicButtons.velocity('fadeOut', 200, function() {
+                    $profileEditPicText.velocity('fadeIn', 200);
+                });
+
+                //reduce back the picture size.
+                var width = $profilePic.attr('data-width');
+                $profilePic.velocity({width: width}, 200);
+
+                //change out the imgId
+                $('.profilePictureCont img').attr('data-imgid', $('.profilePictureCont img').attr('data-temp'));
+
+                keepThumnailer();
+                profilePicBinder.bind();
+
+            });
+        },
+        cancel: function() {
+            var self = this;
+            $profileEditPicCancel.bind('click.picCan', function() {
+                //return so that it can't be doubletapped.
+                if(self.flag) { return false; }
+                
+                self.flag = true;
+                setTimeout(function() {
+                    self.flag = false;
+                }, 200)
+
+                //change out
+                $profileEditPicButtons.velocity('fadeOut', 200, function() {
+                    $profileEditPicText.velocity('fadeIn', 200);
+                });
+
+                //if picture is still enlarged, skrink and keep thumbnailer.
+                if($profilePic.attr('data-enlarged')) {
+                    $profilePic.velocity({width: $profilePic.attr('data-width')}, 200);
+                    keepThumnailer();
+                }
+
+                //if already selected a picture, put the original picture back.
+                var imgid = $('.profilePictureCont img').attr('data-imgid');
+                $('.profilePictureCont img').attr('src', printHead.p.mediaDir + '/' + imgid + '.jpg');
+
+                profilePicBinder.bind();
+            });
+        },
+        init: function() {
+            this.ok();
+            this.cancel();
+        }
+    }
+    profileEditPic.init();
+
+    var profilePicBinder = {
+        bind: function() {
+            var self = this;
+            //bind the profile picture with the editing.
+            $profilePic.on('click.edit', function() {
+                //unbind yourself
+                self.unbind();
+
+                //cache the width and make it larger
+                profilePictureCacheWidth(this);
+                $(this).attr('data-enlarged','true').velocity({width:"320px"}, 200);
+
+                //slide the thumbnailer out
+                $('#thumbnailScrollerWrap').velocity('transition.slideDownIn', 200);
+
+                //change out the text below
+                $profileEditPicText.velocity('fadeOut', 200, function() {
+                    $profileEditPicButtons.velocity('fadeIn', 200);
+                });
+
+            });
+        },
+        unbind: function() {
+            $profilePic.unbind('click.edit');
+        }
+    }
+
+    var thumbNailer = function() {
+        //prepare the thumbnails
+        var thumbCount = 0,
+            thumbWidth = false,
+            $profileImg = $('.profilePictureCont img')
+            profileImgId = $profileImg.attr('data-imgid'),
+            profileImgSrc = $profileImg.attr('src');
+
+        //append the first image with the current profile image.
+        var img = new Image();
+        img.src = profileImgSrc;
+        img.dataset.imgid = profileImgId;
+        $('#thumbnailScroller').append(img);
+
+        //then append the rest
+        $('article .blockImgHolder img').each(function(i, elem) {
+            var imgid = $(elem).attr('data-imgid');
+            if(imgid) {
+                //don't append if this is the profile picture, cause its in the first position alr.
+                if(imgid !== profileImgId) {
+
+                    //else continue.
+                    var img = new Image();
+                    img.src = $(elem).attr('src');
+                    img.dataset.imgid = $(elem).attr('data-imgid');
+                    $('#thumbnailScroller').append(img);
+
+                    //cached the thumbWidth on the first one.
+                    if(!thumbWidth) { thumbWidth = parseFloat($(img).css('width')); }
+
+                }
+            thumbCount++;
+            }     
+        });
+
+        //bind all thumbnails to change the profile picture.
+        $('#thumbnailScroller img').click(function() {
+            var imgid = $(this).attr('data-imgid');
+            $('.profilePictureCont img')
+                .attr('src', printHead.p.mediaDir + '/' + imgid + '.jpg')
+                .attr('data-temp', imgid);
+        });
+
+        //determine the thumbscroll width so that it can be scrolled.
+        var offset = 0;
+        var scrollerWidth = (thumbWidth*thumbCount)+offset;
+        $('#thumbnailScroller').css('width', scrollerWidth +'px');
+
+        hasAppendedThumb = true;
+    }
+}
+editProfile();
+</script>
+<script src="{p.js}/jquery.validate.min.js"></script>
+<script>
+var profileAjax;
+$('#profileInputs').validate({
+    rules: {
+        email: {
+            required: true,
+            email: true
+        }
+    },
+    messages: {
+        email: {
+            required: ''
+        }
+    },
+    errorPlacement: function(error, element) {
+        element.velocity('callout.shakeShort');
+    },
+    submitHandler: function() {
+
+        var $buttons = $('#profileInputs').find('button');
+        $buttons.attr('disabled','disabled');
+
+        var flasher = Object.create(VV.utils.Flasher);
+        flasher.run($('#profileInputs button[type="submit"]'), 'button');
+ 
+        // Get some values from elements on the page:
+        var $form = $('#profileInputs');
+            // $profilePic = $('.profilePictureCont img'),
+            // $name = $form.find('input[name="name"]')
+            // $gender = $form.find('select[name="gender"]')
+            // $email = $form.find('input[name="email"]'),
+            // $web = $form.find('input[name="web"]'),
+            // $country = $form.find('input[name="country"]'),
+            // $about = $form.find('input[name="about"]'),
+
+        var data = $form.serialize();
+
+        //check if profile image has changed. If not, don't add to data.
+        var imgid = $('.profilePictureCont img').attr('data-imgid');
+        if(imgid !== printHead.userHeaders.profilePicture) {
+            data += '&picture=' + $('.profilePictureCont img').attr('data-imgid');
+        }
+
+
+        url = printHead.p.absPath + '/api/updateprofile',
+        submitButton = $form.find('button[id="submit"]');
+
+        // Send the data using post
+        profileAjax = $.post(url, data);
+        //done
+        profileAjax.done(function(data) {
+            console.log(data);
+            if(data.success) {
+                window.location.href = printHead.p.absPath + "/me";
+            } else {
+                alertFactory.protoAlert('Oops! An unknown error has occured! Please refresh and try again.');
+                flasher.kill();
+                $buttons.removeAttr('disabled');
+            }
+        });
+        //fail
+        profileAjax.fail(function(err) {
+            if(err.statusText === 'abort') { return false; }
+            alertFactory.protoAlert('Please either login or check your internet connection.');
+            flasher.kill();
+            $buttons.removeAttr('disabled');
+        });
+    }
+});
+</script>
+
+{>blockFooterScripts/}

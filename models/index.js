@@ -43,7 +43,7 @@ Object.keys(db).forEach(function(modelName) {
 })
 
 // db.User.sync();
-sequelize.sync()
+//sequelize.sync()
  
 module.exports = lodash.extend({
     sequelize: sequelize,
