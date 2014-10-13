@@ -86,7 +86,7 @@ VV.img.upload = function(attrs, callback) {
     data.append("processData", JSON.stringify(attrs.processData) );
     data.append("imgData", attrs.imgData);
     data.append("desc", attrs.desc);
-
+    data.append("itemMeta", JSON.stringify(attrs.itemMeta));
 
     var sioId = '';
     if(socketId) {
@@ -486,33 +486,21 @@ VV.img.dispTmp = function(type, data) {
         VV.img.maxWH($img, $layer1img, tallOrWide);
         VV.img.center($img, $layer1img, tallOrWide);
         //transitions
-        if(loader.state) {
-            loader.kill(function() {
-                $('#cropPortBg img').velocity({opacity: 0.4}, {
-                    display: 'block',
-                    duration: 300
-                });
-                $('#img_preview').velocity('fadeIn', {
-                    duration: 300,
-                    complete: function(el) {
-                        console.log('complete');
-                        console.log(Date.now());
-                        $('#scaleCont').velocity("transition.slideRightIn", 300);
-                    }
-                });
-            });
-        } else {
-            $('#cropPortBg img').velocity({opacity: 0.4}, {
-                display: 'block',
-                duration: 300
-            });
-            $('#img_preview').velocity('fadeIn', {
-                duration: 300,
-                complete: function(el) {
-                    $(el).attr('id', 'img_preview');
-                }
-            });
-        }
+       
+        loaderStuds.kill();
+        
+        $('#cropPortBg img').velocity({opacity: 0.4}, {
+            display: 'block',
+            duration: 200
+        });
+        $('#img_preview').velocity('fadeIn', {
+            duration: 200,
+            complete: function(el) {
+                console.log('complete');
+                console.log(Date.now());
+                $('#scaleCont').velocity("transition.slideRightIn", 300);
+            }
+        });
     }
 
     if(type === 'imgData') {

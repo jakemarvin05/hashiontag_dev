@@ -8,6 +8,7 @@ VV.utils.Flasher = {
     $el: false,
     speed: 500,
     run: function($el, type) {
+        console.log(this);
         this.state = true;
         this.$el = $el;
         this.elType = type;
@@ -33,6 +34,33 @@ VV.utils.Flasher = {
     },
     killTypeSpecifics: function() {
         if(this.elType === 'button') { return this.$el.removeAttr('disabled'); }
+    }
+}
+
+VV.utils.loaderEffect = {
+    $sl: '',
+    $studs: '',
+    color: '#ef4549',
+    html: '<div class="searchLoader" style="display:none;"><div class="searchLoaderStud"></div><div class="searchLoaderStud"></div><div class="searchLoaderStud"></div><div class="vaDiv"></div></div><div class="searchQueryMessage" style="display:none;"></div>',
+    run: function() {
+        var speed = 200,
+            self = this;
+        this.$sl.velocity('stop').velocity('fadeIn', speed);
+        this.$studs.each(function(i, el) {
+            $(el).delay(i*speed).velocity({'backgroundColor': self.color}, {duration: speed, delay: speed, loop: true})
+        });
+    },
+    kill: function(callback) {
+        this.$sl.hide();
+        this.$studs
+            .velocity('stop')
+            .css('background-color', '#ccc');
+        if(callback) return callback();
+    },
+    init: function($cont) {
+        $cont.html(this.html);
+        this.$sl = $cont.find('.searchLoader');
+        this.$studs = $cont.find('.searchLoaderStud');
     }
 }
 
@@ -126,3 +154,34 @@ VV.utils.alertFactory = {
 var aF = VV.utils.alertFactory;
 //for backward compatibility
 var alertFactory = VV.utils.alertFactory;
+
+VV.utils.imageGetter = function(imgUUID, type, opts) {
+
+    //modify commenting when fully implemented
+    //var sizes = ['full','half','small','thumb'];
+    //if(sizes.indexOf(type) < 0) { console.log('imageGetter error. not such image size'); return imgUUID;}
+    //options:
+    var includePath = true;
+    if(opts) {
+        if(opts.includePath === false) {
+            includePath = false;
+        }
+    }
+
+    var imgFileName = imgUUID;
+    // if(type === 'full') {
+    //     //do nothing
+    // } else {
+    //     imgFileName += '-' + type;
+    // }
+    var imgPath = '';
+    if(includePath) {
+        imgPath = printHead.p.mediaDir + '/' + imgFileName;
+    }
+    imgPath += '.jpg';
+    return imgPath;
+}
+VV.utils.resetFormElement = function($el) {
+  $el.wrap('<form>').closest('form').get(0).reset();
+  $el.unwrap();
+}

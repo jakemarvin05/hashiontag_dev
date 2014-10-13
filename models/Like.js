@@ -14,7 +14,7 @@ module.exports = function(sequelize, DataTypes) {
         }, {
             timestamps: true,
             updatedAt: false,
-            tableName: 'Liking', //PascalCase
+            tableName: 'Like', //PascalCase
             classMethods: {
                 
                 associate: function(models) {

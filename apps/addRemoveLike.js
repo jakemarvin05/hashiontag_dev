@@ -31,7 +31,7 @@ module.exports = function addRemoveLike(req, res) {
                 if(like) {
 
                     console.log('attempt to like a post already liked');
-                    throw new Error('attempt to like a post already liked');
+                    return false;
 
                 }
 
@@ -41,8 +41,7 @@ module.exports = function addRemoveLike(req, res) {
 
                 if(!post) {
 
-                    console.log('attempt to like a post then doesn\'t exist');
-                    throw new Error('attempt to like a post then doesn\'t exist');
+                    return false;
                 }                    
 
                 console.log('addRemoveLike: like and post check passed, creating like..');
@@ -150,16 +149,14 @@ function addLikeIncrementScores(req){
 
     db.Post.find({
         where: {postId: req.body.postId},
-        attributes: ['postScore', 'User_userId']
-    }).success(function(post) {
+        attributes: ['postId', 'postScore', 'User_userId']
+    }).then(function(post) {
         post
         .increment('postScore', {by: 1})
-        .success(function(post){
-            post.save();
-        console.log('Incremented post scores....\n');
-        }).catch(function(err) {
+        .catch(function(err) {
             console.log(err);
         });
+        console.log('Incremented post scores....\n');
 
         return db.Following.find({
             where: {

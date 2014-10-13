@@ -25,14 +25,23 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
         //the user's posts
         model: db.Post,
         include: [{
-                //the posts' comments
-                model: db.Comment,
-                attributes: ['comment','createdAt'],
-                include: [{
-                    model: db.User,
-                    attributes: ['userNameDisp','profilePicture']
-                }],
-        }]//db.Comment include closure
+            //the posts' comments
+            model: db.Comment,
+            attributes: ['comment','createdAt'],
+            include: [{
+                model: db.User,
+                attributes: ['userNameDisp','profilePicture']
+            }]
+        }, {
+            model: db.PostMeta,
+            attributes: ['key', 'value'],
+            where: db.Sequelize.or(
+                {'key': 'itemLink'}, 
+                {'key': 'itemAddTag'}, 
+                {'key': 'itemPrice'}
+            ),
+            required: false
+        }]//sub models include closure
     }];// db.Post include closure
     var order = [ 
         [db.Post, 'createdAt', 'DESC'], 
@@ -102,12 +111,12 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
                     //user following how many others
                     db.Following.findAndCountAll({
                         where: {FollowerId: user.userId},
-                        attributes: ['id']
+                        attributes: ['affinityId']
                     },
                     { raw: true }),
                     db.Following.findAndCountAll({
                         where: {FollowId: user.userId},
-                        attributes: ['id']
+                        attributes: ['affinityId']
                     },
                     { raw: true }),
                     false,
@@ -122,13 +131,13 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
                     //user following how many others
                     db.Following.findAndCountAll({
                         where: {FollowerId: user.userId},
-                        attributes: ['id']
+                        attributes: ['affinityId']
                     },
                     { raw: true }),
                     //user being followed by how many
                     db.Following.findAndCountAll({
                         where: {FollowId: user.userId},
-                        attributes: ['id']
+                        attributes: ['affinityId']
                     },
                     { raw: true }),
                     false,
@@ -143,12 +152,12 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
                 //user following how many others
                 db.Following.findAndCountAll({
                     where: {FollowerId: user.userId},
-                    attributes: ['id']
+                    attributes: ['affinityId']
                 },
                 { raw: true }),
                 db.Following.findAndCountAll({
                     where: {FollowId: user.userId},
-                    attributes: ['id']
+                    attributes: ['affinityId']
                 },
                 { raw: true }),
                 req.user.hasFollow(user.userId),

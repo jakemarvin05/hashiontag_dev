@@ -18,6 +18,7 @@ module.exports = function(sequelize, DataTypes) {
                 validate: {
                     len:[6,20],
                     is: ["^[a-z0-9_]+$", "i"],
+                    //hmmm why is this here.....
                     not: ["<script[\s\S]*?>[\s\S]*?<\/script>", "g"]
                 }
             },
@@ -74,7 +75,7 @@ module.exports = function(sequelize, DataTypes) {
                 }
             },
             country: {
-                type: DataTypes.STRING(6),
+                type: DataTypes.STRING(100),
                 allowNull: true,
                 validate: {
                     isIn: [listOfCountries]
@@ -87,7 +88,7 @@ module.exports = function(sequelize, DataTypes) {
             }
         }, {
             timestamps: true,
-            tableName: 'Users',
+            tableName: 'User',
             classMethods: {
                 associate: function(models) {
                     //POSTS
@@ -98,13 +99,13 @@ module.exports = function(sequelize, DataTypes) {
                     User.belongsTo(models.Post, {as: 'ProfilePicture', foreignKey: 'Post_postId_profilePicture', constraints: false});
 
                     //FOLLOWING
-                    User.hasMany(models.User, {as: 'Follows', foreignKey: 'FollowerId', through: 'Following' });
+                    User.hasMany(models.User, {as: 'Follows', foreignKey: 'FollowerId', through: models.Following });
 
                     /*
                     Explanation: User has many other users as "Followers". In the "Following" table, this user
                                  record is identified using the foreign key "FollowId"
                     */
-                    User.hasMany(models.User, {as: 'Followers', foreignKey: 'FollowId', through: 'Following'});
+                    User.hasMany(models.User, {as: 'Followers', foreignKey: 'FollowId', through: models.Following });
 
 
 
@@ -134,7 +135,7 @@ module.exports = function(sequelize, DataTypes) {
                 addFullTextIndex: function() {
 
                     var User = this;
-     
+                    //also include name. but a manual overwrite from db backend because I have issues trying to include name here.
                     var searchFields = ["userName"];
      
                     var vectorName = User.getSearchVector();
@@ -180,6 +181,7 @@ Remember to map the old country values over to the new on when you change it her
 else the user will hit errors when updating their profile */
 
 var listOfCountries = [
+"",
 "Afghanistan",
 "Albania",
 "Algeria",

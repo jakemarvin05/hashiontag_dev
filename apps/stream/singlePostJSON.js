@@ -33,6 +33,15 @@ module.exports = function singlePostJSON(req, eventEmitter) {
                         model: db.User,
                         attributes: [ 'userNameDisp' ]
                     }]
+                }, {
+                    model: db.PostMeta,
+                    attributes: ['key', 'value'],
+                    where: db.Sequelize.or(
+                        {'key': 'itemLink'}, 
+                        {'key': 'itemAddTag'}, 
+                        {'key': 'itemPrice'}
+                    ),
+                    required: false
                 }], 
                 order: [
                     [db.Comment, 'createdAt', 'ASC'] 

@@ -10,10 +10,10 @@ module.exports = function(sequelize, DataTypes) {
             }
         }, {
             timestamps: false,
-            tableName: 'Hashtags', //PascalCase
+            tableName: 'Hashtag', //PascalCase
             classMethods: {
                 associate: function(models) {
-                    Hashtag.hasMany(models.Post, {foreignKey: 'Hashtag_hashtagId', through: 'Posts_Hashtags'});
+                    Hashtag.hasMany(models.Post, {foreignKey: 'Hashtag_hashtagId', through: 'Post_Hashtag'});
                 }
             } //classMethods
         }

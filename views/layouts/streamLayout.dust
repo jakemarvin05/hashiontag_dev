@@ -28,23 +28,23 @@
                     </div>
                 </div>
 
+                <div class="blockMoreInfo" data-shown="no" style="display:none;"></div>
+
                 <div class="blockLikeText"></div>
 
                 <div class="blockTextHolder">
                     <div class="description"></div>
                 </div>
             </div>
-            <!--
-            <h2 class="itemName" itemprop="item"></h2>
-            <h2 class="shopName" itemprop="shop"></h2>
-            <h3 class="price" itemprop="price"></h3>
-            -->
 
             <div class="blockLoadMoreCommentsCont" style="display:none;">
-                load more
-                <div class="blockLoadMoreCommentsWrap">
-                    <div class="blockLoadMoreCommentsCount"></div>
-                    <div class="blockLoadMoreCommentsLogo"><img src="{p.img}/comments_icon.png"></div>
+                <div class="blockLoadMoreCommentsBut">
+                    load&nbsp;
+                    <div class="blockLoadMoreCommentsWrap">
+                        <div class="blockLoadMoreCommentsCount"></div>
+                        <div class="blockLoadMoreCommentsLogo"><img src="{p.img}/comments_icon.png"></div>
+                    </div>
+                    &nbsp;more
                 </div>
             </div>
         </header>

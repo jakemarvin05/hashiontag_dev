@@ -1,0 +1,102 @@
+    <p class="searchNote">(to search hashtags, use '#'.)</p>
+    <input type="text" id="search" class="search" name="search" placeholder="Type to search...">
+    <div class="searchLoaderCont">
+        <div class="searchLoaderWrap">
+            <!--<div class="searchLoader" style="display:none;">
+            
+                <div class="searchLoaderStud" ></div>
+                <div class="searchLoaderStud"></div>
+                <div class="searchLoaderStud"></div>
+                <div class="vaDiv"></div>
+            </div>-->
+        </div>
+        <div class="searchQueryMessage" style="display:none;"></div>
+    </div>
+
+    <ul class="mainColBlock list">
+        {>"layouts/userSLayout"/}
+    </ul>
+    {! TO DO: Fix object cloning !}
+    <script src="{p.js}/streamFactoryCopy.js"></script>
+    <script>
+    userFactory = Object.create(streamFactoryCopy);
+    userFactory.streamPrefix = 'userBlock_';
+    userFactory.layoutClass = 'userLayout';
+    userFactory.noObj = function() {
+        console.log('no object');
+        this.$cont.append(this.layoutHTML);
+        this.$cont.find('.blockTop').html('<h2 class="htext">No results...</h2>');
+        this.$cont.velocity('transition.slideRightIn', 200);
+    }
+    userFactory.buildBlocks = function(postCount) {
+
+        for(var i=0; i<postCount; i++) {
+            //if(this.posts[i].postId > 55) {
+                var post = this.posts[i];
+                if(this.streamType === "user" ) {
+                    var streamId = this.streamPrefix + 'u' + post.userId;
+                } else {
+                    var streamId = this.streamPrefix + 'u' + post.hashtagId;
+                }
+
+                //create the block
+                var newBlock = this.layoutHTML.replace('layoutId', streamId);
+                this.$cont.append(newBlock);
+                var $stream = $('#' + streamId);
+                this.append.init($stream, i);
+            //}
+        }//for loop
+
+        //transition the blocks in.
+        $('.' + this.streamContClass).velocity('transition.slideRightIn', 200);
+    }
+
+    userFactory.append.fullName = function(user) {
+        var blockNameHTML = user.name;
+        return blockNameHTML;
+    }
+    userFactory.append.about = function(about, len) {
+        if(about === null) { return ''; }
+        var about = VV.utils.stripHTML(about);
+        var length = about.length;
+        if(length > len) {
+            about = VV.utils.trim(about, len);
+        }
+        return '"' + about + '"';
+    }
+    userFactory.append.vector = function(user) {
+        return user.userNameDisp + ' ' + user.name;
+    }
+    userFactory.append.init = function($stream, i) {
+
+        if(this.parent.streamType === "user") {
+            var user = this.parent.posts[i];
+            //profile thumb
+            var blockProfileThumbHTML = this.profileThumb(user);
+            $stream.find('.blockProfileThumb').html(blockProfileThumbHTML);
+
+            //display name
+            var blockUserNameHTML = this.userName(user);
+            $stream.find('.blockUsername').html(blockUserNameHTML);
+
+            var blockNameHTML = this.fullName(user);
+            $stream.find('.blockName').html(blockNameHTML);
+
+            var vector = this.vector(user);
+            $stream.find('.vector').html(vector);
+
+            var blockAboutHTML = this.about(user.about, 140);
+            $stream.find('.blockAbout').html(blockAboutHTML);
+
+            var blockAboutMHTML = this.about(user.about, 50);
+            $stream.find('.blockAboutM').html(blockAboutMHTML);
+        } else {
+            var hashtag = this.parent.posts[i];
+
+            $stream.find('.blockTop').html('<a href="/hashtag/' + hashtag.hashtagId + '"><h2 class="htext">#' + hashtag.hashtagId + '</h2></a>');
+        }
+
+    }
+
+    $(function() { userFactory.init(); });
+    </script>

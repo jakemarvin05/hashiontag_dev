@@ -1,14 +1,8 @@
 {>blockHeader/}
 
-{! TODO: SOMETHING IS WRONG WITH POST.dust #imgfield "accepts" criteria !}
-
 <script src="{p.js}/socket.io.js"></script>
 <script>
 var socket = io.connect();
-// var socket = io.connect('/post', {
-//     // Disables the automatic reconnection
-//     reconnect: false
-// });
 var socketId = '';
 
 socket.on('welcome', function (data) {
@@ -34,6 +28,108 @@ socket.on('uploadProgress', function(data){
 VV.img.CSRender = {CSRender};
 </script>
 
+<style>
+#main {
+    overflow: hidden;
+}
+#cropPortCont {
+    width: 100%;
+    position: relative;
+}
+    #cropPortBg {
+        max-height: 0px;
+        position: relative;
+        top: 20px;
+        width: 280px;
+        margin: auto;
+    }
+     #cropPortBg img {
+        display: block;
+        margin: auto;
+        position: relative;
+        opacity: 0.4;
+        filter: alpha(opacity=40);
+     }
+    #cropPort {
+        height:280px; 
+        width:280px; 
+        box-sizing:border-box; 
+        outline:2px dotted #e44447;
+        margin: 20px auto;
+        overflow: hidden;
+    }
+img[id^=img_preview], canvas[id^=img_preview] {
+    position:relative;
+}
+#img_field {
+    opacity: 0;
+    filter: alpha(opacity=0);
+    position: absolute;
+    max-height: 0px;
+    max-width: 0px;
+}
+#browseCont, #scaleCont, #postCont {
+    text-align:center;
+}
+#scaleSliderCont {
+    width:280px;
+    height: 50px;
+    padding-top: 20px;
+    margin:auto;
+}
+    #scaleSlider {
+        width: 100%;
+        height: 2px;
+        background-color: #ccc;
+    }   
+    #scaleSliderBut {
+        background-color: #e74447;
+        margin-top: -14px;
+        margin-left: 10px;
+        width: 50px;
+        height: 25px;
+        cursor: move;
+    }
+
+#postCont textarea {
+    width: 290px;
+    height: 90px;
+}
+
+#progressBarCont {
+    height: 20px;
+    width: 280px;
+    background-color: #ccc;
+    margin: auto;
+}
+    #progressBar {
+        height: 100%;
+        width: 0%;
+        background-color: #d91639;
+        -webkit-transition: width 0.5s;
+        transition: width 0.5s;
+    }
+
+#postWhereText {
+    margin: 20px auto;
+    width: 200px;
+}
+    #postWhereText p {
+        margin: 0px;
+    }
+
+/* loader studs styling */
+#loaderStuds {
+    position: absolute;
+    top: 49%;
+    width: 100%;
+}
+.searchLoader {
+    margin: auto;
+    width: 30px;
+}
+</style>
+
 {>blockHeaderAfterHook/}
 
 <section id="main">
@@ -41,88 +137,15 @@ VV.img.CSRender = {CSRender};
 
         {?isLoggedIn}
 
-        <style>
-        #cropPortCont {
-            width: 100%;
-        }
-            #cropPortBg {
-                max-height: 0px;
-                position: relative;
-                top: 20px;
-                width: 280px;
-                margin: auto;
-            }
-             #cropPortBg img {
-                display: block;
-                margin: auto;
-                position: relative;
-                opacity: 0.4;
-                filter: alpha(opacity=40);
-             }
-            #cropPort {
-                height:280px; 
-                width:280px; 
-                box-sizing:border-box; 
-                border:2px dotted #e44447;
-                margin: 20px auto;
-                overflow: hidden;
-            }
-        img[id^=img_preview], canvas[id^=img_preview] {
-            position:relative;
-            left:-2px;
-            top:-2px;
-        }
-        #img_field {
-            opacity: 0;
-            filter: alpha(opacity=0);
-            position: absolute;
-            max-height: 0px;
-            max-width: 0px;
-        }
-        #browseCont, #scaleCont, #postCont {
-            text-align:center;
-        }
-        #scaleSliderCont {
-            width:280px;
-            height: 50px;
-            padding-top: 20px;
-            margin:auto;
-        }
-            #scaleSlider {
-                width: 100%;
-                height: 2px;
-                background-color: #ccc;
-            }   
-            #scaleSliderBut {
-                background-color: #e74447;
-                margin-top: -14px;
-                margin-left: 10px;
-                width: 50px;
-                height: 25px;
-                cursor: move;
-            }
-
-
-        #progressBarCont {
-            height: 20px;
-            width: 280px;
-            background-color: #ccc;
-            margin: auto;
-        }
-            #progressBar {
-                height: 100%;
-                width: 0%;
-                background-color: #d91639;
-                -webkit-transition: width 0.5s;
-                transition: width 0.5s;
-            }
-        </style>
-
         <div id="cropPortCont">
             <div id="cropPortBg"></div>
             <div id="cropPort"></div>
+            <div id="loaderStuds"></div>
         </div>
         <script>
+        //initialize the loader
+        var loaderStuds = Object.create(VV.utils.loaderEffect);
+        loaderStuds.init($('#loaderStuds'));
         //set the crop port
         var windowW = $(window).width();
         if(windowW > 640) {
@@ -158,25 +181,61 @@ VV.img.CSRender = {CSRender};
                 $(function() { scaleSlider.init($('#scaleSliderBut')) });
                 </script>
             </div>
-            <button id="doneScaling">Done scaling</button>
+            <button id="backToBrowse">Back</button>&nbsp;<button id="doneScaling">Done scaling</button>
         </div>
         <div id="postCont" style="display:none">
-            <textarea id="desc" name="desc" required></textarea>
-            <button id="postIt">Post</button>
+            <div class="postDesc">
+                <textarea name="desc" id="desc" placeholder="Write something about your photo..." required></textarea><br/>
+            </div>
+
+            <div class="postWhereDidYou">
+                <div id="postWhereText">
+                    <p><span class="glyphicon glyphicon-chevron-right"></span>Share where I got it</p>
+                </div>
+
+                <div id="postWhereFields" style="display:none;" data-show="false">
+                    <p><span class="glyphicon glyphicon-link"></span><input type="text" name="itemlink" id="itemlink" placeholder="http://"></p>
+                    <p><span class="glyphicon glyphicon-tag"></span><input  type="text" name="itemaddtag" id="itemaddtag" placeholder="@shopname"></p>
+                    <p><span class="glyphicon glyphicon-usd"></span><input  type="text" name="itemprice" id="itemprice" placeholder="price"></p>
+                </div>
+
+                <script>
+                (function() {
+                    var button = $('#postWhereText');
+                    var fields = $('#postWhereFields');
+                    button
+                        .css('cursor','pointer')
+                        .click(function() {
+                            if(fields.attr('data-show') === "false") {
+                                $('.glyphicon-chevron-right').velocity({rotateZ: "90deg"}, 200);
+                                fields.velocity('transition.slideDownIn', 200, function(el) {
+                                    $(el).attr('data-show', "true");
+                                });
+                            }
+                        });
+                })();
+                </script>
+
+            </div>
+
+            <div class="postButtonCont">
+                <button id="backToScale">Back</button>&nbsp;
+                <button id="postButton" class="darkButton">
+                    Post it!
+                </button>
+            </div>
+
         </div>
 
         <div id="progressBarCont" style="display:none">
             <div id="progressBar"></div>
         </div>
-        
-    
-        <!--<p>
-            Progress: <input id="progress" name="progressPercent" required></input>
-        </p>-->
 
         {:else}
-        <h1>Post</h1>
-        You are not logged in. To post, please log in <a href="{#p}{login}{/p}">here</a>
+        <div class="noticePad">
+            <h1>Post</h1>
+            You are not logged in. To post, please log in <a href="{#p}{login}{/p}">here</a>
+        </div>
         {/isLoggedIn}
     </div>
     <!-- end your stream -->
@@ -290,10 +349,8 @@ scaleSlider.startX = 0;
 
 scaleSlider.reset = function($el) {
     scaleSlider.currentPosit = 0;
-    //$el.velocity({marginLeft: scaleSlider.stopLimits + 'px'}, {duration: 300});
     $el.css('marginLeft', scaleSlider.stopLimits + 'px');
 }
-
 scaleSlider.init = function($el) {
     scaleSlider.buttonWidth = $el.width();
     scaleSlider.travel = scaleSlider.lengthOf - (2 * scaleSlider.stopLimits) - scaleSlider.buttonWidth;
@@ -359,7 +416,6 @@ scaleSlider.pinch.init = function(el) {
         var delScale = newScale - oScale;
         delScale = delScale * VV.img.CROP_PORT * scaleSlider.pinch.sensitivity;
         //$('#desc').val(newScale.toString() + ' ' + oScale.toString() + ' ' + delScale.toString());
-        $('#desc').val(delScale);
         var currentX = scaleSlider.currentPosit;
         var transientX = currentX + delScale;
         var minX = 0;
@@ -397,7 +453,7 @@ var loader = {
     kill: function(callback) {
         var self = this;
         $('#loader').velocity("stop").velocity("fadeOut", {
-            duration: 300,
+            duration: 200,
             complete: function(el) {
                 $(el).remove();
                 self.state = false;
@@ -430,7 +486,7 @@ VV.img.STOCK_IMG.onload = function() {
 
     //480x480
     if(this.height < 480 || this.width < 480 ) {
-        loader.kill();
+        loaderStuds.kill();
         return aF.protoAlert({
                 text:'Please select an image with at least 480px by 480px resolution', 
                 title:'Resolution too small'
@@ -439,7 +495,7 @@ VV.img.STOCK_IMG.onload = function() {
 
     VV.img.STOCK_IMG_MP = this.height*this.width/1000000;
     if(VV.img.STOCK_IMG_MP > VV.img.RESIZE_MP_LIMIT) {
-        loader.kill();
+        loaderStuds.kill();
         return aF.protoAlert({
                 text:'Please resize your image before uploading.', 
                 title:'Resolution too high'
@@ -452,11 +508,6 @@ VV.img.STOCK_IMG.onload = function() {
     VV.img.STOCK_IMG_W = this.width;
     VV.img.STOCK_IMG_H = this.height;
     
-
-    //TRANSITIONS
-    $("#browseCont").velocity("transition.slideLeftOut", 300);
-    $("#cropPort").css('cursor', 'move');
-
     //check if image MP within prescribed limits
     var clientCanHandle = (VV.img.CSRender >= VV.img.STOCK_IMG_MP);
     var imageIsBelowHardLimit = (VV.img.STOCK_IMG_MP <= VV.img.RESIZE_MP_LIMIT);
@@ -484,24 +535,29 @@ VV.img.STOCK_IMG.onload = function() {
         return VV.img.upload(attrs, function(data) {
             VV.img.dispTmp('imgData', data.pathToImg);
         }); //VV.img.upload;
-    }    
+    }  
+
+    //TRANSITIONS
+    $("#browseCont").velocity("transition.slideLeftOut", 200);
+    $("#cropPort").css('cursor', 'move');  
 } //img onload
 
 var reader = new FileReader();
 reader.onload = function(e) {
+    VV.img.STOCK_IMG.src = '';
     VV.img.STOCK_IMG.src = e.target.result;
 }
 
 //File Input onchange
 $("#img_field").change(function(){
     var self = this;
-    console.log("New file");
+    //console.log("New file");
 
     //STEP 1: Rejection or accept */
-    if(!this.files && !this.files[0]) { return false; }
+    //if(!this.files && !this.files[0]) { return false; }
 
     //console.log(this.files[0].size);
-    if( this.files[0].size > 3145728 ) {
+    if( this.files[0].size > 5242880 ) {
         return aF.protoAlert({
                 text:'Your image file is too large. Please resize your image to below 3mb.', 
                 title:'Max filesize exceeded.'
@@ -513,25 +569,25 @@ $("#img_field").change(function(){
 
     if($('#img_preview').length > 0) {
         $('#cropPortBg img').velocity("fadeOut", { 
-            duration: 300,
+            duration: 200,
             complete: function(el) { 
                 $(el).remove(); 
             }
         });
         $('#img_preview').velocity("fadeOut", {
-            duration: 300,
+            duration: 200,
             complete: function(el) {
                 $(el).remove();
                 $('.img_previews').remove();
-                loader.run($('#cropPort'));
+                loaderStuds.run();
                 reader.readAsDataURL(self.files[0]);
                 //VV.img.STOCK_IMG.src = objectURL;
             }
         });
     } else {
-        loader.run($('#cropPort'));
+        loaderStuds.run();
         reader.readAsDataURL(this.files[0]);
-        
+        console.log(1);
         //VV.img.STOCK_IMG.src = objectURL;
     }
     //reset all globals
@@ -548,11 +604,11 @@ $("#doneScaling").click(function(){
     //unbind dragShifting
     var $cP = $('#cropPort');
     dragShifting.kill($cP);
-    loader.run($cP);
+    loaderStuds.run();
     $cP.css('cursor', 'default');
 
     //slideout scale container
-    $('#scaleCont').velocity('transition.slideLeftOut', {duration: 300});
+    $('#scaleCont').velocity('transition.slideLeftOut', {duration: 200});
 
     //This option is only available to client-side render.
     //1. crop and resize VV.img.TEMP_IMG.
@@ -576,36 +632,43 @@ $("#doneScaling").click(function(){
         VV.img.canvasCrop('canvas', tempCanvas, m, VV.img.SCALE, function(cropped) {
             VV.img.canvasResize(cropped, VV.img.CROP_SIZE, false, function(canvas) {
                 //in future, apply filters here.
-                canvas.style['height'] = VV.img.CROP_PORT + 'px';
-                canvas.style['width'] = VV.img.CROP_PORT + 'px';
+                canvas.style['height'] = '100%';
+                canvas.style['width'] = '100%';
                 canvas.id = 'img_preview2';
                 canvas.className = 'img_previews';
                 
                 //transitions
-                loader.kill();
-                $('#cropPortBg img').velocity({opacity:0}, 300, function() {
+                loaderStuds.kill();
+                $('#cropPortBg img').velocity({opacity:0}, 200, function(el) {
+                    $(el).hide();
                     $('#img_preview').hide();
-                    $('#cropPort').append(canvas);
-                    $('#postCont').velocity('transition.slideRightIn', 300);
+                    var h = $('#cropPort').height(),
+                        w = $('#cropPort').width(),
+                        reduction = 4;
+                    $('#cropPort')
+                        .append(canvas)
+                        .attr('data-h', h).attr('data-w', w)
+                        .velocity({height: h/4, width: w/4});
+
+                    $('#postCont').velocity('transition.slideRightIn', 200);
                 }); 
 
             });
         });
     } else {
         //transitions
-        loader.kill();
-        $('#cropPortBg img').velocity({opacity:0}, 300, function() {
-            $('#postCont').velocity('transition.slideRightIn', 300);
+        $('#cropPortBg img').velocity({opacity:0}, 200, function() {
+            $('#postCont').velocity('transition.slideRightIn', 200);
         }); 
     }
 }); // #processImage click
 
 
-$("#postIt").click(function(){
+$("#postButton").click(function(e){
+    e.preventDefault();
 
-    //loader.run($('#cropPort'));
-    $("#postCont").velocity("transition.slideLeftOut", 300);
-    $("#progressBarCont").velocity("transition.slideRightIn", 300);
+    $("#postCont").velocity("transition.slideLeftOut", 200);
+    $("#progressBarCont").velocity("transition.slideRightIn", 200);
 
     if(VV.img.CSRender !== false) {
         //var submittedCanvas = document.getElementById('img_preview');
@@ -649,15 +712,33 @@ $("#postIt").click(function(){
             action: 'store',
             imgData: file,
             processData: false,
-            desc: $('#desc').val()
+            desc: $('#desc').val(),
+            itemMeta: {}
         }
+
+        //get the meta values
+        var $whereFields = $('#postWhereFields'),
+            itemLink = $whereFields.find('input#itemlink').val(),
+            itemAddTag = $whereFields.find('input#itemaddtag').val(),
+            itemPrice = $whereFields.find('input#itemprice').val();
+
+
+
+        if($whereFields.attr('data-show') === "true" && (itemLink||itemAddTag||itemPrice) ) {
+            console.log('something is true');
+            //data-show is true, and either some or all inputs have values -> get values
+            attrs.itemMeta = {
+                "itemLink": itemLink,
+                "itemAddTag": itemAddTag,
+                "itemPrice":itemPrice
+            }
+        }
+        console.log(attrs);
 
         VV.img.upload(attrs, function(data) {
             //redirect to post
-            loader.kill();
             window.location.href = '/p/' + data.postId;
-            console.log(data.postId);
-            
+            console.log(data.postId);    
         });
 
     } else {
@@ -680,7 +761,6 @@ $("#postIt").click(function(){
         }
 
         VV.img.upload(attrs, function(data) {
-            loader.kill();
             window.location.href = '/p/' + data.postId;
             console.log(data.postId);
             
@@ -688,5 +768,74 @@ $("#postIt").click(function(){
     }    
 }); //submit onclick
 </script>
+<script>
 
+/******************
+* Reversals *
+******************/
+//all the back buttons here
+$('#backToBrowse').click(function() {
+    $(this).attr('disabled', 'disabled');
+    var $but = $(this)
+    setTimeout(function() {
+        $but.removeAttr('disabled');
+    }, 500);
+
+    //reset mouse cursor
+    $("#cropPort").css('cursor', 'default');  
+    //fade and remove the uploaded picture.
+    $('#cropPortBg img').velocity('fadeOut', 200, function(el) {
+        $(el).remove();
+    });
+    VV.utils.resetFormElement($('#img_field'));
+
+    $('#img_preview').velocity('fadeOut', 200, function(el) {
+        $(el).remove();
+    });
+    $('#scaleCont').velocity('transition.slideRightOut', 200, function() {
+        $("#browseCont").velocity("transition.slideLeftIn", 200);
+    })  
+
+});
+$('#backToScale').click(function() {
+    $(this).attr('disabled', 'disabled');
+    var $but = $(this)
+    setTimeout(function() {
+        $but.removeAttr('disabled');
+    }, 500);
+
+    var $c = $('#cropPort'),
+        cH = $c.attr('data-h'),
+        cW = $c.attr('data-w');
+    $('#cropPort').velocity({height: cH, width: cW}, function() {
+
+        //fade in the bg image.
+        $('#cropPortBg img').show().velocity({opacity:0.4}, 200, function() {
+            //remove the cropped image
+            $('#img_preview2').remove();
+            $('#img_preview').show();
+            dragShifting.init();
+            $c.css('cursor', 'move');
+        });
+
+        $('#postCont').velocity('transition.slideRightOut', 200, function(el){
+            //reset all the fields
+            $(el).find('input').each(function(i, elem) {
+                $(elem).val('');
+            });
+            $(el).find('textarea').each(function(i, elem) {
+                $(elem).val('');
+            });
+
+
+            $('#scaleCont').velocity('transition.slideLeftIn', 200);
+            //if the where fields are open, reset them
+            $('#postWhereFields').hide().attr('data-show','false');
+            $('.glyphicon-chevron-right').css({"transform": "rotateZ(0deg)"});
+
+        });
+    });
+
+});
+</script>
 {>blockFooterScripts/}

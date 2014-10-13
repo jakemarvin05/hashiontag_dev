@@ -5,25 +5,29 @@ var fs        = require('fs'),
     
     //sequelize parameters: 'name','username','password'
 
-    //heroku
-    sequelize = new Sequelize('d2qhi6e8qpq1js', 'achmxwosijzdwc', 'g_05iNqib65ZR7wZArOjfhkmh7',
-        {
-            host: "ec2-54-235-245-180.compute-1.amazonaws.com",
-            dialect: "postgres", // or 'sqlite', 'postgres', 'mariadb'
-            port: 5432, // or 5432 (for postgres)
-            native: true, //requires c binding
-
-        }),
-    // //localhost
-    // sequelize = new Sequelize('postgres', 'postgres', 'password'
-    //     ,{
-    //         host: "localhost",
+    // //heroku
+    // sequelize = new Sequelize('d2qhi6e8qpq1js', 'achmxwosijzdwc', 'g_05iNqib65ZR7wZArOjfhkmh7',
+    //     {
+    //         host: "ec2-54-235-245-180.compute-1.amazonaws.com",
     //         dialect: "postgres", // or 'sqlite', 'postgres', 'mariadb'
     //         port: 5432, // or 5432 (for postgres)
-    //         native: false,  //change settings to localhost and turn native to false if unable to compile native C bindings
+    //         native: true, //requires c binding
+
     //     }),
+    //localhost
+    sequelize = new Sequelize('postgres', 'postgres', 'password'
+        ,{
+            host: "localhost",
+            dialect: "postgres", // or 'sqlite', 'postgres', 'mariadb'
+            port: 5432, // or 5432 (for postgres)
+            native: false,  //change settings to localhost and turn native to false if unable to compile native C bindings
+        }),
     db        = {}
  
+
+// db.User.sync();
+//sequelize.sync()
+
 fs
 .readdirSync(__dirname)
 .filter(function(file) {
@@ -33,8 +37,6 @@ fs
     var model = sequelize.import(path.join(__dirname, file))
     db[model.name] = model
 })
-
-
 Object.keys(db).forEach(function(modelName) {
     if ('associate' in db[modelName]) {
 
@@ -42,9 +44,7 @@ Object.keys(db).forEach(function(modelName) {
     }
 })
 
-// db.User.sync();
-//sequelize.sync()
- 
+
 module.exports = lodash.extend({
     sequelize: sequelize,
     Sequelize: Sequelize

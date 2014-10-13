@@ -104,11 +104,8 @@ router.get('/', function(req, res) {
 router.get('/preview', function(req, res) {
     //sys.puts(sys.inspect(req));
     var gJSON = globalJSON(req);
-    var eventEmitter = new events.EventEmitter();
 
-    //bind the final callback first
-    eventEmitter.on('streamJSONDone', function thenRender(renderJSON) {
-
+    function thenRender(renderJSON) {
         res.render('index', { 
             /* generics */
             title: meta.header(),
@@ -127,11 +124,9 @@ router.get('/preview', function(req, res) {
             isPreview: true
 
         });
+    }
 
-    });
-
-    //now run callback dependents
-    var streamJSON = require('../apps/stream/streamJSON.js')(req, eventEmitter, {showType: "preview"});
+    require('../apps/stream/streamJSON.js')(req, thenRender, {showType: "preview"});
 });
 
 router.get('/login', function(req, res) {
@@ -297,42 +292,34 @@ router.post('/api/post', function(req, res) {
 router.get('/likes', function(req, res) {
 
     var gJSON = globalJSON(req);
-    var eventEmitter = new events.EventEmitter();
 
     //do something about the "preview"
-    if(req.isAuthenticated()) {
+    if(!req.isAuthenticated()) { return res.redirect('/'); }
 
-        //bind the final callback first
-        eventEmitter.on('streamJSONDone', function thenRender(renderJSON) {
+    function thenRender(renderJSON) {
+        res.render('likes', { 
+            /* generics */
+            title: meta.header(),
+            p: gJSON.pathsJSON.paths,
+            f: gJSON.pathsJSON.files,
+            printHead: JSON.stringify(gJSON.printHead),
+            renderJSON: JSON.stringify(renderJSON),
+            renderJSONraw: renderJSON,
+            page: "likes",
 
-            res.render('likes', { 
-                /* generics */
-                title: meta.header(),
-                p: gJSON.pathsJSON.paths,
-                f: gJSON.pathsJSON.files,
-                printHead: JSON.stringify(gJSON.printHead),
-                renderJSON: JSON.stringify(renderJSON),
-                renderJSONraw: renderJSON,
-                page: "likes",
+            /* specifics */
+            showStream: true,
 
-                /* specifics */
-                showStream: true,
-
-                //isPreview is used to block like buttons and comment box from
-                //being generated in the view. We don't really need it here. It
-                //default to false
-                //isPreview: false
-
-            });
+            //isPreview is used to block like buttons and comment box from
+            //being generated in the view. We don't really need it here. It
+            //default to false
+            //isPreview: false
 
         });
 
-        //now run callback dependents
-        var streamJSON = require('../apps/stream/streamJSON.js')(req, eventEmitter, {showType: 'likes'});
-
-    } else {
-        res.redirect('/');
     }
+
+    require('../apps/stream/streamJSON.js')(req, thenRender, {showType: 'likes'});
 });
 
 
@@ -411,54 +398,14 @@ router.post('/api/follow', function(req, res) {
     follow(req, res);
 });
 
-router.get('/following', function(req, res) {
-    var gJSON = globalJSON(req);
-    var follower = require('../apps/follow/follower.js');
-
-        var eventEmitter = new events.EventEmitter();
-
-        //bind the final callback first
-        eventEmitter.on('followJSONDone', function thenRender(renderJSON) {
-            res.render('search', { 
-                title: meta.header(),
-                isLoggedIn: isLoggedIn(req),
-                p: gJSON.pathsJSON.paths,
-                f: gJSON.pathsJSON.files,
-                printHead: JSON.stringify(gJSON.printHead),
-                renderJSON: renderJSON,
-                isStream: false
-            });
-
-        });
-
-        //now run callback dependents
-        var follower = require('../apps/follow/follower.js')(req, eventEmitter, 'following');
-
+router.post('/api/following', function(req, res) {
+    if(!req.isAuthenticated()) { res.json({success:true, results: false }); }
+    require('../apps/follow/follower.js')(req, res, 'following');
 });
 
-router.get('/followers', function(req, res) {
-    var gJSON = globalJSON(req);
-    var follower = require('../apps/follow/follower.js');
-
-        var eventEmitter = new events.EventEmitter();
-
-        //bind the final callback first
-        eventEmitter.on('followJSONDone', function thenRender(renderJSON) {
-            res.render('search', { 
-                title: meta.header(),
-                isLoggedIn: isLoggedIn(req),
-                p: gJSON.pathsJSON.paths,
-                f: gJSON.pathsJSON.files,
-                printHead: JSON.stringify(gJSON.printHead),
-                renderJSON: renderJSON,
-                streamType: false
-            });
-
-        });
-
-        //now run callback dependents
-        var follower = require('../apps/follow/follower.js')(req, eventEmitter, 'followers');
-
+router.post('/api/followers', function(req, res) {
+    if(!req.isAuthenticated()) { res.json({success:true, results: false }); }
+    require('../apps/follow/follower.js')(req, res, 'followers');
 });
 
 router.post('/api/comment', function(req, res) {
@@ -496,6 +443,29 @@ router.post('/api/notification', function(req, res) {
 
 });
 
+router.post('/api/getimage', function(req, res) {
+    
+    if(req.body.userid) {
+        return getImage({userId: req.body.userid});
+    }
+
+    if(req.body.username) {
+        return getImage({userName: req.body.username});
+    }
+
+    function getImage(param) {
+        db.User.find({
+            where: param,
+            attributes: ['profilePicture']
+        }, {raw: true}).then(function(user) {
+            return res.json({success: true, imgUUID: user.profilePicture});
+        }).catch(function(err) {
+            console.log('"/api/getimage" error: ' + err);
+            return res.json({success: false});
+        });
+    }
+
+});
 
 router.get('/api/local/update', function(req) {
      require('../apps/streamUpdate.js')();
@@ -529,19 +499,18 @@ router.get('/ua-parser', function(req, res) {
     }
 });
 
-
-//TODO: deal with Hashtags!!
-
-// router.get(/\b#\w\w+/, function(req, res) {
-//     res.send('its a hashtag');
-// });
-
 /* POSTS and USERNAMES */
 router.get('/p/:pid', function(req,res) {
     //sys.puts(sys.inspect(req));
 
-    var gJSON = globalJSON(req);
-    var eventEmitter = new events.EventEmitter();
+    var gJSON = globalJSON(req),
+        eventEmitter = new events.EventEmitter(),
+        showNav = '',
+        isAuth = req.isAuthenticated();
+
+    if(!isAuth) {
+        showNav = "login";
+    }
 
     //bind the final callback first
     eventEmitter.on('singlePostJSONDone', function thenRender(renderJSON) {
@@ -553,7 +522,12 @@ router.get('/p/:pid', function(req,res) {
             printHead: JSON.stringify(gJSON.printHead),
             renderJSON: JSON.parse(JSON.stringify(renderJSON)),
             isStream: 'stream',
-            page: 'singlePost'
+            page: 'singlePost',
+
+            //isPreview is used to block like buttons and comment box from
+            //being generated in the view.
+            isPreview: !req.isAuthenticated(),
+            showNav: showNav
         });
 
     });
@@ -633,9 +607,3 @@ router.get('/dbtest', function(req, res) {
     });
 
 });
-
-// router.get('/sync', function(req, res) {
-//   db.sequelize.sync({force:true}).on('success', function() {
-//     res.send('sync success');
-//   });
-// });

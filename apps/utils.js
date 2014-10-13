@@ -1,5 +1,5 @@
-VV.utils = {}
 
+VV = { utils: {} }
 VV.utils.Flasher = {
     state: false,
     elType: false,
@@ -66,9 +66,13 @@ VV.utils.escape = function(str) {
     var div = document.createElement('div');
     div.appendChild(document.createTextNode(str));
     return div.innerHTML;
-};
+}
 VV.utils.stripScriptTags = function(str) {
     return String(str).replace('<script>', '').replace('</script>', '');
+}
+VV.utils.nullIfEmpty = function(str) {
+    if(str === '') { return null; }
+    return str;
 }
 
 module.exports = VV.utils;

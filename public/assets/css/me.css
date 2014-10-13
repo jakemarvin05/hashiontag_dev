@@ -1,0 +1,331 @@
+header.profileHeader>div {
+    margin-left: auto;
+    margin-right: auto;
+    text-align:center;
+}
+.profileHeader {
+    border-bottom: 1px solid #ccc;
+    background: #f7f7f7;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    overflow: hidden;
+}
+        .profilePictureCont {
+            width: 100px;
+            max-width: 100%;
+            margin: auto;
+        }
+            .profilePictureCont img {
+                width: 100%;
+            }
+
+        .profileUserNameDisp {
+            font-size: 26px;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+
+        .profileInfoInlines {
+            width: 280px;
+            margin: auto;
+            word-wrap: break-word;
+        }
+            .profileInfoInlines>div {
+                display: inline-block;
+                padding: 5px 2px;
+            }
+
+        .profileAbout {
+            margin-top: 20px;
+            width: 280px;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #editProfileButton {
+            display: block;
+            margin: auto;
+            margin-top: 10px;
+            height: 28px;
+            font-size: 13px;
+            padding-top: 8px;
+        }
+
+        .profileRelationship {
+            margin-top: 20px;
+        }
+            .profileFollowBlock {
+                display:inline-block;
+                padding: 0px 10px;
+                height: 52px;
+                vertical-align: middle;
+            }
+            .profileFollowBlock.hasFollowNumbers:hover {
+                cursor: pointer;
+                -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
+                -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
+                -o-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
+                box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
+            }
+            .profileFollowBlock:not(:first-child) {
+                border-left: 1px solid #ccc;
+            }
+
+                .profileFollowWrap {
+                    display: inline-block;
+                    vertical-align: middle;
+                }
+                    .profileFollowHdr, .profileFollowingHdr {
+                        text-transform: uppercase;
+                        color: #ccc;
+                        font-size: 12px;
+                        padding-top: 4px;
+                    }
+
+                    .profileFollowCount {
+                        font-weight: bold;
+                        font-size: 20px;
+                    }
+
+                    @media (min-width: 0px) and (max-width: 480px) {
+                        .profileFollowButtonCont {
+                            display: block;
+                            border-left: 0px !important;
+                        }
+                    }
+                    .profileFollowText {
+                        font-size: 13px;
+                        color: #ccc;
+                        max-width: 200px;
+                    }
+                    #profileFollowButton {
+                        font-size: 12px;
+                        height: 24px;
+                        width: 132px;
+                        padding: 7px 0px;
+                    }
+
+
+
+
+.profilePostsBlock {
+    width: 100%;
+    text-align: center;
+} 
+
+    .profilePostsBlock article {
+        display: inline-block;
+        text-align: left;
+        vertical-align: top;
+        position: relative;
+    }
+
+    /*profilePostsBlock and its article responsive */ 
+    @media (min-width: 0px) and (max-width: 320px) {
+        .profilePostsBlock {
+            padding: 2px;
+        }
+        .profilePostsBlock article {
+            width: 153px;
+            margin: 2px;
+        }
+
+    }  
+    @media (min-width: 321px) and (max-width: 480px) {
+        .profilePostsBlock {
+            padding: 2px;
+        }
+        .profilePostsBlock article {
+            width: 48.5%;
+            margin: 2px;
+        }
+
+    }  
+    @media (min-width: 481px) and (max-width: 640px) {
+        .profilePostsBlock {
+            padding: 2px;
+        }
+        .profilePostsBlock article {
+            width: 32.3%;
+            margin: 2px;
+        }
+
+    }
+    @media (min-width: 641px) and (max-width: 767px) {
+        .profilePostsBlock {
+            padding: 5px;
+        }
+        .profilePostsBlock article {
+            width: 23.4%;;
+            margin: 5px;
+        }
+
+    } 
+    @media (min-width: 768px){
+        .profilePostsBlock {
+            padding: 10px;
+        }
+        .profilePostsBlock article {
+            width: 166px;
+            margin: 10px;
+        }
+
+    } 
+
+
+    .profilePostsBlock .blockProfileThumb,
+    .profilePostsBlock .blockUserHolder,
+    .profilePostsBlock .blockLikeText,
+    .profilePostsBlock .blockTextHolder,
+    .profilePostsBlock .blockLoadMoreText,
+    .profilePostsBlock .postCommentCont,
+    .profilePostsBlock .postInteractions {
+        display: none;
+    }
+
+    /* Display Hacks */
+    .profilePostsBlock .blockImgHolder {
+        overflow: hidden;
+        position: relative;
+    }
+    .profilePostsBlock .blockMoreInfo {
+        position: absolute;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+    }
+        .profilePostsBlock .blockMoreInfo>div {
+            width: 100%; 
+        }
+        .profilePostsBlock . {
+            width: 100%; 
+        }
+    .profilePostsBlock .postItemAddTagImg img {
+        width: 70px;
+    }
+
+    .profilePostsBlock .blockPad {
+        height: 36px;
+        margin-top: -8px;
+        margin-bottom: 8px;
+    }
+    .profilePostsBlock .blockMainInfo {
+        border: 0px;
+    }
+    .profilePostsBlock .blockTop {
+        position: absolute;
+    }
+        .profilePostsBlock .blockInteract>div {
+            padding: 10px 0px!important;
+        }
+
+            .profilePostsBlock .blockInteract .blockInteractText {
+                display: none;
+            }
+
+            .profilePostsBlock .blockInteract div[class^="icon-"] {
+                font-size: 18px;
+            }
+            .profilePostsBlock .blockInteract>div {
+                display: inline-block;
+            }
+
+            .profilePostsBlock .blockImgHolder img {
+                cursor: pointer;
+            }
+
+/* Form display elements */
+.profileEditClickToChange {
+    color: #ccc;
+    height: 45px;
+}
+.profileEditClickToChange>div {
+    height: 100%;
+}
+    .profileEditClickToChange p {
+        margin: -5px auto 10px auto;
+        font-size: 15px;
+    }
+    .profileEditPicButtons {
+        font-size: 28px;
+        display: none;
+        cursor: pointer;
+    }
+        .profileEditPicButtons .glyphicon {
+            top: 0px;
+        }
+    .profileEditPicButtons>div {
+        display: inline-block;
+        border: 3px solid #ccc;
+        height: 40px;
+        width: 40px;
+        box-sizing: border-box;
+        border-radius: 30px;
+        padding-top: 3px;
+        text-align: center;
+    }
+        #profileEditPicCancel {
+            margin-left: 20px;
+        }
+
+
+    #profileInputs label {
+        width: 65px;
+        display: inline-block;
+        padding: 5px;
+        text-align: center;
+
+    }
+    #profileInputs input[type="text"], #profileInputs textarea, #profileInputs select {
+        width: 210px;
+        margin: 10px 0px;
+    }
+    #profileInputs textarea {
+        height: 90px;
+    }
+
+    #thumbnailScrollerWrap {
+        width: 100%;
+        overflow-x: scroll;
+        margin-bottom: 10px;
+    }
+    #thumbnailScroller {
+        position: relative;
+        margin: auto;
+    }
+    #thumbnailScroller img {
+        display: block;
+        float: left;
+    }
+    @media (min-width: 0px) and (max-width: 540px) {
+        #thumbnailScroller {
+            width: 2000em;
+        }
+        #thumbnailScroller img {
+            width: 60px;
+        }
+    }
+    /* overwrite the javascript set width */
+    @media (min-width: 541px){
+        #thumbnailScroller {
+            width: 100%!important;
+        }
+        #thumbnailScroller img {
+            width: 10%;
+        }
+    }    
+
+
+/* Search display */
+
+.searchNote {
+    display:none;
+}
+
+.profileFollowUsersBlock {
+    padding-top: 20px;
+}
+.profilePostLower {
+    min-height: 300px;
+}

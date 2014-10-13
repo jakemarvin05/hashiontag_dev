@@ -29,7 +29,7 @@ $('.sendComment').click(function() {
             userNameDisp: printHead.userHeaders.userNameDisp
         }
     }
-    var $submittedComment = streamFactory.append.eachComment($thisBlock, commentJSON, true, true);
+    var $submittedComment = streamFactory.append.eachComment($thisBlock, commentJSON, true, null, true);
 
     $submittedComment.velocity('transition.slideDownIn');
 
@@ -124,5 +124,6 @@ var likeButton = {
 }
 likeButton.init($('.likeButton'));
 </script>
+<script src="{p.js}/jquery.autosize.js"></script>
 </body>
 </html>

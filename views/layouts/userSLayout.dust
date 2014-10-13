@@ -1,4 +1,6 @@
-<article class="userLayout" id="layoutId">
+
+<li class="userLayout" id="layoutId">
+    <span class="vector"></span>
     <div class="blockTop">
         <div class="blockProfileThumb"></div>
         <div class="blockTextHolder">
@@ -8,4 +10,4 @@
         <div class="blockAbout"></div>
         <div class="blockAboutM"></div>
     </div>
-</article>
+</li>

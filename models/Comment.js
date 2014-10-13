@@ -20,16 +20,12 @@ module.exports = function(sequelize, DataTypes) {
             },
         }, {
             timestamps: true,
-            tableName: 'Comments', //PascalCase
+            tableName: 'Comment', //PascalCase
             classMethods: {
-
-                
                 associate: function(models) {
                     Comment.belongsTo(models.Post, {foreignKey: 'Post_postId'});
                     Comment.belongsTo(models.User, {foreignKey: 'User_userId'});
                 }
-
-
 
             }
         }

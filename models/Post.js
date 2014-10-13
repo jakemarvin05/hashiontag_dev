@@ -25,10 +25,14 @@ module.exports = function(sequelize, DataTypes) {
                 type: DataTypes.INTEGER,
                 allowNull: false,
                 defaultValue: 0
+            },
+            isProfilePicture: {
+                type: DataTypes.BOOLEAN,
+                allowNull: true
             }
         }, {
             timestamps: true,
-            tableName: 'Posts', //PascalCase
+            tableName: 'Post', //PascalCase
             classMethods: {
 
                 
@@ -52,10 +56,13 @@ module.exports = function(sequelize, DataTypes) {
                     Post.hasMany(models.Notification, {foreignKey: 'Post_postId'});
 
                     //Hashtags
-                    Post.hasMany(models.Hashtag, {foreignKey: 'Post_postId', through: 'Posts_Hashtags'});
+                    Post.hasMany(models.Hashtag, {foreignKey: 'Post_postId', through: 'Post_Hashtag'});
 
                     //Stream
                     Post.hasMany(models.Stream, {foreignKey: 'Post_postId'});
+
+                    //Metatag
+                    Post.hasMany(models.PostMeta, {foreignKey: 'Post_postId'});
                 }
             },
             getterMethods: {

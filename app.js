@@ -23,7 +23,7 @@ global.Promise = Promise;
 
 /* passport and its friends */
 var passport = require('passport');
-var flash = require('connect-flash');
+//var flash = require('connect-flash');
 var session = require('express-session');
 
 var app = express();
@@ -46,7 +46,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({ secret: 'hashionhashion' })); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
-app.use(flash()); // use connect-flash for flash messages stored in session
+//app.use(flash()); // use connect-flash for flash messages stored in session
 
 //routing
 app.use('/', routes);

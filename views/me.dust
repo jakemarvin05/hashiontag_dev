@@ -1,295 +1,8 @@
 {>blockHeader/}
+<link href="{p.css}/me.css" rel="stylesheet">
+<link href="{p.css}/search.css" rel="stylesheet">
+<script src="{p.js}/streamFactory.js"></script>
 {>blockHeaderAfterHook/}
-<style>
-header.profileHeader>div {
-    margin-left: auto;
-    margin-right: auto;
-    text-align:center;
-}
-.profileHeader {
-    border-bottom: 1px solid #ccc;
-    background: #f7f7f7;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    overflow: hidden;
-}
-        .profilePictureCont {
-            width: 100px;
-            max-width: 100%;
-            margin: auto;
-        }
-            .profilePictureCont img {
-                width: 100%;
-            }
-
-        .profileUserNameDisp {
-            font-size: 26px;
-            font-weight: bold;
-            margin-top: 2px;
-        }
-
-        .profileInfoInlines {
-            width: 280px;
-            margin: auto;
-            word-wrap: break-word;
-        }
-            .profileInfoInlines>div {
-                display: inline-block;
-                padding: 5px 2px;
-            }
-
-        .profileAbout {
-            margin-top: 20px;
-            width: 280px;
-            text-align: center;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        #editProfileButton {
-            display: block;
-            margin: auto;
-            margin-top: 10px;
-            height: 28px;
-            font-size: 13px;
-            padding-top: 8px;
-        }
-
-        .profileRelationship {
-            margin-top: 20px;
-        }
-            .profileFollowBlock {
-                display:inline-block;
-                padding: 0px 10px;
-                height: 52px;
-                vertical-align: middle;
-            }
-            .profileFollowBlock:not(:first-child) {
-                border-left: 1px solid #ccc;
-            }
-
-                .profileFollowWrap {
-                    display: inline-block;
-                    vertical-align: middle;
-                }
-                    .profileFollowHdr, .profileFollowingHdr {
-                        text-transform: uppercase;
-                        color: #ccc;
-                        font-size: 12px;
-                        padding-top: 4px;
-                    }
-
-                    .profileFollowCount {
-                        font-weight: bold;
-                        font-size: 20px;
-                    }
-
-                    @media (min-width: 0px) and (max-width: 480px) {
-                        .profileFollowButtonCont {
-                            display: block;
-                            border-left: 0px !important;
-                        }
-                    }
-                    .profileFollowText {
-                        font-size: 13px;
-                        color: #ccc;
-                        max-width: 200px;
-                    }
-                    #profileFollowButton {
-                        font-size: 12px;
-                        height: 24px;
-                        width: 132px;
-                        padding: 7px 0px;
-                    }
-
-
-
-
-.profilePostsBlock {
-    width: 100%;
-    text-align: center;
-} 
-
-    .profilePostsBlock article {
-        display: inline-block;
-        text-align: left;
-        vertical-align: top;
-    }
-
-    /*profilePostsBlock and its article responsive */ 
-    @media (min-width: 0px) and (max-width: 320px) {
-        .profilePostsBlock {
-            padding: 2px;
-        }
-        .profilePostsBlock article {
-            width: 153px;
-            padding: 2px;
-        }
-
-    }  
-    @media (min-width: 321px) and (max-width: 480px) {
-        .profilePostsBlock {
-            padding: 2px;
-        }
-        .profilePostsBlock article {
-            width: 48.5%;
-            padding: 2px;
-        }
-
-    }  
-    @media (min-width: 481px) and (max-width: 640px) {
-        .profilePostsBlock {
-            padding: 2px;
-        }
-        .profilePostsBlock article {
-            width: 32.3%;
-            padding: 2px;
-        }
-
-    }
-    @media (min-width: 641px) and (max-width: 767px) {
-        .profilePostsBlock {
-            padding: 5px;
-        }
-        .profilePostsBlock article {
-            width: 23.4%;;
-            padding: 5px;
-        }
-
-    } 
-    @media (min-width: 768px){
-        .profilePostsBlock {
-            padding: 10px;
-        }
-        .profilePostsBlock article {
-            width: 166px;
-            padding: 10px;
-        }
-
-    } 
-
-
-    .profilePostsBlock .blockProfileThumb,
-    .profilePostsBlock .blockUserHolder,
-    .profilePostsBlock .blockLikeText,
-    .profilePostsBlock .blockTextHolder,
-    .profilePostsBlock .blockLoadMoreText,
-    .profilePostsBlock .postCommentCont,
-    .profilePostsBlock .postInteractions {
-        display: none;
-    }
-
-    /* Display Hacks */
-    .profilePostsBlock .blockPad {
-        height: 36px;
-        margin-top: -8px;
-        margin-bottom: 8px;
-    }
-    .profilePostsBlock .blockMainInfo {
-        border: 0px;
-    }
-    .profilePostsBlock .blockTop {
-        position: absolute;
-    }
-        .profilePostsBlock .blockInteract>div {
-            padding: 10px 0px!important;
-        }
-
-            .profilePostsBlock .blockInteract .blockInteractText {
-                display: none;
-            }
-
-            .profilePostsBlock .blockInteract div[class^="icon-"] {
-                font-size: 18px;
-            }
-            .profilePostsBlock .blockInteract>div {
-                display: inline-block;
-            }
-
-            .profilePostsBlock .blockImgHolder img {
-                cursor: pointer;
-            }
-
-/* Form display elements */
-.profileEditClickToChange {
-    color: #ccc;
-    height: 45px;
-}
-.profileEditClickToChange>div {
-    height: 100%;
-}
-    .profileEditClickToChange p {
-        margin: -5px auto 10px auto;
-        font-size: 15px;
-    }
-    .profileEditPicButtons {
-        font-size: 28px;
-        display: none;
-        cursor: pointer;
-    }
-    .profileEditPicButtons>div {
-        display: inline-block;
-        border: 3px solid #ccc;
-        height: 40px;
-        width: 40px;
-        box-sizing: border-box;
-        border-radius: 30px;
-        padding-top: 3px;
-        text-align: center;
-    }
-        #profileEditPicCancel {
-            margin-left: 20px;
-        }
-
-
-    #profileInputs label {
-        width: 65px;
-        display: inline-block;
-        padding: 5px;
-        text-align: center;
-
-    }
-    #profileInputs input[type="text"], #profileInputs textarea, #profileInputs select {
-        width: 210px;
-        margin: 10px 0px;
-    }
-    #profileInputs textarea {
-        height: 90px;
-    }
-
-    #thumbnailScrollerWrap {
-        width: 100%;
-        overflow-x: scroll;
-        margin-bottom: 10px;
-    }
-    #thumbnailScroller {
-        position: relative;
-        margin: auto;
-    }
-    #thumbnailScroller img {
-        display: block;
-        float: left;
-    }
-    @media (min-width: 0px) and (max-width: 540px) {
-        #thumbnailScroller {
-            width: 2000em;
-        }
-        #thumbnailScroller img {
-            width: 60px;
-        }
-    }
-    /* overwrite the javascript set width */
-    @media (min-width: 541px){
-        #thumbnailScroller {
-            width: 100%!important;
-        }
-        #thumbnailScroller img {
-            width: 10%;
-        }
-    }    
-
-
-</style>
 <section id="main">
 
     <header class="profileHeader">
@@ -358,7 +71,7 @@ header.profileHeader>div {
             {/renderJSONraw.isOwnProfile}
 
         </div><!-- Profile Details -->
-
+        {?renderJSONraw.isOwnProfile}
         <!-- Edit Form -->
         <div class="profileEditForm" style="display:none;" data-vel="editDisplay">
             <div class="profileEditClickToChange">
@@ -408,17 +121,21 @@ header.profileHeader>div {
                     <script>selectCountry('country', '{renderJSONraw.country}');</script>
                 </div>
                 <div class="profileInputsAbout">
-                <label> About </label><textarea name="about" id="about"  data-orgin="{renderJSONraw.about}">{renderJSONraw.about}</textarea><br/>
-            
-                <button id="updateProfileButton" class="darkButton" type="submit"><span class="glyphicon glyphicon-ok"></span></button>
+                    <label> About </label><textarea name="about" id="about"  data-orgin="{renderJSONraw.about}">{renderJSONraw.about}</textarea><br/>
+                </div>
+                <div class="profileInputsButtons">
+                
+                    <button id="updateProfileButton" class="darkButton" type="submit"><span class="glyphicon glyphicon-ok"></span></button>
 
-                <button id="cancelButton" class="darkButton"><span class="glyphicon glyphicon-remove"></span></button>
+                    <button id="cancelButton" class="darkButton"><span class="glyphicon glyphicon-remove"></span></button>
+                </div>
             </form>
         </div>
+        {/renderJSONraw.isOwnProfile}
 
 
         <div class="profileRelationship" data-vel="normalDisplay">
-            <div class="profileFollowBlock">
+            <div class="profileFollowBlock{@if cond="{renderJSONraw.followerCount} > 0"} hasFollowNumbers{/if}" data-action="findFollowers">
                 <div class="vaDiv"></div>
                 <div class="profileFollowWrap">
                     <div class="profileFollowHdr">
@@ -430,7 +147,7 @@ header.profileHeader>div {
                 </div>
             </div>
 
-            <div class="profileFollowBlock">
+            <div class="profileFollowBlock{@if cond="{renderJSONraw.followingCount} > 0"} hasFollowNumbers{/if}" data-action="findFollowings">
                 <div class="vaDiv"></div>
                 <div class="profileFollowWrap">
                     <div class="profileFollowHdr">
@@ -467,25 +184,39 @@ header.profileHeader>div {
                 </div>
             {/renderJSONraw.isFollowable}
         </div>
+        <div class="loading"></div>
     </header>
+    <div class="profilePostLower">
 
+        <div class="profilePostsBlock clearfix" data-vel="normalDisplay">
+            {>"layouts/profilePostsLayout"/}
+        </div>
 
-    <div class="profilePostsBlock" data-vel="normalDisplay">
-        {>"layouts/profilePostsLayout"/}
+        {! Following/Followers display !}
+        
+        <div id="searchList" class="profileFollowUsersBlock" data-vel="searchDisplay" style="display:none;">
+            <div class="miniLink" id="backToPosts">
+                <span class="glyphicon glyphicon-chevron-left"></span>Back to posts
+            </div> 
+            {>"layouts/searchLayout"/}
+        </div>
     </div>
 
 </section><!-- main -->
 
-{! This is used to contain the fancybox popup duplicate !}
+{! This is used to contain the fancybox popup duplicate  !}
 <div id="fancyboxCont" style="display:none;">
     <article></article>
 </div>
 
-{>blockFooter/}
 
-<script src="{p.js}/streamFactory.js"></script>
+{>blockFooter/}
 <script>
+function profilePostFactory(posts) {
+
+}
 var profilePostFactory = Object.create(streamFactory);
+profilePostFactory.append = Object.create(streamFactory.append);
 
 profilePostFactory.streamContClass = 'profilePostsBlock';
 
@@ -520,11 +251,13 @@ profilePostFactory.append.imageLink = function($stream, img) {
     var strId = '#' + $stream.attr('id');
     img.onclick = function() {
         //get the stream's html and put it into the "fancybox cont"
-        $('#fancyboxCont article').html($(strId).html());
+        //$('#fancyboxCont article').html('')
+        //var clone = $(strId).children().clone();
+        //$('#fancyboxCont article').append(clone);
 
         //then make fancybox open it.
         $.fancybox.open([{
-            href : '#fancyboxCont',
+            href : '#' + strId,
             title : ''
         }], {
             padding : 10
@@ -538,10 +271,44 @@ profilePostFactory.append.imageOnLoad = function($stream, img) {
     //get the container to hold the height cause we are gonna switch out.
     $blockHolder.css('height', $imgHolder.height() + 'px');
     $imgHolder.remove();
-    $blockHolder.append(img);
+    $blockHolder.prepend(img);
     //reset the height attr.
     $blockHolder.css('height', 'auto');
     this.effect($(img));
+}
+profilePostFactory.append.moreInfoBindButton = function() {
+    var $buttons = $('.' + this.parent.streamContClass).find('.moreInfo');
+    $buttons.click(function() {
+        //find its parent the find the button. more resistant to layout changes.
+        var $moreInfo = $(this).closest('article').find('.blockMoreInfo');
+
+        //button is depressed, and moreInfo yet to be hidden
+        if($(this).hasClass('blockInteractActive') && $moreInfo.attr('data-shown') === 'yes') {
+            //remove the class first.
+            $(this).removeClass('blockInteractActive');
+            $moreInfo.velocity({opacity:0}, 200, function(el) {
+                //now toggle to hide.
+                $(el).css('display', 'none').attr('data-shown', 'no');
+
+            });
+        }
+
+        //button is not depressed, and moreInfo not shown
+        if(!$(this).hasClass('blockInteractActive') && $moreInfo.attr('data-shown') === 'no') {
+            //add the class first.
+            $(this).addClass('blockInteractActive');
+            $moreInfo
+                .css('display', 'block')
+                .velocity({opacity:0.9}, 200, function(el) {
+                    //now toggle to hide.
+                    $(el).attr('data-shown', 'yes');
+                });
+        }
+
+        //intermediate cases where button is depressed/undepressed, but animation is not complete.
+        //will fall through.
+        return false;
+    });
 }
 
 profilePostFactory.init(renderJSON.posts, {burst: 0});
@@ -622,6 +389,7 @@ var followButton = {
 followButton.init($('#profileFollowButton'));
 </script>
 
+{?renderJSONraw.isOwnProfile}
 <script>
 function editProfile() {
     var $header = $('.profileHeader'),
@@ -630,6 +398,7 @@ function editProfile() {
         $cancelBtn = $('#cancelButton'),
         $normalD = $('div[data-vel="normalDisplay"]'),
         $editD = $('div[data-vel="editDisplay"]'),
+        $searchD = $('div[data-vel="searchDisplay"]'),
         $profilePic = $('.profilePictureCont'),
         $profileEditPicButtons = $('.profileEditPicButtons'),
         $profileEditPicOk = $('#profileEditPicOk'),
@@ -641,9 +410,16 @@ function editProfile() {
         //set height temporarily to prevent container from collapsing.
         $header.css('height', $header.height());
 
+        $searchD.velocity('transition.slideLeftOut', 200, function() {
+            //this is the flag for the userView.
+            //if the user is looking at "following"/"followers"
+            //we slide the view out and down the flag.
+            userViewFlag = false;
+        });
         $normalD.velocity('transition.slideLeftOut', {
             duration: 200,
             complete: function() {
+
                 $editD.velocity('transition.slideRightIn', 200, function() {
                     $header.css('height', 'auto');
                 });
@@ -896,14 +672,6 @@ $('#profileInputs').validate({
  
         // Get some values from elements on the page:
         var $form = $('#profileInputs');
-            // $profilePic = $('.profilePictureCont img'),
-            // $name = $form.find('input[name="name"]')
-            // $gender = $form.find('select[name="gender"]')
-            // $email = $form.find('input[name="email"]'),
-            // $web = $form.find('input[name="web"]'),
-            // $country = $form.find('input[name="country"]'),
-            // $about = $form.find('input[name="about"]'),
-
         var data = $form.serialize();
 
         //check if profile image has changed. If not, don't add to data.
@@ -939,5 +707,108 @@ $('#profileInputs').validate({
     }
 });
 </script>
+{/renderJSONraw.isOwnProfile}
 
+{!Following/Follower page !}
+<script>
+var followingCache,
+    followerCache,
+    resetHTML,
+    userViewFlag;
+
+var loader = Object.create(VV.utils.loaderEffect);
+var $profileBlock = $('.profilePostsBlock');
+var $followBlock = $('.profileFollowUsersBlock');
+var $buttons = $('.profileFollowBlock');
+loader.init($('.loading'));
+
+$buttons.click(function() {
+    if(!$(this).hasClass('hasFollowNumbers')) { return false; }
+    if($(this).attr('data-active') === "true") { return false; }
+
+    $buttons.removeAttr('data-active');
+    $(this).attr('data-active','true');
+
+    var a = $(this).attr('data-action')
+    if(a === 'findFollowers') {
+        //if we already have the complete HTML, just show it.
+        if(followerCache) {
+            //clear the container
+            $('.mainColBlock').html('');
+            $('.mainColBlock').html(followerCache);
+            return transitIn();
+        }
+        //fresh entry, go get it.
+        loader.run();
+        followAjax("followers");
+    }
+
+    if(a === 'findFollowings') {
+
+        if(followingCache) {
+            //clear the container
+            $('.mainColBlock').html('');
+            $('.mainColBlock').html(followingCache);
+            return transitIn();
+        }
+        loader.run();
+        followAjax("following");
+    }
+});
+$('#backToPosts').click(function() {
+   $followBlock.velocity('transition.slideRightOut', 200, function() {
+        $profileBlock.velocity('transition.slideLeftIn', 200, function() {
+            $buttons.removeAttr('data-active');
+            userViewFlag = false;
+        });
+   });
+});
+function transitIn($el1, $el2) {
+    if(userViewFlag) {
+        //no transitions
+        loader.kill();
+        return initList();
+    }
+    if(!$el1 || !$el2) {
+        var $el1 = $profileBlock;
+        var $el2 = $followBlock;
+    }
+    console.log("running effects");
+    $el1.velocity('transition.slideLeftOut', 200, function() {
+        loader.kill();
+        initList();
+        $el2.velocity('transition.slideRightIn', 200, function() {
+            userViewFlag = true;
+        });
+    });
+}
+function initList() {
+    var options = { valueNames: [ 'vector' ] }
+    var userList = new List('searchList', options);
+}
+function followAjax(type) {
+    var ajaxFollowers = $.post(printHead.p.absPath + '/api/' + type, {userId: renderJSON.userId});
+
+    ajaxFollowers.done(function(data) {
+        console.log(data);
+        if(!data.success) {
+            loader.kill();
+            alertFactory.protoAlert('Please either login or check your internet connection.');
+        }
+        //clear the container
+        $('.mainColBlock').html('');
+        userFactory.init(data.results, {streamType: "user"});
+        //after userFactory is complete, cache the HTML
+        if(type === "followers") { followerCache = $('.mainColBlock').html() };
+        if(type === "following") { followingCache = $('.mainColBlock').html() };
+        transitIn();
+    });
+    ajaxFollowers.fail(function() {
+        loader.kill();
+        alertFactory.protoAlert('Please either login or check your internet connection.');
+        console.log('error has occured');
+    })
+}
+</script>
+<script src="{p.js}/list.js"></script>
 {>blockFooterScripts/}

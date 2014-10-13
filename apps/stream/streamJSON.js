@@ -34,7 +34,16 @@ module.exports = function streamJSON(req, render, opts) {
             model: db.User,
             attributes: [ 'userNameDisp' ]
         }]
-    }];
+    }, {
+        model: db.PostMeta,
+        attributes: ['key', 'value'],
+        where: db.Sequelize.or(
+            {'key': 'itemLink'}, 
+            {'key': 'itemAddTag'}, 
+            {'key': 'itemPrice'}
+        ),
+        required: false
+    }]
     var order = [
         ['createdAt', 'DESC'], 
         [db.Comment, 'createdAt', 'ASC'] 
@@ -50,6 +59,7 @@ module.exports = function streamJSON(req, render, opts) {
 
     /* Likes Splicer */
     function likesSplicer(posts) {
+        var spliced = {}
         var count1 = Object.keys(posts).length;
         if(count1 === 0) { return posts; }
         postCounts = count1;
@@ -83,10 +93,10 @@ module.exports = function streamJSON(req, render, opts) {
                 }
             }
             //console.timeEnd('while');
-
+            spliced[j] = post;
 
         } //for loop closure
-        return posts;
+        return spliced;
     }
 
 
@@ -205,7 +215,7 @@ module.exports = function streamJSON(req, render, opts) {
             //var posts = JSON.parse(JSON.stringify(posts));
 
             //comment this when stream is in implementation
-            var posts = streams;
+            var posts = JSON.parse(JSON.stringify(streams));
 
             
             var posts = likesSplicer(posts);
@@ -293,7 +303,7 @@ module.exports = function streamJSON(req, render, opts) {
             //console.log(renderJSON.posts);
 
             renderJSON.posts = likesSplicer(renderJSON.posts);
-            renderJSON.postCounts = postCounts + 1;
+            renderJSON.postCounts = postCounts;
             return render(renderJSON);
 
         }).catch(throwErr);

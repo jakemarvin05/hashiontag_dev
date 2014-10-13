@@ -77,13 +77,16 @@ module.exports = function addComment(req, res) {
 }
 
 function addCommentIncrementScores(db, req){
-    db.Post.find(req.body.postId).success(function(post) {
+    db.Post.find(req.body.postId).then(function(post) {
 
         //Incrementing post score
-        post.increment('postScore', {by: 1}).success(function(post){
-            post.save();
-            console.log('Incremented post scores...\n');
-        });
+        post
+            .increment('postScore', {by: 1})
+            .then(function(post){
+                console.log('Incremented post scores...\n');
+            }).catch(function(err) {
+                console.log(err);
+            });
 
         //Incrementing affinity
         //console.log('USER_USERID is as followed: '+post.getDataValue('User_userId')+'\n');
@@ -98,12 +101,13 @@ function addCommentIncrementScores(db, req){
                 FollowId: post.getDataValue('User_userId')
             }
 
-        }).success(function(following){
+        }).then(function(following){
             //console.log(following);
-            following.increment('affinity', {by: 1}).success(function(following){
-                following.save();
-                console.log('Incremented affinity...\n');
-            });
+            return following.increment('affinity', {by: 1})
+        }).then(function() {
+            console.log('Incremented affinity...\n');
+        }).catch(function(err) {
+            console.log(err);
         });
      
                 
@@ -118,20 +122,21 @@ function findTaggedUserName(req, res){
         //Remove the '@' symbol in each matchedUserName[index];
         for(var i=0;i<matchedUserName.length;i++){
            matchedUserName[i] = matchedUserName[i].replace('@','');
+           matchedUserName[i] = matchedUserName[i].toLowerCase();
            console.log('Found user name: ' +matchedUserName[i]+' <------');
         }
 
         //Match existence of user and if they exist, obtain their userId
         db.User.findAll({
             where: {
-                userName: matchedUserName.toLowerCase() //search is currently case sensitive
+                userName: matchedUserName //search is currently case sensitive
             },
             attributes: ['userNameDisp','userId']
         }).then(function(result){
             //if result = 0, terminate process
             var items = Object.keys(result).length;
             var userIdArray = [];
-            if(items == 0){
+            if(items === 0){
                 //terminate;
                 console.log('No such users exist in database...Terminate process...')
             }

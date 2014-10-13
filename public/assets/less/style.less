@@ -138,6 +138,9 @@ div, span {
 .clickable {
     cursor:pointer;
 }
+.noticePad {
+    padding: 0px 20px 10px 20px;
+}
 
 /* all the full width elements never go below 320px */
 footer, .globalWrapper, .spanAll {
@@ -147,6 +150,37 @@ footer, .globalWrapper, .spanAll {
 .spanAll {
     width: 100%;
 }
+/* to make the borders of #main full height */
+html, body, .globalWrapper, #main {
+    min-height: 100%;
+}
+/* make sure these entities cannot have overflow hidden. else
+   all content below 100% will be cut off */
+html, body, .globalWrapper {
+    height: 100%
+}
+
+/* Loader studs */
+.searchLoaderStud {
+    display: inline-block;
+    height: 5px;
+    width: 5px;
+    background-color: #ccc;
+    margin: 2px;
+    vertical-align: middle;
+}
+/* miniLink */
+.miniLink {
+    display: inline-block;
+    cursor: pointer;
+}
+
+/* Textarea autosize transition */
+textarea {
+    transition: height 0.2s;
+    -webkit-transition: height 0.2s;
+}
+
 /*-------------------------------------------------
 2. Header, nav
 -------------------------------------------------*/
@@ -296,9 +330,9 @@ footer, .globalWrapper, .spanAll {
     @media (min-width: 541px) {
         border-left: 1px solid #ccc;
         border-right: 1px solid #ccc;
-        border-bottom: 1px solid #ccc;
     } 
     box-sizing: border-box;
+    padding-bottom: 10px;
 }
 
 /*-------------------------------------------------
@@ -311,7 +345,7 @@ footer, .globalWrapper, .spanAll {
 
 }
 
-.mainColBlock article {
+.mainColBlock article, .mainColBlock li  {
     background-color: #fff;
     margin: 10px auto 10px auto;
     border-top: 1px solid #e0e0e0;
@@ -342,11 +376,8 @@ footer, .globalWrapper, .spanAll {
     max-width: 100%;
 }
 
-
-
-
 .blockPad {
-    padding: 8px 0px;
+    padding-top: 8px;
 }
 /* too allow "padding" but elements to span full width */
 .blockPad>* {
@@ -389,6 +420,9 @@ footer, .globalWrapper, .spanAll {
         text-transform: uppercase;
         font-size: 15px;
     }
+    .blockInteractActive {
+        color: #ccc!important;
+    }
         .likeButton, .moreInfo {
             display: inline-block;
             vertical-align: middle;
@@ -405,10 +439,35 @@ footer, .globalWrapper, .spanAll {
             color: @mainRedDark;
         }
 
+    .blockMoreInfo {
+        width: 100%;
+        background-color: #f7f7f7;
+        text-align: center;
+        padding: 5px;
+        border: 1px solid #ccc;
+    }
+        .blockMoreInfo>div {
+            width: 200px;
+            margin-left: auto;
+            margin-right: auto;
+            word-wrap: break-word;
+        }
+            .postItemAddTagImg {
+                text-align:center;
+            }
+                .postItemAddTagImg img {
+                    width: 60px;
+                }
+            .postItemAddTag {
+                font-weight: bold;
+                margin-bottom: 12px;
+            }
+
     .blockLikeText {
         text-align: center;
         color: #ccc;
         font-size: 14px;
+        padding-top: 5px;
     }
 
     .blockTextHolder {
@@ -423,7 +482,10 @@ footer, .globalWrapper, .spanAll {
         text-transform: uppercase;
         font-size: 13px;
     }
-        .blockLoadMoreCommentsCont>div {
+        .blockLoadMoreCommentsBut {
+            cursor: pointer;
+        }
+        .blockLoadMoreCommentsBut, .blockLoadMoreCommentsWrap {
             display: inline-block;
         }
         .blockLoadMoreCommentsWrap {
@@ -448,7 +510,6 @@ footer, .globalWrapper, .spanAll {
                 }
 
     .postCommentCont {
-        margin-top: 10px
     } 
     .postCommentWrap {
         min-height: 45px;
@@ -462,7 +523,7 @@ footer, .globalWrapper, .spanAll {
             padding-left: 52px;
             min-height: 45px;
             line-height: 130%;
-            margin-bottom: 10px;
+            margin-top: 10px;
         }
             .commentTimeStamp {
                 font-family: 'NeutraText', Helvetica, Arial;
@@ -472,6 +533,7 @@ footer, .globalWrapper, .spanAll {
             }
 
     .postInteractions {
+        margin-top: 16px;
         text-align: right;
     }
         .postInteractions textarea {

@@ -5,10 +5,25 @@
 var fname = 'addPost';
 var fs = require('fs');
 var db = global.db;
+var VVutils = require('../utils.js');
+var metaAddTag = require('./metaAddTag.js');
 
-module.exports = function addingPost(req, uuid, path, fields, deleteTemp, throwErr, callback) {
+module.exports = function addPost(req, uuid, path, fields, deleteTemp, throwErr, callback) {
+    
+    //for storing post to use in promise chain
+    var storedPost;
 
+
+    console.log('inside addPost');
     var DESC = fields['desc'];
+    console.log(fields);
+
+    var itemMeta = JSON.parse(fields['itemMeta']);
+    
+    itemMeta.itemLink = VVutils.nullIfEmpty(itemMeta.itemLink);
+    itemMeta.itemAddTag = VVutils.nullIfEmpty(itemMeta.itemAddTag);
+    itemMeta.itemPrice = VVutils.nullIfEmpty(itemMeta.itemPrice);
+    console.log(itemMeta);
 
     //take out email addresses, because it messes with @tagging.
     var hasEmails = false;
@@ -133,21 +148,73 @@ module.exports = function addingPost(req, uuid, path, fields, deleteTemp, throwE
                 hml++;
             }
         }
+
+        console.log(itemMeta);
         //create the post
-        db.Post.create({ 
-            desc: DESC,
-            User_userId: req.user.userId,
-            imgUUID: uuid
-        }).then(function(post) {
+        db.User.find().then(function() {
+            return [
+
+                db.Post.create({ 
+                    desc: DESC,
+                    User_userId: req.user.userId,
+                    imgUUID: uuid
+                }),
+                //run metaAddTag to attempt to get back the user instance
+                metaAddTag(itemMeta.itemAddTag),
+            ]
+
+        }).spread(function(post, addtag) {
+            console.log(addtag);
+
+            //asynchronouse hashtag adding. non-critical process so we don't really care.
             console.log(hashTags);
             addHashTags(hashTags, post);
+
+            return [
+                post,
+                
+                (function() {
+                    if(addtag) {
+                        return db.PostMeta.create({
+                            key: "itemAddTag",
+                            value: addtag.userNameDisp,
+                            Post_postId: post.postId
+                        });
+                    }
+                    return false;
+                })(),
+
+                (function() {
+                    if(itemMeta.itemLink) {
+                        console.log('has itemLink');
+                        return db.PostMeta.create({
+                            key: "itemLink",
+                            value: itemMeta.itemLink,
+                            Post_postId: post.postId
+                        });
+                    } else {
+                        return false;
+                    }
+                })(),
+
+                (function() {
+                    if(itemMeta.itemPrice) {
+                        console.log('has price');
+                        return db.PostMeta.create({
+                            key: "itemPrice",
+                            value: itemMeta.itemPrice,
+                            Post_postId: post.postId
+                        });
+                    } else {
+                        return false;
+                    }
+                })()
+            ]
+        }).spread(function(post) {
             console.log(fname + ' Fields inserted.');
             if(typeof callback === 'function') {
                 callback(post);
-            }
-            //asynchronouse hashtag adding. non-critical process so we don't really care.
-            
-            
+            }   
         }).then(function() {
             //asynchrous background deletion :)
             if(typeof deleteTemp === 'function') {

@@ -54,16 +54,11 @@ module.exports = function follow(req, res) {
 
                     console.log('remove');
 
-                    //TODO!!! This is not working
-                    return req.user.removeFollow(userIdToAction);
-
-                    // // destroy + db.Sequelize.and doesn't work.....
-                    // return db.Following.destroy({
-                    //     where: db.Sequelize.and(
-                    //         {FollowerId: req.user.userId}, 
-                    //         {FollowId: userIdToAction}
-                    //     )
-                    // });
+                    // destroy + db.Sequelize.and doesn't work.....
+                    return db.Following.destroy({
+                        FollowerId: req.user.userId, 
+                        FollowId: userIdToAction
+                    });
 
                 } else {
 
