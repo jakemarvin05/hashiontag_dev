@@ -129,9 +129,22 @@ img[id^=img_preview], canvas[id^=img_preview] {
     width: 30px;
 }
 </style>
-
 {>blockHeaderAfterHook/}
+{!
+Fundamentally, the resizing doesn't work well with mobile IOS Safari.
 
+There is a module that can send images back to the server. But it is a backup.
+
+Current solution is to do this:
+
+1) Upload the file, absolute restriction of 30MP, or filesize of 5mb.
+2) Will attempt to resize it.
+3) After resizing, check the filesize of the output. If its very small, this is 
+   indication of blank canvas (iOS problem).
+4) If user is using iOS, give serve them the iOS instructions. Otherwise just
+   ask them to try another browser. (or send us an email).
+
+!}
 <section id="main">
     <div class="mainColBlock">
 
@@ -438,33 +451,6 @@ scaleSlider.pinch.init = function(el) {
 }
 
 /*******************
-* Loader *
-*******************/
-var loader = {
-    state: false,
-    run: function ($cont) {
-        this.state = true;
-        console.log('loader: ' + loader.state);
-        var loading = '<div id="loader" style="position:absolute">Loading...</div>';
-        $cont.prepend(loading);
-        $('#loader').velocity("fadeIn", {
-            duration: 500, loop: true });
-    },
-    kill: function(callback) {
-        var self = this;
-        $('#loader').velocity("stop").velocity("fadeOut", {
-            duration: 200,
-            complete: function(el) {
-                $(el).remove();
-                self.state = false;
-                console.log('loader: ' + loader.state);
-                if(typeof callback === 'function') return callback();
-            }
-        });
-    }
-}
-
-/*******************
 * Image processing *
 *******************/
 
@@ -509,18 +495,33 @@ VV.img.STOCK_IMG.onload = function() {
     VV.img.STOCK_IMG_H = this.height;
     
     //check if image MP within prescribed limits
+    //NOTE: VV.imgCSRender is being over-written with the same limit as the absolute
     var clientCanHandle = (VV.img.CSRender >= VV.img.STOCK_IMG_MP);
-    var imageIsBelowHardLimit = (VV.img.STOCK_IMG_MP <= VV.img.RESIZE_MP_LIMIT);
 
-    if(clientCanHandle && imageIsBelowHardLimit) {
-        //get EXIF first
-        VV.img.getEXIF(el_img_field.files[0], function(toRotate) {
+    if(clientCanHandle) {
+        //get EXIF first, returns a hasEXIF flag.
+        //callback the subsequent steps
+        VV.img.getEXIF(el_img_field.files[0], function(exif) {
+
+            //prepare the canvas size.
+            //iOS mobile will fail at this point. but we can proceed and check later.
             var canvas = VV.img.canvasrise(self);
+
             //set resizer
-            
+            //the picture don't have to be larger than what we allow users to scale.
+            //our base size is 640x640, which means the smaller of the width of height
+            //is 1280(if scale limit is 2), which essentially allows users to 2x their image.
+            //scaleTo indicates the smaller of the dimension when image is downsized proportionally.
             var scaleTo = VV.img.CROP_SIZE*VV.img.SCALE_LIMIT;
-            //resize and rotate
-            VV.img.canvasResize(canvas, scaleTo, toRotate, function(canvas) {
+
+            //everything passes through to canvasResize for resizing/rotating.
+            //if you want to rotate, pass in the EXIF information.
+            //if the canvas comes with image, set 2nd argument to FALSE.
+            //it takes argument:
+            //1.[the prepared canvas], 2.[desired scale], 3.[img or FALSE], 4.[exif or FALSE], 5.[callback]
+            //canvasResize returns a resized canvas with image drawn.
+            //it is synchronous, as at 14Oct14. But a callback is provided anyway.
+            VV.img.canvasResize(canvas, scaleTo, self, exif, function(canvas) {
                 VV.img.dispTmp('canvas', canvas);  
             });  
 
@@ -559,7 +560,7 @@ $("#img_field").change(function(){
     //console.log(this.files[0].size);
     if( this.files[0].size > 5242880 ) {
         return aF.protoAlert({
-                text:'Your image file is too large. Please resize your image to below 3mb.', 
+                text:'Your image file is too large. Please resize your image to below 5mb.', 
                 title:'Max filesize exceeded.'
             });
     }
@@ -567,6 +568,7 @@ $("#img_field").change(function(){
     //objectURL method not supported by Firefox
     //var objectURL = URL.createObjectURL(this.files[0]);
 
+    {! *** this wont occur anymore.
     if($('#img_preview').length > 0) {
         $('#cropPortBg img').velocity("fadeOut", { 
             duration: 200,
@@ -587,9 +589,15 @@ $("#img_field").change(function(){
     } else {
         loaderStuds.run();
         reader.readAsDataURL(this.files[0]);
-        console.log(1);
         //VV.img.STOCK_IMG.src = objectURL;
     }
+
+    *** !}
+
+    //start the loading.
+    loaderStuds.run();
+    reader.readAsDataURL(this.files[0]);
+
     //reset all globals
     VV.img.resetGlobal();
     scaleSlider.reset($('#scaleSliderBut'));
@@ -612,9 +620,11 @@ $("#doneScaling").click(function(){
 
     //This option is only available to client-side render.
     //1. crop and resize VV.img.TEMP_IMG.
-    //2. re-apply filters.
-
+    //2. re-apply filters. (not implemented)
     if(VV.img.CSRender !== false) {
+
+        //draw up the tempCanvas we want to resize.
+        //keeping the original one so that user can revert back.
         var tempCanvas = document.createElement('canvas');
         var tempCanvasCtx = tempCanvas.getContext('2d');
         tempCanvas.height = VV.img.TEMP_IMG_H;
@@ -628,9 +638,9 @@ $("#doneScaling").click(function(){
         } else {
             var m = VV.img.TEMP_IMG_H / (VV.img.CROP_PORT*VV.img.SCALE);
         }
-
+        //canvasCrop takes in a drawn canvas and returns
         VV.img.canvasCrop('canvas', tempCanvas, m, VV.img.SCALE, function(cropped) {
-            VV.img.canvasResize(cropped, VV.img.CROP_SIZE, false, function(canvas) {
+            VV.img.canvasResize(cropped, VV.img.CROP_SIZE, false, false, function(canvas) {
                 //in future, apply filters here.
                 canvas.style['height'] = '100%';
                 canvas.style['width'] = '100%';
@@ -649,6 +659,12 @@ $("#doneScaling").click(function(){
                         .append(canvas)
                         .attr('data-h', h).attr('data-w', w)
                         .velocity({height: h/4, width: w/4});
+
+                    //safari sometimes don't respond to the first call.
+                    //so we try again when it is less busy.
+                    setTimeout(function() {
+                        loaderStuds.kill();
+                    },50);
 
                     $('#postCont').velocity('transition.slideRightIn', 200);
                 }); 

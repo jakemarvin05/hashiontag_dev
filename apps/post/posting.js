@@ -48,6 +48,7 @@ module.exports = function posting(req, res, socket) {
 
 
     form.on('error', function(err) {
+        console.log(err);
         return res.json({success: false});
     });
 
@@ -78,7 +79,10 @@ module.exports = function posting(req, res, socket) {
             return res.json({success: false});
         }
         //reject if desc > 400 characters.
-        if(fields['desc'].length > 400) { return res.json({success:false}); }
+        if(fields['desc'].length > 400) { 
+            console.log('post rejected becasue description > 400');
+            return res.json({success:false}); 
+        }
 
         /* "store" is the default scenario. Client-side rendering is enabled.
         * Client sends image data. Server returns link to stored image and postId. */
@@ -86,7 +90,10 @@ module.exports = function posting(req, res, socket) {
             console.log(fname + ' store.');
             var img = files['imgData'];
 
-            if(checkImg(img) === 'false') { return res.json({success: false}); }
+            if(checkImg(img) === 'false') { 
+                console.log('img check failed');
+                return res.json({success: false}); 
+            }
 
             var newUUID = uuid();
 
@@ -363,9 +370,9 @@ module.exports = function posting(req, res, socket) {
 
     }); // form parse
 
-    form.on('error', function(){
-        form.pause();
-        throwErr(fname + ': form error');
-    });    
+    // form.on('error', function(){
+    //     form.pause();
+    //     throwErr(fname + ': form error');
+    // });    
 
 }

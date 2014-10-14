@@ -10,20 +10,20 @@ var metaAddTag = require('./metaAddTag.js');
 
 module.exports = function addPost(req, uuid, path, fields, deleteTemp, throwErr, callback) {
     
-    //for storing post to use in promise chain
-    var storedPost;
+    //flags
+    var setProfileFlag = false;
 
 
-    console.log('inside addPost');
+    console.log(fname + ' ' + 'inside addPost');
     var DESC = fields['desc'];
-    console.log(fields);
+    console.log(fname + ' ' + fields);
 
     var itemMeta = JSON.parse(fields['itemMeta']);
     
     itemMeta.itemLink = VVutils.nullIfEmpty(itemMeta.itemLink);
     itemMeta.itemAddTag = VVutils.nullIfEmpty(itemMeta.itemAddTag);
     itemMeta.itemPrice = VVutils.nullIfEmpty(itemMeta.itemPrice);
-    console.log(itemMeta);
+    console.log(fname + ' ' + itemMeta);
 
     //take out email addresses, because it messes with @tagging.
     var hasEmails = false;
@@ -105,7 +105,7 @@ module.exports = function addPost(req, uuid, path, fields, deleteTemp, throwErr,
     function addHashTags(hashTags, post) {
         //asynchronouse hashtag adding. non-critical process so we don't really care.
         console.log(fname + ' creating hashTags...');
-        console.log(hashTags);
+        console.log(fname + ' ' + hashTags);
         if(hashTags) {
             var postId = post.values['postId'];
             var hashTags = hashTags;
@@ -119,22 +119,22 @@ module.exports = function addPost(req, uuid, path, fields, deleteTemp, throwErr,
             db.Hashtag
                 .bulkCreate(bulk)
                 .then(function() {
-                    console.log('hashtags: ' + hashTags + ' added for post id ' + postId);
+                    console.log(fname + ' ' + 'hashtags: ' + hashTags + ' added for post id ' + postId);
                     return post.addHashtags(hashTags);
                 })
                 .catch(function(err) {
-                    console.log(err);
+                    console.log(fname + ' ' + err);
                 });
         }
     }
 
     var errorFn = function(err) {
-        console.log(err);
+        console.log(fname + ' ' + err);
         //delete away image if error in creating post.
         fs.unlink(path, function(err) {
             if(err) {
                 console.log(fname + ' Err: Error deleting' + uuid + '.jpg');
-                console.log(err);
+                console.log(fname + ' ' + err);
             }
         });
         return throwErr(err);
@@ -149,25 +149,49 @@ module.exports = function addPost(req, uuid, path, fields, deleteTemp, throwErr,
             }
         }
 
-        console.log(itemMeta);
+        console.log(fname + ' ' + itemMeta);
         //create the post
         db.User.find().then(function() {
+
+            var postHash = { 
+                desc: DESC,
+                User_userId: req.user.userId,
+                imgUUID: uuid
+            }
+
+            //if user has no profile picture, set this one as profile picture.
+            if(!req.user.profilePicture) {
+                console.log(fname +' ' + 'user has no profile picture. This post will be set as profile picture.')
+                postHash.isProfilePicture = true;
+                setProfileFlag = true;
+            }
+
             return [
 
-                db.Post.create({ 
-                    desc: DESC,
-                    User_userId: req.user.userId,
-                    imgUUID: uuid
-                }),
+                db.Post.create(postHash),
                 //run metaAddTag to attempt to get back the user instance
                 metaAddTag(itemMeta.itemAddTag),
+
             ]
 
         }).spread(function(post, addtag) {
-            console.log(addtag);
 
+            //set the profilepicture async.
+            if(setProfileFlag) { 
+                console.log(fname + ' setting profile picture...'); 
+                db.User.update({
+                    profilePicture: uuid, 
+                    Post_postId_profilePicture: post.postId
+                }, {
+                    userId: req.user.userId
+                }).catch(function(err) {
+                    console.log(fname + ' ' + err);
+                });
+            }
+
+            console.log(fname + ' ' + addtag);
             //asynchronouse hashtag adding. non-critical process so we don't really care.
-            console.log(hashTags);
+            console.log(fname + ' ' + hashTags);
             addHashTags(hashTags, post);
 
             return [
@@ -186,7 +210,7 @@ module.exports = function addPost(req, uuid, path, fields, deleteTemp, throwErr,
 
                 (function() {
                     if(itemMeta.itemLink) {
-                        console.log('has itemLink');
+                        console.log(fname + ' ' + 'has itemLink');
                         return db.PostMeta.create({
                             key: "itemLink",
                             value: itemMeta.itemLink,
@@ -199,7 +223,7 @@ module.exports = function addPost(req, uuid, path, fields, deleteTemp, throwErr,
 
                 (function() {
                     if(itemMeta.itemPrice) {
-                        console.log('has price');
+                        console.log(fname + ' ' + 'has price');
                         return db.PostMeta.create({
                             key: "itemPrice",
                             value: itemMeta.itemPrice,
@@ -238,11 +262,11 @@ module.exports = function addPost(req, uuid, path, fields, deleteTemp, throwErr,
                     var u = '@' + user.values['userNameDisp'];
                     var uRe = new RegExp(u, 'gi');
                     DESC = DESC.replace(uRe, '<a href="/' + u + '">' + u + '</a>');
-                    console.log(DESC);
+                    console.log(fname + ' ' + DESC);
                     i++;
                 }
             }
-            console.log(hashTags);
+            console.log(fname + ' ' + hashTags);
             finalCreate();
 
         }).catch(errorFn);

@@ -297,6 +297,7 @@ header.profileHeader>div {
     #thumbnailScroller img {
         display: block;
         float: left;
+        cursor: pointer;
     }
     @media (min-width: 0px) and (max-width: 540px) {
         #thumbnailScroller {

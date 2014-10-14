@@ -404,6 +404,7 @@ function editProfile() {
         $profileEditPicOk = $('#profileEditPicOk'),
         $profileEditPicCancel = $('#profileEditPicCancel'),
         $profileEditPicText = $('#profileEditPicText'),
+        hasNoPosts = false;
         hasAppendedThumb = false; //reset this when the user load more post!
 
     $editBtn.click(function () {
@@ -424,11 +425,15 @@ function editProfile() {
                     $header.css('height', 'auto');
                 });
                 
-                //bind the profile picture with the editing.
-                profilePicBinder.bind();
             }
         });
         if(!hasAppendedThumb) { thumbNailer(); }
+        //bind the profile picture with the editing, provided user has posts
+        if(hasNoPosts) { 
+            profilePicBinder.noPost();
+        } else {
+            profilePicBinder.bind();
+        }
 
     });
     $updateBtn.click(function() {
@@ -565,29 +570,54 @@ function editProfile() {
     profileEditPic.init();
 
     var profilePicBinder = {
+        noPost: function() {
+
+            console.log('nopost');
+            var div = document.createElement('div');
+            div.id = "noPostsAlert";
+            div.style.display = "none";
+            div.style.textAlign = "center";
+            div.innerHTML  = '<p>You do not have any post to set as profile picture. Do you want to create a new post?</p>';
+            div.innerHTML += '<a href="' + printHead.p.absPath + '/post">Yes, bring me there.</a> | ';
+            div.innerHTML += '<a href="javascript:$.fancybox.close();"> No Thanks</a>';
+            if($('#noPostsAlert').length === 0) { console.log('append');$('body').append(div); }
+
+            $profilePic
+                .css('cursor', 'pointer')
+                .on('click.edit', function() {
+                    $.fancybox.open([{
+                        href : '#noPostsAlert',
+                        title : ''
+                    }], {
+                        padding : 10
+                    });
+                });
+        },
         bind: function() {
             var self = this;
             //bind the profile picture with the editing.
-            $profilePic.on('click.edit', function() {
-                //unbind yourself
-                self.unbind();
+            $profilePic
+                .css('cursor', 'pointer')
+                .on('click.edit', function() {
+                    //unbind yourself
+                    self.unbind();
 
-                //cache the width and make it larger
-                profilePictureCacheWidth(this);
-                $(this).attr('data-enlarged','true').velocity({width:"320px"}, 200);
+                    //cache the width and make it larger
+                    profilePictureCacheWidth(this);
+                    $(this).attr('data-enlarged','true').velocity({width:"320px"}, 200);
 
-                //slide the thumbnailer out
-                $('#thumbnailScrollerWrap').velocity('transition.slideDownIn', 200);
+                    //slide the thumbnailer out
+                    $('#thumbnailScrollerWrap').velocity('transition.slideDownIn', 200);
 
-                //change out the text below
-                $profileEditPicText.velocity('fadeOut', 200, function() {
-                    $profileEditPicButtons.velocity('fadeIn', 200);
+                    //change out the text below
+                    $profileEditPicText.velocity('fadeOut', 200, function() {
+                        $profileEditPicButtons.velocity('fadeIn', 200);
+                    });
+
                 });
-
-            });
         },
         unbind: function() {
-            $profilePic.unbind('click.edit');
+            $profilePic.css('cursor', 'default').unbind('click.edit');
         }
     }
 
@@ -600,13 +630,20 @@ function editProfile() {
             profileImgSrc = $profileImg.attr('src');
 
         //append the first image with the current profile image.
-        var img = new Image();
-        img.src = profileImgSrc;
-        img.dataset.imgid = profileImgId;
-        $('#thumbnailScroller').append(img);
+        //provided its not the empty one.
+        if(profileImgId) {
+            var img = new Image();
+             img.src = profileImgSrc; 
+            img.dataset.imgid = profileImgId;
+            $('#thumbnailScroller').append(img);
+        }
 
         //then append the rest
-        $('article .blockImgHolder img').each(function(i, elem) {
+        var $posts = $('article .blockImgHolder img');
+        console.log(1);
+        if($posts.length === 0) { return hasNoPosts = true; }
+        console.log(2);
+        $posts.each(function(i, elem) {
             var imgid = $(elem).attr('data-imgid');
             if(imgid) {
                 //don't append if this is the profile picture, cause its in the first position alr.

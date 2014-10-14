@@ -23,8 +23,10 @@ global.Promise = Promise;
 
 /* passport and its friends */
 var passport = require('passport');
+//flash messages is deprecated.
 //var flash = require('connect-flash');
 var session = require('express-session');
+var jumanji = require('jumanji');
 
 var app = express();
 
@@ -35,6 +37,8 @@ app.set('view engine', 'dust');
 
 app.use(favicon());
 app.use(logger('dev'));
+//using jumanji to sniff safari and get rid of blank page issue. monitoring...
+app.use(jumanji);
 
 
 app.use(bodyParser.json());
@@ -51,6 +55,12 @@ app.use(passport.session()); // persistent login sessions
 //routing
 app.use('/', routes);
 app.use('/users', users);
+
+//safari caching bug.
+//disabling etag takes away some performance gains.
+//more on this issue: https://github.com/jshttp/fresh/issues/8
+//app.disable('etag');
+
 
 
 /// catch 404 and forward to error handler

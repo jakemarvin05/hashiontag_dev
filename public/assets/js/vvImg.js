@@ -206,19 +206,33 @@ VV.img.canvasrise = function(img) {
     var canvas = document.createElement('canvas');
     canvas.width = img.width;
     canvas.height = img.height;
-    var ctx = canvas.getContext('2d')
-    ctx.drawImage(img, 0, 0);
+    //var ctx = canvas.getContext('2d')
+    //ctx.drawImage(img, 0, 0);
     return canvas;
 }
 
-VV.img.canvasResize = function(canvas, scaledPx, rotate, callback) {
-
-    //skip canvasResize if scaling is not required.
-    if(canvas.height === scaledPx || canvas.height === scaledPx) { 
-        if(rotate) { return VV.img.canvasRotate(canvas, callback); }
-        return callback(canvas);
+VV.img.canvasResize = function(canvas, scaledPx, img, exif, callback) {
+    //do i need to rotate?
+    //canvasRotate only returns a transformed canvas.
+    if(exif) { 
+        console.log('exif, rotate');
+        var canvas = VV.img.canvasRotate(canvas, exif); 
     }
 
+    //if img is present, this is where we draw it before passing to the 
+    //hermite resizer.
+    var ctx = canvas.getContext('2d');
+    if(img) { ctx.drawImage(img, 0, 0); }
+
+    //skip canvasResize if scaling is not required.
+    //this means if one of the parameter is already at desired px.
+    //canvasResize cannot be used to dictate which dimension is to be scaled.
+    if(canvas.height === scaledPx || canvas.height === scaledPx) { 
+        if(callback) { return callback(canvas); }
+        return canvas;
+    }
+
+    //start scaling
     var scaledPx = Math.round(scaledPx);
     var destWidth, destHeight, 
         srcWidth = canvas.width,
@@ -238,37 +252,34 @@ VV.img.canvasResize = function(canvas, scaledPx, rotate, callback) {
         determinant = 'height';
     }
 
-    function resample_hermite(canvas, W2, H2, callback){
+    resample_hermite(canvas, destWidth, destHeight, function(canvas) {
+        if(callback) { return callback(canvas); }
+        return canvas;
+    });
+
+    function resample_hermite(canvas, W2, H2, callbackHermite){
         var time1 = Date.now();
         var W = canvas.width;
         var H = canvas.height;
         var img = canvas.getContext("2d").getImageData(0, 0, W, H);
-        //var ccc=document.createElement('canvas');var cctx=ccc.getContext('2d');
-        //ccc.height=H;ccc.width=W;cctx.putImage(i)
-        //var xxx = new Image(); xxx.src = dataxx; document.body.appendChild(xxx);
         var img2 = canvas.getContext("2d").getImageData(0, 0, W2, H2);
         canvas.getContext("2d").clearRect(0, 0, W, H);
 
-        var my_worker = new Worker("assets/js/worker-hermite.js");
+        var my_worker = new Worker(printHead.p.absPath + "/assets/js/worker-hermite.js");
         my_worker.onmessage = function(event){
 
             img2 = event.data.data;    
-
             console.log("hermite resize completed in "+(Math.round(Date.now() - time1)/1000)+" s");   
             canvas.getContext("2d").clearRect(0, 0, W, H);
             canvas.height = H2;
             canvas.width = W2;
             canvas.getContext("2d").putImageData(img2, 0, 0);
-            return callback(canvas);
+            return callbackHermite(canvas);
             
         };
         my_worker.postMessage([img, W, H, W2, H2, img2]);
 
-    };
-    resample_hermite(canvas, destWidth, destHeight, function(canvas) {
-        if(rotate) { return VV.img.canvasRotate(canvas, callback); }
-        return callback(canvas);
-    });
+    }
 }
 
 VV.img.getEXIF = function(file, callback) {
@@ -281,7 +292,7 @@ VV.img.getEXIF = function(file, callback) {
             if(exif) {
                 console.log(exif);
                 VV.img.STOCK_IMG_EXIF = exif;
-                return callback(true);
+                return callback(exif);
             } else {
                 callback(false);
                 return false;
@@ -295,75 +306,95 @@ VV.img.getEXIF = function(file, callback) {
     }
 }
 
-VV.img.canvasRotate = function(canvas, callback) {
+//canvasRotate only returns a transformed canvas.
+//even if a canvas with image drawn is passed in, you need to call drawImage
+//on the returned canvas to achieve the rotation.
+VV.img.canvasRotate = function(canvas, exif) {
+
+    if(!exif) { return canvas; }
+
     //console.log('start rotate ' + Date.now());
-    if(!$.isEmptyObject(VV.img.STOCK_IMG_EXIF)) {
-        if(VV.img.STOCK_IMG_EXIF.Orientation) {
-            var orientation = parseFloat(VV.img.STOCK_IMG_EXIF.Orientation);
-            if(orientation === 1) { return callback(canvas); }
+    if($.isEmptyObject(exif)) { return canvas; }
 
-            var ctx = canvas.getContext('2d'),
-                height = canvas.height,
-                width = canvas.width,
-                data = new Image();
-            data.src = canvas.toDataURL();
+    //exif is not empty, check if there is orientation data
+    //orientation may be zero, which will be falsy if we check it with if(orientation)
+    //hence we check for undefined.
+    if(typeof exif.Orientation === "undefined") { return canvas; }
 
-            switch (orientation) {
-                case 5:
-                case 6:
-                case 7:
-                case 8:
-                    canvas.width = height;
-                    canvas.height = width;
-                    break;
-            }
+    //exif is some value, lets see if we can use it.
+    //we parseFloat the value and if it fits no case, we just return the canvas
+    //as it is
+    var orientation = parseFloat(exif.Orientation);
 
-            switch (orientation) {
-                case 2:
-                    // horizontal flip
-                    ctx.translate(width, 0);
-                    ctx.scale(-1, 1);
-                    break;
-                case 3:
-                    // 180 rotate left
-                    ctx.translate(width, height);
-                    ctx.rotate(Math.PI);
-                    break;
-                case 4:
-                    // vertical flip
-                    ctx.translate(0, height);
-                    ctx.scale(1, -1);
-                    break;
-                case 5:
-                    // vertical flip + 90 rotate right
-                    ctx.rotate(0.5 * Math.PI);
-                    ctx.scale(1, -1);
-                    break;
-                case 6:
-                    // 90 rotate right
-                    ctx.rotate(0.5 * Math.PI);
-                    ctx.translate(0, -height);
-                    break;
-                case 7:
-                    // horizontal flip + 90 rotate right
-                    ctx.rotate(0.5 * Math.PI);
-                    ctx.translate(width, -height);
-                    ctx.scale(-1, 1);
-                    break;
-                case 8:
-                    // 90 rotate left
-                    ctx.rotate(-0.5 * Math.PI);
-                    ctx.translate(-width, 0);
-                    break;
-            } //switch
-            return data.onload = function() { 
-                ctx.drawImage(data, 0, 0); 
-                //console.log('end rotate' + Date.now());
-                return callback(canvas);
-            }
-        } //if(VV.img.STOCK_IMG_EXIF.Orientation)
+    //no rotation required.
+    if(orientation === 1) { return canvas; }
+
+    var ctx = canvas.getContext('2d'),
+        height = canvas.height,
+        width = canvas.width;
+    //     data = new Image();
+    // data.src = canvas.toDataURL();
+
+    //now we fall the canvas through our cases.
+    switch (orientation) {
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+            canvas.width = height;
+            canvas.height = width;
+            break;
     }
-    return callback(canvas);
+
+    switch (orientation) {
+        case 2:
+            // horizontal flip
+            ctx.translate(width, 0);
+            ctx.scale(-1, 1);
+            break;
+        case 3:
+            // 180 rotate left
+            ctx.translate(width, height);
+            ctx.rotate(Math.PI);
+            break;
+        case 4:
+            // vertical flip
+            ctx.translate(0, height);
+            ctx.scale(1, -1);
+            break;
+        case 5:
+            // vertical flip + 90 rotate right
+            ctx.rotate(0.5 * Math.PI);
+            ctx.scale(1, -1);
+            break;
+        case 6:
+            // 90 rotate right
+            ctx.rotate(0.5 * Math.PI);
+            ctx.translate(0, -height);
+            break;
+        case 7:
+            // horizontal flip + 90 rotate right
+            ctx.rotate(0.5 * Math.PI);
+            ctx.translate(width, -height);
+            ctx.scale(-1, 1);
+            break;
+        case 8:
+            // 90 rotate left
+            ctx.rotate(-0.5 * Math.PI);
+            ctx.translate(-width, 0);
+            break;
+    } //switch
+
+    return canvas;
+    // return data.onload = function() { 
+    //     ctx.drawImage(data, 0, 0); 
+    //     //console.log('end rotate' + Date.now());
+    //     if(callback) { return callback(canvas); }
+    //     return canvas;
+    // }
+
+
+
 
 //     //OLD CODE - doesn't transform flipped images
 //     if(!$.isEmptyObject(VV.img.STOCK_IMG_EXIF)) {
@@ -423,9 +454,10 @@ VV.img.canvasRotate = function(canvas, callback) {
 }
 
 VV.img.canvasCrop = function(type, file, m, scale, callback) {
-    if(!m) {
-        var m = VV.img.CROP_SIZE/VV.img.CROP_PORT;
-    } 
+    if(!m) { var m = VV.img.CROP_SIZE/VV.img.CROP_PORT; } 
+
+    //the x and y offsets from user's shifting needs to be offset
+    //by the multiplier (because their image is smaller/larger on the viewport)
     var x = VV.img.IMG_X*m,
         y = VV.img.IMG_Y*m;   
     
@@ -465,44 +497,6 @@ VV.img.dispTmp = function(type, data) {
     var el_cont = document.getElementById('cropPort');
     var el_layer1 = document.getElementById('cropPortBg');
 
-    function display(canvas) {
-        //console.log('display fired');
-        //console.log(Date.now());
-        VV.img.AR = canvas.width/canvas.height;
-        canvas.id = 'img_preview';
-        canvas.className = 'img_previews';
-        canvas.style['display'] = 'none';
-        var tallOrWide = VV.img.tallOrWide(canvas);
-        el_cont.appendChild(canvas);
-        //console.log('canvas appended');
-        //console.log(Date.now());
-        var layer1img = VV.img.TEMP_IMG;
-        layer1img.style['display'] = 'none';
-        el_layer1.appendChild(layer1img);
-        //console.log('bg appeneded');
-        //console.log(Date.now());
-        var $layer1img = $('#cropPortBg img')
-        var $img = $('#img_preview');
-        VV.img.maxWH($img, $layer1img, tallOrWide);
-        VV.img.center($img, $layer1img, tallOrWide);
-        //transitions
-       
-        loaderStuds.kill();
-        
-        $('#cropPortBg img').velocity({opacity: 0.4}, {
-            display: 'block',
-            duration: 200
-        });
-        $('#img_preview').velocity('fadeIn', {
-            duration: 200,
-            complete: function(el) {
-                console.log('complete');
-                console.log(Date.now());
-                $('#scaleCont').velocity("transition.slideRightIn", 300);
-            }
-        });
-    }
-
     if(type === 'imgData') {
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext('2d');
@@ -521,12 +515,120 @@ VV.img.dispTmp = function(type, data) {
     } else if(type === 'canvas') {
         VV.img.TEMP_IMG = new Image();
         VV.img.TEMP_IMG.onload = function() {
+
+
+
             VV.img.TEMP_IMG_H = VV.img.TEMP_IMG.height;
             VV.img.TEMP_IMG_W = VV.img.TEMP_IMG.width;
             display(data);
         }
-        VV.img.TEMP_IMG.src = data.toDataURL();
+        var imgdata = data.toDataURL();
+        //we run the blank image checker
+        VV.img.blankImgChecker(imgdata);
+        VV.img.TEMP_IMG.src = imgdata;
     }
+
+    function display(canvas) {
+        //console.log('display fired');
+        //console.log(Date.now());
+
+        //appending the main canvas
+        VV.img.AR = canvas.width/canvas.height;
+        canvas.id = 'img_preview';
+        canvas.className = 'img_previews';
+        canvas.style['display'] = 'none';
+        var tallOrWide = VV.img.tallOrWide(canvas);
+        el_cont.appendChild(canvas);
+        //console.log('canvas appended');
+        //console.log(Date.now());
+
+        //appending the background image.
+        var layer1img = VV.img.TEMP_IMG;
+        layer1img.style['display'] = 'none';
+        el_layer1.appendChild(layer1img);
+        //console.log('bg appeneded');
+        //console.log(Date.now());
+
+        //now we position them accordingly
+        var $layer1img = $('#cropPortBg img')
+        var $img = $('#img_preview');
+        VV.img.maxWH($img, $layer1img, tallOrWide);
+        VV.img.center($img, $layer1img, tallOrWide);
+        
+        //transitions
+        loaderStuds.kill();
+
+        $('#cropPortBg img').velocity({opacity: 0.4}, {
+            display: 'block',
+            duration: 200
+        });
+        $('#img_preview').velocity('fadeIn', {
+            duration: 200,
+            complete: function(el) {
+                console.log('complete');
+                console.log(Date.now());
+                $('#scaleCont').velocity("transition.slideRightIn", 200);
+            }
+        });
+    }
+}
+VV.img.blankImgChecker = function(imgdata) {
+    console.log(imgdata.length);
+    var size = imgdata.length,
+        threshold = 100000; //blank images on iOS typically returns 51038
+
+    if(size > threshold) { return false; }
+    //something is wrong, check headers to decide what to print.
+
+    var msg = Object.create(aF);
+    //alert(JSON.stringify(printHead.userHeaders.ua));
+
+    if(printHead.userHeaders.ua.isMobileIOS) {
+        //omg it's an iphone....
+
+        //send out errors to server
+        var data  = JSON.stringify(printHead.userHeaders);
+            data += ' Size:' + (imgdata.length).toString();
+
+        VV.utils.errorReceiver({
+            where: "vvImg.js",
+            errType: "iOS resizing problem",
+            errData: data
+        });
+
+        //alert user
+        var text  = 'We suspect that you are having some problems with resizing.';
+            text += ' It is probably due to an image that is larger than what';
+            text += ' your Safari browser can resize.';
+            text += '<h2>Do you know?</h2>';
+            text += 'iOS print screen is an excellent way to resize your photos. You can';
+            text += ' do a printscreen before uploading the picture here. It works great!';
+
+        return msg.protoAlert({
+            title: "Resizing on iOS",
+            text: text
+        });
+    }
+
+    //other cases
+    var data  = JSON.stringify(printHead.userHeaders);
+        data += ' Size:' + (imgdata.length).toString();
+
+    VV.utils.errorReceiver({
+        where: "vvImg.js",
+        errType: "iOS resizing problem",
+        errData: data
+    });
+
+    var text  = 'We detected a possible resizing error. Please check if it turns out alright.';
+        text += '<p> If it doesn\'t, you may wish to try other browsers to use our features.</p>';
+        text += '<p>Personally we like Chrome the best.';
+        text += ' You can also try to resize the image before submitting here.</p>';
+
+    return msg.protoAlert({
+        title: 'Possible image resizing error',
+        text: text
+    });
 }
 
 VV.img.scaler = function(scale, $el, $el2) {

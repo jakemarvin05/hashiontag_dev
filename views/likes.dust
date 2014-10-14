@@ -53,11 +53,19 @@
 
 <section id="main" class="clearfix">
     <div class="mainTopWrap">
+        {?renderJSONraw.postCounts}
+        {:else}
+        <h2>You have not started your collection.</h2>
+        {/renderJSONraw.postCounts}
+
         {@eq key=renderJSONraw.postCounts value=1}
         <h2>You collected <span class="likesPostCount">1</span> post.</h2>
-        {:else}
-        <h2>You collected <span class="likesPostCount">{renderJSONraw.postCounts}</span> posts.</h2>
         {/eq}
+
+        {@gt key=renderJSONraw.postCounts value="1" type="number"}
+        <h2>You collected <span class="likesPostCount">{renderJSONraw.postCounts}</span> posts.</h2>
+        {/gt}
+
     </div>
 
     <div class="likesBlock">

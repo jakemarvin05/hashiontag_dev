@@ -3,8 +3,11 @@ var pathsJSON = require('../apps/pathsJSON.js');
 var moment = require('moment');
 
 module.exports = function gJSON(req, options) {
-    
+
     console.log(moment().format());
+    if(req.isAuthenticated()) {
+        console.log(req.user.userNameDisp + ' is surfing...');
+    }
 
     //defaults
     var parseUA = true;
@@ -40,6 +43,7 @@ module.exports = function gJSON(req, options) {
         var ua = {};
 
         var uap = require('ua-parser').parseUA(req.headers['user-agent']);
+        console.log(uap);
         var family = uap.family.toLowerCase();
             ua.family = family;
             //console.log(family);
@@ -49,9 +53,13 @@ module.exports = function gJSON(req, options) {
 
         if(family.indexOf('mobile') > -1 ) {
             ua.isMobile = true;
+            if(family.indexOf('safari') > -1) {
+                ua.isMobileIOS = true;
+            }
         } else {
             ua.isMobile = false;
         }
+        if(family.indexO)
 
         globalJSON.userHeaders.ua = ua;
         globalJSON.printHead.userHeaders.ua = ua;

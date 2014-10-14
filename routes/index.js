@@ -270,6 +270,7 @@ router.get('/post', function(req, res) {
     }
 
     //override
+    //currently we are experimenting pure clientside render.
     CSRender = 30;
 
     return res.render('post', { 
@@ -410,7 +411,6 @@ router.post('/api/followers', function(req, res) {
 
 router.post('/api/comment', function(req, res) {
 
-    console.log(req);
     //console.log("****: " + JSON.stringify(res) );
 
     if (req.xhr) {
@@ -469,34 +469,6 @@ router.post('/api/getimage', function(req, res) {
 
 router.get('/api/local/update', function(req) {
      require('../apps/streamUpdate.js')();
-});
-
-router.get('/ua-parser', function(req, res) {
-    var uap = require('ua-parser').parseUA(req.headers['user-agent']);
-
-    res.json({
-        'everything': uap
-    });
-
-
-    var family = uap.family.toLowerCase();
-    var major = parseFloat(uap.major);
-    var CSRender = false;
-
-    //reject cases
-    if(family.indexOf('mobile') > -1 ) {
-        //reject
-    } else if(family.indexOf('safari') > -1) {
-        //reject
-    } else {
-        //no mobile branch, check for firefox and chrome.
-        if(family.indexOf('chrome') > -1 && major >=  37) {
-            CSRender = true;
-        }
-        if(family.indexOf('firefox') > -1 && major >=  32) {
-            CSRender = true;
-        }
-    }
 });
 
 /* POSTS and USERNAMES */
@@ -589,6 +561,39 @@ router.get('/:user', function(req, res) {
 });
 
 
+router.post('/api/errorreceiver', function(req, res) {
+
+    var user = false;
+    if(req.isAuthenticated()) { user = req.user; }
+
+    var uap = require('ua-parser').parseUA(req.headers['user-agent']);
+
+    var userAndUA = {
+        user: user,
+        ua: uap
+    }
+    userAndUA = JSON.stringify(userAndUA);
+    
+    var hash = {
+        where: req.body.where,
+        type: req.body.errType,
+        data: req.body.errData,
+        userAndUA: userAndUA,
+        req: JSON.stringify(req.headers)
+    }
+
+    db.ErrorReceiver.create(hash)
+    .then(function() {
+        return res.send('end');
+    }).catch(function(err) {
+        console.log(JSON.stringify(hash));
+        console.log(err);
+        console.log('Our error receiver is having errors! Oh my!!');
+        return res.send('end');
+    });
+
+});
+
 
 ///////////////////////////////////////////////////////
 
@@ -606,4 +611,32 @@ router.get('/dbtest', function(req, res) {
         }
     });
 
+});
+
+//uap example
+router.get('/ua-parser', function(req, res) {
+    var uap = require('ua-parser').parseUA(req.headers['user-agent']);
+
+    res.json({
+        'everything': uap
+    });
+
+    var family = uap.family.toLowerCase();
+    var major = parseFloat(uap.major);
+    var CSRender = false;
+
+    //reject cases
+    if(family.indexOf('mobile') > -1 ) {
+        //reject
+    } else if(family.indexOf('safari') > -1) {
+        //reject
+    } else {
+        //no mobile branch, check for firefox and chrome.
+        if(family.indexOf('chrome') > -1 && major >=  37) {
+            CSRender = true;
+        }
+        if(family.indexOf('firefox') > -1 && major >=  32) {
+            CSRender = true;
+        }
+    }
 });

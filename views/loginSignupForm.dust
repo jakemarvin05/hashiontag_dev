@@ -73,6 +73,7 @@ img.bg {
 
 <script>
 //crossfader
+
 (function() {
     var swap = new Image();
     var swap2 = new Image();

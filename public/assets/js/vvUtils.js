@@ -139,7 +139,8 @@ VV.utils.alertFactory = {
             href : '#error' + uid,
             title : title
         }], {
-            padding : 40   
+            padding : 40,
+            maxWidth: 400  
         });     
     },
     commentError: function() {
@@ -185,3 +186,15 @@ VV.utils.resetFormElement = function($el) {
   $el.wrap('<form>').closest('form').get(0).reset();
   $el.unwrap();
 }
+
+VV.utils.errorReceiver = function(hash) {
+    /* the hash takes the form of
+        {where: "vvImg.js",
+        errType: "iOS resizing problem",
+        errData: data}
+    */
+
+    $.post(printHead.p.absPath + '/api/errorreceiver', hash);
+}
+
+
