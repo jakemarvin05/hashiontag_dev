@@ -115,6 +115,7 @@ img.bg {
     
     <div id="formCont">
         {! Hide this form if it is signup !}
+        
         <form class="indexForms" id="loginForm" action="api/login" {@eq key=page value="signup"}style="display:none;"{/eq}> 
             <img id="splashLogo" src="{p.img}/logo-splash.png">
             <div class="errHolder" style="display: none; color: red;"></div>
@@ -126,16 +127,33 @@ img.bg {
             <button class="darkButton" type="submit">Login</button>
             <div id="errHolderTooLong" style="display:none"></div>
             <div class="formBottomLinks">
-                Forget Password | <span id="signupFormLink" class="clickable">Signup</span> | Learn More
+                <span id="forgetPwdLink" class="clickable">Forget Password</span> | <span id="signupFormLink" class="clickable">Signup</span> | <span id="learnMoreLink" class="clickable">Learn More</span>
             </div>
-            <script>
-            $('#signupFormLink').click(function() {
-                $('#loginForm').velocity('transition.slideLeftOut', 200, function() {
-                    $('#signupForm').velocity('transition.slideRightIn', 200);
-                });
-            })
-            </script>
         </form>
+
+        <script>
+        $('#forgetPwdLink').click(function() {
+            $('#loginForm').velocity('transition.slideLeftOut', 200, function() {
+                $('#forgetPwd').velocity('transition.slideRightIn', 200);
+
+            });
+        });
+        $('#signupFormLink').click(function() {
+            $('#loginForm').velocity('transition.slideLeftOut', 200, function() {
+                $('#signupForm').velocity('transition.slideRightIn', 200);
+
+            });
+        });
+        $('#learnMoreLink').click(function() {
+            $('#loginForm').velocity('transition.slideLeftOut', 200, function() {
+                $('#learnMore').velocity('transition.slideRightIn', {
+                    duration:200,
+                    delay: 100
+                });
+
+            });
+        });
+        </script>
 
         <script>
         $(function() {
@@ -218,6 +236,7 @@ img.bg {
 
 
         <!-- Signup Form -->
+
         {! Hide this form if page is login !}
         <form class="indexForms" id="signupForm" action="api/signup" {@eq key=page value="login"}style="display:none;"{/eq}> 
             <h1>Signup</h1>
@@ -247,7 +266,7 @@ img.bg {
             </div>
             {:else}
             <div id="signupformBottomLinks">
-                <span id="backToLogin" class="clickable">Back to Login</span> | Learn More
+                <span id="backToLogin" class="clickable">Back to Login</span> | <span id="learnMoreSignup" class="clickable">Learn More</span>
             </div>
             {/eq}
         </form>
@@ -256,10 +275,84 @@ img.bg {
             $('#signupForm').velocity('transition.slideLeftOut', 200, function() {
                 $('#loginForm').velocity('transition.slideRightIn', 200);
             });
-        })
+        });
+        $('#learnMoreSignup').click(function() {
+            $('#signupForm').velocity('transition.slideLeftOut', 200, function() {
+                $('#learnMore').velocity('transition.slideRightIn', 200);
+            });
+        });
         </script>
         <script src="{p.js}/jquery.validate.min.js"></script>
         <script src="{p.js}/signUpCode.js"></script>
-        <!-- signUpForm -->
+        <!-- end signUpForm -->
+
+        <!-- start learn more -->
+        <style>
+        #learnMoreLine1 {
+            width: 143px;
+            margin-left: 122px;
+        }
+        #learnMoreLine2 {
+            margin-top: -15px;
+        }
+        #logoLearnMore {
+            width: 116px;
+            display: block;
+            margin-top: -52px;
+            margin-left: 10px;
+            position: absolute;
+        }
+        </style>
+        <div id="learnMore" style="display:none;">
+            <img id="logoLearnMore" src="{p.img}/logo-splash.png">
+            <p id="learnMoreLine1">is founded in a sunny little island called Singapore. It is built</p>
+
+            <p id="learnMoreLine2">upon the beliefs that fashion is personal and a way of self expression.</p>
+
+            <p>But in today's context, our beliefs stands overwhelmed by endless advertisements and mass mailers. We disagree.</p>
+
+            <p>You should be empowered to decide what you like and who you want to follow. The right kind of vogue is the kind you love.</p>
+
+            <p>Express yourself. Follow your <b>heart</b>.</p>
+        
+            <div id="learnMoreBottomLinks">
+                <span id="backToLoginLearnMore" class="clickable">Back to Login</span> | <span id="signUpLearnMore" class="clickable">Signup</span>
+            </div>
+
+        </div>
+
+        <script>
+        $('#backToLoginLearnMore').click(function() {
+            $('#learnMore').velocity('transition.slideLeftOut', 200, function() {
+                $('#loginForm').velocity('transition.slideRightIn', 200);
+            });
+        });
+        $('#signUpLearnMore').click(function() {
+            $('#learnMore').velocity('transition.slideLeftOut', 200, function() {
+                $('#signupForm').velocity('transition.slideRightIn', 200);
+            });
+        })
+        </script>
+
+    <!-- Forget password -->
+        <div id="forgetPwd" style="display:none;">
+
+            <p>The Vogue & Verve development team is a very small one.</p>
+            <p>Please be patient as we try our very best to complete this feature.</p>
+            <p>Meanwhile, please contact <b>info@vogue-verve.com</b> for help and support.</p>
+
+            <div id="forgetPwdBottomLinks">
+                | <span id="backToLoginForgetPwd" class="clickable">Back to Login</span> |
+            </div>
+
+        </div>
+        <script>
+        $('#backToLoginForgetPwd').click(function() {
+            $('#forgetPwd').velocity('transition.slideLeftOut', 200, function() {
+                $('#loginForm').velocity('transition.slideRightIn', 200);
+            });
+        });
+        </script>
+
     </div> <!-- formCont -->
 </div>

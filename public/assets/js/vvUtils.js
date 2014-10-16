@@ -197,4 +197,22 @@ VV.utils.errorReceiver = function(hash) {
     $.post(printHead.p.absPath + '/api/errorreceiver', hash);
 }
 
+VV.utils.deletePostAjax = function(pid, isProfilePicture) {
+    var ajax = $.post('/api/post/delete', {pid:pid});
+    if(printHead.page === "singlePost") {
+        return window.location.href = printHead.p.absPath + '/';
+    }
+
+    $.fancybox.close();
+    var $articleToDel = $('article[data-pid="' + pid + '"]')
+    if(isProfilePicture) {
+        ajax.done(function() {
+            window.location.href = window.location.href;
+        });
+    }
+    $articleToDel.velocity('fadeOut', 200, function(el) {
+        $(el).remove();
+    });
+}
+
 

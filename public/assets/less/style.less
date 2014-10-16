@@ -38,9 +38,7 @@
     vertical-align: middle;
 }
 
-.icon-home:before {
-    content: "\e603";
-}
+
 .icon-camera:before {
     content: "\e600";
 }
@@ -50,11 +48,17 @@
 .icon-heart:before {
     content: "\e602";
 }
+.icon-home:before {
+    content: "\e603";
+}
 .icon-me:before {
     content: "\e604";
 }
 .icon-tag:before {
     content: "\e605";
+}
+.icon-logout:before {
+    content: "\e606";
 }
 
 /* Stylesheet content lists
@@ -135,8 +139,9 @@ div, span {
     display: inline-block;
     vertical-align: middle;
 }
-.clickable {
+.clickable:hover {
     cursor:pointer;
+    text-decoration: underline;
 }
 .noticePad {
     padding: 0px 20px 10px 20px;
@@ -228,6 +233,12 @@ textarea {
         transition: 0.5s;
         padding: 0px 15px;
         position: relative;
+        @media (min-width: 0px) and (max-width: 480px) {
+            padding: 0px 10px;
+        }   
+        @media (min-width: 481px) {
+            padding: 0px 15px;
+        }  
     }
         #navBar a {
             display: inline-block;
@@ -239,6 +250,7 @@ textarea {
         width: 272px;
         @media (min-width: 0px) and (max-width: 480px) {
             max-width: 66px;
+            margin-left: -8px;
         }   
     }
         #logoInner {
@@ -271,7 +283,7 @@ textarea {
         -webkit-transition: color 0.5s;
         transition: color 0.5s;
         @media (min-width: 0px) and (max-width: 480px) {
-            margin: 0px 5px;
+            margin: 0px 3px;
         } 
         @media (min-width: 481px) and (max-width: 767px) {
             
@@ -389,6 +401,10 @@ textarea {
 .blockMainInfo {
     border-bottom: 1px solid @mainLineColor;
 }
+
+.blockTop {
+    position: relative;
+}
     /* block top */
     .blockProfileThumb {
         display: inline-block;
@@ -407,6 +423,10 @@ textarea {
             font-family: 'NeutraText', Helvetica, Arial;
             font-weight: bold;
             font-size: 15px;
+            @media (min-width: 0px) and (max-width: 480px) {
+                width: 106px;
+                word-wrap: break-word;
+            }  
         }
         .blockTimelapse {
             font-family: 'NeutraText', Helvetica, Arial;
@@ -423,12 +443,46 @@ textarea {
     .blockInteractActive {
         color: #ccc!important;
     }
-        .likeButton, .moreInfo {
+        .blockInteractButtons {
             display: inline-block;
             vertical-align: middle;
             padding: 10px;
             cursor: pointer;
+            @media (min-width: 0px) and (max-width: 480px) {
+                padding: 10px 3px;
+            }  
+            @media (min-width: 481px) {
+                padding: 10px;
+            }  
         }
+
+        .blockInteractSettingsWrap {
+            width: 200px;
+            position: relative;
+            left: -181px;
+            text-align: right;
+            background-color: #ef4549;
+            color: #fff;
+        }
+        .blockInteractSettingsOptions {
+            padding: 10px 5px;
+            border: 1px solid #fff;
+        }
+
+            .blockInteractButtons.settings {
+                color: #ccc;
+                display: block;
+                width: 28px;
+                position: absolute;
+                right: 10px;
+                margin-top: -6px;
+            }
+                .settingsButton {
+                    padding: 6px 8px;
+                }
+                .settingsButton.settingActive {
+                    color: #ef4549;
+                }
         .likeButton:hover, .moreInfo:hover {
             color: #ccc;
         }
@@ -468,6 +522,8 @@ textarea {
         color: #ccc;
         font-size: 14px;
         padding-top: 5px;
+        padding-right: 35px;
+        padding-left: 25px;
     }
 
     .blockTextHolder {

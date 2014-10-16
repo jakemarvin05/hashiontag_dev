@@ -53,11 +53,19 @@
 
 <section id="main" class="clearfix">
     <div class="mainTopWrap">
-        {@eq key=renderJSONraw.postCounts value=1}
-        <h2>You collected <span class="likesPostCount">1</span> post.</h2>
+        {?renderJSONraw.postCount}
         {:else}
-        <h2>You collected <span class="likesPostCount">{renderJSONraw.postCounts}</span> posts.</h2>
+        <h2>There are no posts for #{renderJSONraw.hashtag}</h2>
+        {/renderJSONraw.postCount}
+
+        {@eq key=renderJSONraw.postCount value=1}
+        <h2>There is <span class="likesPostCount">1</span> post for #{renderJSONraw.hashtag}</h2>
         {/eq}
+
+        {@gt key=renderJSONraw.postCount value="1" type="number"}
+        <h2>There are <span class="likesPostCount">{renderJSONraw.postCount}</span> posts for #{renderJSONraw.hashtag}</h2>
+        {/gt}
+
     </div>
 
     <div class="likesBlock">
@@ -123,5 +131,5 @@ likesPostFactory.init(renderJSON.posts, {burst: 5});
 
 
 </script>
-
-{>blockFooterScripts/}
+</body>
+</html>

@@ -12,12 +12,15 @@
     
 </section><!-- main -->
 
-{>blockFooter/}
-  
-<script src="{p.js}/streamFactory.js"></script>
 
+  
+
+{>blockFooter/}
+
+<script src="{p.js}/streamFactory.js"></script>
 <script>
 streamFactory.init(renderJSON.posts);
 </script>
 
-{>blockFooterScripts/}
+</body>
+</html>

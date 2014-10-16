@@ -104,7 +104,7 @@ module.exports = function addRemoveLike(req, res) {
 
 
                 var idArray = [];
-                for(var i in likes) {
+                for(var i=0; i<idArray.length; i++) {
                     idArray.push(likes[i].values['likeId']);
                 }
 

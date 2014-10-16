@@ -20,7 +20,14 @@ var globalJSON = require('../apps/globalJSON.js');
 module.exports = router;
 
 router.get('/test', function(req,res) {
-    res.render('imgtest');
+    db.Post.findAll({
+        where: {User_userId: 17},
+        attributes: ['postId', 'createdAt'],
+        order: [['createdAt', 'DESC']],
+        limit: 1
+    }).then(function(post) {
+        res.json(post);
+    })
 })
 
 router.get('/error', function(req, res) {
@@ -67,8 +74,11 @@ router.get('/test2', function(req, res) {
 router.get('/', function(req, res) {
     //sys.puts(sys.inspect(req));
     var gJSON = globalJSON(req);
+    var START_TIME = Date.now();
 
     function renderTheStream(renderJSON) {
+            console.log('rendering');
+            console.log(Date.now() - START_TIME);
         res.render('index', { 
             /* generics */
             title: meta.header(),
@@ -76,16 +86,19 @@ router.get('/', function(req, res) {
             f: gJSON.pathsJSON.files,
             printHead: JSON.stringify(gJSON.printHead),
             renderJSON: JSON.stringify(renderJSON),
+            renderJSONraw: renderJSON,
             page: "index",
 
             /* specifics */
             showStream: true,
         });
+        console.log('end render');
+        console.log(Date.now() - START_TIME);
     }
 
     //do something about the "preview"
     if(req.isAuthenticated()) {
-        require('../apps/stream/streamJSON.js')(req, renderTheStream);
+        require('../apps/stream/streamJSON.js')(req, renderTheStream, null, START_TIME);
     } else {
         res.render('index', { 
             title: meta.header(),
@@ -122,6 +135,32 @@ router.get('/preview', function(req, res) {
             //isPreview is used to block like buttons and comment box from
             //being generated in the view.
             isPreview: true
+
+        });
+    }
+
+    require('../apps/stream/streamJSON.js')(req, thenRender, {showType: "preview"});
+});
+
+// Homepage
+router.get('/latest', function(req, res) {
+    //sys.puts(sys.inspect(req));
+    if(!req.isAuthenticated()) { return res.redirect('/'); }
+    var gJSON = globalJSON(req);
+
+    function thenRender(renderJSON) {
+        res.render('index', { 
+            /* generics */
+            title: meta.header(),
+            p: gJSON.pathsJSON.paths,
+            f: gJSON.pathsJSON.files,
+            printHead: JSON.stringify(gJSON.printHead),
+            renderJSON: JSON.stringify(renderJSON),
+            renderJSONraw: renderJSON,
+            page: "latest",
+
+            /* specifics */
+            showStream: true
 
         });
     }
@@ -289,6 +328,9 @@ router.post('/api/post', function(req, res) {
     var socketId = app.ioSockets[req.header('sioId')];
     require('../apps/post/posting.js')(req, res, socketId);
 });
+router.post('/api/post/delete', function(req, res) {
+    require('../apps/post/deletePost.js')(req, res);
+});
 
 router.get('/likes', function(req, res) {
 
@@ -364,10 +406,9 @@ router.post('/api/search', function(req, res) {
 router.get('/hashtag/:hashtag', function(req, res) {
 
     var gJSON = globalJSON(req);
-    var eventEmitter = new events.EventEmitter();
 
     //bind the final callback first
-    eventEmitter.on('streamJSONDone', function thenRender(renderJSON) {
+    function thenRender(renderJSON) {
 
         res.render('hashtag', { 
             /* generics */
@@ -387,10 +428,9 @@ router.get('/hashtag/:hashtag', function(req, res) {
 
         });
 
-    });
+    }
 
-    //now run callback dependents
-    var streamJSON = require('../apps/stream/streamJSON.js')(req, eventEmitter, {showType: 'hashtag'});
+    require('../apps/stream/streamJSON.js')(req, thenRender, {showType: 'hashtag'});
 
 });
 
@@ -483,6 +523,9 @@ router.get('/p/:pid', function(req,res) {
     if(!isAuth) {
         showNav = "login";
     }
+
+    //insert page identity into gJSON
+    gJSON.printHead.page = 'singlePost';
 
     //bind the final callback first
     eventEmitter.on('singlePostJSONDone', function thenRender(renderJSON) {

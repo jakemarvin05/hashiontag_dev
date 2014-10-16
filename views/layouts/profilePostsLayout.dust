@@ -37,6 +37,19 @@ Explore if it is possible to just share the 2
                         <div class="icon-tag"></div>
                         <span class="blockInteractText">info</span>
                     </div>
+
+                    <div class="blockInteractButtons settings">
+                        <span class="glyphicon glyphicon-align-justify settingsButton"></span>
+                        <div class="blockInteractSettingsWrap" style="display:none;">
+                            <div class="settingsMark blockInteractSettingsOptions">
+                                Mark as inappropriate
+                            </div>
+                            <div class="settingsDelete blockInteractSettingsOptions">
+                                Delete
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
 
                 <div class="blockLikeText"></div>

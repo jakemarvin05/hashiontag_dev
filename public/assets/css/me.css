@@ -206,9 +206,11 @@ header.profileHeader>div {
     }
 
     .profilePostsBlock .blockPad {
-        height: 36px;
+        height: 45px;
         margin-top: -8px;
         margin-bottom: 8px;
+        position: relative;
+        z-index: 9;
     }
     .profilePostsBlock .blockMainInfo {
         border: 0px;
@@ -225,11 +227,27 @@ header.profileHeader>div {
             }
 
             .profilePostsBlock .blockInteract div[class^="icon-"] {
-                font-size: 18px;
+                font-size: 25px;
+                padding-right: 9px;
             }
             .profilePostsBlock .blockInteract>div {
                 display: inline-block;
             }
+                .profilePostsBlock .blockInteractButtons.settings {
+                    position: relative;
+                    right: 0px;
+                    margin-top: 0px;
+                }
+                    .profilePostsBlock .blockInteractSettingsWrap {
+                        width: auto;
+                        position: absolute;
+                        left: 0px;
+                        text-align: left;
+                    }
+                        .settingsButton {
+                            font-size: 25px;
+                            top: 0px!important;
+                        }
 
             .profilePostsBlock .blockImgHolder img {
                 cursor: pointer;
@@ -257,13 +275,12 @@ header.profileHeader>div {
         }
     .profileEditPicButtons>div {
         display: inline-block;
-        border: 3px solid #ccc;
         height: 40px;
         width: 40px;
         box-sizing: border-box;
-        border-radius: 30px;
         padding-top: 3px;
         text-align: center;
+        font-size: 40px;
     }
         #profileEditPicCancel {
             margin-left: 20px;
@@ -330,3 +347,8 @@ header.profileHeader>div {
 .profilePostLower {
     min-height: 300px;
 }
+#backToPosts {
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
+

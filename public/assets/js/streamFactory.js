@@ -154,6 +154,11 @@ streamFactory.append.init = function($stream, i) {
     //likes
     var likeText = this.parent.append.likeText(post);
     $stream.find('.blockLikeText' ).prepend(likeText);
+
+    /* Delete button */
+    var $settingsButtons = $stream.find('.blockInteractSettingsOptions');
+    this.identifier($settingsButtons, post);
+    this.settingsButton($stream, post);
 }
 
 /* not enabled yet */
@@ -637,4 +642,12 @@ streamFactory.append.moreInfoImg = function($stream, post, moreInfo) {
         return $imgCont.append(html);
     });
     ajaxGetImg.fail(function() { return $imgCont.remove(); });
+}
+streamFactory.append.settingsButton = function($stream, post) {
+    if(post.User_userId !== printHead.userHeaders.userId) {
+        $stream.find('.settingsDelete').remove();
+    } else {
+        $stream.find('.settingsMark').remove();
+        $stream.find('.settingsDelete').attr('data-isprofile', post.isProfilePicture);
+    }
 }

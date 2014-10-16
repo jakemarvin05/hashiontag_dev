@@ -597,9 +597,7 @@ VV.img.blankImgChecker = function(imgdata) {
         });
 
         //alert user
-        var text  = 'We suspect that you are having some problems with resizing.';
-            text += ' It is probably due to an image that is larger than what';
-            text += ' your Safari browser can resize.';
+        var text  = 'We suspect that Safari is unable to resize your image correctly.';
             text += '<h2>Do you know?</h2>';
             text += 'iOS print screen is an excellent way to resize your photos. You can';
             text += ' do a printscreen before uploading the picture here. It works great!';

@@ -1,6 +1,8 @@
 var db = global.db;
 
-module.exports = function streamJSON(req, render, opts) {
+module.exports = function streamJSON(req, render, opts, START_TIME) {
+
+    START_TIME = START_TIME;
 
     /* OPTIONS */
     if(opts) {
@@ -55,14 +57,14 @@ module.exports = function streamJSON(req, render, opts) {
         notifications: ''
     }
     var idArray = [];
-    var postCounts = false;
+    var postCount = false;
 
     /* Likes Splicer */
     function likesSplicer(posts) {
         var spliced = {}
         var count1 = Object.keys(posts).length;
         if(count1 === 0) { return posts; }
-        postCounts = count1;
+        postCount = count1;
 
         for(var j=0;j<count1;j++) {
             var post = posts[j],
@@ -105,12 +107,16 @@ module.exports = function streamJSON(req, render, opts) {
 
     if(typeof showType === 'undefined') {
         console.log('streamJSON: no showType.. finding posts...');
+        START_TIME = Date.now();
 
-        req.user.getFollows({attributes: ['userId']}).then(function(users) {
-
-            for(var i in users) {
-                idArray.push(users[i].values['userId']);
+        req.user.getFollows({attributes: ['userId']}, {raw: true}).then(function(users) {
+            console.log('got follows, pushing...');
+            console.log(Date.now() - START_TIME);
+            for(var i=0; i<users.length; i++) {
+                idArray.push(users[i].userId);
             }
+            console.log('pushing complete');
+            console.log(Date.now() - START_TIME);
 
             console.log('streamJSON: got the follows...getting posts');
             var where = { User_userId : idArray};
@@ -170,31 +176,31 @@ module.exports = function streamJSON(req, render, opts) {
                 db.Post.findAll({
                     where: where, 
                     include: include, 
-                    order: [
-                        ['createdAt', 'DESC'], 
-                        [db.Comment, 'createdAt', 'ASC'] 
-                    ],
+                    order: order,
                     limit: 20
                 }
-                        // {raw: true,
-                        // nest: true}
+                        //{raw: true,
+                        //nest: true}
                 ),
 
-                req.user.getNotifications({
-                    include: [
-                        {
-                            model: db.User,
-                            as: 'Setter',
-                            attributes:['userId','userNameDisp']
-                        }
+                false
+                // req.user.getNotifications({
+                //     include: [
+                //         {
+                //             model: db.User,
+                //             as: 'Setter',
+                //             attributes:['userId','userNameDisp']
+                //         }
                         
-                    ],
-                    attributes: ['Post_postId','createdAt','type'],
-                    order: [['createdAt', 'DESC']]
-                })
+                //     ],
+                //     attributes: ['Post_postId','createdAt','type'],
+                //     order: [['createdAt', 'DESC']]
+                // })
             ]
 
         }).spread(function(streams, notifications) {
+            console.log('post query complete.');
+            console.log(Date.now() - START_TIME);
 
             console.log('streamJSON: db retrieval complete, likes splicing...');
             //console.log(idArray);
@@ -215,13 +221,25 @@ module.exports = function streamJSON(req, render, opts) {
             //var posts = JSON.parse(JSON.stringify(posts));
 
             //comment this when stream is in implementation
+            console.log('start stringify');
+            console.log(Date.now() - START_TIME);
             var posts = JSON.parse(JSON.stringify(streams));
+            console.log('end stringify');
+            console.log(Date.now() - START_TIME);
 
-            
-            var posts = likesSplicer(posts);
+          
+            console.log('start splicer');
+            console.log(Date.now() - START_TIME);  
+            if(idArray.length > 0) { posts = likesSplicer(posts); }
+            console.log('end splicer');
+            console.log(Date.now() - START_TIME);
 
             //join notifications and posts
-            renderJSON.posts = posts;
+            if(posts.length === 0) { 
+                renderJSON.posts = false;
+            } else {
+                renderJSON.posts = posts;
+            }
             renderJSON.notifications = notifications;
 
             //console.log(JSON.stringify(posts));
@@ -261,7 +279,7 @@ module.exports = function streamJSON(req, render, opts) {
 
             return [
                 //first call
-                req.user.getFollows({attributes: ['userId']}),
+                req.user.getFollows({attributes: ['userId']}, {raw: true}),
                 //second call
                 db.Like.findAll({
                     where: {User_userId: req.user.userId},
@@ -275,8 +293,8 @@ module.exports = function streamJSON(req, render, opts) {
             ]
         }).spread(function(users, likePosts) {
 
-            for(var i in users) {
-                idArray.push(users[i].values['userId']);
+            for(var i=0; i<users.length; i++) {
+                idArray.push(users[i].userId);
             }
 
             var likePosts = JSON.parse(JSON.stringify(likePosts));
@@ -303,10 +321,11 @@ module.exports = function streamJSON(req, render, opts) {
             //console.log(renderJSON.posts);
 
             renderJSON.posts = likesSplicer(renderJSON.posts);
-            renderJSON.postCounts = postCounts;
+            renderJSON.postCount = postCount;
             return render(renderJSON);
 
         }).catch(throwErr);
+
     } else if(showType === 'hashtag') {
 
         if(typeof req.params.hashtag === 'undefined') { return res.direct('/'); }
@@ -315,50 +334,46 @@ module.exports = function streamJSON(req, render, opts) {
 
         db.Hashtag.find(req.params.hashtag).then(function(hashtag) {
 
-            //console.log(include);
-            hashtag.getPosts({
-                limit: 20,
-                include: [{
-                    model: db.Post
-                }],
-                order: order
-            })
+            if(!hashtag) { return [false,false]; }
 
+            var order = [
+                [db.Post, 'createdAt', 'DESC'],
+                [db.Post, db.Comment, 'createdAt', 'ASC'] 
+            ];
 
-            // if(req.isAuthenticated()) {
-            //     return [
-            //         //first call
-            //         req.user.getFollows({attributes: ['userId']}),
-            //         //second call
-            //         hashtag.getPosts({
-            //             limit: 20,
-            //             include: include,
-            //             order: order
-            //         })
-            //     ]
-            // }
+            return [
+                db.Hashtag.find({
+                    where: {hashtagId: req.params.hashtag },
+                    attributes: ['hashtagId'],
+                    include: {
+                        model: db.Post,
+                        include: include
+                    },
+                    order: order
+                }),
 
-            // return [
-            //     //first call
-            //     false,
-            //     //second call
-            //     hashtag.getPosts({
-            //         limit: 20,
-            //         include: include,
-            //         order: order
-            //     })
-            // ]
+                (function() {
+                    if(req.isAuthenticated()) {
+                        return req.user.getFollows({attributes: ['userId']}, {raw: true});
+                    }
+                })()
+            ]
 
+        }).spread(function(hashtag, follows) {
+            //console.log(JSON.stringify(hashtag));
 
-        }).spread(function(users, posts) {
+            //var posts = hashtag.posts
+            //console.log(posts);
 
-            if(users) {
-                for(var i in users) {
-                    idArray.push(users[i].values['userId']);
+            //if(!posts || posts.length === 0) { return render(false); }
+
+            if(follows) {
+                for(var i=0; i<follows.length; i++) {
+                    idArray.push(follows[i].userId);
                 }
             }
 
-            var posts = JSON.parse(JSON.stringify(posts));
+            var hashtag = JSON.parse(JSON.stringify(hashtag));
 
             //modify the outcome
             //need to float posts out of the nesting.
@@ -373,17 +388,22 @@ module.exports = function streamJSON(req, render, opts) {
             // }
             //renderJSON.lastLikeId = lastLikeId
 
-            renderJSON.posts = posts;
+            renderJSON.posts = hashtag.posts;
+            renderJSON.hashtag = hashtag.hashtagId;
 
             console.log('streamJSON: db retrieval complete, likes splicing...');
-            //console.log(idArray);
-            //console.log(posts);
 
-            //console.log(renderJSON.posts);
-
-
-            if(users) { renderJSON.posts = likesSplicer(renderJSON.posts); }
-            //renderJSON.postCounts = postCounts + 1;
+            if(req.isAuthenticated() ) { 
+                renderJSON.posts = likesSplicer(renderJSON.posts);
+                renderJSON.postCount = postCount;
+            } else {
+                /*TO DO: Make seqeulize count work and deprecate this */
+                var postCount = 0;
+                while(renderJSON.posts[postCount]) {
+                    postCount++;
+                }
+                renderJSON.postCount = postCount;
+            }
             return render(renderJSON);
 
         }).catch(throwErr);

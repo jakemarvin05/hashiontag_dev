@@ -63,11 +63,10 @@
 
     <!-- fancyBox image gallery -->
     <link rel="stylesheet" href="{p.js}/fancybox/source/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen" />
-    <script type="text/javascript" src="{p.js}/fancybox/source/jquery.fancybox.js?v=2.1.5"></script>
 
     <!-- Optionally add helpers - button, thumbnail and/or media -->
-    <link rel="stylesheet" href="{p.js}/fancybox/source/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen" />
-    <script type="text/javascript" src="{p.js}/fancybox/source/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>
+    <!--<link rel="stylesheet" href="{p.js}/fancybox/source/helpers/jquery.fancybox-thumbs.css?v=1.0.7" type="text/css" media="screen" />
+    <script type="text/javascript" src="{p.js}/fancybox/source/helpers/jquery.fancybox-thumbs.js?v=1.0.7"></script>-->
 
     <!-- fancyBox helpers not used 
     <link rel="stylesheet" href="assets/js/fancybox/source/helpers/jquery.fancybox-buttons.css?v=1.0.5" type="text/css" media="screen" />
@@ -81,13 +80,9 @@
     <script src="{p.js}/html5shiv-printshiv.min.js"></script>
     <script src="{p.js}/respond.min.js"></script>
     <![endif]-->
-    <!--<script src="{p.js}/alert.js"></script>-->
-    <script src="{p.js}/hammer/hammer.min.js"></script>
-    <script src="{p.js}/velocity/velocity.min.js"></script>
-    <!--TODO: Minify velocity.ui.js -->
-    <script src="{p.js}/velocity/velocity.ui.js"></script>
-    <script src="{p.js}/vvUtils.js"></script>
 
+    <script src="{p.js}/vvUtils.js"></script>
+    
     <!-- preloads -->
     <script>
     var preload1 = new Image(); 

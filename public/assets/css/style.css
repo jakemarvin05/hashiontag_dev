@@ -212,9 +212,6 @@ th {
   -moz-osx-font-smoothing: grayscale;
   vertical-align: middle;
 }
-.icon-home:before {
-  content: "\e603";
-}
 .icon-camera:before {
   content: "\e600";
 }
@@ -224,11 +221,17 @@ th {
 .icon-heart:before {
   content: "\e602";
 }
+.icon-home:before {
+  content: "\e603";
+}
 .icon-me:before {
   content: "\e604";
 }
 .icon-tag:before {
   content: "\e605";
+}
+.icon-logout:before {
+  content: "\e606";
 }
 /* Stylesheet content lists
 ===================================================
@@ -304,8 +307,9 @@ span {
   display: inline-block;
   vertical-align: middle;
 }
-.clickable {
+.clickable:hover {
   cursor: pointer;
+  text-decoration: underline;
 }
 .noticePad {
   padding: 0px 20px 10px 20px;
@@ -399,6 +403,16 @@ textarea {
   padding: 0px 15px;
   position: relative;
 }
+@media (min-width: 0px) and (max-width: 480px) {
+  #navBar {
+    padding: 0px 10px;
+  }
+}
+@media (min-width: 481px) {
+  #navBar {
+    padding: 0px 15px;
+  }
+}
 #navBar a {
   display: inline-block;
 }
@@ -411,6 +425,7 @@ textarea {
 @media (min-width: 0px) and (max-width: 480px) {
   #logoCont {
     max-width: 66px;
+    margin-left: -8px;
   }
 }
 #logoInner {
@@ -443,7 +458,7 @@ textarea {
 }
 @media (min-width: 0px) and (max-width: 480px) {
   .navButtons {
-    margin: 0px 5px;
+    margin: 0px 3px;
   }
 }
 @media (min-width: 481px) and (max-width: 767px) {
@@ -569,6 +584,9 @@ textarea {
 .blockMainInfo {
   border-bottom: 1px solid #cccccc;
 }
+.blockTop {
+  position: relative;
+}
 /* block top */
 .blockProfileThumb {
   display: inline-block;
@@ -588,6 +606,12 @@ textarea {
   font-weight: bold;
   font-size: 15px;
 }
+@media (min-width: 0px) and (max-width: 480px) {
+  .blockUsername {
+    width: 106px;
+    word-wrap: break-word;
+  }
+}
 .blockTimelapse {
   font-family: 'NeutraText', Helvetica, Arial;
   font-size: 13px;
@@ -602,12 +626,47 @@ textarea {
 .blockInteractActive {
   color: #ccc!important;
 }
-.likeButton,
-.moreInfo {
+.blockInteractButtons {
   display: inline-block;
   vertical-align: middle;
   padding: 10px;
   cursor: pointer;
+}
+@media (min-width: 0px) and (max-width: 480px) {
+  .blockInteractButtons {
+    padding: 10px 3px;
+  }
+}
+@media (min-width: 481px) {
+  .blockInteractButtons {
+    padding: 10px;
+  }
+}
+.blockInteractSettingsWrap {
+  width: 200px;
+  position: relative;
+  left: -181px;
+  text-align: right;
+  background-color: #ef4549;
+  color: #fff;
+}
+.blockInteractSettingsOptions {
+  padding: 10px 5px;
+  border: 1px solid #fff;
+}
+.blockInteractButtons.settings {
+  color: #ccc;
+  display: block;
+  width: 28px;
+  position: absolute;
+  right: 10px;
+  margin-top: -6px;
+}
+.settingsButton {
+  padding: 6px 8px;
+}
+.settingsButton.settingActive {
+  color: #ef4549;
 }
 .likeButton:hover,
 .moreInfo:hover {
@@ -647,6 +706,8 @@ textarea {
   color: #ccc;
   font-size: 14px;
   padding-top: 5px;
+  padding-right: 35px;
+  padding-left: 25px;
 }
 .blockTextHolder {
   padding: 20px 10px;

@@ -75,16 +75,16 @@
         <!-- Edit Form -->
         <div class="profileEditForm" style="display:none;" data-vel="editDisplay">
             <div class="profileEditClickToChange">
-                <div id="profileEditPicText">
+                <div id="profileEditPicText" class="clickable">
                     <span class="glyphicon glyphicon-chevron-up"></span>
                     <p>click to change profile photo</p>
                 </div>
                 <div class="profileEditPicButtons">
                     <div id="profileEditPicOk">
-                        <span class="glyphicon glyphicon-ok"></span>
+                        <span class="glyphicon glyphicon-ok-circle"></span>
                     </div>
                     <div id="profileEditPicCancel">
-                        <span class="glyphicon glyphicon-remove"></span>
+                        <span class="glyphicon glyphicon-remove-circle"></span>
                     </div>
                 </div>
             </div>
@@ -208,9 +208,8 @@
 <div id="fancyboxCont" style="display:none;">
     <article></article>
 </div>
-
-
 {>blockFooter/}
+
 <script>
 function profilePostFactory(posts) {
 
@@ -447,6 +446,8 @@ function editProfile() {
     $cancelBtn.click(function(e) {
         e.preventDefault();
 
+        document.removeEventListener('backbutton.edit');
+
         $('#profileInputs input').each(function(i, elem) {
             var o = $(elem).attr('data-orgin');
             $(elem).val(o);
@@ -615,11 +616,29 @@ function editProfile() {
                     });
 
                 });
+
         },
         unbind: function() {
             $profilePic.css('cursor', 'default').unbind('click.edit');
         }
     }
+    $profileEditPicText.on('click.edit', function() {
+        if(hasNoPosts) { return profilePicBinder.noPost(); }
+        profilePicBinder.unbind();
+
+        //cache the width and make it larger
+        profilePictureCacheWidth($profilePic);
+        $profilePic.attr('data-enlarged','true').velocity({width:"320px"}, 200);
+
+        //slide the thumbnailer out
+        $('#thumbnailScrollerWrap').velocity('transition.slideDownIn', 200);
+
+        //change out yourself
+        $(this).velocity('fadeOut', 200, function() {
+            $profileEditPicButtons.velocity('fadeIn', 200);
+        });
+    });
+
 
     var thumbNailer = function() {
         //prepare the thumbnails
@@ -848,4 +867,5 @@ function followAjax(type) {
 }
 </script>
 <script src="{p.js}/list.js"></script>
-{>blockFooterScripts/}
+</body>
+</html>

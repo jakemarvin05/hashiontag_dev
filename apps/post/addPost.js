@@ -112,7 +112,7 @@ module.exports = function addPost(req, uuid, path, fields, deleteTemp, throwErr,
             
             //arrange the hashtags for bulkCreation
             var bulk = [];
-            for(var i in hashTags) {
+            for(var i=0; i<hashTags.length; i++) {
                 var push = { hashtagId: hashTags[i]}
                 bulk.push(push);
             }
@@ -121,9 +121,12 @@ module.exports = function addPost(req, uuid, path, fields, deleteTemp, throwErr,
                 .then(function() {
                     console.log(fname + ' ' + 'hashtags: ' + hashTags + ' added for post id ' + postId);
                     return post.addHashtags(hashTags);
-                })
-                .catch(function(err) {
+                }).catch(function(err) {
                     console.log(fname + ' ' + err);
+
+                    //if the hashtags are already created, promise chain will be brought here.
+                    //so we just add the hashtags anyway..
+                    return post.addHashtags(hashTags);
                 });
         }
     }

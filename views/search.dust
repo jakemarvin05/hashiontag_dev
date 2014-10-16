@@ -7,7 +7,10 @@
     {>"layouts/searchLayout"/}
     <!-- end your stream -->
 </section><!-- main -->
-{>blockFooter/}
+
 <script src="{p.js}/VVsearch.js"></script>
 <script> VV.search.init(); </script>
-{>blockFooterScripts/}
+
+{>blockFooter/}
+</body>
+</html>

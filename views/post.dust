@@ -130,21 +130,7 @@ img[id^=img_preview], canvas[id^=img_preview] {
 }
 </style>
 {>blockHeaderAfterHook/}
-{!
-Fundamentally, the resizing doesn't work well with mobile IOS Safari.
 
-There is a module that can send images back to the server. But it is a backup.
-
-Current solution is to do this:
-
-1) Upload the file, absolute restriction of 30MP, or filesize of 5mb.
-2) Will attempt to resize it.
-3) After resizing, check the filesize of the output. If its very small, this is 
-   indication of blank canvas (iOS problem).
-4) If user is using iOS, give serve them the iOS instructions. Otherwise just
-   ask them to try another browser. (or send us an email).
-
-!}
 <section id="main">
     <div class="mainColBlock">
 
@@ -503,16 +489,15 @@ VV.img.STOCK_IMG.onload = function() {
         //callback the subsequent steps
         VV.img.getEXIF(el_img_field.files[0], function(exif) {
 
-            //prepare the canvas size.
-            //iOS mobile will fail at this point. but we can proceed and check later.
-            var canvas = VV.img.canvasrise(self);
-
             //set resizer
             //the picture don't have to be larger than what we allow users to scale.
             //our base size is 640x640, which means the smaller of the width of height
             //is 1280(if scale limit is 2), which essentially allows users to 2x their image.
             //scaleTo indicates the smaller of the dimension when image is downsized proportionally.
             var scaleTo = VV.img.CROP_SIZE*VV.img.SCALE_LIMIT;
+
+            //prepare the canvas size.
+            var canvas = VV.img.canvasrise(self, scaleTo);
 
             //everything passes through to canvasResize for resizing/rotating.
             //if you want to rotate, pass in the EXIF information.
@@ -522,6 +507,7 @@ VV.img.STOCK_IMG.onload = function() {
             //canvasResize returns a resized canvas with image drawn.
             //it is synchronous, as at 14Oct14. But a callback is provided anyway.
             VV.img.canvasResize(canvas, scaleTo, self, exif, function(canvas) {
+                //iOS mobile might fail at this point. but we can proceed and check later.
                 VV.img.dispTmp('canvas', canvas);  
             });  
 
@@ -554,8 +540,7 @@ $("#img_field").change(function(){
     var self = this;
     //console.log("New file");
 
-    //STEP 1: Rejection or accept */
-    //if(!this.files && !this.files[0]) { return false; }
+    if(!this.files && !this.files[0]) { return false; }
 
     //console.log(this.files[0].size);
     if( this.files[0].size > 5242880 ) {
@@ -854,4 +839,6 @@ $('#backToScale').click(function() {
 
 });
 </script>
-{>blockFooterScripts/}
+
+</body>
+</html>

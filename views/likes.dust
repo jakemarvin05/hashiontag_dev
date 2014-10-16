@@ -53,17 +53,17 @@
 
 <section id="main" class="clearfix">
     <div class="mainTopWrap">
-        {?renderJSONraw.postCounts}
+        {?renderJSONraw.postCount}
         {:else}
         <h2>You have not started your collection.</h2>
-        {/renderJSONraw.postCounts}
+        {/renderJSONraw.postCount}
 
-        {@eq key=renderJSONraw.postCounts value=1}
+        {@eq key=renderJSONraw.postCount value=1}
         <h2>You collected <span class="likesPostCount">1</span> post.</h2>
         {/eq}
 
-        {@gt key=renderJSONraw.postCounts value="1" type="number"}
-        <h2>You collected <span class="likesPostCount">{renderJSONraw.postCounts}</span> posts.</h2>
+        {@gt key=renderJSONraw.postCount value="1" type="number"}
+        <h2>You collected <span class="likesPostCount">{renderJSONraw.postCount}</span> posts.</h2>
         {/gt}
 
     </div>
@@ -129,7 +129,6 @@ likesPostFactory.append.imageOnLoad = function($stream, img) {
 
 likesPostFactory.init(renderJSON.posts, {burst: 5});
 
-
 </script>
-
-{>blockFooterScripts/}
+</body>
+</html>

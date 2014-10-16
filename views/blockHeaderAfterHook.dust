@@ -91,6 +91,13 @@
                     </div>
                 </a>
 
+                <a href="{p.logout}">
+                    <div class="navButtons">
+                        <div class="icon-logout"></div>
+                        <span>Logout</span>
+                    </div>
+                </a>
+
             {/showNav}
 
             <!-- Removed navigation 
