@@ -1,4 +1,5 @@
 var db = global.db;
+var likesSplicer = require('./likesSplicer');
 
 module.exports = function streamJSON(req, render, opts, START_TIME) {
 
@@ -58,50 +59,6 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
     }
     var idArray = [];
     var postCount = false;
-
-    /* Likes Splicer */
-    function likesSplicer(posts) {
-        var spliced = {}
-        var count1 = Object.keys(posts).length;
-        if(count1 === 0) { return posts; }
-        postCount = count1;
-
-        for(var j=0;j<count1;j++) {
-            var post = posts[j],
-                targets = post.likes,
-                count2 = Object.keys(targets).length;
-
-            post.hasLiked = false;
-            post.totalLikes = count2;
-
-            var l = 0;
-            //console.time('while');
-            while(targets[l]) {
-
-                var theUser = targets[l].User_userId;
-
-                if(theUser === req.user.userId) {
-                    post.hasLiked = true;
-                    //splice myself away
-                    //console.log('self spliced ' + theUser);
-                    targets.splice(l, 1);
-
-                } else if(idArray.indexOf(theUser) < 0) {
-                    //splice away all that user is not following
-                    //console.log('non-following spliced ' + theUser);
-                    targets.splice(l, 1);
-                } else {
-                    l++;
-                }
-            }
-            //console.timeEnd('while');
-            spliced[j] = post;
-
-        } //for loop closure
-        return spliced;
-    }
-
-
 
     /* Here goes... */
 
@@ -230,7 +187,7 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
           
             console.log('start splicer');
             console.log(Date.now() - START_TIME);  
-            if(idArray.length > 0) { posts = likesSplicer(posts); }
+            posts = likesSplicer(req, posts, idArray);
             console.log('end splicer');
             console.log(Date.now() - START_TIME);
 
@@ -320,8 +277,8 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
 
             //console.log(renderJSON.posts);
 
-            renderJSON.posts = likesSplicer(renderJSON.posts);
-            renderJSON.postCount = postCount;
+            renderJSON.posts = likesSplicer(req, renderJSON.posts, idArray);
+            renderJSON.postCount = Object.keys(renderJSON.posts).length;
             return render(renderJSON);
 
         }).catch(throwErr);
@@ -394,15 +351,10 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
             console.log('streamJSON: db retrieval complete, likes splicing...');
 
             if(req.isAuthenticated() ) { 
-                renderJSON.posts = likesSplicer(renderJSON.posts);
-                renderJSON.postCount = postCount;
+                renderJSON.posts = likesSplicer(req, renderJSON.posts, idArray);
+                renderJSON.postCount = Object.keys(renderJSON.posts).length;
             } else {
-                /*TO DO: Make seqeulize count work and deprecate this */
-                var postCount = 0;
-                while(renderJSON.posts[postCount]) {
-                    postCount++;
-                }
-                renderJSON.postCount = postCount;
+                renderJSON.postCount = Object.keys(renderJSON.posts).length;
             }
             return render(renderJSON);
 

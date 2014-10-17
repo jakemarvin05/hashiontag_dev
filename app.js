@@ -34,6 +34,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.engine('dust', cons.dust);
 app.set('view engine', 'dust');
+//app.enable('view cache'); //enable this and the page rendering speed will blow dust in your face.
 
 app.use(favicon());
 app.use(logger('dev'));
@@ -50,7 +51,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({ secret: 'hashionhashion' })); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
-//app.use(flash()); // use connect-flash for flash messages stored in session
+//app.use(flash()); // DEPRECATED: use connect-flash for flash messages stored in session
 
 //routing
 app.use('/', routes);
@@ -93,7 +94,6 @@ app.use(function(err, req, res, next) {
         error: {}
     });
 });
-
 
 
 //start the server

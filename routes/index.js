@@ -20,15 +20,12 @@ var globalJSON = require('../apps/globalJSON.js');
 module.exports = router;
 
 router.get('/test', function(req,res) {
-    db.Post.findAll({
-        where: {User_userId: 17},
-        attributes: ['postId', 'createdAt'],
-        order: [['createdAt', 'DESC']],
-        limit: 1
-    }).then(function(post) {
-        res.json(post);
-    })
-})
+    db.Following.findAndCountAll({
+                        where: {FollowerId: 1},
+                        attributes: ['affinityId']
+                    }, { raw: true }).then(function(x) { return res.json(x);
+    });
+});
 
 router.get('/error', function(req, res) {
     res.send('error');
@@ -260,7 +257,7 @@ router.get('/me', function(req, res) {
     });
 
     //now run callback dependents
-    var profileJSON = require('../apps/profileJSON.js')(req, eventEmitter, true);
+    var profileJSON = require('../apps/stream/profileJSON.js')(req, eventEmitter, true);
 
 });
 
@@ -328,8 +325,14 @@ router.post('/api/post', function(req, res) {
     var socketId = app.ioSockets[req.header('sioId')];
     require('../apps/post/posting.js')(req, res, socketId);
 });
-router.post('/api/post/delete', function(req, res) {
-    require('../apps/post/deletePost.js')(req, res);
+router.post('/api/post/:action', function(req, res) {
+    if(req.params.action === 'delete') {
+        require('../apps/post/deletePost.js')(req, res);
+    }
+    if(req.params.action === 'mark') {
+        require('../apps/post/markPost.js')(req, res);
+    }
+
 });
 
 router.get('/likes', function(req, res) {
@@ -577,6 +580,7 @@ router.get('/:user', function(req, res) {
             renderJSON = false;
         }
         //console.log(renderJSON);
+        if(!req.isAuthenticated()) { var showNav = "login";}
 
         res.render('me', { 
             /*generic */
@@ -594,12 +598,13 @@ router.get('/:user', function(req, res) {
             //isPreview is used to block like buttons and comment box from
             //being generated in the view.
             isPreview: !req.isAuthenticated(),
+            showNav: showNav
         });
 
     });
 
     //now run callback dependents
-    var profileJSON = require('../apps/profileJSON.js')(req, eventEmitter, false);
+    var profileJSON = require('../apps/stream/profileJSON.js')(req, eventEmitter, false);
 
 });
 

@@ -44,8 +44,7 @@ header.profileHeader>div {
         }
 
         #editProfileButton {
-            display: block;
-            margin: auto;
+            display: inline-block;
             margin-top: 10px;
             height: 28px;
             font-size: 13px;
@@ -244,7 +243,7 @@ header.profileHeader>div {
                         left: 0px;
                         text-align: left;
                     }
-                        .settingsButton {
+                        .profilePostsBlock .settingsButton {
                             font-size: 25px;
                             top: 0px!important;
                         }

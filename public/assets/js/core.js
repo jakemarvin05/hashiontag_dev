@@ -1123,9 +1123,9 @@
 
                         current.wrap.bind('onReset', function () {
                             if ($(this).find(content).length) {
-                                //modified to put back my content after showing
-                                content.replaceAll( content.data(placeholder) ).data(placeholder, false);
-                                //content.hide().replaceAll( content.data(placeholder) ).data(placeholder, false);
+                                //remodified back to original
+                                //content.replaceAll( content.data(placeholder) ).data(placeholder, false);
+                                content.hide().replaceAll( content.data(placeholder) ).data(placeholder, false);
                             }
                         });
                     }

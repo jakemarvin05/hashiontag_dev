@@ -1,5 +1,6 @@
 var db = global.db;
 var fn = 'profileJSON: ';
+var likesSplicer = require('./likesSplicer');
 
 /* TODO !!! DEAL WITH PRIVATE CASES */
 
@@ -33,6 +34,13 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
                 attributes: ['userNameDisp','profilePicture']
             }]
         }, {
+            model: db.Like,
+            attributes: [ 'User_userId' ],
+            include: [{
+                model: db.User,
+                attributes: [ 'userNameDisp' ]
+            }]
+        }, {
             model: db.PostMeta,
             attributes: ['key', 'value'],
             where: db.Sequelize.or(
@@ -50,6 +58,9 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
 
     //isAuth
     var isAuth = req.isAuthenticated();
+
+    //for storing following
+    var idArray = [];
 
     /* Process flow:
     1) The route "/me" will pass in isSelf = true. Authenticate and
@@ -76,15 +87,39 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
         }
     }
     function getProfile(userId, ownProfile, isPublicView) {
-        return db.User.find({
-            where: {userId: userId},
-            attributes: attributes,
-            include: include,
-            order: order
-        }).then(function(user) {
-            console.log('got the user');
+        return db.User.find().then(function() {
+
+            return [
+
+                db.User.find({
+                    where: {userId: userId},
+                    attributes: attributes,
+                    include: include,
+                    order: order
+                }),
+
+                (function() { 
+                    if(req.isAuthenticated()) {
+                        return req.user.getFollows({attributes: ['userId']}, {raw: true});
+                    }
+                    return [];
+                })()
+            ]
+
+        }).spread(function(user, following) {
+            console.log('got the user!');
             //remove the DAO and store the JSON
             returnedUser = JSON.parse(JSON.stringify(user));
+
+            if(following.length > 0) {
+                for(var i=0; i<following.length; i++) {
+                    idArray.push(following[i].userId);
+                }
+            }
+            return user;
+        }).then(function(user) {
+
+            /** #TODO #BUG: user argument is null in here for some reason */
 
             //// GET relationships
 
@@ -110,15 +145,15 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
                 return [
                     //user following how many others
                     db.Following.findAndCountAll({
-                        where: {FollowerId: user.userId},
+                        where: {FollowerId: returnedUser.userId},
                         attributes: ['affinityId']
-                    },
-                    { raw: true }),
+                    }, { raw: true }),
+
                     db.Following.findAndCountAll({
-                        where: {FollowId: user.userId},
+                        where: {FollowId: returnedUser.userId},
                         attributes: ['affinityId']
-                    },
-                    { raw: true }),
+                    }, { raw: true }),
+
                     false,
                     false,
                     false
@@ -130,42 +165,49 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
                 return [
                     //user following how many others
                     db.Following.findAndCountAll({
-                        where: {FollowerId: user.userId},
+                        where: {FollowerId: returnedUser.userId},
                         attributes: ['affinityId']
-                    },
-                    { raw: true }),
+                    }, { raw: true }),
+
                     //user being followed by how many
                     db.Following.findAndCountAll({
-                        where: {FollowId: user.userId},
+                        where: {FollowId: returnedUser.userId},
                         attributes: ['affinityId']
-                    },
-                    { raw: true }),
+                    }, { raw: true }),
+
                     false,
                     false,
                     true
                 ]
 
             }
+           
             
             //user is logged in and is viewing other profiles.
             return [
                 //user following how many others
                 db.Following.findAndCountAll({
-                    where: {FollowerId: user.userId},
+                    where: {FollowerId: returnedUser.userId},
                     attributes: ['affinityId']
-                },
-                { raw: true }),
+                }, { raw: true }),
+
                 db.Following.findAndCountAll({
-                    where: {FollowId: user.userId},
+                    where: {FollowId: returnedUser.userId},
                     attributes: ['affinityId']
-                },
-                { raw: true }),
-                req.user.hasFollow(user.userId),
-                req.user.hasFollower(user.userId),
+                }, { raw: true }),
+
+                req.user.hasFollow(returnedUser.userId),
+                req.user.hasFollower(returnedUser.userId),
                 false
             ]
 
         }).spread(function(followingCount, followerCount, hasFollow, hasFollower, ownProfile) {
+
+            // console.log('count');
+            // console.log(followingCount);
+            // console.log('followerCount console.log');
+            // console.log(followerCount);
+
             returnedUser.followingCount = followingCount.count;
             returnedUser.followerCount = followerCount.count;
 
@@ -180,12 +222,14 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
             if(ownProfile) {
                 returnedUser.isOwnProfile = true;
                 returnedUser.isFollowable = false;
+                returnedUser.posts = likesSplicer(req, returnedUser.posts, idArray);
                 return eventEmitter.emit( 'profileJSONDone', returnedUser );
             }
 
             returnedUser.viewerFollowedTarget = hasFollow;
             returnedUser.targetFollowedViewer = hasFollower;
             returnedUser.isFollowable = true;
+            returnedUser.posts = likesSplicer(req, returnedUser.posts, idArray);
             return eventEmitter.emit( 'profileJSONDone', returnedUser );
 
         }).catch(function(error) {

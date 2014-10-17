@@ -28,17 +28,17 @@ Explore if it is possible to just share the 2
 
                 <div class="blockInteract">
                      {?isPreview}{:else}
-                    <div class="likeButton" data-action="like">
+                    <div class="blockInteractButtons likeButton clickable" data-action="like">
                         <div class="icon-heart"></div>
                         <span class="blockInteractText">like</span>
                     </div>
                     {/isPreview}
-                    <div class="moreInfo">
+                    <div class="blockInteractButtons moreInfo clickable">
                         <div class="icon-tag"></div>
                         <span class="blockInteractText">info</span>
                     </div>
 
-                    <div class="blockInteractButtons settings">
+                    <div class="blockInteractButtons settings clickable">
                         <span class="glyphicon glyphicon-align-justify settingsButton"></span>
                         <div class="blockInteractSettingsWrap" style="display:none;">
                             <div class="settingsMark blockInteractSettingsOptions">

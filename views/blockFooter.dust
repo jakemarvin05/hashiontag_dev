@@ -8,62 +8,74 @@
     </div>
 </footer>
 
+<script src="{p.js}/core.js"></script>
+<!-- Inititializers -->
+<script>
+function buttonsInitStack() {
+    likeButton.init($('.likeButton')); 
+    sendComment();
+    settingsButton();
+}
+$(function() { buttonsInitStack(); });
+</script>
 
 <!-- sendComment button -->
 <script>
-$('.sendComment').click(function() {
-    var postId = $(this).attr('data-pid'),
-        postOwnerId = $(this).attr('data-uid'),
-        $thisBlock = $(this).closest('.streamLayout'),
-        $commentInput = $thisBlock.find('.postCommentInput'),
-        comment = $commentInput.val(),
-        $commentButton = $thisBlock.find('.sendComment');
-    
-    //prevent spam commenting.
-    $commentButton.attr('disabled', 'disabled');
-    setTimeout(function() {
-        $commentButton.removeAttr('disabled');
-    }, 3000);
+function sendComment() {
+    $('.sendComment').click(function() {
+        var postId = $(this).attr('data-pid'),
+            postOwnerId = $(this).attr('data-uid'),
+            $thisBlock = $(this).closest('article'),
+            $commentInput = $thisBlock.find('.postCommentInput'),
+            comment = $commentInput.val(),
+            $commentButton = $thisBlock.find('.sendComment');
+        
+        //prevent spam commenting.
+        $commentButton.attr('disabled', 'disabled');
+        setTimeout(function() {
+            $commentButton.removeAttr('disabled');
+        }, 3000);
 
-    // AJAX post
-    var posting = $.post( "{p.absPath}/api/comment", { postId: postId, postOwnerId: postOwnerId, comment: comment } );
+        // AJAX post
+        var posting = $.post( "{p.absPath}/api/comment", { postId: postId, postOwnerId: postOwnerId, comment: comment } );
 
-    //prepare the comment
-    var commentJSON = {
-        comment: comment,
-        commentId: Date.now(),
-        user: {
-            profilePicture: printHead.userHeaders.profilePicture,
-            userNameDisp: printHead.userHeaders.userNameDisp
+        //prepare the comment
+        var commentJSON = {
+            comment: comment,
+            commentId: Date.now(),
+            user: {
+                profilePicture: printHead.userHeaders.profilePicture,
+                userNameDisp: printHead.userHeaders.userNameDisp
+            }
         }
-    }
-    var $submittedComment = streamFactory.append.eachComment($thisBlock, commentJSON, true, null, true);
+        var $submittedComment = streamFactory.append.eachComment($thisBlock, commentJSON, true, null, true);
 
-    $submittedComment.velocity('transition.slideDownIn');
+        $submittedComment.velocity('transition.slideDownIn');
 
-    $commentInput.velocity('callout.flashShort');
-    //flashShort is 400ms. At 200ms, clear the comment text.
-    setTimeout(function() { 
-        $commentInput.val('');
-    }, 200);
-    $commentButton.velocity('callout.flashShort');
+        $commentInput.velocity('callout.flashShort');
+        //flashShort is 400ms. At 200ms, clear the comment text.
+        setTimeout(function() { 
+            $commentInput.val('');
+        }, 200);
+        $commentButton.velocity('callout.flashShort');
 
-    //done
-    posting.done(function( data ) {
-        console.log(data);
-        if(data.success) {
-            console.log('comment added');
-        } else {
-            console.log('error');
-            $submittedComment.remove();
-            alertFactory.commentError();
-        }  
+        //done
+        posting.done(function( data ) {
+            console.log(data);
+            if(data.success) {
+                console.log('comment added');
+            } else {
+                console.log('error');
+                $submittedComment.remove();
+                alertFactory.commentError();
+            }  
+        });
+        //fail
+        posting.fail(function() {
+                alertFactory.commentError();
+        });
     });
-    //fail
-    posting.fail(function() {
-            alertFactory.commentError();
-    });
-});
+}
 </script>
 
 <!-- Like Button -->
@@ -71,15 +83,13 @@ $('.sendComment').click(function() {
 var likeButton = {
     main: function($el) {
 
-        var thisBlock = $el.closest('.streamLayout'),
-            postId = $el.attr('data-pid'),
+        var postId = $el.attr('data-pid'),
             postOwnerId = $el.attr('data-uid'),
             action = $el.attr('data-action'),
             $likeButton = $el;
 
         //disable the button
         $likeButton.unbind('click.vv');
-        $likeButton.css('cursor','default');
         setTimeout(function() {
             likeButton.init($el);
         }, 1000);
@@ -106,14 +116,6 @@ var likeButton = {
         //done
         posting.done(function( data ) {
             console.log(data);
-
-            if(data.success) {
-                console.log('success');
-            } else {
-                console.log('error');
-                changeState();
-                alertFactory.protoAlert('Please either login or check your internet connection.');
-            }
         });
 
         //fail
@@ -123,20 +125,20 @@ var likeButton = {
         });
     },
     init: function($el) {
-        $el.css('cursor','pointer');
         var self = this;
         $el.on('click.vv', function() {
             self.main($(this));
         });
     }
 }
-likeButton.init($('.likeButton'));
 </script>
 
 <script>
-$(function() {
+function settingsButton() {
     var $settingsBut = $('.settingsButton'),
-        $postDelete = $('.settingsDelete');
+        $postDelete = $('.settingsDelete'),
+        $postMark = $('.settingsMark');
+
     $settingsBut.click(function() {
         var pid = $(this).attr('data-pid'),
 
@@ -146,8 +148,7 @@ $(function() {
             $(this).parent().find('.blockInteractSettingsWrap').hide();
             $(this).removeClass('settingActive');
         } else {
-            $('.blockInteractSettingsWrap').hide();
-            $settingsBut.removeClass('settingActive');
+            hideAllTabs();
             $(this).parent().find('.blockInteractSettingsWrap').show();
             $(this).addClass('settingActive');
         }
@@ -155,6 +156,7 @@ $(function() {
 
     $postDelete.click(function() {
 
+        hideAllTabs();
         var msg = Object.create(aF);
 
         var pid = $(this).attr('data-pid');
@@ -174,18 +176,29 @@ $(function() {
             text: text
         });
     });
+
     $(document).click(function(e) {
         var target = e.target;
-        if (!$(target).is('.settingsButton') && !$(target).parents().is('.settingsButton')) {
-            $('.blockInteractSettingsWrap').hide();
-            $('.settingActive').removeClass('settingActive');
+        if ( !$(target).is('.settingsButton') && !$(target).parents().is('.settingsButton') && !$(target).is('.settingsMark') ) {
+            hideAllTabs();
         }
     });
 
-});
+    $postMark.click(function() {
+        $(this).parent().velocity('callout.pulse', 400, function() {
+            hideAllTabs();
+        });
+
+        var data = {
+            pid: $(this).attr('data-pid'),
+            uid: $(this).attr('data-uid')
+        }
+        var markAjax = $.post(printHead.p.absPath + '/api/post/mark', data);
+    });
+
+    function hideAllTabs() {
+        $('.blockInteractSettingsWrap').hide();
+        $settingsBut.removeClass('settingActive');
+    }
+}
 </script>
-
-
-
-<script src="{p.js}/core.js"></script>
-

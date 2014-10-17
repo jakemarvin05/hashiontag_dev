@@ -206,7 +206,7 @@
 
 {! This is used to contain the fancybox popup duplicate  !}
 <div id="fancyboxCont" style="display:none;">
-    <article></article>
+    <article class="fancyArticle"></article>
 </div>
 {>blockFooter/}
 
@@ -250,17 +250,16 @@ profilePostFactory.append.imageLink = function($stream, img) {
     var strId = '#' + $stream.attr('id');
     img.onclick = function() {
         //get the stream's html and put it into the "fancybox cont"
-        //$('#fancyboxCont article').html('')
-        //var clone = $(strId).children().clone();
-        //$('#fancyboxCont article').append(clone);
+        $('#fancyboxCont article').html($(strId).html());
 
         //then make fancybox open it.
         $.fancybox.open([{
-            href : '#' + strId,
+            href : '#fancyboxCont',
             title : ''
         }], {
             padding : 10
         });
+        buttonsInitStack();
     }
 
 }

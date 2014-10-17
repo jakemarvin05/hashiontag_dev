@@ -8,8 +8,8 @@
             {:else}
             <div style="text-align:center; margin-top: 30px;">
                 <h1 style="color:#ccc;">You have no posts :(</h1>
-                <h2 style="margin-top: 30px;">Would you like to <a href="{p.absPath}/latest">see the latest posts</a>
-                    or <a href="{p.search}">search for your friends</a>?</h2>
+                <hp style="margin-top: 30px;">Would you like to <a href="{p.absPath}/latest">see the latest posts</a>
+                    or <a href="{p.search}">search for your friends</a>?</p>
             </div>
             {/renderJSONraw.posts}
             {>"layouts/streamLayout"/}

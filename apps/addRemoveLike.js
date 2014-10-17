@@ -1,5 +1,6 @@
 var db = global.db,
-    notification = require('./notification.js');
+    notification = require('./notification.js'),
+    fname = "addRemoveLike ";
 
 
 module.exports = function addRemoveLike(req, res) {
@@ -18,70 +19,21 @@ module.exports = function addRemoveLike(req, res) {
 
     if(req.isAuthenticated()) {
 
-
         if(req.body.action === 'like') {
 
-            db.Like.find({
-                where: db.Sequelize.and(
-                    {Post_postId: req.body.postId},
-                    {User_userId: req.user.userId}
-                )
-            }).then(function(like) {
-
-                if(like) {
-
-                    console.log('attempt to like a post already liked');
-                    return false;
-
-                }
-
-                return db.Post.find({ where:{ postId:req.body.postId } });
-
-            }).then(function(post) {
-
-                if(!post) {
-
-                    return false;
-                }                    
-
-                console.log('addRemoveLike: like and post check passed, creating like..');
-
-                dataObj = {
-                    post: post,
-                    postOwner: req.body.postOwnerId,
-                    notificationSetter: req.user,
-                    action: 'like'
-                }
-
-                return db.Like.build().save();
-
-
-            }).then(function(like) {
-
-                return like.updateAttributes({
-                    Post_postId: req.body.postId,
-                    User_userId: req.user.userId
-                });
-
-                //asynchronous ops
-                // return [
-                //     like.setUser(req.user),
-                //     like.setPost(req.body.postId),
-                // ];
-
-            }).then(function() {
-
-                console.log('addRemoveLike: like created, setting user and post');
-
-                console.log('addRemoveLike: Incrementing relevant scores...\n');
-                addLikeIncrementScores(req);
-
-                //asynchronous notification setting
-                //if error occurs in notification setting it will be logged. but user doesn't need to know.
-                notification(req,res,dataObj);
+            db.Like.findOrCreate(
+                {Post_postId: req.body.postId},
+                {User_userId: req.user.userId}
+            ).then(function(like, created) {
                 
-                return res.json({success: true});
-                
+                if(created) {
+                    console.log(fname + 'userId ' + req.user.userId + ' liked postId' + req.body.postId);
+                    console.log('addRemoveLike: like created, setting user and post');
+                    console.log('addRemoveLike: Incrementing relevant scores...\n');
+                    addLikeIncrementScores(req);
+                    notification(req,res,dataObj);
+                    return res.json({success: true});
+                }
             }).catch(throwErr);
 
         }
@@ -104,9 +56,11 @@ module.exports = function addRemoveLike(req, res) {
 
 
                 var idArray = [];
-                for(var i=0; i<idArray.length; i++) {
+                for(var i=0; i<likes.length; i++) {
                     idArray.push(likes[i].values['likeId']);
                 }
+                console.log('idArray');
+                console.log(idArray);
 
                 return [
                     db.Like.destroy({likeId: idArray}),
@@ -115,6 +69,7 @@ module.exports = function addRemoveLike(req, res) {
                     
             }).spread(function(destroy, post){
 
+                //find the post to destroy the notification.
                 if(post) {
 
                     var dataObj = {
@@ -178,24 +133,26 @@ function addLikeIncrementScores(req){
 }
 
 function removeLikeDecrementScores(req){
-    db.Post.find(req.body.postId).success(function(post) {
-        post.decrement('postScore', {by: 1}).success(function(post){
-            post.save();
-            console.log('Decremented post scores....\n');
-        });
+    db.Post.find(req.body.postId).then(function(post) {
         
-        db.Following.find({
-            where: {
-                FollowerId: req.user['userId'],
-                FollowId: post.getDataValue('User_userId')
-            }
+        return post.decrement('postScore', {by: 1});
 
-        }).success(function(following){
-            //console.log(following);
-            following.decrement('affinity', {by: 1}).success(function(following){
-                following.save();
-                console.log('Decremented affinity...\n');
-            });
-        });
-    })
+    }).then(function(){
+        console.log('Decremented post scores....\n');
+    }).catch(function(err) {
+        console.log(fname + 'error in decrementing post score: ' + err);
+    });
+        
+    db.Following.find({
+        where: {
+            FollowerId: req.user.userId,
+            FollowId: req.user.postOwnerId
+        }
+    }).then(function(following){
+        //console.log(following);
+        console.log('Decremented affinity...\n');
+        return following.decrement('affinity', {by: 1});
+    }).catch(function(err) {
+        console.log(fname + 'error in decrementing affiinity: ' + err);
+    });
 }
