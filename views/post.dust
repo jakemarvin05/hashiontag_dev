@@ -19,7 +19,7 @@ socket.on('disconnect', function(){
 socket.on('uploadProgress', function(data){
     var percentage = data.bytesReceived/data.bytesExpected;
     console.log(percentage);
-    $('#progressBar').css('width', parseInt(percentage)*100+'%');
+    $('#progressBar').css('width', (percentage*100).toString()+'%');
 });
 </script>
 

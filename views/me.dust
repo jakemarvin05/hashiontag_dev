@@ -260,13 +260,16 @@ profilePostFactory.append.imageLink = function($stream, img) {
         }], {
             padding : 10
         });
+        
         //bind back all the buttons
-
         //comment, like, settings
         buttonsInitStack();
 
         //load more button
         self.commentBlockMoreButton($('#fancyboxCont article'));
+        //moreInfo
+        $('#fancyboxCont .blockMoreInfoTop').remove();
+        self.__proto__.moreInfoBindButton($('#fancyboxCont .moreInfo'));
     }
 
 }
@@ -281,11 +284,13 @@ profilePostFactory.append.imageOnLoad = function($stream, img) {
     $blockHolder.css('height', 'auto');
     this.effect($(img));
 }
-profilePostFactory.append.moreInfoBindButton = function() {
+profilePostFactory.append.moreInfoBindButton = function($custBut) {
     var $buttons = $('.' + this.parent.streamContClass).find('.moreInfo');
+    if($custBut) { $buttons = $custBut; }
     $buttons.click(function() {
+            console.log('c');
         //find its parent the find the button. more resistant to layout changes.
-        var $moreInfo = $(this).closest('article').find('.blockMoreInfo');
+        var $moreInfo = $(this).closest('article').find('.blockMoreInfoTop');
 
         //button is depressed, and moreInfo yet to be hidden
         if($(this).hasClass('blockInteractActive') && $moreInfo.attr('data-shown') === 'yes') {

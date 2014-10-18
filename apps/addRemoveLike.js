@@ -20,11 +20,12 @@ module.exports = function addRemoveLike(req, res) {
     if(req.isAuthenticated()) {
 
         if(req.body.action === 'like') {
+            console.log(req.user.userId);
 
-            db.Like.findOrCreate(
-                {Post_postId: req.body.postId},
-                {User_userId: req.user.userId}
-            ).then(function(like, created) {
+            db.Like.findOrCreate({
+                User_userId: req.user.userId,
+                Post_postId: req.body.postId
+            }).then(function(like, created) {
                 
                 if(created) {
                     console.log(fname + 'userId ' + req.user.userId + ' liked postId' + req.body.postId);

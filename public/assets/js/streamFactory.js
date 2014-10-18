@@ -421,9 +421,12 @@ streamFactory.append.commentBlock = function($stream, post) {
             var c = commentCount-showComments;
             $stream.find('.blockLoadMoreCommentsCount')
                 .attr('data-count', c)
-                .html(c);
+                .html(c)
+                .addClass('commentsCountForPID' + post.postId);
+
             var $cont = $stream.find('.blockLoadMoreCommentsCont');
             var $but = $cont.find('.blockLoadMoreCommentsBut');
+            $but.addClass('commentsButForPID' + post.postId);
             $cont.show();
             this.identifier($but, post)
 
@@ -444,7 +447,6 @@ streamFactory.append.commentBlock = function($stream, post) {
 }
 streamFactory.append.commentList = {}
 streamFactory.append.commentBlockMoreButton = function($cont) {
-    console.log(1);
     if(!$cont) {
         var contClass = this.parent.streamContClass;
         var $buts = $('.' + contClass).find('.blockLoadMoreCommentsBut');
@@ -454,8 +456,6 @@ streamFactory.append.commentBlockMoreButton = function($cont) {
 
     var n = 2, //base
         commentList = this.commentList;
-
-        console.log($buts);
 
         /* the latest comment in commentJSON is of a higher [number].
          * commentBlock is set to run decrementing to 0 so that the
@@ -475,19 +475,22 @@ streamFactory.append.commentBlockMoreButton = function($cont) {
 
             //calculate and splice
             var spliceN = Math.pow(n, p);
-            var $targets = theList.splice(0, spliceN);
+            var targets = theList.splice(0, spliceN);
 
             //show the targets
-            for(var i in $targets) { $targets[i].show(); }
+            for(var i in targets) { 
+                var $target = $('body').find('div[data-cid="'+ targets[i] + '"]');
+                $target.show(); 
+            }
 
             //change the count number
-            var count = $targets.length;
+            var count = targets.length;
             var currCount = parseFloat($count.attr('data-count'));
             var newCount = currCount - count;
-            if(newCount === 0) { $(this).velocity('fadeOut', 200); }
+            if(newCount === 0) { $('.commentsButForPID' + postId).velocity('fadeOut', 200); }
 
             //update data attrs
-            $count.attr('data-count', newCount).html(newCount);
+            $('.commentsCountForPID31').attr('data-count', newCount).html(newCount);
             $(this).attr('data-power', p+1);
         });
 }
@@ -515,7 +518,7 @@ streamFactory.append.eachComment = function($stream, comment, toShow, postId, ap
 
     var commentUser = '<a href="/' + user.userNameDisp + '">' + user.userNameDisp + '</a>';
 
-    var html = '<div class="postCommentWrap"' + hide + ' id="' + commentId + '">';
+    var html = '<div class="postCommentWrap"' + hide + ' data-cid="' + commentId + '">';
         html += commentUserPP;
         html += '<div class="postComment">' + commentUser;
         html += timestampAgo;
@@ -527,9 +530,10 @@ streamFactory.append.eachComment = function($stream, comment, toShow, postId, ap
         $stream.find('.postCommentCont').prepend(html);
     }
 
-    var $comment = $stream.find('#' + commentId);
     //push those hidden ones into the array list.
-    if(!toShow) { this.commentList[postId].push($comment); }
+    if(!toShow) { this.commentList[postId].push(commentId); }
+
+    var $comment = $stream.find('div[data-cid="' + commentId +'"]')
 
     return $comment;
 }

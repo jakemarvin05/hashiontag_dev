@@ -1,6 +1,7 @@
-<article class="streamLayout" id="layoutId">
+<article class="streamLayout clearfix" id="layoutId" style="display:inline-block;">
     <div class="blockImgHolder">
-        <img src="{f.imgLoaderHolder}" class="imgLoaderHolder">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIW2NkAAIAAAoAAggA9GkAAAAASUVORK5CYII=" class="imgLoaderHolder">
+        <div class="blockMoreInfo blockMoreInfoTop" data-shown="no" style="opacity:0; display:none;"></div>
     </div>
     <div class="blockPad">
         <header class="blockMainInfo">
@@ -16,16 +17,36 @@
                 </div>
 
                 <div class="blockInteract">
-                    {! Think of somewhere else to shift this likes button
-                    <div class="likeButton" data-action="like">
+                    {! removed like button
+                    {?isPreview}{:else}
+                    <div class="blockInteractButtons likeButton clickable" data-action="like">
                         <div class="icon-heart"></div>
                         <span class="blockInteractText">like</span>
                     </div>
+                    {/isPreview}
                     !}
-                    <div class="moreInfo">
+                    <div class="blockInteractButtons moreInfo clickable">
                         <div class="icon-tag"></div>
+                        <span class="blockInteractText">info</span>
                     </div>
+
+                    {! removed settings button
+                    <div class="blockInteractButtons settings clickable">
+                        <span class="glyphicon glyphicon-align-justify settingsButton"></span>
+                        <div class="blockInteractSettingsWrap" style="display:none;">
+                            <div class="settingsMark blockInteractSettingsOptions">
+                                Mark as inappropriate
+                            </div>
+                            <div class="settingsDelete blockInteractSettingsOptions">
+                                Delete
+                            </div>
+                        </div>
+                    </div>
+                    !}
+                    
                 </div>
+
+                <div class="blockMoreInfo blockMoreInfoLower" data-shown="no" style="display:none;"></div>
 
                 <div class="blockLikeText"></div>
 
@@ -33,21 +54,18 @@
                     <div class="description"></div>
                 </div>
             </div>
-            <!--
-            <h2 class="itemName" itemprop="item"></h2>
-            <h2 class="shopName" itemprop="shop"></h2>
-            <h3 class="price" itemprop="price"></h3>
-            -->
 
             <div class="blockLoadMoreCommentsCont" style="display:none;">
-                load more
-                <div class="blockLoadMoreCommentsWrap">
-                    <div class="blockLoadMoreCommentsCount"></div>
-                    <div class="blockLoadMoreCommentsLogo"><img src="{p.img}/comments_icon.png"></div>
+                <div class="blockLoadMoreCommentsBut">
+                    load&nbsp;
+                    <div class="blockLoadMoreCommentsWrap">
+                        <div class="blockLoadMoreCommentsCount"></div>
+                        <div class="blockLoadMoreCommentsLogo"><img src="{p.img}/comments_icon.png"></div>
+                    </div>
+                    &nbsp;more
                 </div>
             </div>
         </header>
-        
         <div class="postCommentCont"></div>
         {?isPreview}{:else}
         <div class="postInteractions">

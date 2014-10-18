@@ -76,7 +76,7 @@
 </section><!-- main -->
 {! This is used to contain the fancybox popup duplicate !}
 <div id="fancyboxCont" style="display:none;">
-    <article></article>
+    <article class="fancyArticle"></article>
 </div>
 
 {>blockFooter/}
@@ -84,6 +84,7 @@
 <script src="{p.js}/streamFactory.js"></script>
 <script>
 var likesPostFactory = Object.create(streamFactory);
+likesPostFactory.append = Object.create(streamFactory.append);
 
 likesPostFactory.streamContClass = 'likesBlock';
 
@@ -100,6 +101,8 @@ likesPostFactory.append.effect = function($el) {
 
 likesPostFactory.append.imageLink = function($stream, img) {
     var strId = '#' + $stream.attr('id');
+
+    var self = this;
     img.onclick = function() {
 
         //get the stream's html and put it into the "fancybox cont"
@@ -112,6 +115,16 @@ likesPostFactory.append.imageLink = function($stream, img) {
         }], {
             padding : 10
         });
+
+        //bind back all the buttons
+        //comment, like, settings
+        buttonsInitStack();
+
+        //load more button
+        self.commentBlockMoreButton($('#fancyboxCont article'));
+        //moreInfo
+        $('#fancyboxCont .blockMoreInfoTop').remove();
+        self.__proto__.moreInfoBindButton($('#fancyboxCont .moreInfo'));
     }
 
 }

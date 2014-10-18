@@ -123,6 +123,7 @@ router.get('/preview', function(req, res) {
             f: gJSON.pathsJSON.files,
             printHead: JSON.stringify(gJSON.printHead),
             renderJSON: JSON.stringify(renderJSON),
+            renderJSONraw: renderJSON,
             page: "preview",
 
             /* specifics */

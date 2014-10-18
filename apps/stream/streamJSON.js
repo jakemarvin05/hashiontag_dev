@@ -250,11 +250,18 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
             ]
         }).spread(function(users, likePosts) {
 
+            if(likePosts.length === 0 ) {
+                renderJSON = false;
+                return render(renderJSON);
+            }
+
             for(var i=0; i<users.length; i++) {
                 idArray.push(users[i].userId);
             }
 
             var likePosts = JSON.parse(JSON.stringify(likePosts));
+            console.log('***likePosts');
+            console.log(likePosts);
 
             //modify the outcome
             //need to float posts out of the nesting.
@@ -270,6 +277,8 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
             renderJSON.lastLikeId = lastLikeId
 
             renderJSON.posts = posts;
+            console.log('***posts:');
+            console.log(renderJSON.posts);
 
             console.log('streamJSON: db retrieval complete, likes splicing...');
             //console.log(idArray);
@@ -278,6 +287,8 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
             //console.log(renderJSON.posts);
 
             renderJSON.posts = likesSplicer(req, renderJSON.posts, idArray);
+            console.log('after splicing');
+            console.log(renderJSON.posts);
             renderJSON.postCount = Object.keys(renderJSON.posts).length;
             return render(renderJSON);
 

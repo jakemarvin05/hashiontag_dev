@@ -14,14 +14,22 @@ var fs        = require('fs'),
     //         native: true, //requires c binding
 
     //     }),
-    //localhost
-    sequelize = new Sequelize('postgres', 'postgres', 'password'
+    //DIGITAL OCEAN
+    sequelize = new Sequelize('postgres', 'postgres', 'mondayblues'
         ,{
             host: "localhost",
             dialect: "postgres", // or 'sqlite', 'postgres', 'mariadb'
             port: 5432, // or 5432 (for postgres)
             native: false,  //change settings to localhost and turn native to false if unable to compile native C bindings
         }),
+    // //localhost
+    // sequelize = new Sequelize('postgres', 'postgres', 'password'
+    //     ,{
+    //         host: "localhost",
+    //         dialect: "postgres", // or 'sqlite', 'postgres', 'mariadb'
+    //         port: 5432, // or 5432 (for postgres)
+    //         native: false,  //change settings to localhost and turn native to false if unable to compile native C bindings
+    //     }),
     db        = {}
  
 

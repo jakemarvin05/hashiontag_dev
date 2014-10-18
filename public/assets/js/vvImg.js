@@ -208,6 +208,7 @@ VV.img.canvasrise = function(img, scaleTo) {
         h = img.height;
 
     var determinant = (h > w)? h : w;
+    console.log(determinant);
 
     if(determinant < scaleTo) {
         canvas.width = w;
@@ -215,9 +216,8 @@ VV.img.canvasrise = function(img, scaleTo) {
         return canvas;
     }
 
-    //let canvas step down 1 resizing if it can.
-    //we are not letting canvas do all of it because it will block
-    //the UI. Hermite can use the free core to do the resize later on.
+    //let canvas step down 1 resizing
+    //Hermite will handle the outstanding.
     var toFoldIt = ((determinant/2) > scaleTo) ? true : false;
 
     if(toFoldIt) {
@@ -230,8 +230,14 @@ VV.img.canvasrise = function(img, scaleTo) {
     } else {
         //the canvas is small enough to be resized by <canvas>
         console.log('canvas will do resizing');
-        canvas.width = (w > h) ? scaleTo : w;
-        canvas.height = (h > w) ? scaleTo : h;
+        var AR = w/h;
+        if(h>w) {
+            canvas.height = scaleTo;
+            canvas.width = Math.round(scaleTo * AR);
+        } else {
+            canvas.width = scaleTo;
+            canvas.height = Math.round(scaleTo / AR);
+        }
     }
     return canvas;
 }

@@ -11,7 +11,7 @@ Explore if it is possible to just share the 2
 <article class="streamLayout clearfix" id="layoutId" style="display:inline-block;">
     <div class="blockImgHolder">
         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIW2NkAAIAAAoAAggA9GkAAAAASUVORK5CYII=" class="imgLoaderHolder">
-        <div class="blockMoreInfo" data-shown="no" style="opacity:0; display:none;"></div>
+        <div class="blockMoreInfo blockMoreInfoTop" data-shown="no" style="opacity:0; display:none;"></div>
     </div>
     <div class="blockPad">
         <header class="blockMainInfo">
@@ -51,6 +51,8 @@ Explore if it is possible to just share the 2
                     </div>
                     
                 </div>
+
+                <div class="blockMoreInfo blockMoreInfoLower" data-shown="no" style="display:none;"></div>
 
                 <div class="blockLikeText"></div>
 

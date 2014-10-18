@@ -202,9 +202,19 @@ header.profileHeader>div {
         .profilePostsBlock . {
             width: 100%; 
         }
-    .profilePostsBlock .postItemAddTagImg img {
-        width: 70px;
-    }
+    
+    /* the shop thumbnail */
+    @media (min-width: 0px) and (max-width: 320px) {
+        .profilePostsBlock .postItemAddTagImg img {
+            width: 50px;
+        }
+    }  
+    @media (min-width: 321px) {
+        .profilePostsBlock .postItemAddTagImg img {
+            width: 60px;
+        }
+    }  
+
 
     .profilePostsBlock .blockPad {
         height: 45px;
