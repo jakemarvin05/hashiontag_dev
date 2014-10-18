@@ -333,9 +333,20 @@ streamFactory.append.likeText = function(post) {
             for(k=0;k<loopRuns;k++) {
                 var name = likersDisp[k].user.userNameDisp;
                 if(k>0) {
-                    likersDispHTML += ', ';
-                }
+                    if(k<show-1) {
+                        //put commas after the first case, stop at last case.
+                        likersDispHTML += ', ';
+                    } else {
+                        //for last case put "and"
+                        likersDispHTML += ' and ';
+                    } 
+                } 
                 likersDispHTML += '<a href="' + printHead.p.absPath + '/' + name + '">' + name +'</a>';
+            }
+            //if there are only 2 cases, replace the comma with 'and'.
+            //mary and sally like this.
+            if(loopRuns === 2) {
+                likersDispHTML = likersDispHTML.replace(',', ' and');
             }
         }
 
@@ -418,7 +429,8 @@ streamFactory.append.commentBlock = function($stream, post) {
 
             //set up the list
             this.commentList[post.postId] = [];
-
+            /* TODO append only X number of comments to DOM, only append more when clicked */
+            /* Suggestion: db request to get only X number. The rest via AJAX */
         }
         var j = commentCount;
         var runs = 0;
@@ -431,11 +443,19 @@ streamFactory.append.commentBlock = function($stream, post) {
     }
 }
 streamFactory.append.commentList = {}
-streamFactory.append.commentBlockMoreButton = function() {
-    var contClass = this.parent.streamContClass;
-    var $buts = $('.' + contClass).find('.blockLoadMoreCommentsBut'),
-        n = 2, //base
+streamFactory.append.commentBlockMoreButton = function($cont) {
+    console.log(1);
+    if(!$cont) {
+        var contClass = this.parent.streamContClass;
+        var $buts = $('.' + contClass).find('.blockLoadMoreCommentsBut');
+    } else {
+        var $buts = $cont.find('.blockLoadMoreCommentsBut');
+    }
+
+    var n = 2, //base
         commentList = this.commentList;
+
+        console.log($buts);
 
         /* the latest comment in commentJSON is of a higher [number].
          * commentBlock is set to run decrementing to 0 so that the

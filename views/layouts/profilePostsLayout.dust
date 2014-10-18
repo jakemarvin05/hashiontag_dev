@@ -60,10 +60,13 @@ Explore if it is possible to just share the 2
             </div>
 
             <div class="blockLoadMoreCommentsCont" style="display:none;">
-                <span class="blockLoadMoreText">load more</span>
-                <div class="blockLoadMoreCommentsWrap">
-                    <div class="blockLoadMoreCommentsCount"></div>
-                    <div class="blockLoadMoreCommentsLogo"><img src="{p.img}/comments_icon.png"></div>
+                <div class="blockLoadMoreCommentsBut">
+                    load&nbsp;
+                    <div class="blockLoadMoreCommentsWrap">
+                        <div class="blockLoadMoreCommentsCount"></div>
+                        <div class="blockLoadMoreCommentsLogo"><img src="{p.img}/comments_icon.png"></div>
+                    </div>
+                    &nbsp;more
                 </div>
             </div>
         </header>

@@ -201,33 +201,60 @@ VV.img.center = function($img, $layer1img, tallOrWide) {
     }
 
 }
-VV.img.canvasrise = function(img) {
+VV.img.canvasrise = function(img, scaleTo) {
     //img is a complete img element
-    var canvas = document.createElement('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    //var ctx = canvas.getContext('2d')
-    //ctx.drawImage(img, 0, 0);
+    var canvas = document.createElement('canvas'),
+        w = img.width,
+        h = img.height;
+
+    var determinant = (h > w)? h : w;
+
+    if(determinant < scaleTo) {
+        canvas.width = w;
+        canvas.height = h;
+        return canvas;
+    }
+
+    //let canvas step down 1 resizing if it can.
+    //we are not letting canvas do all of it because it will block
+    //the UI. Hermite can use the free core to do the resize later on.
+    var toFoldIt = ((determinant/2) > scaleTo) ? true : false;
+
+    if(toFoldIt) {
+        //the canvas is large enough to be folded into half
+        //this means that the outstanding pixels will be handed
+        //over to hermite for resizing.
+        console.log('fold it');
+        canvas.width = w/2;
+        canvas.height = h/2;
+    } else {
+        //the canvas is small enough to be resized by <canvas>
+        console.log('canvas will do resizing');
+        canvas.width = (w > h) ? scaleTo : w;
+        canvas.height = (h > w) ? scaleTo : h;
+    }
     return canvas;
 }
 
 VV.img.canvasResize = function(canvas, scaledPx, img, exif, callback) {
     //do i need to rotate?
     //canvasRotate only returns a transformed canvas.
+    //if we have exif, we will rotate, and canvasRotate will draw
     if(exif) { 
+        //rotation will also call drawImage()
         console.log('exif, rotate');
-        var canvas = VV.img.canvasRotate(canvas, exif); 
+        var canvas = VV.img.canvasRotate(canvas, img, exif); 
+    } else if(img) {
+        //if exif is not true, but img is true, we just need to draw
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     }
-
-    //if img is present, this is where we draw it before passing to the 
-    //hermite resizer.
-    var ctx = canvas.getContext('2d');
-    if(img) { ctx.drawImage(img, 0, 0); }
 
     //skip canvasResize if scaling is not required.
     //this means if one of the parameter is already at desired px.
     //canvasResize cannot be used to dictate which dimension is to be scaled.
     if(canvas.height === scaledPx || canvas.height === scaledPx) { 
+        console.log('hermite not required');
         if(callback) { return callback(canvas); }
         return canvas;
     }
@@ -306,20 +333,19 @@ VV.img.getEXIF = function(file, callback) {
     }
 }
 
-//canvasRotate only returns a transformed canvas.
-//even if a canvas with image drawn is passed in, you need to call drawImage
-//on the returned canvas to achieve the rotation.
-VV.img.canvasRotate = function(canvas, exif) {
+VV.img.canvasRotate = function(canvas, img, exif) {
+    var height = canvas.height,
+        width = canvas.width;
 
-    if(!exif) { return canvas; }
+    if(!exif) { return draw(canvas, img, width, height); }
 
     //console.log('start rotate ' + Date.now());
-    if($.isEmptyObject(exif)) { return canvas; }
+    if($.isEmptyObject(exif)) { return draw(canvas, img, width, height); }
 
     //exif is not empty, check if there is orientation data
     //orientation may be zero, which will be falsy if we check it with if(orientation)
     //hence we check for undefined.
-    if(typeof exif.Orientation === "undefined") { return canvas; }
+    if(typeof exif.Orientation === "undefined") { return draw(canvas, img, width, height); }
 
     //exif is some value, lets see if we can use it.
     //we parseFloat the value and if it fits no case, we just return the canvas
@@ -327,11 +353,9 @@ VV.img.canvasRotate = function(canvas, exif) {
     var orientation = parseFloat(exif.Orientation);
 
     //no rotation required.
-    if(orientation === 1) { return canvas; }
+    if(orientation === 1) { return draw(canvas, img, width, height); }
 
-    var ctx = canvas.getContext('2d'),
-        height = canvas.height,
-        width = canvas.width;
+    var ctx = canvas.getContext('2d');
     //     data = new Image();
     // data.src = canvas.toDataURL();
 
@@ -384,6 +408,15 @@ VV.img.canvasRotate = function(canvas, exif) {
             ctx.translate(-width, 0);
             break;
     } //switch
+    canvas = draw(canvas, img, width, height);
+
+    function draw(canvas, img, w, h) {
+        //if img is present, this is where we draw it before passing to the 
+        //hermite resizer.
+        var ctx = canvas.getContext('2d');
+        if(img) { ctx.drawImage(img, 0, 0, w, h); }
+        return canvas;
+    }
 
     return canvas;
     // return data.onload = function() { 

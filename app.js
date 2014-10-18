@@ -115,7 +115,8 @@ io.on('connection', function(socket) {
 
 //uncomment if we need to export io instance
 //exports.io = io;
-exports.ioSockets = ioSockets;
+global.ioSockets = ioSockets;
+
 module.exports = app;
 
 server.listen(3000, function() {

@@ -28,7 +28,7 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
         include: [{
             //the posts' comments
             model: db.Comment,
-            attributes: ['comment','createdAt'],
+            attributes: ['commentId', 'comment','createdAt'],
             include: [{
                 model: db.User,
                 attributes: ['userNameDisp','profilePicture']

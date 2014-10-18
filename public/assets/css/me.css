@@ -44,7 +44,8 @@ header.profileHeader>div {
         }
 
         #editProfileButton {
-            display: inline-block;
+            display: block;
+            margin: auto;
             margin-top: 10px;
             height: 28px;
             font-size: 13px;
@@ -179,8 +180,9 @@ header.profileHeader>div {
     .profilePostsBlock .blockTextHolder,
     .profilePostsBlock .blockLoadMoreText,
     .profilePostsBlock .postCommentCont,
-    .profilePostsBlock .postInteractions {
-        display: none;
+    .profilePostsBlock .postInteractions,
+    .profilePostsBlock .blockLoadMoreCommentsCont {
+        display: none!important;
     }
 
     /* Display Hacks */
@@ -256,6 +258,8 @@ header.profileHeader>div {
 .profileEditClickToChange {
     color: #ccc;
     height: 45px;
+    width: 240px;
+    margin: auto;
 }
 .profileEditClickToChange>div {
     height: 100%;

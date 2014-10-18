@@ -248,6 +248,7 @@ profilePostFactory.append.effect = function($el) {
 profilePostFactory.append.imageLink = function($stream, img) {
 
     var strId = '#' + $stream.attr('id');
+    var self = this;
     img.onclick = function() {
         //get the stream's html and put it into the "fancybox cont"
         $('#fancyboxCont article').html($(strId).html());
@@ -259,7 +260,13 @@ profilePostFactory.append.imageLink = function($stream, img) {
         }], {
             padding : 10
         });
+        //bind back all the buttons
+
+        //comment, like, settings
         buttonsInitStack();
+
+        //load more button
+        self.commentBlockMoreButton($('#fancyboxCont article'));
     }
 
 }

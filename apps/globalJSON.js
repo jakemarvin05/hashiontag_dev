@@ -1,8 +1,10 @@
 //statics
 var pathsJSON = require('../apps/pathsJSON.js');
 var moment = require('moment');
+var uaParser = require('ua-parser');
 
 module.exports = function gJSON(req, options) {
+    var parseUA;
 
     console.log(moment().format());
     if(req.isAuthenticated()) {
@@ -42,15 +44,12 @@ module.exports = function gJSON(req, options) {
 
         var ua = {};
 
-        var uap = require('ua-parser').parseUA(req.headers['user-agent']);
+        var uap = uaParser.parseUA(req.headers['user-agent']);
         console.log(uap);
         var family = uap.family.toLowerCase();
             ua.family = family;
-            //console.log(family);
         var major = parseFloat(uap.major);
             ua.major = major;
-            //console.log(major);
-
         if(family.indexOf('mobile') > -1 ) {
             ua.isMobile = true;
             if(family.indexOf('safari') > -1) {
@@ -59,7 +58,6 @@ module.exports = function gJSON(req, options) {
         } else {
             ua.isMobile = false;
         }
-        if(family.indexO)
 
         globalJSON.userHeaders.ua = ua;
         globalJSON.printHead.userHeaders.ua = ua;

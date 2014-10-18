@@ -84,7 +84,6 @@ streamFactoryCopy.append.init = function($stream, i) {
     //console.log('streamFactoryCopy.append.init');
     var post = this.parent.posts[i];
     //set the data attributes
-    console.log(post);
     this.identifier($stream, post);
 
     /*
@@ -155,6 +154,11 @@ streamFactoryCopy.append.init = function($stream, i) {
     //likes
     var likeText = this.parent.append.likeText(post);
     $stream.find('.blockLikeText' ).prepend(likeText);
+
+    /* Delete button */
+    var $settingsButtons = $stream.find('.blockInteractSettingsOptions');
+    this.identifier($settingsButtons, post);
+    this.settingsButton($stream, post);
 }
 
 /* not enabled yet */
@@ -329,9 +333,20 @@ streamFactoryCopy.append.likeText = function(post) {
             for(k=0;k<loopRuns;k++) {
                 var name = likersDisp[k].user.userNameDisp;
                 if(k>0) {
-                    likersDispHTML += ', ';
-                }
+                    if(k<show-1) {
+                        //put commas after the first case, stop at last case.
+                        likersDispHTML += ', ';
+                    } else {
+                        //for last case put "and"
+                        likersDispHTML += ' and ';
+                    } 
+                } 
                 likersDispHTML += '<a href="' + printHead.p.absPath + '/' + name + '">' + name +'</a>';
+            }
+            //if there are only 2 cases, replace the comma with 'and'.
+            //mary and sally like this.
+            if(loopRuns === 2) {
+                likersDispHTML = likersDispHTML.replace(',', ' and');
             }
         }
 
@@ -587,8 +602,8 @@ streamFactoryCopy.append.moreInfoBlock = function($stream, post) {
 }
 streamFactoryCopy.append.moreInfoBindButton = function($custButton) {
     var $buttons;
-    if(custButton) { 
-        buttons = $custButton
+    if($custButton) { 
+        $buttons = $custButton
     } else {
         $buttons = $('.' + this.parent.streamContClass).find('.moreInfo');
     }
@@ -638,4 +653,12 @@ streamFactoryCopy.append.moreInfoImg = function($stream, post, moreInfo) {
         return $imgCont.append(html);
     });
     ajaxGetImg.fail(function() { return $imgCont.remove(); });
+}
+streamFactoryCopy.append.settingsButton = function($stream, post) {
+    if(post.User_userId !== printHead.userHeaders.userId) {
+        $stream.find('.settingsDelete').remove();
+    } else {
+        $stream.find('.settingsMark').remove();
+        $stream.find('.settingsDelete').attr('data-isprofile', post.isProfilePicture);
+    }
 }
