@@ -19,7 +19,7 @@ module.exports = function(sequelize, DataTypes) {
                     len:[6,20],
                     is: ["^[a-z0-9_]+$", "i"],
                     //hmmm why is this here.....
-                    not: ["<script[\s\S]*?>[\s\S]*?<\/script>", "g"]
+                    not: disallowedUsernames
                 }
             },
             userNameDisp: {
@@ -421,4 +421,26 @@ var listOfCountries = [
 "Yemen",
 "Zambia",
 "Zimbabwe"
+]
+
+var disallowedUsernames = [
+"assets",
+"explore",
+"css",
+"following",
+"followers",
+"image",
+"images",
+"js",
+"likes",
+"login",
+"logout",
+"me",
+"post",
+"posts",
+"profile",
+"search",
+"signup",
+"upload",
+"uploads"
 ]

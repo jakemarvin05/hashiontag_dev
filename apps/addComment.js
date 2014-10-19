@@ -1,5 +1,6 @@
 var db = global.db,
-    notification = require('./notification.js');
+    notification = require('./notification.js'),
+    fname = "addComment.js ";
 
 
 module.exports = function addComment(req, res) {
@@ -22,6 +23,10 @@ module.exports = function addComment(req, res) {
         console.log('addComment: saving comment....');
         // var customUtils = require('./customUtils.js');
         // var stripped = appUtils.stripScriptTags(req.body.comment);
+        if(req.body.comment.length > 500) { 
+            console.log(fname + 'comment is too long');
+            return res.json({ success: false}); 
+        }
     
         db.Comment.create({
             comment: req.body.comment

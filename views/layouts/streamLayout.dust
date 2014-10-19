@@ -46,7 +46,7 @@
                 <div class="blockLikeText"></div>
 
                 <div class="blockTextHolder">
-                    <div class="description"></div>
+                    <div class="description convert-emoji"></div>
                 </div>
             </div>
 
@@ -62,7 +62,7 @@
             </div>
         </header>
         
-        <div class="postCommentCont"></div>
+        <div class="postCommentCont convert-emoji"></div>
         {?isPreview}{:else}
         <div class="postInteractions">
             <textarea class="postCommentInput" placeholder="Add a comment..."></textarea>

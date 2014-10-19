@@ -6,7 +6,7 @@ module.exports = function(sequelize, DataTypes) {
         {
             //camelCase
             commentId: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.INTEGER(1000),
                 primaryKey: true,
                 allowNull: false,
                 autoIncrement: true

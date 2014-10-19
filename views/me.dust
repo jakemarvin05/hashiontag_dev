@@ -28,7 +28,7 @@
 
             <div class="profileInfoInlines">
                 {?renderJSONraw.name}
-                <div class="profileFullName">
+                <div class="profileFullName convert-emoji">
                     <span data-form="name">{renderJSONraw.name}</span>
                 </div>
                 {/renderJSONraw.name}
@@ -58,7 +58,7 @@
 
             </div>
 
-            <div class="profileAbout">
+            <div class="profileAbout convert-emoji">
                 {?renderJSONraw.about}
                     "{renderJSONraw.about}"
                 {:else}
@@ -336,6 +336,8 @@ var followButton = {
             followersCount = parseFloat($followersCount.html()),
             followText = $followButton.attr('data-follow'); //this is to capture the "follow back" if it exist.
 
+        //disallow action if user is trying to follow her/himself:
+        if(printHead.userHeaders.userId === parseFloat(targetUserId)) { return false; }
 
         //disable the button
         $followButton.attr('disabled','disabled');

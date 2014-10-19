@@ -1,4 +1,6 @@
 var db = global.db;
+var fname = "followjs ";
+
 
 module.exports = function follow(req, res) {
 
@@ -14,11 +16,16 @@ module.exports = function follow(req, res) {
     var userIdToAction = req.body.userId;
 
     //authenticated and not yourself
-    if(req.isAuthenticated() && !(req.user.userId === userIdToAction) ) {
+    if(req.isAuthenticated()) {
         console.log('user is authenticated.. following or unfollowing...');
-
+        if(req.user.userId === parseFloat(userIdToAction)) { 
+            console.log(fname + 'user trying to follow him/herself. blocked.');
+            return res.json({success: false});
+        }
 
         if(req.body.action === 'follow') {
+
+
 
             
             req.user.hasFollow(userIdToAction).then(function(user) {

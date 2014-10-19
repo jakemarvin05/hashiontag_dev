@@ -252,8 +252,9 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
             if(isAuth) {
                 // a) Requestor is authenticated
                 if(req.user.userId === user.userId) {
-                    //i) The profile is her/his own
-                    return getProfile(user.userId, true);
+                    //i) The profile is her/his own, redirect to "/me"
+                    //return getProfile(user.userId, true);
+                    return res.redirect('/me');
                 } else {
 
 

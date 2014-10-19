@@ -54,6 +54,7 @@
     .glyphicon { top: 2px; padding: 0px 3px;}
     button .glyphicon { top: 0px; padding: 0px;}
     </style>
+
     <!-- global object for all uses where necessary -->
     <script>var VVGLOBAL = {}</script>
     

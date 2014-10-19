@@ -35,7 +35,8 @@ router.get('/test2', function(req, res) {
     var gJSON = globalJSON(req);
     res.render('test2', { 
         title: meta.header(),
-        p: gJSON.pathsJSON.paths,
+        gJSON: gJSON,
+p: gJSON.pathsJSON.paths,
         f: gJSON.pathsJSON.files,
         page: "index",
 
@@ -47,6 +48,8 @@ router.get('/test2', function(req, res) {
 /* Every page has a generic set of res.render variables:
 
     title:          (self explanatory)
+
+    gJSON:          the full gJSON
 
     p:              this is the global path file that allows in-template use of universal
                     paths like this: <img src="{p.img}/image.jpg">
@@ -74,11 +77,13 @@ router.get('/', function(req, res) {
     var START_TIME = Date.now();
 
     function renderTheStream(renderJSON) {
-            console.log('rendering');
-            console.log(Date.now() - START_TIME);
+        console.log('rendering');
+        console.log(Date.now() - START_TIME);
+
         res.render('index', { 
             /* generics */
             title: meta.header(),
+            gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
             printHead: JSON.stringify(gJSON.printHead),
@@ -99,7 +104,8 @@ router.get('/', function(req, res) {
     } else {
         res.render('index', { 
             title: meta.header(),
-            p: gJSON.pathsJSON.paths,
+            gJSON: gJSON,
+        p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
             printHead: JSON.stringify(gJSON.printHead),
             page: "login",
@@ -119,6 +125,7 @@ router.get('/preview', function(req, res) {
         res.render('index', { 
             /* generics */
             title: meta.header(),
+            gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
             printHead: JSON.stringify(gJSON.printHead),
@@ -150,7 +157,8 @@ router.get('/latest', function(req, res) {
         res.render('index', { 
             /* generics */
             title: meta.header(),
-            p: gJSON.pathsJSON.paths,
+            gJSON: gJSON,
+        p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
             printHead: JSON.stringify(gJSON.printHead),
             renderJSON: JSON.stringify(renderJSON),
@@ -202,6 +210,7 @@ router.get('/signup', function(req, res) {
     res.render('index', { 
         /* generics */
         title: meta.header(),
+        gJSON: gJSON,
         p: gJSON.pathsJSON.paths,
         f: gJSON.pathsJSON.files,
         printHead: JSON.stringify(gJSON.printHead),
@@ -247,6 +256,7 @@ router.get('/me', function(req, res) {
         res.render('me', { 
             title: meta.header(),
             isLoggedIn: isLoggedIn(req),
+            gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
             printHead: JSON.stringify(gJSON.printHead),
@@ -279,32 +289,32 @@ router.get('/logout', function(req, res) {
 router.get('/post', function(req, res) {
 
     var gJSON = globalJSON(req);
-    var uap = require('ua-parser').parseUA(req.headers['user-agent']);
+    //var uap = require('ua-parser').parseUA(req.headers['user-agent']);
 
-    var family = uap.family.toLowerCase();
-    console.log(family);
-    var major = parseFloat(uap.major);
-    console.log(major);
+    // var family = uap.family.toLowerCase();
+    // console.log(family);
+    // var major = parseFloat(uap.major);
+    // console.log(major);
 
-    //CSRender defines whether client should render the images and if
-    //yes, up to how many megapixels. Default setting is 8MP.
-    var CSRender = 8;
+    // //CSRender defines whether client should render the images and if
+    // //yes, up to how many megapixels. Default setting is 8MP.
+    // var CSRender = 8;
 
-    //limitation cases
-    if(family.indexOf('mobile') > -1 ) {
-        CSRender = 8;
-    } else if(family.indexOf('safari') > -1) {
-        CSRender = 23;
-    } else {
-        //no mobile branch, check for firefox and chrome.
-        if(family.indexOf('chrome') > -1 && major >=  37) {
-            console.log('chrome >= 37');
-            CSRender = 23;
-        }
-        if(family.indexOf('firefox') > -1 && major >=  32) {
-            CSRender = 23;
-        }
-    }
+    // //limitation cases
+    // if(family.indexOf('mobile') > -1 ) {
+    //     CSRender = 8;
+    // } else if(family.indexOf('safari') > -1) {
+    //     CSRender = 23;
+    // } else {
+    //     //no mobile branch, check for firefox and chrome.
+    //     if(family.indexOf('chrome') > -1 && major >=  37) {
+    //         console.log('chrome >= 37');
+    //         CSRender = 23;
+    //     }
+    //     if(family.indexOf('firefox') > -1 && major >=  32) {
+    //         CSRender = 23;
+    //     }
+    // }
 
     //override
     //currently we are experimenting pure clientside render.
@@ -313,6 +323,7 @@ router.get('/post', function(req, res) {
     return res.render('post', { 
         title: meta.header(),
         isLoggedIn: isLoggedIn(req),
+        gJSON: gJSON,
         p: gJSON.pathsJSON.paths,
         f: gJSON.pathsJSON.files,
         printHead: JSON.stringify(gJSON.printHead),
@@ -347,6 +358,7 @@ router.get('/likes', function(req, res) {
         res.render('likes', { 
             /* generics */
             title: meta.header(),
+            gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
             printHead: JSON.stringify(gJSON.printHead),
@@ -379,6 +391,7 @@ router.get('/search', function(req, res) {
         res.render('search', { 
             /* generics */
             title: meta.header(),
+            gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
             printHead: JSON.stringify(gJSON.printHead),
@@ -417,6 +430,7 @@ router.get('/hashtag/:hashtag', function(req, res) {
         res.render('hashtag', { 
             /* generics */
             title: meta.header(),
+            gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
             printHead: JSON.stringify(gJSON.printHead),
@@ -536,6 +550,7 @@ router.get('/p/:pid', function(req,res) {
         res.render('singlePost', { 
             title: meta.header(),
             isLoggedIn: req.isAuthenticated(),
+            gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
             printHead: JSON.stringify(gJSON.printHead),
@@ -586,6 +601,7 @@ router.get('/:user', function(req, res) {
         res.render('me', { 
             /*generic */
             title: meta.header(),
+            gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
             printHead: JSON.stringify(gJSON.printHead),

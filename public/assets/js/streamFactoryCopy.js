@@ -302,7 +302,9 @@ streamFactoryCopy.append.image = function($stream, i, burst) {
         }
         imgURL = theParent.mediaDir + '/' + post.imgUUID + '.jpg';
         img.id = post.imgUUID;
-        img.dataset.imgid = post.imgUUID;
+        //IE10 no support for dataset
+        //img.dataset.imgid = post.imgUUID;
+        $(img).data('imgid', post.imgUUID);
         img.alt = VV.utils.stripHTML(post.desc);
     }
     img.src = imgURL;
@@ -421,15 +423,19 @@ streamFactoryCopy.append.commentBlock = function($stream, post) {
             var c = commentCount-showComments;
             $stream.find('.blockLoadMoreCommentsCount')
                 .attr('data-count', c)
-                .html(c);
+                .html(c)
+                .addClass('commentsCountForPID' + post.postId);
+
             var $cont = $stream.find('.blockLoadMoreCommentsCont');
             var $but = $cont.find('.blockLoadMoreCommentsBut');
+            $but.addClass('commentsButForPID' + post.postId);
             $cont.show();
             this.identifier($but, post)
 
             //set up the list
             this.commentList[post.postId] = [];
-
+            /* TODO append only X number of comments to DOM, only append more when clicked */
+            /* Suggestion: db request to get only X number. The rest via AJAX */
         }
         var j = commentCount;
         var runs = 0;
@@ -442,10 +448,15 @@ streamFactoryCopy.append.commentBlock = function($stream, post) {
     }
 }
 streamFactoryCopy.append.commentList = {}
-streamFactoryCopy.append.commentBlockMoreButton = function() {
-    var contClass = this.parent.streamContClass;
-    var $buts = $('.' + contClass).find('.blockLoadMoreCommentsBut'),
-        n = 2, //base
+streamFactoryCopy.append.commentBlockMoreButton = function($cont) {
+    if(!$cont) {
+        var contClass = this.parent.streamContClass;
+        var $buts = $('.' + contClass).find('.blockLoadMoreCommentsBut');
+    } else {
+        var $buts = $cont.find('.blockLoadMoreCommentsBut');
+    }
+
+    var n = 2, //base
         commentList = this.commentList;
 
         /* the latest comment in commentJSON is of a higher [number].
@@ -466,19 +477,22 @@ streamFactoryCopy.append.commentBlockMoreButton = function() {
 
             //calculate and splice
             var spliceN = Math.pow(n, p);
-            var $targets = theList.splice(0, spliceN);
+            var targets = theList.splice(0, spliceN);
 
             //show the targets
-            for(var i in $targets) { $targets[i].show(); }
+            for(var i in targets) { 
+                var $target = $('body').find('div[data-cid="'+ targets[i] + '"]');
+                $target.show(); 
+            }
 
             //change the count number
-            var count = $targets.length;
+            var count = targets.length;
             var currCount = parseFloat($count.attr('data-count'));
             var newCount = currCount - count;
-            if(newCount === 0) { $(this).velocity('fadeOut', 200); }
+            if(newCount === 0) { $('.commentsButForPID' + postId).velocity('fadeOut', 200); }
 
             //update data attrs
-            $count.attr('data-count', newCount).html(newCount);
+            $('.commentsCountForPID31').attr('data-count', newCount).html(newCount);
             $(this).attr('data-power', p+1);
         });
 }
@@ -506,7 +520,7 @@ streamFactoryCopy.append.eachComment = function($stream, comment, toShow, postId
 
     var commentUser = '<a href="/' + user.userNameDisp + '">' + user.userNameDisp + '</a>';
 
-    var html = '<div class="postCommentWrap"' + hide + ' id="' + commentId + '">';
+    var html = '<div class="postCommentWrap"' + hide + ' data-cid="' + commentId + '">';
         html += commentUserPP;
         html += '<div class="postComment">' + commentUser;
         html += timestampAgo;
@@ -518,9 +532,10 @@ streamFactoryCopy.append.eachComment = function($stream, comment, toShow, postId
         $stream.find('.postCommentCont').prepend(html);
     }
 
-    var $comment = $stream.find('#' + commentId);
     //push those hidden ones into the array list.
-    if(!toShow) { this.commentList[postId].push($comment); }
+    if(!toShow) { this.commentList[postId].push(commentId); }
+
+    var $comment = $stream.find('div[data-cid="' + commentId +'"]')
 
     return $comment;
 }

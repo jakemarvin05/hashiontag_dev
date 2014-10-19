@@ -28,14 +28,18 @@ module.exports = function gJSON(req, options) {
 
 
     //user headers
-    var userHeaders = false;
-    if(req.isAuthenticated()) {;
-        userHeaders = {
-            userId: req.user.userId,
-            userNameDisp: req.user.userNameDisp,
-            profilePicture: req.user.profilePicture
-        }
+    var userHeaders = {
+        userId: false,
+        userNameDisp: false,
+        profilePicture: false,
+        ua: {}
+    };
+    if(req.isAuthenticated()) {
+        userHeaders.userId = req.user.userId;
+        userHeaders.userNameDisp = req.user.userNameDisp;
+        userHeaders.profilePicture = req.user.profilePicture;
     }
+    
     globalJSON.userHeaders = userHeaders;
     globalJSON.printHead.userHeaders = userHeaders;
 
@@ -50,13 +54,27 @@ module.exports = function gJSON(req, options) {
             ua.family = family;
         var major = parseFloat(uap.major);
             ua.major = major;
-        if(family.indexOf('mobile') > -1 ) {
-            ua.isMobile = true;
-            if(family.indexOf('safari') > -1) {
+
+        //"false" may not be explicit. all codes that check for false
+        //should check for "nullity".
+
+        //check if is safari
+        if(family.indexOf('safari') > -1) {
+            ua.isLoadEmoji = false;
+
+            if(family.indexOf('mobile') > -1 ) {
+                ua.isMobile = true;
                 ua.isMobileIOS = true;
+            } else {
+                ua.isMobile = false;
             }
         } else {
-            ua.isMobile = false;
+            //if not we load emoji polyfill
+            ua.isLoadEmoji = true;
+        } 
+
+        if(family.indexOf('mobile') > -1 ) {
+            ua.isMobile = true;
         }
 
         globalJSON.userHeaders.ua = ua;

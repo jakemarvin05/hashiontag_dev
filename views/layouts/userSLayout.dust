@@ -7,7 +7,7 @@
             <div class="blockUsername"></div>
             <div class="blockName"></div>
         </div>
-        <div class="blockAbout"></div>
-        <div class="blockAboutM"></div>
+        <div class="blockAbout convert-emoji"></div>
+        <div class="blockAboutM convert-emoji"></div>
     </div>
 </li>
