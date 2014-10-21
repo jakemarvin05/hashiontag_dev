@@ -1,7 +1,6 @@
 <article class="streamLayout clearfix" id="layoutId" style="display:inline-block;">
     <div class="blockImgHolder">
         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIW2NkAAIAAAoAAggA9GkAAAAASUVORK5CYII=" class="imgLoaderHolder">
-        <div class="blockMoreInfo blockMoreInfoTop" data-shown="no" style="opacity:0; display:none;"></div>
     </div>
     <div class="blockPad">
         <header class="blockMainInfo">

@@ -18,8 +18,7 @@ module.exports = function(sequelize, DataTypes) {
                 validate: {
                     len:[6,20],
                     is: ["^[a-z0-9_]+$", "i"],
-                    //hmmm why is this here.....
-                    not: disallowedUsernames
+                    notIn: disallowedUsernames
                 }
             },
             userNameDisp: {

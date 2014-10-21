@@ -88,7 +88,7 @@
             var blockAboutHTML = this.about(user.about, 140);
             $stream.find('.blockAbout').html(blockAboutHTML);
 
-            var blockAboutMHTML = this.about(user.about, 50);
+            var blockAboutMHTML = this.about(user.about, 45);
             $stream.find('.blockAboutM').html(blockAboutMHTML);
         } else {
             var hashtag = this.parent.posts[i];

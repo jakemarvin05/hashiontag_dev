@@ -246,21 +246,34 @@ profilePostFactory.append.effect = function($el) {
 }
 
 profilePostFactory.append.imageLink = function($stream, img) {
-
-    var strId = '#' + $stream.attr('id');
+    var id = $stream.attr('id')
+    var strId = '#' + id;
     var self = this;
     img.onclick = function() {
         //get the stream's html and put it into the "fancybox cont"
-        $('#fancyboxCont article').html($(strId).html());
+        $('#fancyboxCont article')
+            .html($(strId).html())
+            .attr('data-articleid', id);
+
+        //iOS bug. may displace the background scroll as
+        //it could not be fixed. Temp solution is to
+        //store the scrollTop and restore scroll position
+        //later.
+        VVGLOBAL.scrollTop = $(window).scrollTop();
 
         //then make fancybox open it.
         $.fancybox.open([{
             href : '#fancyboxCont',
             title : ''
         }], {
-            padding : 10
+            padding : 10,
+            enableNav: true,
+            maxWidth: 640,
+            afterClose: function() {
+                $('html').velocity("scroll", { duration: 500, offset: VVGLOBAL.scrollTop })  
+            }
         });
-        
+     
         //bind back all the buttons
         //comment, like, settings
         buttonsInitStack();
@@ -270,6 +283,17 @@ profilePostFactory.append.imageLink = function($stream, img) {
         //moreInfo
         $('#fancyboxCont .blockMoreInfoTop').remove();
         self.__proto__.moreInfoBindButton($('#fancyboxCont .moreInfo'));
+
+        var el = $('.fancyArticle .blockImgHolder')[0];
+
+        var hammer = new Hammer(el);
+        hammer.get('pan').set({ threshold: 150 });
+        hammer.on('panleft', function() {
+            $.fancybox.next();
+        });
+        hammer.on('panright', function() {
+            $.fancybox.prev();
+        });
     }
 
 }

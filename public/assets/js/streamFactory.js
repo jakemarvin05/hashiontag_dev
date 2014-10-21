@@ -18,7 +18,8 @@ var streamFactory = {
     errorImg: printHead.p.img + '/image404.jpg',
     burst: 5, // this dictates how many pictures you want to load first.
     posts: false,
-    count: false
+    count: false,
+    pinchZoom: false
 
 }
 streamFactory.getLayoutHTML = function() {
@@ -42,6 +43,7 @@ streamFactory.init = function(posts, options) {
         if(options.burst !== 'undefined') { this.burst = options.burst; }
         if(options.streamContClass) { this.streamContClass = options.streamContClass; }
         if(options.streamType) { this.streamType = options.streamType; }
+        if(options.pinchZoom) { this.pinchZoom = true; }
     }
 
     this.append.parent = this;
@@ -234,6 +236,7 @@ streamFactory.append.imageBurstComplete = false;
 streamFactory.append.imageDeferredArray = [];
 streamFactory.append.imageLink = function($stream, img, imgURL) {
     //console.log('imageLink');
+    return false;
     $stream.find('.blockImgHolder').append('<a class="fancybox" alt="' + img.alt + '" href="' + imgURL + '"></a>');
 }
 streamFactory.append.imageOnLoad = function($stream, img) {
@@ -242,10 +245,13 @@ streamFactory.append.imageOnLoad = function($stream, img) {
     //get the container to hold the height cause we are gonna switch out.
     $blockHolder.css('height', $imgHolder.height() + 'px');
     $imgHolder.remove();
-    $blockHolder.find('.fancybox').prepend(img);
+    $blockHolder.prepend(img);
     //reset the height attr.
     $blockHolder.css('height', 'auto');
     this.effect($(img));
+
+    //pinchZooming
+    if(this.parent.pinchZoom) { pinchZoom.init(img); }
 }
 streamFactory.append.image = function($stream, i, burst) {
     //console.log('streamFactory.append.image' + i);
@@ -288,6 +294,7 @@ streamFactory.append.image = function($stream, i, burst) {
         }
         //IE10 support
         $(this).data('imgid', post.imgUUID);
+
         theParent.append.imageOnLoad($theStream, this);
     }
 
@@ -304,7 +311,8 @@ streamFactory.append.image = function($stream, i, burst) {
         imgURL = theParent.mediaDir + '/' + post.imgUUID + '.jpg';
         img.id = post.imgUUID;
         //IE10 no support for dataset
-        try { img.dataset.imgid = post.imgUUID; } catch(err) {}
+        //try { img.dataset.imgid = post.imgUUID; } catch(err) {}
+
         img.alt = VV.utils.stripHTML(post.desc);
     }
     img.src = imgURL;

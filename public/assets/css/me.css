@@ -44,8 +44,7 @@ header.profileHeader>div {
         }
 
         #editProfileButton {
-            display: block;
-            margin: auto;
+            display: inline;
             margin-top: 10px;
             height: 28px;
             font-size: 13px;

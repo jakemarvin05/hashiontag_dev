@@ -234,6 +234,7 @@ streamFactoryCopy.append.imageBurstComplete = false;
 streamFactoryCopy.append.imageDeferredArray = [];
 streamFactoryCopy.append.imageLink = function($stream, img, imgURL) {
     //console.log('imageLink');
+    return false;
     $stream.find('.blockImgHolder').append('<a class="fancybox" alt="' + img.alt + '" href="' + imgURL + '"></a>');
 }
 streamFactoryCopy.append.imageOnLoad = function($stream, img) {
@@ -286,7 +287,8 @@ streamFactoryCopy.append.image = function($stream, i, burst) {
                 }
             }
         }
-
+        //IE10 support
+        $(this).data('imgid', post.imgUUID);
         theParent.append.imageOnLoad($theStream, this);
     }
 
@@ -303,8 +305,7 @@ streamFactoryCopy.append.image = function($stream, i, burst) {
         imgURL = theParent.mediaDir + '/' + post.imgUUID + '.jpg';
         img.id = post.imgUUID;
         //IE10 no support for dataset
-        //img.dataset.imgid = post.imgUUID;
-        $(img).data('imgid', post.imgUUID);
+        try { img.dataset.imgid = post.imgUUID; } catch(err) {}
         img.alt = VV.utils.stripHTML(post.desc);
     }
     img.src = imgURL;
@@ -514,7 +515,7 @@ streamFactoryCopy.append.eachComment = function($stream, comment, toShow, postId
         timestampAgo = '&nbsp;<span class="commentTimeStamp" data-ts="' + comment.createdAt + '">(' + timestampAgo + ')</span>';
     }
 
-    var pp = (user.profilePicture) ? printHead.p.mediaDir + '/' + user.profilePicture + '.jpg' : printHead.p.img + '/noprofilepicture.jpg';
+    var pp = (user.profilePicture) ? VV.utils.imageGetter(user.profilePicture, 'thumb') : printHead.p.img + '/noprofilepicture.jpg';
 
     var commentUserPP = '<a href="/' + user.userNameDisp + '"><img class="profileThumb" src="' + pp + '"></a>';
 

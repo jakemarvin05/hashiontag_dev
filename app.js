@@ -26,7 +26,7 @@ var passport = require('passport');
 //flash messages is deprecated.
 //var flash = require('connect-flash');
 var session = require('express-session');
-var jumanji = require('jumanji');
+//var jumanji = require('jumanji');
 
 var app = express();
 
@@ -39,7 +39,7 @@ app.set('view engine', 'dust');
 app.use(favicon());
 app.use(logger('dev'));
 //using jumanji to sniff safari and get rid of blank page issue. monitoring...
-app.use(jumanji);
+//app.use(jumanji);
 
 
 app.use(bodyParser.json());

@@ -9,6 +9,7 @@
 </footer>
 
 <script src="{p.js}/core.js"></script>
+<script src="{p.js}/fancybox/source/jquery.fancybox.js"></script>
 
 {?gJSON.userHeaders.ua.isLoadEmoji}
 <!-- Emoji Polyfill -->

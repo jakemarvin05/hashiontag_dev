@@ -287,7 +287,9 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
         // 2a) We check if user is authenticated, for the purposes to retrieving following/follower
         //   relationship.
         if(isAuth) {
-            return getProfile(user.userId, false);
+            var isOwnProfile = false;
+            if(req.user.userId === user.userId) { isOwnProfile = true; }
+            return getProfile(user.userId, isOwnProfile);
         } else {
             //2b) If not authenticated, just retrieve the profile.
             //the arguments in getProfile are: 1) userid, 2) Is Own Profile, 3) is public view

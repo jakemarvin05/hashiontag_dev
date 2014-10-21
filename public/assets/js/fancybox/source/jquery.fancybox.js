@@ -53,8 +53,8 @@
 		version: '2.1.5',
 
 		defaults: {
-			padding : 15,
-			margin  : 20,
+			padding : 8,
+			margin  : 15,
 
 			width     : 800,
 			height    : 600,
@@ -106,15 +106,20 @@
 			keys  : {
 				next : {
 					13 : 'left', // enter
-					34 : 'up',   // page down
-					39 : 'left', // right arrow
-					40 : 'up'    // down arrow
+					39 : 'left' // right arrow
 				},
 				prev : {
 					8  : 'right',  // backspace
-					33 : 'down',   // page up
-					37 : 'right',  // left arrow
-					38 : 'down'    // up arrow
+					37 : 'right'   // left arrow
+				},
+				/*MODS - scroll up and down keys */
+				scrollDown: {
+					34 : 'down',   // page down
+					40 : 'down'    // down arrow
+				},
+				scrollUp : {
+					33 : 'up',   // page up
+					38 : 'up'    // up arrow
 				},
 				close  : [27], // escape key
 				play   : [32], // space - start/stop slideshow
@@ -200,6 +205,9 @@
 		isOpen   : false, // Is currently open
 		isOpened : false, // Have been fully opened at least once
 
+		//MOD
+		enableNav: false,
+
 		wrap  : null,
 		skin  : null,
 		outer : null,
@@ -223,6 +231,7 @@
 		 */
 
 		open: function (group, opts) {
+
 			if (!group) {
 				return;
 			}
@@ -250,7 +259,8 @@
 					type,
 					rez,
 					hrefParts,
-					selector;
+					selector,
+					enableNav;
 
 				if ($.type(element) === "object") {
 					// Check if is DOM element
@@ -280,6 +290,10 @@
 
 				content = opts.content || obj.content;
 				type    = content ? 'html' : (opts.type  || obj.type);
+
+				//MOD
+				enableNav = opts.enableNav || false;
+				//console.log(opts)
 
 				if (!type && obj.isDom) {
 					type = element.data('fancybox-type');
@@ -340,7 +354,8 @@
 					type     : type,
 					content  : content,
 					title    : title,
-					selector : selector
+					selector : selector,
+					enableNav: enableNav
 				});
 
 				group[ i ] = obj;
@@ -393,6 +408,7 @@
 
 		// Start closing animation if is open; remove immediately if opening/closing
 		close: function (event) {
+
 			F.cancel();
 
 			if (false === F.trigger('beforeClose')) {
@@ -469,58 +485,87 @@
 			}
 		},
 
-		// Navigate to next gallery item
-		next: function ( direction ) {
-			var current = F.current;
-
-			if (current) {
-				if (!isString(direction)) {
-					direction = current.direction.next;
-				}
-
-				F.jumpto(current.index + 1, direction, 'next');
-			}
+		/*Mods - add scrolling */
+		scrollUp: function() {
+			//console.log('up');
+			var $el = $('.fancybox-inner');
+			$('body').velocity("scroll", { duration: 300, offset: -200, container: $el });
+		},
+		scrollDown: function() {
+			var $el = $('.fancybox-inner');
+			$('body').velocity("scroll", { duration: 300, offset: 200, container: $el });
 		},
 
+		// Navigate to next gallery item
+		next: function ( direction ) {
+			var articleId = $('#fancyboxCont article').attr('data-articleid')
+			var $article = $('article#' + articleId);
+			var next = $article.next('article');
+			if(next.length > 0 ) {
+				F.jumpto(next);
+			}
+			// var current = F.current;
+			// console.log('F.current:' + current);
+
+			// if (current) {
+			// 	if (!isString(direction)) {
+			// 		direction = current.direction.next;
+			// 	}
+
+			// 	F.jumpto(current.index + 1, direction, 'next');
+			// }
+
+		},
+		/* MODIFICATIONS */
 		// Navigate to previous gallery item
 		prev: function ( direction ) {
-			var current = F.current;
-
-			if (current) {
-				if (!isString(direction)) {
-					direction = current.direction.prev;
-				}
-
-				F.jumpto(current.index - 1, direction, 'prev');
+			var articleId = $('#fancyboxCont article').attr('data-articleid')
+			var $article = $('article#' + articleId);
+			var prev = $article.prev('article');
+			if(prev.length > 0 ) {
+				F.jumpto(prev);
 			}
+			// var current = F.current;
+
+			// if (current) {
+			// 	if (!isString(direction)) {
+			// 		direction = current.direction.prev;
+			// 	}
+
+			// 	F.jumpto(current.index - 1, direction, 'prev');
+			// }
 		},
 
 		// Navigate to gallery item by index
-		jumpto: function ( index, direction, router ) {
-			var current = F.current;
+		//jumpto: function ( index, direction, router ) {
+		jumpto: function ( which ) {
+			$(which).find('.blockImgHolder img')[0].click();
+			// var current = F.current;
 
-			if (!current) {
-				return;
-			}
+			// if (!current) {
+			// 	return;
+			// }
 
-			index = getScalar(index);
+			// index = getScalar(index);
 
-			F.direction = direction || current.direction[ (index >= current.index ? 'next' : 'prev') ];
-			F.router    = router || 'jumpto';
+			// F.direction = direction || current.direction[ (index >= current.index ? 'next' : 'prev') ];
+			// F.router    = router || 'jumpto';
 
-			if (current.loop) {
-				if (index < 0) {
-					index = current.group.length + (index % current.group.length);
-				}
+			// if (current.loop) {
+			// 	if (index < 0) {
+			// 		index = current.group.length + (index % current.group.length);
+			// 	}
 
-				index = index % current.group.length;
-			}
+			// 	index = index % current.group.length;
+			// }
 
-			if (current.group[ index ] !== undefined) {
-				F.cancel();
+			// if (current.group[ index ] !== undefined) {
+			// 	F.cancel();
 
-				F._start(index);
-			}
+			// 	F._start(index);
+			// }
+
+
 		},
 
 		// Center inside viewport and toggle position type to fixed or absolute if needed
@@ -581,6 +626,27 @@
 				didUpdate = null;
 
 			}, (anyway && !isTouch ? 0 : 300));
+
+			//MODIFICATION
+
+			//update my nextArt and prevArt
+			//can do caching here.
+
+			var current = F.current;
+			var articleId = $('#fancyboxCont article').attr('data-articleid')
+			var $article = $('article#' + articleId);
+			var nextArt = $article.next('article');
+			var prevArt = $article.prev('article');
+			if(nextArt.length > 0) {
+				current.nextArt = true;
+			} else {
+				current.nextArt = false;
+			}
+			if(prevArt.length > 0) {
+				current.prevArt = true;
+			} else {
+				current.prevArt = false;
+			}
 		},
 
 		// Shrink content to fit inside viewport or restore if resized
@@ -689,7 +755,22 @@
 					// Ignore key combinations and key events within form elements
 					if (!e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey && !(target && (target.type || $(target).is('[contenteditable]')))) {
 						$.each(keys, function(i, val) {
+							/*MODIFICATIONS */
+							//if (current.group.length > 1 && val[ code ] !== undefined) {
+							//console.log(current);
+							//console.log('hi');
 							if (current.group.length > 1 && val[ code ] !== undefined) {
+								F[ i ]( val[ code ] );
+
+								e.preventDefault();
+								return false;
+							}
+
+							if (val[ code ] !== undefined) {
+								//console.log('val');
+								//console.log(val);
+								//console.log('code');
+								//console.log(code);
 								F[ i ]( val[ code ] );
 
 								e.preventDefault();
@@ -894,6 +975,7 @@
 				coming.skin.css('padding' + v, getValue(coming.padding[ i ]));
 			});
 
+			
 			F.trigger('onReady');
 
 			// Check before try to load; 'inline' and 'html' types need content, others - href
@@ -1140,6 +1222,7 @@
 			}
 
 			// Give a chance for helpers or callbacks to update elements
+
 			F.trigger('beforeShow');
 
 			// Set scrolling before calculating dimensions
@@ -1442,7 +1525,6 @@
 					}
 				});
 			}
-
 			// Create a close button
 			if (current.closeBtn) {
 				$(current.tpl.closeBtn).appendTo(F.skin).bind('click.fb', function(e) {
@@ -1452,13 +1534,26 @@
 				});
 			}
 
+			// // Create navigation arrows
+			// if (current.arrows && F.group.length > 1) {
+			// 	if (current.loop || current.index > 0) {
+			// 		$(current.tpl.prev).appendTo(F.outer).bind('click.fb', F.prev);
+			// 	}
+
+			// 	if (current.loop || current.index < F.group.length - 1) {
+			// 		$(current.tpl.next).appendTo(F.outer).bind('click.fb', F.next);
+			// 	}
+			// }
+
+			//MOD
 			// Create navigation arrows
-			if (current.arrows && F.group.length > 1) {
-				if (current.loop || current.index > 0) {
+			//console.log(current);
+			if (current.enableNav) {
+				if (current.prevArt) {
 					$(current.tpl.prev).appendTo(F.outer).bind('click.fb', F.prev);
 				}
 
-				if (current.loop || current.index < F.group.length - 1) {
+				if (current.nextArt) {
 					$(current.tpl.next).appendTo(F.outer).bind('click.fb', F.next);
 				}
 			}
@@ -1722,6 +1817,7 @@
 		},
 
 		open : function(opts) {
+
 			var that = this;
 
 			opts = $.extend({}, this.defaults, opts);
@@ -1757,6 +1853,7 @@
 		},
 
 		close : function() {
+
 			var scrollV, scrollH;
 
 			W.unbind('resize.overlay');
@@ -1828,6 +1925,7 @@
 		},
 
 		beforeShow : function(opts, obj) {
+
 			var scrollV, scrollH;
 
 			if (obj.locked) {
@@ -1837,6 +1935,7 @@
 					}).addClass('fancybox-margin');
 
 					this.el.addClass('fancybox-margin');
+					
 				}
 
 				scrollV = W.scrollTop();
@@ -1857,6 +1956,7 @@
 		},
 
 		afterClose: function (opts) {
+
 			// Remove overlay if exists and fancyBox is not opening
 			// (e.g., it is not being open using afterClose callback)
 			//if (this.overlay && !F.isActive) {
@@ -1877,6 +1977,7 @@
 		},
 
 		beforeShow: function (opts) {
+
 			var current = F.current,
 				text    = current.title,
 				type    = opts.type,
