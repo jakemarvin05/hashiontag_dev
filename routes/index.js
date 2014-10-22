@@ -525,6 +525,12 @@ router.post('/api/getimage', function(req, res) {
 
 });
 
+router.post('/api/remakeimg', function(req, res) {
+
+    require('../apps/post/remakeImg.js')(req, res);
+
+});
+
 router.get('/api/local/update', function(req) {
      require('../apps/streamUpdate.js')();
 });

@@ -414,18 +414,20 @@ pinchZoom = {
    sensitivity: 0.6,
    scrollTop: '',
    scrolled: 0,
-   scrollLimit: 350
+   scrollLimit: 350,
+   translateX: 0,
+   translateY: 0
 }
 pinchZoom.transform = function(el, scale, x, y) {
     var self = this;
     if(!scale) { var scale = this.appliedScale; }
     if(typeof x !== "number") { 
-        var x = 0; 
+        var x = self.translateX; 
     } else {
         var x = x + 'px';
     }
     if(typeof y !== "number") { 
-        var y = 0; 
+        var y = self.translateY; 
     } else {
         var y = y + 'px';
     }
@@ -437,6 +439,14 @@ pinchZoom.transform = function(el, scale, x, y) {
     el.style.msTransform = transform;
     el.style.mozTransform = transform;
     el.style.webkitTransform = transform;
+
+}
+pinchZoom.resetValues = function() {
+    this.scrollTop = '';
+    this.scrolled = 0;
+    this.appliedScale = 1.2;
+    this.translateY = 0;
+    this.translateX = 0;
 }
 pinchZoom.startSession = function(instance, el) {
     var self = this;
@@ -462,11 +472,10 @@ pinchZoom.startSession = function(instance, el) {
         $(el).attr('data-scale', 'scaling');
         $(el).css('position', 'relative');
         $(el).css('z-index', 9999);
-        this.appliedScale = 1.2;
+        this.resetValues();
 
         //cached the scroll positon
         this.scrollTop = $(window).scrollTop();
-        this.scrolled = 0;
 
         //pop it out
         this.transform(el, this.appliedScale);
@@ -594,6 +603,8 @@ pinchZoom.bindPan = function(instance, el) {
     });
     instance.on('panend', function() {
         cX = tX; cY = tY;
+        //update the panning params.
+        self.translateX = cX + 'px'; self.translateY = cY + 'px';
     });
 }
 pinchZoom.killIfScaledBack = function(instance, el, scale) {
@@ -635,7 +646,10 @@ pinchZoom.kill = function(instance, el) {
             .css('transition', '0s');
     }, 300);
 
-    this.transform(el, 1);
+    this.transform(el, 1, 0, 0);
+
+    //reset values
+    this.resetValues();
 
     //unbind the window event, don't overkill
     var id = el.id;

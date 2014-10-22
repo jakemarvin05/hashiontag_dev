@@ -54,7 +54,23 @@ module.exports = function deletePost(req, res) {
         }).then(function(post) {
             var post = post[0];
             //if we can't find any post, we give up
-            if(!post) { return res.json({success:true}); }
+            //just set the user's profilePicture to null
+            if(!post) { 
+
+                db.User.update({
+                    Post_postId_profilePicture: null,
+                    profilePicture: null
+                }, { 
+                    userId: req.user.userId
+                }).then(function() {
+                    //and then we refresh the user's page
+                    return res.json({success:true});
+                }).catch(function(err) {
+                    console.log(fname + 'error setting user profile picture to null: ' + err);
+                });
+
+                return res.json({success:true}); 
+            }
 
             //else we update the new profile picture.
             db.User.update({

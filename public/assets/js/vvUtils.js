@@ -158,9 +158,13 @@ var alertFactory = VV.utils.alertFactory;
 
 VV.utils.imageGetter = function(imgUUID, type, opts) {
 
-    //modify commenting when fully implemented
-    //var sizes = ['full','half','small','thumb'];
-    //if(sizes.indexOf(type) < 0) { console.log('imageGetter error. not such image size'); return imgUUID;}
+    //half 320x320
+    //small 160x160
+    //thumb 70x70
+
+    console.log('req for ' + imgUUID + ' ' + type);
+    var sizes = ['full','half','small','thumb'];
+    if(sizes.indexOf(type) < 0) { console.log('assume full'); var type = "full" }
     //options:
     var includePath = true;
     if(opts) {
@@ -170,16 +174,28 @@ VV.utils.imageGetter = function(imgUUID, type, opts) {
     }
 
     var imgFileName = imgUUID;
-    // if(type === 'full') {
-    //     //do nothing
-    // } else {
-    //     imgFileName += '-' + type;
-    // }
+    if(type !== 'full') { imgFileName += '-' + type; }
     var imgPath = '';
-    if(includePath) {
-        imgPath = printHead.p.mediaDir + '/' + imgFileName;
+    var fullPath = printHead.p.mediaDir + '/' + imgFileName + '.jpg';
+    if(includePath) { 
+        imgPath = fullPath; 
+    } else {
+        imgPath = imgUUID + '.jpg';
     }
-    imgPath += '.jpg';
+
+    //we also attempt to load the "children sizes" to see if there
+    //are any errors.
+    console.log(imgUUID + ' ' + type);
+    if(type !== "full") {
+
+        var img = new Image();
+        //if we have a loading error, just work the remakeImg api.
+        img.onerror = function() {
+            //make an AJAX to get server to create the file
+            $.post(printHead.p.absPath + '/api/remakeImg', {imgid: imgUUID, size: type});
+        }
+        img.src = fullPath;
+    }
     return imgPath;
 }
 VV.utils.resetFormElement = function($el) {
@@ -213,6 +229,49 @@ VV.utils.deletePostAjax = function(pid, isProfilePicture) {
     $articleToDel.velocity('fadeOut', 200, function(el) {
         $(el).remove();
     });
+}
+
+VV.utils.loadImageAndNeighbours = function($img) {
+
+    var $article = $img.closest('article'),
+        $thisArtImg = $img,
+        $prevArtImg = $article.prev().find('.postImage'),
+        $nextArtImg = $article.next().find('.postImage');
+
+    var images = [$thisArtImg, $nextArtImg, $prevArtImg];
+    console.log(images);
+
+    for(var i=0; i<3; i++) {
+        var $image = images[i];
+        if($image.hasClass('loadingHighQuality')) { continue; }
+
+        var imgid = $image.attr('data-imgid'),
+            src = $image.attr('src');
+        if(typeof src === "undefined") { continue; }
+        //get only the filename
+        src = src.substring(src.lastIndexOf('/')+1);
+
+        if(src === imgid) { continue; }
+
+        $('.fancyArticle .' + imgid).attr('src', printHead.p.absPath + '/images/imgLoaderHolder.png');
+
+        getImage(imgid); 
+    }
+
+    function getImage(imgid) {
+        console.log('getting ' + imgid);
+        $('.imgid').addClass('loadingHighQuality');
+
+        var img = new Image();
+        img.onload = function() { 
+            $('.' + imgid)
+                .attr('src', this.src)
+                .removeClass('loadingHighQuality')
+                .css('opacity', 1);
+        }
+        img.src = VV.utils.imageGetter(imgid);
+    }
+
 }
 
 

@@ -14,7 +14,9 @@
 
         <div class="profilePictureCont">
             {?renderJSONraw.profilePicture}
-            <img src="{p.mediaDir}/{renderJSONraw.profilePicture}.jpg" data-imgid="{renderJSONraw.profilePicture}">
+            <img src="{p.mediaDir}/{renderJSONraw.profilePicture}-half.jpg" data-imgid="{renderJSONraw.profilePicture}">
+            <!-- this is only for the purpose of generating image for future, doesn't absolve broken links for the user now. -->
+            <script>VV.utils.imageGetter("{renderJSONraw.profilePicture}", "half");</script>
             {:else}
             <img src="{f.errProfilePic}">
             {/renderJSONraw.profilePicture}
@@ -250,10 +252,14 @@ profilePostFactory.append.imageLink = function($stream, img) {
     var strId = '#' + id;
     var self = this;
     img.onclick = function() {
+
         //get the stream's html and put it into the "fancybox cont"
         $('#fancyboxCont article')
             .html($(strId).html())
             .attr('data-articleid', id);
+
+        //load high quality
+        VV.utils.loadImageAndNeighbours($(img));
 
         //iOS bug. may displace the background scroll as
         //it could not be fixed. Temp solution is to
@@ -273,7 +279,7 @@ profilePostFactory.append.imageLink = function($stream, img) {
                 $('html').velocity("scroll", { duration: 500, offset: VVGLOBAL.scrollTop })  
             }
         });
-     
+
         //bind back all the buttons
         //comment, like, settings
         buttonsInitStack();
@@ -345,7 +351,10 @@ profilePostFactory.append.moreInfoBindButton = function($custBut) {
     });
 }
 
-profilePostFactory.init(renderJSON.posts, {burst: 0});
+profilePostFactory.init(renderJSON.posts, {
+    burst: 0, 
+    imageType: 'half'
+});
 
 </script>
 <!-- Follow Button -->
@@ -690,8 +699,10 @@ function editProfile() {
         if(profileImgId) {
             var img = new Image();
              img.src = profileImgSrc; 
-            img.dataset.imgid = profileImgId;
+            //IE10 has no support for .dataset.
+            //img.dataset.imgid = profileImgId;
             $('#thumbnailScroller').append(img);
+            $(img).attr('imgid','profileImgId');
         }
 
         //then append the rest
@@ -703,7 +714,7 @@ function editProfile() {
             var imgid = $(elem).attr('data-imgid');
             if(imgid) {
                 //don't append if this is the profile picture, cause its in the first position alr.
-                if(imgid !== profileImgId) {
+                if(imgid !== profileImgId && elem.className !== "errorImg") {
 
                     //else continue.
                     var img = new Image();

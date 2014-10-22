@@ -19,8 +19,8 @@ var streamFactory = {
     burst: 5, // this dictates how many pictures you want to load first.
     posts: false,
     count: false,
-    pinchZoom: false
-
+    pinchZoom: false,
+    imageType: "full"
 }
 streamFactory.getLayoutHTML = function() {
     //console.log('streamFactory.getLayoutHTML');
@@ -44,6 +44,7 @@ streamFactory.init = function(posts, options) {
         if(options.streamContClass) { this.streamContClass = options.streamContClass; }
         if(options.streamType) { this.streamType = options.streamType; }
         if(options.pinchZoom) { this.pinchZoom = true; }
+        if(options.imageType) { this.imageType = options.imageType; }
     }
 
     this.append.parent = this;
@@ -173,10 +174,11 @@ streamFactory.append.profileThumb = function(user) {
     //console.log('streamFactory.append.profileThumb');
     var theParent = this.parent;
 
-    var pp = (user.profilePicture) ? theParent.mediaDir + '/' + user.profilePicture + '.jpg' : theParent.errorImg;
+    var pp = (user.profilePicture) ? VV.utils.imageGetter(user.profilePicture, "thumb") : theParent.errorImg;
 
     var blockProfileThumbHTML  = '<a href="/' + user.userNameDisp + '">';
         blockProfileThumbHTML += '<img src="' + pp + '"></a>';
+        console.log("profileThumb " + pp);
 
     return blockProfileThumbHTML;
 }
@@ -293,7 +295,7 @@ streamFactory.append.image = function($stream, i, burst) {
             }
         }
         //IE10 support
-        $(this).data('imgid', post.imgUUID);
+        $(this).attr('data-imgid', post.imgUUID);
 
         theParent.append.imageOnLoad($theStream, this);
     }
@@ -307,9 +309,10 @@ streamFactory.append.image = function($stream, i, burst) {
             this.onerror = function() {return false;};
             //console.log('this.onerror2');
             this.src = theParent.errorImg;
+            this.className = 'postImage errorImg';
         }
-        imgURL = theParent.mediaDir + '/' + post.imgUUID + '.jpg';
-        img.id = post.imgUUID;
+        imgURL = VV.utils.imageGetter(post.imgUUID, this.parent.imageType);
+        img.className = 'postImage ' + post.imgUUID;
         //IE10 no support for dataset
         //try { img.dataset.imgid = post.imgUUID; } catch(err) {}
 

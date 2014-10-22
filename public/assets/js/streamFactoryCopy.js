@@ -18,7 +18,8 @@ var streamFactoryCopy = {
     errorImg: printHead.p.img + '/image404.jpg',
     burst: 5, // this dictates how many pictures you want to load first.
     posts: false,
-    count: false
+    count: false,
+    pinchZoom: false
 
 }
 streamFactoryCopy.getLayoutHTML = function() {
@@ -42,6 +43,7 @@ streamFactoryCopy.init = function(posts, options) {
         if(options.burst !== 'undefined') { this.burst = options.burst; }
         if(options.streamContClass) { this.streamContClass = options.streamContClass; }
         if(options.streamType) { this.streamType = options.streamType; }
+        if(options.pinchZoom) { this.pinchZoom = true; }
     }
 
     this.append.parent = this;
@@ -171,10 +173,11 @@ streamFactoryCopy.append.profileThumb = function(user) {
     //console.log('streamFactoryCopy.append.profileThumb');
     var theParent = this.parent;
 
-    var pp = (user.profilePicture) ? theParent.mediaDir + '/' + user.profilePicture + '.jpg' : theParent.errorImg;
+    var pp = (user.profilePicture) ? VV.utils.imageGetter(user.profilePicture, "thumb") : theParent.errorImg;
 
     var blockProfileThumbHTML  = '<a href="/' + user.userNameDisp + '">';
         blockProfileThumbHTML += '<img src="' + pp + '"></a>';
+        console.log("profileThumb " + pp);
 
     return blockProfileThumbHTML;
 }
@@ -243,10 +246,13 @@ streamFactoryCopy.append.imageOnLoad = function($stream, img) {
     //get the container to hold the height cause we are gonna switch out.
     $blockHolder.css('height', $imgHolder.height() + 'px');
     $imgHolder.remove();
-    $blockHolder.find('.fancybox').prepend(img);
+    $blockHolder.prepend(img);
     //reset the height attr.
     $blockHolder.css('height', 'auto');
     this.effect($(img));
+
+    //pinchZooming
+    if(this.parent.pinchZoom) { pinchZoom.init(img); }
 }
 streamFactoryCopy.append.image = function($stream, i, burst) {
     //console.log('streamFactoryCopy.append.image' + i);
@@ -289,6 +295,7 @@ streamFactoryCopy.append.image = function($stream, i, burst) {
         }
         //IE10 support
         $(this).data('imgid', post.imgUUID);
+
         theParent.append.imageOnLoad($theStream, this);
     }
 
@@ -305,7 +312,8 @@ streamFactoryCopy.append.image = function($stream, i, burst) {
         imgURL = theParent.mediaDir + '/' + post.imgUUID + '.jpg';
         img.id = post.imgUUID;
         //IE10 no support for dataset
-        try { img.dataset.imgid = post.imgUUID; } catch(err) {}
+        //try { img.dataset.imgid = post.imgUUID; } catch(err) {}
+
         img.alt = VV.utils.stripHTML(post.desc);
     }
     img.src = imgURL;
