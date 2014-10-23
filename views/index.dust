@@ -579,8 +579,12 @@ pinchZoom.bindPan = function(instance, el) {
         winW = $(window).width(),
         buffer = 1.2;
 
+    //if width is large, we assume its a large screen.
+    //don't need the panning...
+    if(winW > 640) { return false; }
+
     instance.on('panmove', function(e) {
-        //console.log('panmove: ' + e.deltaX + ' ' + e.deltaY);
+        console.log('panmove: ' + e.deltaX + ' ' + e.deltaY);
         var edX = e.deltaX,
             edY = e.deltaY;
 
@@ -589,6 +593,10 @@ pinchZoom.bindPan = function(instance, el) {
 
         //limits
         var mX = ((imgW * self.appliedScale) - winW) * buffer / 2;
+
+        //when mX is negative, adverse effects occur.
+        //so set to zero.
+        if(mX < 0) { mX = 0; }
         if(tX > mX || tX < -mX) {
             tX = (tX > 0) ? mX : -mX;
         }
@@ -596,7 +604,7 @@ pinchZoom.bindPan = function(instance, el) {
         if(tY > mY || tY < -mY) {
             tY = (tY > 0) ? mY : -mY;
         }
-        //console.log(tX, tY);
+        console.log(tX, tY);
 
         self.transform(el, null, tX, tY);
 

@@ -82,8 +82,8 @@ module.exports = function posting(req, res, socket) {
         }
 
         //reject if desc > 400 characters.
-        if(fields['desc'].length > 400) { 
-            console.log('post rejected becasue description > 400');
+        if(fields['desc'].length > 1000) { 
+            console.log('post rejected becasue description > 1000');
             return res.json({success:false}); 
         }
 

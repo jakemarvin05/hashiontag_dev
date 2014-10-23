@@ -110,6 +110,9 @@ likesPostFactory.append.imageLink = function($stream, img) {
             .html($(strId).html())
             .attr('data-articleid', id);
 
+        //load high quality
+        VV.utils.loadImageAndNeighbours($(img));
+
         //iOS bug. may displace the background scroll as
         //it could not be fixed. Temp solution is to
         //store the scrollTop and restore scroll position
@@ -163,7 +166,10 @@ likesPostFactory.append.imageOnLoad = function($stream, img) {
     this.effect($(img));
 }
 
-likesPostFactory.init(renderJSON.posts, {burst: 5});
+likesPostFactory.init(renderJSON.posts, {
+    burst: 5,
+    imageType: 'half'
+});
 
 </script>
 </body>

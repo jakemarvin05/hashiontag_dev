@@ -186,6 +186,17 @@ img[id^=img_preview], canvas[id^=img_preview] {
             <div class="postDesc">
                 <textarea name="desc" id="desc" placeholder="Write something about your photo..." required></textarea><br/>
             </div>
+            <script>
+            $('#desc').on('keyup', function(e) {
+              var $t = $(this), len = $t.val().length;
+              if(len > 1000) {
+                e.preventDefault();
+                aF.protoAlert('Description is too long...');
+                var cut = $t.val().substring(0,1000);
+                $t.val(cut);
+              }
+            });
+            </script>
 
             <div class="postWhereDidYou">
                 <div id="postWhereText">
