@@ -9,6 +9,7 @@
 </footer>
 
 <script src="{p.js}/core.js"></script>
+<script src="{p.js}/custcore.js"></script>
 <script src="{p.js}/fancybox/source/jquery.fancybox.js"></script>
 
 {?gJSON.userHeaders.ua.isLoadEmoji}
@@ -49,6 +50,8 @@ function sendComment() {
             $commentInput = $thisBlock.find('.postCommentInput'),
             comment = $commentInput.val(),
             $commentButton = $thisBlock.find('.sendComment');
+
+        if(comment.length === 0 ) { return false; }
         
         //prevent spam commenting.
         $commentButton.attr('disabled', 'disabled');
