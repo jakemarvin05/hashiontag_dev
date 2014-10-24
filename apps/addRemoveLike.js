@@ -20,12 +20,12 @@ module.exports = function addRemoveLike(req, res) {
     if(req.isAuthenticated()) {
 
         if(req.body.action === 'like') {
-            console.log(req.user.userId);
+            //console.log(req.user.userId);
 
             db.Like.findOrCreate({
                 User_userId: req.user.userId,
                 Post_postId: req.body.postId
-            }).then(function(like, created) {
+            }).spread(function(like, created) {
                 
                 if(created) {
                     console.log(fname + 'userId ' + req.user.userId + ' liked postId' + req.body.postId);
@@ -35,6 +35,7 @@ module.exports = function addRemoveLike(req, res) {
                     notification(req,res,dataObj);
                     return res.json({success: true});
                 }
+                return res.json({success: true});
             }).catch(throwErr);
 
         }
