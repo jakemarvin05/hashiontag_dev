@@ -29,7 +29,9 @@ module.exports = function addComment(req, res) {
         }
     
         db.Comment.create({
-            comment: req.body.comment
+            comment: req.body.comment,
+            User_userId: req.user.userId,
+            Post_postId: req.body.postId
         }).then(function(comment) {
 
             commentJSON = {
@@ -38,10 +40,6 @@ module.exports = function addComment(req, res) {
                     userNameDisp: req.user.userNameDisp,
                     timestamp: comment.createdAt
             }
-
-            return comment.save();
-
-        }).then(function(comment) {
 
             console.log('addComment: comment saved... setting user');
             //console.log(comment);
@@ -58,16 +56,6 @@ module.exports = function addComment(req, res) {
 
             //Analyze Comments to identify tag case.
             findTaggedUserName(req, res);
-
-            //asynchronous ops
-            return [
-                comment.setUser(req.user),
-                comment.setPost(req.body.postId)
-            ];
-
-        }).spread(function(setUser, setPost) {
-
-            console.log(commentJSON);
 
             return res.json({
                 success: true,
