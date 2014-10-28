@@ -11,9 +11,8 @@ module.exports = function(sequelize, DataTypes) {
             autoIncrement: true
         },
         affinity: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue: 0
+            type: DataTypes.DECIMAL(1000, 6), //or manually set datatype to real
+            allowNull: false
         }
     }, {
         timestamps: true,

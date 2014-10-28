@@ -9,9 +9,7 @@ module.exports = function settings(req, res, action, gJSON, render) {
 
     if(action === "render") {
         db.Instagram.find({
-            where: {
-                User_userId: req.user.userId
-            },
+            where: { User_userId: req.user.userId },
             attributes: ['screenName']
         }).then(function(instagramLink) {
 

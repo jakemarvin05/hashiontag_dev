@@ -299,8 +299,19 @@ router.post('/api/instagram/link', function(req, res) {
     require('../apps/instagramLink.js')(req, res, "link");
 });
 
+router.post('/api/instagram/unlink', function(req, res) {
+    if(!req.isAuthenticated()) { return res.json({success:false}); }
+    //do the instagram stuff here.
+    require('../apps/instagramLink.js')(req, res, "unlink");
+});
+
 router.get('/api/instagram/engine', function(req, res) {
-    res.json(igg.instagrams);
+    console.log(igg);
+    res.json({
+        lastRunCompleted: igg.lastRunCompleted,
+        busy: igg.busy,
+        nextRun: igg.nextTimeout.time
+    });
 });
 
 router.get('/api/instagram/grab', function(req,res) {

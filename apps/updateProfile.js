@@ -15,7 +15,7 @@ module.exports = function editProfile(req,res) {
 
     if(!req.isAuthenticated()){ return res.redirect('/'); }
 
-    console.log(req.body);
+    //console.log(req.body);
 
     db.Post.find().then(function() {
         function getUser() {

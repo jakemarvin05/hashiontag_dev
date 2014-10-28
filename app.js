@@ -4,7 +4,7 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var path = require('path');
-var favicon = require('static-favicon');
+var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
@@ -36,6 +36,7 @@ var igg = require('./apps/instagram-grabber/iggMain.js');
 igg();
 
 var app = express();
+app.use(favicon(__dirname + '/public/assets/favicon/favicon-160x160.png'));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -43,7 +44,7 @@ app.engine('dust', cons.dust);
 app.set('view engine', 'dust');
 //app.enable('view cache'); //enable this and the page rendering speed will blow dust in your face.
 
-app.use(favicon());
+
 app.use(logger('dev'));
 
 app.use(bodyParser.json());

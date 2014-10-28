@@ -32,8 +32,8 @@
     .instagramCenterWhenMobile {
         text-align: center;
     }
-    .instagramFindProfile {
-        display: block;
+    #instagramFindProfile {
+        display: block!important;
         margin: auto;
     }
 }
@@ -48,56 +48,66 @@
 
         <div class="settingsCont">
             <h2>Change password</h2>
-            <table>
-                <tbody>
-                    <tr>
-                        <td>
-                            Current password:
-                        </td>
-                        <td>
-                            <input type="text" name="currPwd" placeholder="Type in your current password..">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            New password:
-                        </td>
-                        <td>
-                            <input type="text" name="newPwd" placeholder="Your new password">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            Type your new password again:&nbsp;
-                        </td>
-                        <td>
-                            <input type="text" name="newPwdR" placeholder="Type in your current password..">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <button class="darkButton">Change password</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <form id="changePassword">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>
+                                Current password:
+                            </td>
+                            <td>
+                                <input type="text" id="currPwd" name="currPwd" placeholder="Type in your current password..">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                New password:
+                            </td>
+                            <td>
+                                <input type="text" id="newPwd" name="newPwd" placeholder="Your new password">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Type your new password again:&nbsp;
+                            </td>
+                            <td>
+                                <input type="text" name="newPwdR" placeholder="Type in your current password..">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="errHolder" colspan="2" style="text-align:center; display:none; height: auto;"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <button id="changePasswordButton" class="darkButton">Change password</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
         </div>
 
         <div class="settingsCont">
-            <form id="instagramLink">
                 <h2>Retrieve and re-post my Instagrams</h2>
                 <p>We can automatically retrieve and re-post your Instagrams onto Vogue and Verve.</p>
 
                 <p>Just hashtag <strong>#VogueVerve</strong> in your Instagram for us to grab it.</p>
 
-                {?renderJSONraw.instagramLink}
-                <p class="instagramActiveP instagramCenterWhenMobile"><span class="glyphicon glyphicon-ok-circle"></span><span style="text-decoration: underline;">Your active Instagram screenname is:</span> <b>@{renderJSONraw.instagramLink}</b></p>
-                {/renderJSONraw.instagramLink}
+                <div class="instagramCenterWhenMobile">
+                    <button class="darkButton" id="instagramUnlink" class="instagramActiveP instagramCenterWhenMobile" {?renderJSONraw.instagramLink}{:else}style="display:none;"{/renderJSONraw.instagramLink}>Unlink my Instagram</button>
+                </div>
                 
+                <p class="instagramActiveP instagramCenterWhenMobile" {?renderJSONraw.instagramLink}{:else}style="display:none;"{/renderJSONraw.instagramLink}>
+                    <span class="glyphicon glyphicon-ok-circle"></span><span style="text-decoration: underline;">Your active Instagram screenname is:</span> <b>@<span id="instagramLinkedName">{renderJSONraw.instagramLink}</span></b>
+                    <br>
+                </p>
+                
+            <form id="instagramLink">    
                 <p class="instagramCenterWhenMobile">
                     Find Instagram screenname:
                     <br>
-                    <input type="text" name="instaScreenName" placeholder="screenname" required>
+                    <input type="text" name="instaScreenName" placeholder="screenname" required><br>
                 </p>
 
                 <div class="instagramResultBlock instagramCenterWhenMobile" style="display:none;">
@@ -111,14 +121,15 @@
                 </div> 
 
                 <button id="instagramFindProfile" class="darkButton" type="submit" disabled>Find profile</button>
+            </form>
 
-                <div class="instagramConfirm" style="display:none">
+                <div class="instagramConfirm instagramCenterWhenMobile" style="display:none">
                     <button class="darkButton" id="instagramConfirm">Confirm</button>
                     <button id="instagramSearchAgain" class="darkButton" id="instagramSearchAgain">Search Again</button>
                     <button class="darkButton" id="instagramCancel">Cancel</button>
                 </div>
                 <p class="instagramCenterWhenMobile"><span class="glyphicon glyphicon-exclamation-sign"></span> Your account may face suspension if we discover that you attempt to link an Instagram account that is not yours.</p> 
-            </form>
+            
         </div>
 
     </div>
@@ -127,6 +138,99 @@
 
 {>blockFooter/}
 <script src="{p.js}/jquery.validate.min.js"></script>
+
+<!-- start change password -->
+<script>
+$('#changePassword').validate({
+    rules: {
+        currPwd: {
+            required: true
+        },
+        newPwd: {
+            required: true,
+            minlength: 6,
+            notEqual: '#currPwd'
+        },
+        newPwdR: {
+            required: true,
+            equalTo: '#newPwd'
+        }
+    },
+    messages: {
+        currPwd: {
+            required: '',
+        },
+        newPwd: {
+            minlength: 'Please use a password with at least 6 characters.',
+            required: '',
+            notEqual: 'Please select a different new password.'
+        },
+        newPwdR: {
+            equalTo: 'Your passwords do not match. Please re-enter.',
+            required: ''
+        }
+    },
+    errorPlacement: function(error, element) {
+        element.velocity('callout.shakeShort');
+        $('#changePassword').find('.errHolder').append(error).show();
+    },
+    submitHandler: function() {
+        var $form = $('#changePassword');
+        var submitFlasher = Object.create(VV.utils.Flasher);
+        var $button = $form.find('button[type="submit"]');
+
+        //start flasher
+        submitFlasher.run($button, 'button');
+        
+        //reset any errors
+        //var $eHW = $('#signupForm').find('.errHolder');
+        //$eHW.velocity('transition.slideUpOut', 200);
+
+        
+        // Get some values from elements on the page:
+        var data = $form.serialize();
+
+        var uri = printHead.p.absPath + '/api/changepassword';
+
+        // Send the data using post
+        var posting = $.post(uri, data);
+        //done
+        posting.done(function(data) {
+            if(data.success) { 
+                //console.log('success');
+                var text = '<span style="color:green; font-size: 18px;" class="glyphicon glyphicon-ok-circle"></span> ';
+                    text += 'Your password change is successful. Returning you back to profile page.';
+                aF.protoAlert({
+                    title: "Password changed",
+                    text: text
+                });
+                return setTimeout(function() {
+                    window.location.href = printHead.p.absPath + '/me';
+                }, 2000);
+            }
+
+            if(data.error) {
+                if(data.error === "password") {
+                    aF.protoAlert('Your password is incorrect.');
+                }
+                aF.protoAlert('Something went wrong. Please refresh and try again. If this persist, please contact us and we will help you!');
+                $button.velocity('callout.shakeShort');
+                submitFlasher.kill();
+            }
+        });
+
+        //fail
+        posting.fail(function() {
+                submitFlasher.kill();
+                aF.protoAlert('Something went wrong, please check your connection and try again later.');
+        });
+
+    }
+});
+</script>
+
+
+<!-- instagram link -->
 <script>
 var instaAjax;
 $('#instagramLink').validate({
@@ -167,7 +271,6 @@ $('#instagramLink').validate({
             $('.instagramResultBlock').velocity('fadeOut');
         }
         
- 
         // Get some values from elements on the page:
         var screenName = $('input[name="instaScreenName"]').val();
 
@@ -217,15 +320,46 @@ $('#instagramSearchAgain').click(function(e) {
 
 $('#instagramConfirm').click(function(e) {
     e.preventDefault();
-    var originSName = $('.instagramSName').html().toLowerCase();
+    var flasher = Object.create(VV.utils.Flasher);
+    flasher.run($(this), 'button');
+    var $originSName = $('#instagramLinkedName');
     var data = instaBuilder.get();
-    if(data.screenName.toLowerCase() === originSName) { 
+    var newScreenName = data.screenName.toLowerCase();
+
+
+    var originSName = $originSName.html().toLowerCase();
+    if(newScreenName === originSName) { 
         return $('#instagramCancel').click(); 
     }
+    
+    
+
     instaConfirmAjax = $.post(printHead.p.absPath + '/api/instagram/link', data);
     instaConfirmAjax.done(function(data) {
-        console.log(data);
+        flasher.kill();
+
+        if(data.success) {
+            var text = '<span style="color:green; font-size: 18px;" class="glyphicon glyphicon-ok-circle"></span> ';
+                text += 'Your instagram is now linked!';
+            aF.protoAlert(text);
+            $('#instagramCancel').click(); 
+            setTimeout(function() {
+                $.fancybox.close();
+            }, 1000);
+            $('.instagramActiveP').show();
+            $('#instagramUnlink').show();
+
+            return $originSName.html(newScreenName);
+        }
+
+        aF.protoAlert('Something went wrong, please try again...');
     });
+
+    instaConfirmAjax.fail(function() {
+        flasher.kill()
+        aF.protoAlert('Something went wrong, please try again...');
+    });
+
 });
 
 $('#instagramCancel').click(function(e) {
@@ -244,6 +378,41 @@ $('#instagramCancel').click(function(e) {
     });
 
 });
+
+$('#instagramUnlink').click(function(e) {
+    e.preventDefault();
+
+    e.preventDefault();
+    var flasher = Object.create(VV.utils.Flasher);
+    flasher.run($(this), 'button');
+
+    instaUnlinkAjax = $.post(printHead.p.absPath + '/api/instagram/unlink', {});
+    instaUnlinkAjax.done(function(data) {
+        flasher.kill(function($el) { 
+            $el.hide();
+        });
+        if(data.success) {
+            var text = '<span style="color:green; font-size: 18px;" class="glyphicon glyphicon-ok-circle"></span> ';
+                text += 'Your instagram is now unlinked!';
+            aF.protoAlert(text);
+
+            setTimeout(function() {
+                $.fancybox.close();
+            }, 1000);
+            $('.instagramActiveP').hide();
+            return $('#instagramLinkedName').html('');
+        }
+
+        aF.protoAlert('Something went wrong, please try again...');
+    });
+
+    instaUnlinkAjax.fail(function() {
+        flasher.kill()
+        aF.protoAlert('Something went wrong, please try again...');
+    });
+
+})
+
 
 var instaBuilder = {
 
@@ -266,10 +435,11 @@ var instaBuilder = {
         if(typeof convertEmoji === "function") { convertEmoji(); }
     },
     clear: function() {
+        var self = this;
         this.$instaBlock.velocity('fadeOut', 200, function() {
-            this.$instaPP.html('');
-            this.$instaSName.html('');
-            this.$instaFName.html('');
+            self.$instaPP.html('');
+            self.$instaSName.html('');
+            self.$instaFName.html('');
         }); 
     },
     get: function() {
@@ -280,11 +450,6 @@ var instaBuilder = {
     }
 }
 </script>
-<script>
-//jQuery validation needs to complete loading before we re-enable the buttons
-//Else, once after the DOM is completed, but before validation is applied, user
-//is able to submit the form and get erroneous behaviours.
-$('button[type="submit"]').removeAttr('disabled');
-</script>
+<!-- end instagram link -->
 </body>
 </html>

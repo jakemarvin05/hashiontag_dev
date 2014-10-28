@@ -25,29 +25,52 @@ module.exports = function instagramLink(req, res, action) {
     //UPDATE MY INSTAGRAM LINK
     if(action === "link") {
 
-        var instagram = {
+        var receivedInstagram = {
             instaId: req.body.instaId,
             screenName: req.body.screenName,
-            User_userId: req.user.userId
+            User_userId: req.user.userId,
+            //stopArray: "[]",
+            active:true
         }
 
+
+
+        //first attempt to find the active record.
         db.Instagram.find({
             where: {
-                User_userId: req.user.userId 
+                User_userId: req.user.userId
             }
         }).then(function(insta) {
-            if(insta) {
-                if(insta.instaId === req.body.instaId && screenName === req.body.screenName) {
-                    //the details have not changed, don't do anything
-                    return res.json({success: true});
-                } else {
 
-                    //details have changed.
-                    return insta.updateAttributes(instagram);
+            //if there are no existing record, create new.
+            if(!insta) { return db.Instagram.create(receivedInstagram); }
+
+            if(insta.instaId === parseFloat(req.body.instaId) && insta.User_userId === parseFloat(req.user.userId)) {
+
+                console.log('record with matching ids found.');
+                if(insta.screenName === req.body.screenName) { 
+                    console.log('screenname matched');
+                    //the record is exactly the same, and record is active. don't do anything
+                    return true;
                 }
+                console.log('screenname changed');
+                //screenname has changed.
+                return insta.updateAttributes(receivedInstagram);
             }
-            return db.Instagram.create(instagram);
+
+            //else, replace with full records. ** stopArray = [] is important to indicate a fresh record.
+            //If don't clear the existing stopArray, it is assumed that record is existing, and igg will create duplicate posts.
+            receivedInstagram.stopArray = "[]";
+            return insta.updateAttributes(receivedInstagram);
+
         }).then(function() {
+            return res.json({success: true})
+        }).catch(throwErr);
+
+    }
+
+    if(action === "unlink") {
+        db.Instagram.destroy({ User_userId: req.user.userId }).then(function() {
             return res.json({success: true})
         }).catch(throwErr);
     }

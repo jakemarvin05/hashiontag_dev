@@ -33,8 +33,11 @@ module.exports = function follow(req, res) {
                 console.log(user);
                 if(!user) {
 
-                    return req.user.addFollow(userIdToAction)
-                        .then(function(){
+                    return db.Following.create({
+                        FollowerId: req.user.userId,
+                        FollowId: userIdToAction,
+                        affinity: 0 + Math.random()/1000
+                        }).then(function(){
                             res.json({success:true});
                         });
 

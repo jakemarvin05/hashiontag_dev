@@ -12,9 +12,8 @@ module.exports = function iggMain() {
             run: iggMain,
             instaRunCount: 0,
             dbRepostCount: 0,
-            instagrams: {}
-            // stopArray: [],
-            // newStopArray: []
+            instagrams: {},
+            lastRunCompleted: ''
         }
     }
     global.igg.busy = true;
@@ -241,9 +240,12 @@ module.exports = function iggMain() {
         if(update) { 
             //perform async tasks with the "insta" instance here. Update false, means we don't even run the async task.
             //we will start a repostRunCount
-            global.igg.dbRepostCount += 1;
-            iggCheckForHashtag(insta, completionCallback);
-
+            var hasPages = insta.pages.length > 0;
+            if(hasPages) {
+                global.igg.dbRepostCount += 1;
+                iggCheckForHashtag(insta, completionCallback);
+            }
+    
             //db tasks.
             insta.updateAttributes({
                 stopArray: insta.newStopArray
@@ -298,6 +300,9 @@ module.exports = function iggMain() {
 
 
     function setNextTimeout(DURATION) {
+        var runCompleted = Date.now();
+        igg.lastRunCompleted = moment(runCompleted).format();
+        
         var timeout = setTimeout(function() {
             igg.run();
         }, DURATION);
