@@ -271,7 +271,7 @@ pinchZoom.init = function(el) {
 
     var self = this;
 
-    console.log('initialized');
+    //console.log('initialized');
     var pinch = new Hammer(el);
 
     //just disable the pinch first, in case instance is dirty.

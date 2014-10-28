@@ -43,7 +43,8 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
         where: db.Sequelize.or(
             {'key': 'itemLink'}, 
             {'key': 'itemAddTag'}, 
-            {'key': 'itemPrice'}
+            {'key': 'itemPrice'},
+            {'key': 'isInstagram'}
         ),
         required: false
     }]

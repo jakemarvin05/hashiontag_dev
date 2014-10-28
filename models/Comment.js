@@ -6,13 +6,13 @@ module.exports = function(sequelize, DataTypes) {
         {
             //camelCase
             commentId: {
-                type: DataTypes.INTEGER(1000),
+                type: DataTypes.INTEGER,
                 primaryKey: true,
                 allowNull: false,
                 autoIncrement: true
             },
             comment: {
-                type: DataTypes.STRING,
+                type: DataTypes.STRING(1000),
                 allowNull: false,
                 validate: {
                     not: /<[^>]*script/g

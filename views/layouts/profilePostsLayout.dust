@@ -23,6 +23,7 @@ Explore if it is possible to just share the 2
 
                 <div class="blockUserHolder">
                     <div class="blockUsername"></div>
+                    <div class="blockVia"></div>
                     <div class="blockTimelapse"></div>
                 </div>
 

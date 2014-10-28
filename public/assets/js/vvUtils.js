@@ -27,7 +27,7 @@ VV.utils.Flasher = {
         var self = this;
         this.$el.velocity("stop").velocity("fadeIn", 300, function(el) {
             self.state = false;
-            if(typeof callback === 'function') return callback($el);
+            if(typeof callback === 'function') return callback(self.$el);
         });
 
         if(this.elType) { this.killTypeSpecifics(); };
@@ -162,7 +162,7 @@ VV.utils.imageGetter = function(imgUUID, type, opts) {
     //small 160x160
     //thumb 70x70
 
-    console.log('req for ' + imgUUID + ' ' + type);
+    //console.log('req for ' + imgUUID + ' ' + type);
     var sizes = ['full','half','small','thumb'];
     if(sizes.indexOf(type) < 0) { console.log('assume full'); var type = "full" }
     //options:
@@ -185,7 +185,7 @@ VV.utils.imageGetter = function(imgUUID, type, opts) {
 
     //we also attempt to load the "children sizes" to see if there
     //are any errors.
-    console.log(imgUUID + ' ' + type);
+    //console.log(imgUUID + ' ' + type);
     if(type !== "full") {
 
         var img = new Image();
@@ -239,7 +239,7 @@ VV.utils.loadImageAndNeighbours = function($img) {
         $nextArtImg = $article.next().find('.postImage');
 
     var images = [$thisArtImg, $nextArtImg, $prevArtImg];
-    console.log(images);
+    //console.log(images);
 
     for(var i=0; i<3; i++) {
         var $image = images[i];
@@ -259,7 +259,7 @@ VV.utils.loadImageAndNeighbours = function($img) {
     }
 
     function getImage(imgid) {
-        console.log('getting ' + imgid);
+        //console.log('getting ' + imgid);
         $('.imgid').addClass('loadingHighQuality');
 
         var img = new Image();
@@ -273,5 +273,32 @@ VV.utils.loadImageAndNeighbours = function($img) {
     }
 
 }
+VV.utils.tooLong = function($el, opts) {
+    var msg = 'Your input is too long...';
+    var limit = 2000;
 
+    if(typeof opts.msg !== "undefined") {
+        msg = opts.msg;
+    }
+    if(typeof opts.limit !== "undefined") {
+        limit = opts.limit;
+    }
+    $el.on('keyup', function(e) {
+        var $t = $(this), len = $t.val().length;
+        console.log(len);
 
+        if(len > limit) {
+            e.preventDefault();
+            aF.protoAlert(msg);
+            var cut = $t.val().substring(0,limit);
+            $t.val(cut);
+        }
+    });
+}
+VV.utils.ensureLink = function($link) {
+    var href = $link.attr('href');
+    if(href.indexOf('http') === -1) {
+        return $link.attr('href', '//' + href);
+    }
+    return false;
+}

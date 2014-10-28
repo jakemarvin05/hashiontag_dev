@@ -135,17 +135,6 @@ streamFactory.append.init = function($stream, i) {
     this.identifier($likeButton, post);
 
     /*
-    * More info
-    */
-    var moreInfo = this.moreInfoBlock($stream, post);
-    if(moreInfo) { 
-        $stream.find('.blockMoreInfo').append(moreInfo.html);
-        this.moreInfoImg($stream, post, moreInfo);
-    }
-    //run once
-    if(i===0) { this.callbacks.push(this.moreInfoBindButton) }
-
-    /*
     * Comments
     */
     var $commentButton = $stream.find('.sendComment');
@@ -162,6 +151,37 @@ streamFactory.append.init = function($stream, i) {
     var $settingsButtons = $stream.find('.blockInteractSettingsOptions');
     this.identifier($settingsButtons, post);
     this.settingsButton($stream, post);
+
+
+    /* All POST META stuff comes under here */
+
+    //convert the metas into .value chain
+    var digestedPostMeta = this.digestPostMeta(post);
+    //if there is nothing in postMeta, return
+    if(!digestedPostMeta) { 
+        $stream.find('.moreInfo').remove();
+        return true;
+    }
+
+    //update the parent and re-reference post
+    this.parent.posts[i].postMeta = digestedPostMeta;
+    post = this.parent.posts[i];
+
+    /*
+    * More info
+    */
+
+    var moreInfo = this.moreInfoBlock($stream, post);
+    if(moreInfo) { 
+        $stream.find('.blockMoreInfo').append(moreInfo.html);
+        this.moreInfoImg($stream, post, moreInfo);
+        this.moreInfoBindButton($stream.find('.moreInfo'));
+    }
+    //run once
+    //if(i===0) { this.callbacks.push(this.moreInfoBindButton) }
+
+    /* is instagram? */
+    this.viaInstagram($stream, post);
 }
 
 /* not enabled yet */
@@ -178,7 +198,7 @@ streamFactory.append.profileThumb = function(user) {
 
     var blockProfileThumbHTML  = '<a href="/' + user.userNameDisp + '">';
         blockProfileThumbHTML += '<img src="' + pp + '"></a>';
-        console.log("profileThumb " + pp);
+        //console.log("profileThumb " + pp);
 
     return blockProfileThumbHTML;
 }
@@ -550,26 +570,37 @@ streamFactory.append.eachComment = function($stream, comment, toShow, postId, ap
 
     return $comment;
 }
-streamFactory.append.moreInfoBlock = function($stream, post) {
-    //console.log('moreInfoblock'); 
+streamFactory.append.settingsButton = function($stream, post) {
+    if(post.User_userId !== printHead.userHeaders.userId) {
+        $stream.find('.settingsDelete').remove();
+    } else {
+        $stream.find('.settingsMark').remove();
+        $stream.find('.settingsDelete').attr('data-isprofile', post.isProfilePicture);
+    }
+}
+streamFactory.append.digestPostMeta = function(post) {
+    var metas = post.postMeta,
+        len = metas.length;
+    //meta is an Array. Check it for length
+    if(len === 0) { return false; }
+    var postMeta = {}
+    for(var i=0; i<len; i++) {
+        var meta = metas[i],
+            key = meta.key,
+            value = meta.value;
+
+        postMeta[key] = value;
+    }
+    return postMeta;
+}
+streamFactory.append.moreInfoBlock = function($stream, post) { 
     /*
-        -- name has to be somehow factored in... maybe we will search the
-           desc for hashtags --
     <h2 class="itemName" itemprop="item"></h2>
     <h2 class="shopName" itemprop="shop"></h2>
     <h3 class="price" itemprop="price"></h3>
     */
     var meta = post.postMeta,
-        count;
- 
-    //item metas:
-    if(meta) {
-        count = VV.utils.objCount(meta);
-        if(VV.utils.objCount(meta) === 0) {
-            $stream.find('.moreInfo').remove()
-            return false;
-        }
-    } else { $stream.find('.moreInfo').remove(); return false; }
+        hasMoreInfo = false;
 
     var itemAddTagDiv = '',
         itemLinkDiv = '',
@@ -579,51 +610,51 @@ streamFactory.append.moreInfoBlock = function($stream, post) {
     var data = {}
     var container = '';
 
-    //decrease the count because its 1 base.
-    count -= 1;
-    while(meta[count]) {
-        var m = meta[count];
-        //console.log(m);
-        if(m.key === 'itemAddTag') {
-            data.hasAddTag = true;
-            data.addTag = m.value.toLowerCase();
+    if(meta.itemAddTag) {
+        hasMoreInfo = true;
+        data.hasAddTag = true;
+        data.addTag = meta.itemAddTag.toLowerCase();
 
-            //create a img div and just give it a class
-            itemAddTagImgDiv = '<div class="postItemAddTagImg"></div>';
+        //create a img div and just give it a class
+        itemAddTagImgDiv = '<div class="postItemAddTagImg"></div>';
 
-            //username
-            itemAddTagDiv  = '<div class="postItemAddTag" itemprop="shop">';
-            itemAddTagDiv += '<a href="' + printHead.p.absPath + '/' + data.addTag + '">';
-            itemAddTagDiv += '@' + m.value + '</a></div>';
-        }
-        if(m.key === 'itemLink') {
-            var itemLink = m.value;
-            var workingLink = '';
-            var showLink = '';
-            if(m.value.indexOf('http') < 0 ) { 
-                //suspect it starts with "www", so add // so make it work
-                workingLink = '//' + itemLink;
-            } else {
-                workingLink = itemLink;
-            }
-            showLink = (itemLink.length > 25) ? itemLink.substring(0,25) + '...': itemLink;
-            itemLinkDiv  = '<div class="postItemLink">';
-            itemLinkDiv += '<span class="glyphicon glyphicon-link"></span>';
-            itemLinkDiv += '<a rel="nofollow" href="' + workingLink + '" target="_blank">' + showLink + '</a>';
-            itemLinkDiv += '</div>'; 
-        }
-        if(m.key === 'itemPrice') {
-            itemPriceDiv  = '<div class="postItemPrice" itemprop="price">';
-            itemPriceDiv += '<span class="glyphicon glyphicon-usd"></span>';
-            itemPriceDiv += m.value + '</div>';
-        }
-        count--;
+        //username
+        itemAddTagDiv  = '<div class="postItemAddTag" itemprop="shop">';
+        itemAddTagDiv += '<a href="' + printHead.p.absPath + '/' + data.addTag + '">';
+        itemAddTagDiv += '@' + meta.itemAddTag + '</a></div>';
     }
-    container  = itemAddTagImgDiv;
-    container += itemAddTagDiv;
-    container += itemLinkDiv;
-    container += itemPriceDiv;
-    data.html = container;
+    if(meta.itemLink) {
+        hasMoreInfo = true;
+       
+        var itemLink = meta.itemLink;
+        var workingLink = '';
+        var showLink = '';
+        if(itemLink.indexOf('http') < 0 ) { 
+            //suspect it starts with "www", so add // so make it work
+            workingLink = '//' + itemLink;
+        } else {
+            workingLink = itemLink;
+        }
+        showLink = (itemLink.length > 25) ? itemLink.substring(0,25) + '...': itemLink;
+        itemLinkDiv  = '<div class="postItemLink">';
+        itemLinkDiv += '<span class="glyphicon glyphicon-link"></span>';
+        itemLinkDiv += '<a rel="nofollow" href="' + workingLink + '" target="_blank">' + showLink + '</a>';
+        itemLinkDiv += '</div>'; 
+    }
+    if(meta.itemPrice) {
+       
+        hasMoreInfo = true;
+        itemPriceDiv  = '<div class="postItemPrice" itemprop="price">';
+        itemPriceDiv += '<span class="glyphicon glyphicon-usd"></span>';
+        itemPriceDiv += meta.itemPrice + '</div>';
+    }
+    
+    if(!hasMoreInfo) { $stream.find('.moreInfo').remove(); return false; }
+
+    data.html  = itemAddTagImgDiv;
+    data.html += itemAddTagDiv;
+    data.html += itemLinkDiv;
+    data.html += itemPriceDiv;
     return data;
 }
 streamFactory.append.moreInfoBindButton = function($custButton) {
@@ -633,7 +664,7 @@ streamFactory.append.moreInfoBindButton = function($custButton) {
     } else {
         $buttons = $('.' + this.parent.streamContClass).find('.moreInfo');
     }
-    $buttons.click(function() {
+    $buttons.on('click.vv', function() {
         //find its parent the find the button. more resistant to layout changes.
         var $moreInfo = $(this).closest('article').find('.blockMoreInfo');
 
@@ -680,11 +711,12 @@ streamFactory.append.moreInfoImg = function($stream, post, moreInfo) {
     });
     ajaxGetImg.fail(function() { return $imgCont.remove(); });
 }
-streamFactory.append.settingsButton = function($stream, post) {
-    if(post.User_userId !== printHead.userHeaders.userId) {
-        $stream.find('.settingsDelete').remove();
-    } else {
-        $stream.find('.settingsMark').remove();
-        $stream.find('.settingsDelete').attr('data-isprofile', post.isProfilePicture);
+streamFactory.append.viaInstagram = function($stream, post) {
+    var link = post.postMeta.isInstagram;
+    if(link) {
+        var append  = 'via <a href="' + link + '" target="_blank">';
+            append += 'Instagram';
+            append += '</a>'
+        $stream.find('.blockVia').append(append);
     }
 }

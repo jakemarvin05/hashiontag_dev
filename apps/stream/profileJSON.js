@@ -46,7 +46,8 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
             where: db.Sequelize.or(
                 {'key': 'itemLink'}, 
                 {'key': 'itemAddTag'}, 
-                {'key': 'itemPrice'}
+                {'key': 'itemPrice'},
+                {'key': 'isInstagram'}
             ),
             required: false
         }]//sub models include closure

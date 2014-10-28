@@ -43,7 +43,7 @@ $(function() { buttonsInitStack(); });
 <!-- sendComment button -->
 <script>
 function sendComment() {
-    $('.sendComment').click(function() {
+    $('.sendComment').unbind('click.vv').on('click.vv', function() {
         var postId = $(this).attr('data-pid'),
             postOwnerId = $(this).attr('data-uid'),
             $thisBlock = $(this).closest('article'),
@@ -152,6 +152,7 @@ var likeButton = {
     },
     init: function($el) {
         var self = this;
+        $el.unbind('click.vv');
         $el.on('click.vv', function() {
             self.main($(this));
         });
@@ -165,7 +166,7 @@ function settingsButton() {
         $postDelete = $('.settingsDelete'),
         $postMark = $('.settingsMark');
 
-    $settingsBut.click(function() {
+    $settingsBut.unbind('click.vv').bind('click.vv', function() {
         var pid = $(this).attr('data-pid'),
 
             isActive = $(this).hasClass('settingActive');
@@ -180,7 +181,7 @@ function settingsButton() {
         }
     });
 
-    $postDelete.click(function() {
+    $postDelete.unbind('click.vv').bind('click.vv', function() {
 
         hideAllTabs();
         var msg = Object.create(aF);
@@ -203,14 +204,14 @@ function settingsButton() {
         });
     });
 
-    $(document).click(function(e) {
+    $(document).unbind('click.settings').on('click.settings', function(e) {
         var target = e.target;
         if ( !$(target).is('.settingsButton') && !$(target).parents().is('.settingsButton') && !$(target).is('.settingsMark') ) {
             hideAllTabs();
         }
     });
 
-    $postMark.click(function() {
+    $postMark.unbind('click.vv').bind('click', function() {
         $(this).parent().velocity('callout.pulse', 400, function() {
             hideAllTabs();
         });
@@ -227,4 +228,15 @@ function settingsButton() {
         $settingsBut.removeClass('settingActive');
     }
 }
+</script>
+
+<script>
+//jQuery validation needs to complete loading before we re-enable the buttons
+//Else, once after the DOM is completed, but before validation is applied, user
+//is able to submit the form and get erroneous behaviours.
+$('button[type="submit"]').each(function(i, el){
+    var $e = $(el);
+    if($e.hasClass('permaDisable')) { return false;}
+    $e.removeAttr('disabled');
+});
 </script>

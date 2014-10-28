@@ -17,32 +17,15 @@ var db = require('../models/');
 // globalJSON
 var globalJSON = require('../apps/globalJSON.js');
 
+
+//instagram
+var ig = require('instagram-node').instagram();
+
 module.exports = router;
 
-router.get('/test', function(req,res) {
-    db.Following.findAndCountAll({
-                        where: {FollowerId: 1},
-                        attributes: ['affinityId']
-                    }, { raw: true }).then(function(x) { return res.json(x);
-    });
-});
 
 router.get('/error', function(req, res) {
     res.send('error');
-});
-
-router.get('/test2', function(req, res) {
-    var gJSON = globalJSON(req);
-    res.render('test2', { 
-        title: meta.header(),
-        gJSON: gJSON,
-p: gJSON.pathsJSON.paths,
-        f: gJSON.pathsJSON.files,
-        page: "index",
-
-        showStream: false,
-        showNav: "continue"
-    });
 });
 
 /* Every page has a generic set of res.render variables:
@@ -270,6 +253,61 @@ router.get('/me', function(req, res) {
     //now run callback dependents
     var profileJSON = require('../apps/stream/profileJSON.js')(req, eventEmitter, true);
 
+});
+//Settings
+router.get('/settings', function(req, res) {
+    if(!req.isAuthenticated()) { return res.redirect('/'); }
+    //sys.puts(sys.inspect(req));
+    var gJSON = globalJSON(req);
+
+
+    require('../apps/settings.js')(req,res, "render", gJSON, thenRender);
+
+    //bind the final callback first
+    function thenRender(renderJSON) {
+        res.render('settings', { 
+            title: meta.header(),
+            isLoggedIn: isLoggedIn(req),
+            gJSON: gJSON,
+            p: gJSON.pathsJSON.paths,
+            f: gJSON.pathsJSON.files,
+            printHead: JSON.stringify(gJSON.printHead),
+            //renderJSON: JSON.stringify(renderJSON),
+            renderJSONraw: renderJSON,
+            page: 'settings'
+        });
+
+    }
+});
+router.post('/api/changepassword', function(req, res) {
+    if(!req.isAuthenticated()) { return res.json({success:false}); }
+    require('../apps/passport/changePassword.js')(req, res);
+});
+
+/*INSTAGRAMS*/
+router.post('/api/instagram/getuser', function(req, res) {
+    if(!req.isAuthenticated()) { return res.json({success:false}); }
+    //do the instagram stuff here.
+    console.log(req.body.screenName);
+    require('../apps/instagramLink.js')(req, res, "getuser");
+
+});
+
+router.post('/api/instagram/link', function(req, res) {
+    if(!req.isAuthenticated()) { return res.json({success:false}); }
+    //do the instagram stuff here.
+    require('../apps/instagramLink.js')(req, res, "link");
+});
+
+router.get('/api/instagram/engine', function(req, res) {
+    res.json(igg.instagrams);
+});
+
+router.get('/api/instagram/grab', function(req,res) {
+    if(igg.busy) { return res.send('grabber is busy. try again later...'); }
+    clearTimeout(igg._timeout);
+    igg.run();
+    res.send('overwritten instagram grab schedule, check your console...');
 });
 
 //edit profile

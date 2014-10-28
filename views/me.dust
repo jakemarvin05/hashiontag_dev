@@ -6,6 +6,11 @@
 <section id="main">
 
     <header class="profileHeader">
+        <a href="{p.absPath}/settings">
+            <div id="profileSettingsCog" class="clickable">
+                <div class="icon-cog"></div>
+            </div>
+        </a>
 
         <div id="thumbnailScrollerWrap" style="display:none;">
             <div id="thumbnailScroller" class="clearfix">
@@ -54,7 +59,12 @@
 
                 {?renderJSONraw.web}
                 <div class="profileWeb">
-                    <span class="glyphicon glyphicon-link"></span><span data-form="web">{renderJSONraw.web}</span>
+                    <a id="profileWebLink" href="{renderJSONraw.web}">
+                        <span class="glyphicon glyphicon-link"></span><span data-form="web">{renderJSONraw.web}</span>
+                    </a>
+                    <script>
+                    VV.utils.ensureLink($('#profileWebLink'));
+                    </script>
                 </div>
                 {/renderJSONraw.web}
 
@@ -124,6 +134,12 @@
                 </div>
                 <div class="profileInputsAbout">
                     <label> About </label><textarea name="about" id="about"  data-orgin="{renderJSONraw.about}">{renderJSONraw.about}</textarea><br/>
+                    <script>
+                        VV.utils.tooLong($('textarea[name="about"'), {
+                            msg: "We're sorry but your input is too long. Please shorten it :)",
+                            limit: 250
+                        });
+                    </script>
                 </div>
                 <div class="profileInputsButtons">
                 

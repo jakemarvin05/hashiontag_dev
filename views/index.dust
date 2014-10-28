@@ -165,7 +165,7 @@
                 <div>
                     <input type="checkbox" name="rememberMe" value="true"> Remember me
                 </div>
-                <button class="darkButton" type="submit">Login</button>
+                <button class="darkButton" type="submit" disabled>Login</button>
                 <div id="errHolderTooLong" style="display:none"></div>
                 <div class="formBottomLinks">
                     <span id="forgetPwdLink" class="clickable">Forget Password</span> | <span id="signupFormLink" class="clickable">Signup</span> | <span id="learnMoreLink" class="clickable">Learn More</span>

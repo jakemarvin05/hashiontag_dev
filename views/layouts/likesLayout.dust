@@ -12,6 +12,7 @@
 
                 <div class="blockUserHolder">
                     <div class="blockUsername"></div>
+                    <div class="blockVia"></div>
                     <div class="blockTimelapse"></div>
                 </div>
 

@@ -9,7 +9,23 @@ header.profileHeader>div {
     padding-top: 10px;
     padding-bottom: 10px;
     overflow: hidden;
+    position: relative;
 }
+    #profileSettingsCog {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        border: 2px solid #ccc;
+        padding: 4px;
+        color: #ccc;
+        font-size: 17px;
+        width: 29px;
+        height: 29px;
+    }
+    #profileSettingsCog:hover {
+        color: #565757;
+    }
+    
         .profilePictureCont {
             width: 100px;
             max-width: 100%;

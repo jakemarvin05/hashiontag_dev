@@ -1,17 +1,10 @@
-$.validator.addMethod(
-    "regex",
-    function(value, element, regexp) {
-            var re = new RegExp(regexp);
-            return this.optional(element) || re.test(value);
-    }
-);
 $('#signupForm').validate({
     rules: {
         username: {
             required: true,
             minlength: 6,
             maxlength: 15,
-            regex: '^[a-zA-Z0-9_]*$',
+            regex: '^[a-zA-Z0-9_]*$'
         },
         email: {
             required: true,
@@ -46,9 +39,9 @@ $('#signupForm').validate({
         }
     },
     errorPlacement: function(error, element) {
+        console.log('error');
         element.velocity('callout.shakeShort');
-        $('#signupForm').find('.errHolder').append(error)
-            .velocity('transition.slideDownIn', 200);
+        $('#signupForm').find('.errHolder').append(error).show();
     },
     submitHandler: function() {
         var submitFlasher = Object.create(VV.utils.Flasher);

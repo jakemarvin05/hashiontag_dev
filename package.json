@@ -22,12 +22,14 @@
     "flake-idgen": "0.1.3",
     "formidable": "1.0.15",
     "gm": "1.16.0",
+    "instagram-node": "0.5.1",
     "less-middleware": "1.0.x",
     "moment": "2.8.1",
     "morgan": "~1.0.0",
     "passport": "0.2.0",
     "passport-local": "1.0.0",
     "pg": "^3.4.0",
+    "request": "2.46.0",
     "static-favicon": "~1.0.0",
     "socket.io": "1.1.0"
   }

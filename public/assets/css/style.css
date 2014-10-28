@@ -247,6 +247,9 @@ img.emojione {
 .icon-logout:before {
   content: "\e606";
 }
+.icon-cog:before {
+  content: "\e607";
+}
 /* Stylesheet content lists
 ===================================================
 1. Body, p, h1-h3, other globals
@@ -439,6 +442,12 @@ textarea {
 @media (min-width: 0px) and (max-width: 480px) {
   #logoCont {
     max-width: 66px;
+    margin-left: -8px;
+  }
+}
+@media (min-width: 481px) and (max-width: 540px) {
+  #logoCont {
+    width: 255px;
     margin-left: -8px;
   }
 }

@@ -27,6 +27,14 @@ var passport = require('passport');
 //var flash = require('connect-flash');
 var session = require('express-session');
 
+var instaNode = require('instagram-node').instagram();
+instaNode.use({ client_id: '4a9652ccccb249f080062589a45abcbd',
+         client_secret: '1b39017f1b824f569c02ace3de52a665' });
+global.instaNode = instaNode;
+
+var igg = require('./apps/instagram-grabber/iggMain.js');
+igg();
+
 var app = express();
 
 // view engine setup
