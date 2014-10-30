@@ -12,6 +12,7 @@
     "bluebird": "2.3.4",
     "body-parser": "~1.0.0",
     "connect-flash": "0.1.1",
+    "connect-pg-simple": "^2.1.1",
     "consolidate": "0.10.0",
     "cookie-parser": "~1.0.1",
     "debug": "~0.7.4",

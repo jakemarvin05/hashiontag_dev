@@ -18,6 +18,7 @@ var cons = require('consolidate');
 /* sequelize */
 var db = require('./models');
 global.db = db;
+
 var Promise = require('bluebird');
 global.Promise = Promise;
 
@@ -26,6 +27,10 @@ var passport = require('passport');
 //flash messages is deprecated.
 //var flash = require('connect-flash');
 var session = require('express-session');
+
+// Postgres Session Store
+var pgSession = require('connect-pg-simple')(session)
+
 
 var instaNode = require('instagram-node').instagram();
 instaNode.use({ client_id: '4a9652ccccb249f080062589a45abcbd',
@@ -43,8 +48,6 @@ app.set('views', path.join(__dirname, 'views'));
 app.engine('dust', cons.dust);
 app.set('view engine', 'dust');
 //app.enable('view cache'); //enable this and the page rendering speed will blow dust in your face.
-
-
 app.use(logger('dev'));
 
 app.use(bodyParser.json());
@@ -53,7 +56,14 @@ app.use(cookieParser('hashionhashion'));
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(session({ secret: 'hashionhashion' })); // session secret
+app.use(session({
+    store: new pgSession({
+        conString: db.databaseUrl
+    }),
+    secret: '048B71B3349A1BC745B20BC923F0C82FCE9CE3FDE0F4DFD0F6A2CBFC34ACDC62',
+}));
+
+// app.use(session({ secret: 'hashionhashion' })); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 //app.use(flash()); // DEPRECATED: use connect-flash for flash messages stored in session
