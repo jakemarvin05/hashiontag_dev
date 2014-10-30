@@ -61,6 +61,7 @@ app.use(session({
         conString: db.databaseUrl
     }),
     secret: '048B71B3349A1BC745B20BC923F0C82FCE9CE3FDE0F4DFD0F6A2CBFC34ACDC62',
+    cookie: { maxAge: 60 * 60 * 1000 }
 }));
 
 // app.use(session({ secret: 'hashionhashion' })); // session secret
