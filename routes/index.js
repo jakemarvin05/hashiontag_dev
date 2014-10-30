@@ -172,12 +172,7 @@ router.post('/api/login', function(req, res) {
 
             //=="true" because .rememberMe is a string
             if (req.body.rememberMe == "true" ) {
-
-                req.session.cookie.maxAge = 315360000000; // 10 years
-
-            } else {
-
-                req.session.cookie.maxAge = 3600000; //1 hour
+                req.session.cookie.maxAge = 31536000000000; // 10 years
             }
 
             return res.json({success: true});
