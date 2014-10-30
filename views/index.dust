@@ -18,13 +18,13 @@
         <!-- end your stream -->
 
         <!-- start your posts -->
-        
+
     </section><!-- main -->
 {:else}
 
     {! Partials slow down dust significantly. Until this is fixed, loginform is here
-    
-    {>loginSignupForm/} 
+
+    {>loginSignupForm/}
 
     !}
 
@@ -59,13 +59,13 @@
         text-align: center;
     }
         @media (min-width: 0px) and (max-width: 480px) {
-            #splashLogo { 
-                width: 200px; 
+            #splashLogo {
+                width: 200px;
             }
-        } 
+        }
         @media (min-width: 481px) {
-            #splashLogo { 
-                width: 280px; 
+            #splashLogo {
+                width: 280px;
             }
         }
         #formCont {
@@ -153,11 +153,11 @@
 
     <div id="loginCont">
         <div class="vaDiv"></div>
-        
+
         <div id="formCont">
             {! Hide this form if it is signup !}
-            
-            <form class="indexForms" id="loginForm" action="api/login" {@eq key=page value="signup"}style="display:none;"{/eq}> 
+
+            <form class="indexForms" id="loginForm" action="api/login" {@eq key=page value="signup"}style="display:none;"{/eq}>
                 <img id="splashLogo" src="{p.img}/logo-splash.png">
                 <div class="errHolder" style="display: none; color: red;"></div>
                 <input type="text" name="user" placeholder="Your username or email" required>
@@ -202,7 +202,7 @@
                 var takingTooLong = false;
                 $('#loginForm').on('submit', function(e) {
                     e.preventDefault(); var $button = $('#loginForm').find('button[type="submit"]');
-                    
+
                     //reset any errors
                     var $eHW = $(this).find('.errHolder');
                     $eHW.velocity('transition.slideUpOut', 200, function(el) {
@@ -222,10 +222,10 @@
                         if(takingTooLong) {
                             $('#errHolderTooLong').html('<label>Your login seems to be taking longer than usual. Please refresh and try again.</label>');
                             $('#errHolderTooLong').velocity('transition.slideDownIn', 200);
-                        }  
+                        }
                     }, 20000);
-                    
-                    
+
+
                     // Get some values from elements on the page:
                     var $form = $('#loginForm'),
                         $user = $form.find('input[name="user"]')
@@ -238,10 +238,10 @@
 
                     // Send the data using post
                     var posting = $.post( url, { user: user, password: password, rememberMe: rememberMe } );
-                    
+
                     //done
                     posting.done(function(data) {
-                        if(data.success) { 
+                        if(data.success) {
                             return window.location.replace("{p.home}");
                         }
 
@@ -279,7 +279,7 @@
             <!-- Signup Form -->
 
             {! Hide this form if page is login !}
-            <form class="indexForms" id="signupForm" action="api/signup" {@eq key=page value="login"}style="display:none;"{/eq}> 
+            <form class="indexForms" id="signupForm" action="api/signup" {@eq key=page value="login"}style="display:none;"{/eq}>
                 <h1>Signup</h1>
                 <p>
                     <label for="username">Username</label>
@@ -353,7 +353,7 @@
                 <p>You should be empowered to decide what you like and who you want to follow. The right kind of vogue is the kind you love.</p>
 
                 <p>Express yourself. Follow your <b>heart</b>.</p>
-            
+
                 <div id="learnMoreBottomLinks">
                     <span id="backToLoginLearnMore" class="clickable">Back to Login</span> | <span id="signUpLearnMore" class="clickable">Signup</span>
                 </div>
@@ -406,7 +406,7 @@
     <script src="{p.js}/streamFactory.js"></script>
     <script>
     streamFactory.init(renderJSON.posts, {
-        burst:5, 
+        burst:5,
         pinchZoom: true
     });
     </script>
