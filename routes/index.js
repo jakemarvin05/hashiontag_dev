@@ -63,7 +63,7 @@ router.get('/', function(req, res) {
         console.log('rendering');
         console.log(Date.now() - START_TIME);
 
-        res.render('index', { 
+        res.render('index', {
             /* generics */
             title: meta.header(),
             gJSON: gJSON,
@@ -85,7 +85,7 @@ router.get('/', function(req, res) {
     if(req.isAuthenticated()) {
         require('../apps/stream/streamJSON.js')(req, renderTheStream, null, START_TIME);
     } else {
-        res.render('index', { 
+        res.render('index', {
             title: meta.header(),
             gJSON: gJSON,
         p: gJSON.pathsJSON.paths,
@@ -105,7 +105,7 @@ router.get('/preview', function(req, res) {
     var gJSON = globalJSON(req);
 
     function thenRender(renderJSON) {
-        res.render('index', { 
+        res.render('index', {
             /* generics */
             title: meta.header(),
             gJSON: gJSON,
@@ -137,7 +137,7 @@ router.get('/latest', function(req, res) {
     var gJSON = globalJSON(req);
 
     function thenRender(renderJSON) {
-        res.render('index', { 
+        res.render('index', {
             /* generics */
             title: meta.header(),
             gJSON: gJSON,
@@ -166,31 +166,31 @@ router.post('/api/login', function(req, res) {
 
         if (err) { return res.json({ error: 'unknown'}) }
         if (!user) { return res.json({error : 'userpassword'}); }
-        
+
         req.login(user, {}, function(err) {
             if (err) { return res.json({error:err}); }
-            
+
             //=="true" because .rememberMe is a string
             if (req.body.rememberMe == "true" ) {
 
                 req.session.cookie.maxAge = 315360000000; // 10 years
 
             } else {
-                
+
                 req.session.cookie.maxAge = 3600000; //1 hour
             }
 
             return res.json({success: true});
 
         });
-        
+
     })(req, res);
 });
 
 router.get('/signup', function(req, res) {
     var gJSON = globalJSON(req);
-    
-    res.render('index', { 
+
+    res.render('index', {
         /* generics */
         title: meta.header(),
         gJSON: gJSON,
@@ -206,11 +206,11 @@ router.get('/signup', function(req, res) {
 router.post('/api/signup', function(req, res, next) {
 
     passport.authenticate('local-signup', function(err, user, info) {
-        if(err) { 
-            return res.json({error: 'unknown'}); 
+        if(err) {
+            return res.json({error: 'unknown'});
         }
-        if(!user) { 
-            return res.json({error: info}); 
+        if(!user) {
+            return res.json({error: info});
         }
         //log the user in
         req.logIn(user, function(err) {
@@ -236,7 +236,7 @@ router.get('/me', function(req, res) {
     //bind the final callback first
     eventEmitter.on('profileJSONDone', function thenRender(renderJSON) {
 
-        res.render('me', { 
+        res.render('me', {
             title: meta.header(),
             isLoggedIn: isLoggedIn(req),
             gJSON: gJSON,
@@ -265,7 +265,7 @@ router.get('/settings', function(req, res) {
 
     //bind the final callback first
     function thenRender(renderJSON) {
-        res.render('settings', { 
+        res.render('settings', {
             title: meta.header(),
             isLoggedIn: isLoggedIn(req),
             gJSON: gJSON,
@@ -369,7 +369,7 @@ router.get('/post', function(req, res) {
     //currently we are experimenting pure clientside render.
     CSRender = 30;
 
-    return res.render('post', { 
+    return res.render('post', {
         title: meta.header(),
         isLoggedIn: isLoggedIn(req),
         gJSON: gJSON,
@@ -404,7 +404,7 @@ router.get('/likes', function(req, res) {
     if(!req.isAuthenticated()) { return res.redirect('/'); }
 
     function thenRender(renderJSON) {
-        res.render('likes', { 
+        res.render('likes', {
             /* generics */
             title: meta.header(),
             gJSON: gJSON,
@@ -437,7 +437,7 @@ router.get('/search', function(req, res) {
 
     if(req.isAuthenticated()) {
 
-        res.render('search', { 
+        res.render('search', {
             /* generics */
             title: meta.header(),
             gJSON: gJSON,
@@ -476,7 +476,7 @@ router.get('/hashtag/:hashtag', function(req, res) {
     //bind the final callback first
     function thenRender(renderJSON) {
 
-        res.render('hashtag', { 
+        res.render('hashtag', {
             /* generics */
             title: meta.header(),
             gJSON: gJSON,
@@ -551,7 +551,7 @@ router.post('/api/notification', function(req, res) {
 });
 
 router.post('/api/getimage', function(req, res) {
-    
+
     if(req.body.userid) {
         return getImage({userId: req.body.userid});
     }
@@ -602,7 +602,7 @@ router.get('/p/:pid', function(req,res) {
 
     //bind the final callback first
     eventEmitter.on('singlePostJSONDone', function thenRender(renderJSON) {
-        res.render('singlePost', { 
+        res.render('singlePost', {
             title: meta.header(),
             isLoggedIn: req.isAuthenticated(),
             gJSON: gJSON,
@@ -653,7 +653,7 @@ router.get('/:user', function(req, res) {
         //console.log(renderJSON);
         if(!req.isAuthenticated()) { var showNav = "login";}
 
-        res.render('me', { 
+        res.render('me', {
             /*generic */
             title: meta.header(),
             gJSON: gJSON,
@@ -693,7 +693,7 @@ router.post('/api/errorreceiver', function(req, res) {
         ua: uap
     }
     userAndUA = JSON.stringify(userAndUA);
-    
+
     var hash = {
         where: req.body.where,
         type: req.body.errType,
@@ -720,7 +720,7 @@ router.post('/api/errorreceiver', function(req, res) {
 //dev routes
 //disable :user routes to get here.
 router.get('/dbtest', function(req, res) {
-         
+
     db.sequelize.authenticate().complete(function(err) {
         if (!!err) {
             console.log('Unable to connect to the database:', err);
