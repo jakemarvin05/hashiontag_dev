@@ -232,6 +232,10 @@ router.post('/api/signup', function(req, res, next) {
     // })
 });
 
+router.get('api/forgetpassword', function(req, res) {
+    res.json({success: false});
+});
+
 //ME
 router.get('/me', function(req, res) {
     if(!req.isAuthenticated()) { return res.redirect('/'); }

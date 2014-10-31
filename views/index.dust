@@ -383,9 +383,56 @@
         <!-- Forget password -->
             <div id="forgetPwd" style="display:none;">
 
-                <p>The Vogue & Verve development team is a very small one.</p>
-                <p>Please be patient as we try our very best to complete this feature.</p>
-                <p>Meanwhile, please contact <b>info@vogue-verve.com</b> for help and support.</p>
+                <p>Please key in your email to retrieve your password.</p>
+                <p>
+                    <input id="forgetEmail" type="text" name="email" placeholder="Your email">
+                </p>
+
+                <p class="emailErrorHolder"></p>
+
+                <p>
+                    <button class="darkButton" id="forgetEmailBut">Reset my password</button>
+                </p>
+
+                <script>
+                    var forgetAjax;
+                    $('#forgetEmailBut').click(function() {
+                        var self = this;
+                        var flasher = Object.create(VV.utils.Flasher);
+                        flasher.run($(this), 'button');
+                        $(this).attr('disabled', 'disabled');
+
+                        var email = $('#forgetEmail').val(),
+                            $errHolder = $('.emailErrorHolder');
+
+                        var msgOK  = '<span class="glyphicon glyphicon-ok"></span>';
+                            msgOK += 'The link to reset your password has been sent to your email.';
+
+                        var msgFail  = '<span class="glyphicon glyphicon-remove"></span>';
+                            msgFail += 'Either the email doesn\'t exist or a connection error occured. Please try again or contact info@vogue-verve.com.';
+
+                        forgetAjax = $.post('/api/forgetpassword', {email: email});
+
+                        forgetAjax.done(function(res) {
+                            console.log(res);
+                            flasher.kill();
+                            $(self).removeAttr('disabled');
+                            if(res.success) {
+
+                                return $errHolder.html(msgOK);
+                            }
+                            $errHolder.html(msgFail);
+                        });
+
+                        forgetAjax.fail(function(err) {
+                            flasher.kill();
+                            $(self).removeAttr('disabled');
+                            if(err.statusText === 'abort') { return false; }
+                            $errHolder.html(msgFail);
+                        });
+
+                    });
+                </script>
 
                 <div id="forgetPwdBottomLinks">
                     | <span id="backToLoginForgetPwd" class="clickable">Back to Login</span> |
@@ -394,6 +441,12 @@
             </div>
             <script>
             $('#backToLoginForgetPwd').click(function() {
+                //reset the form
+                forgetAjax.abort();
+                $('#forgetEmail').val('');
+                $('.emailErrorHolder').html('');
+
+
                 $('#forgetPwd').velocity('transition.slideLeftOut', 200, function() {
                     $('#loginForm').velocity('transition.slideRightIn', 200);
                 });
