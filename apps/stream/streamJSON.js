@@ -10,6 +10,12 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
         if(opts.showType) {
             var showType = opts.showType;
         }
+        if(opts.lastPostId){
+            var lastPostId = opts.lastPostId;
+        }
+        if(opts.lastLikeId){
+            var lastLikeId = opts.lastLikeId;
+        }
     }
 
     /* Error handling */
@@ -64,147 +70,143 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
     /* Here goes... */
 
     if(typeof showType === 'undefined') {
-        console.log('streamJSON: no showType.. finding posts...');
-        START_TIME = Date.now();
-
-        req.user.getFollows({attributes: ['userId']}, {raw: true}).then(function(users) {
-            console.log('got follows, pushing...');
-            console.log(Date.now() - START_TIME);
-            for(var i=0; i<users.length; i++) {
-                idArray.push(users[i].userId);
-            }
-            console.log('pushing complete');
-            console.log(Date.now() - START_TIME);
-
-            console.log('streamJSON: got the follows...getting posts');
-            var where = { User_userId : idArray};
-
-            //curated stream implementation. awaiting complete code....
-            // return [
-
-            //     db.Stream.findAll({
-            //         where: {User_userId: req.user.userId}, 
-            //         include: [{
-            //             model: db.Post,
-            //             include: [{   
-            //                 model: db.User,
-            //                 attributes: [ 'userNameDisp', 'userId', 'profilePicture' ]
-            //             }, { 
-            //                 model: db.Comment,
-            //                 attributes: ['commentId', 'comment', 'createdAt'],
-            //                 include: [{
-            //                     model: db.User,
-            //                     attributes: [ 'userNameDisp','profilePicture' ]
-            //                 }]
-            //             }, {
-            //                 model: db.Like,
-            //                 attributes: [ 'User_userId' ],
-            //                 include: [{
-            //                     model: db.User,
-            //                     attributes: [ 'userNameDisp' ]
-            //                 }]
-            //             }]
-            //         }], 
-            //         order: [
-            //             [db.Post, 'createdAt', 'DESC'], 
-            //             [db.Post, db.Comment, 'createdAt', 'ASC'] 
-            //         ],
-            //         limit: 20
-            //     }
-            //             // {raw: true,
-            //             // nest: true}
-            //     ),
-
-            //     req.user.getNotifications({
-            //         include: [
-            //             {
-            //                 model: db.User,
-            //                 as: 'Setter',
-            //                 attributes:['userId','userNameDisp']
-            //             }
-                        
-            //         ],
-            //         attributes: ['Post_postId','createdAt','type'],
-            //         order: [['createdAt', 'DESC']]
-            //     })
-            // ]
-
-            return [
-
-                db.Post.findAll({
-                    where: where, 
-                    include: include, 
-                    order: order,
-                    limit: 20
+            console.log('streamJSON: no showType.. finding posts...');
+             
+            //If there is a lastPostId = next streamLoad
+            if(lastPostId){
+                console.log('streamJSON: Last post loaded is postId: '+lastPostId);
+                var streamWhere = {
+                    User_userId: req.user.userId,
+                    Post_postId: {
+                        lt: lastPostId
+                    }
                 }
-                        //{raw: true,
-                        //nest: true}
-                ),
-
-                false
-                // req.user.getNotifications({
-                //     include: [
-                //         {
-                //             model: db.User,
-                //             as: 'Setter',
-                //             attributes:['userId','userNameDisp']
-                //         }
-                        
-                //     ],
-                //     attributes: ['Post_postId','createdAt','type'],
-                //     order: [['createdAt', 'DESC']]
-                // })
-            ]
-
-        }).spread(function(streams, notifications) {
-            console.log('post query complete.');
-            console.log(Date.now() - START_TIME);
-
-            console.log('streamJSON: db retrieval complete, likes splicing...');
-            //console.log(idArray);
-            //console.log(streams);
-
-            // //curated stream implementation
-            // var i = 0;
-            // var posts = {};
-            // while(streams[i]) {
-            //     posts[i] = streams[i].post;
-            //     i++;
-            // }
-
-            //console.log(posts);
-
-
-            //unDAO'ify the results.
-            //var posts = JSON.parse(JSON.stringify(posts));
-
-            //comment this when stream is in implementation
-            console.log('start stringify');
-            console.log(Date.now() - START_TIME);
-            var posts = JSON.parse(JSON.stringify(streams));
-            console.log('end stringify');
-            console.log(Date.now() - START_TIME);
-
-          
-            console.log('start splicer');
-            console.log(Date.now() - START_TIME);  
-            posts = likesSplicer(req, posts, idArray);
-            console.log('end splicer');
-            console.log(Date.now() - START_TIME);
-
-            //join notifications and posts
-            if(posts.length === 0) { 
-                renderJSON.posts = false;
-            } else {
-                renderJSON.posts = posts;
             }
-            renderJSON.notifications = notifications;
 
-            //console.log(JSON.stringify(posts));
+            //If there is no lastPostId = first streamLoad
+            else{
+                console.log('streamJSON: New streams loading...');
+                var streamWhere = {
+                    User_userId: req.user.userId
+                }
+            }
 
-            return render(renderJSON);
+            req.user.getFollows({attributes: ['userId']}).then(function(users) {
 
-        }).catch(throwErr);
+                for(var i in users) {
+                    idArray.push(users[i].values['userId']);
+                }
+
+                console.log('streamJSON: got the follows...getting posts');
+                var where = { User_userId : idArray};
+
+                //curated stream implementation. awaiting complete code....
+                return [
+
+                    db.Stream.findAll({
+                        where: streamWhere, 
+                        include: [{
+                            model: db.Post,
+                            include: include
+                        }], 
+                        order: [
+                            ['id', 'DESC'], 
+                            [db.Post, db.Comment, 'createdAt', 'ASC'] 
+                        ],
+                        limit: 10
+                    }
+                            // {raw: true,
+                            // nest: true}
+                    ),
+
+                    req.user.getNotifications({
+                        include: [
+                            {
+                                model: db.User,
+                                as: 'Setter',
+                                attributes:['userId','userNameDisp']
+                            }
+                            
+                        ],
+                        attributes: ['Post_postId','createdAt','type'],
+                        order: [['createdAt', 'DESC']]
+                    })
+                ]
+
+                // return [
+
+                //    db.Post.findAll({
+                //         where: where, 
+                //         include: include, 
+                //         order: [
+                //             ['createdAt', 'DESC'], 
+                //             [db.Comment, 'createdAt', 'ASC'] 
+                //         ],
+                //         limit: 20
+                //     }
+                //             // {raw: true,
+                //             // nest: true}
+                //     ),
+
+                //     req.user.getNotifications({
+                //         include: [
+                //             {
+                //                 model: db.User,
+                //                 as: 'Setter',
+                //                 attributes:['userId','userNameDisp']
+                //             }
+                            
+                //         ],
+                //         attributes: ['Post_postId','createdAt','type'],
+                //         order: [['createdAt', 'DESC']]
+                //     })
+                // ]
+
+            }).spread(function(streams, notifications) {
+                //console.log(JSON.stringify(streams));
+                console.log('streamJSON: db retrieval complete, likes splicing...');
+                //console.log(idArray);
+                //console.log(JSON.stringify(streams));
+
+                // //curated stream implementation
+                // var i = 0;
+                // var posts = {};
+                // while(streams[i]) {
+                //     posts[i] = streams[i].post;
+                //     i++;
+                // }
+
+                //console.log(posts);
+
+                
+                //unDAO'ify the results.
+                //var posts = JSON.parse(JSON.stringify(posts));
+
+                //comment this when stream is in implementation
+                var streams = JSON.parse(JSON.stringify(streams));
+                var posts = {};
+                var lastPostId;
+
+                for(var i=0;i<Object.keys(streams).length;i++){
+                    posts[i] = streams[i].post;
+                    lastPostId = posts[i].postId;
+                }
+                //console.log(posts);
+                //console.log(posts);
+                
+                posts = likesSplicer(posts);
+                //console.log(posts[0]);
+
+                //join notifications and posts
+                renderJSON.posts = posts;
+                renderJSON.notifications = notifications;
+                console.log(streams);
+                renderJSON.lastPostId = lastPostId;
+                //console.log(JSON.stringify(posts));
+
+                return render(renderJSON);
+
+            }).catch(throwErr);
 
     } else if(showType === 'preview') {
 
@@ -228,6 +230,23 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
 
         console.log('streamJSON: likes showType.. finding posts...');
 
+        if(lastLikeId){
+            console.log('streamJSON: Last like loaded is likeId: '+lastLikeId);
+            var likeWhere = {
+                User_userId: req.user.userId,
+                likeId: {
+                    lt: lastLikeId
+                }
+            }
+        }
+
+        //If there is no lastPostId = first streamLoad
+        else{
+            console.log('streamJSON: New like loading...');
+            var likeWhere = {
+                User_userId: req.user.userId
+            }
+        }
         var order = [
             ['likeId', 'DESC'],
             [db.Post, db.Comment, 'createdAt', 'ASC'] 

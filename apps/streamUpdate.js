@@ -1,35 +1,223 @@
 
 var db = require('../models');
+var events = require('events');
+var eventEmitter = new events.EventEmitter();
+var noUpdates=0;
+var startTime;
+
+eventEmitter.on('Done', function(){
+    console.log('Completed updating!');
+    console.log('start time: '+startTime);
+    console.log('end time: '+ Date.now());
+    res.send('Done updating Stream.');
+})
 
 module.exports = function allUserStreamUpdate() {
 
-    var allUser = [];
-
+    var allUserInstance;
+    startTime = Date.now();
     db.User.findAll({
-        attributes: ['userId']
+        //attributes: ['userId', 'lastStreamUpdate']
     }).then(function(result){
-        
+        //console.log(JSON.stringify(result));
+        noUpdates = Object.keys(result).length;
         var item = Object.keys(result).length;
         console.log('Number of Users: '+item);
+        for (var i=0;i<item;i++){
+            //console.log(JSON.stringify(result[i]));
+            //for each user do something
+            updateStream(result[i].values['userId'], result[i].values['lastStreamUpdate']);
+            //console.log(Date.now());
+            result[i].lastStreamUpdate = Date.now();
+            //console.log(JSON.stringify(result[i]));
+            result[i].save().catch(function(err){
+                console.log(err);
+            });
+        }
 
-        for(var index=0; index<item; index++){
-            allUser.push(result[index].values['userId']);
-        }
-        console.log(allUser);
-        //-------------------UPDATE STREAM SCORE------------------------------//
-        for(user in allUser){ //for all user, update stream score then mapStreamScoreToStream
-            updateStreamScore(user, db);
-        }
-        for(user in allUser){
-            mapStreamScoreToStream(user);
-        }
+    }).catch(function(err){
+        res.send('Error occured. '+Date.now());
+        console.log(err);
     });
-    
 
+
+    // for(var index=0; index<item; index++){
+    //     allUser.push(result[index].values['userId']);
+    // }
+    // console.log(allUser);
+    //-------------------UPDATE STREAM SCORE------------------------------//
+    // for(user in allUser){ //for all user, update stream score then mapStreamScoreToStream
+    //     updateStreamScore(user, db);
+    // }
+    // for(user in allUser){
+    //     mapStreamScoreToStream(user);
+    // }
     //-------------------GRAB POPULAR POST NOT RELATED TO USER------------//
-    obtainPopularPost();
+    //obtainPopularPost();
 }
 
+
+function updateStream(userId, lastStreamUpdate){
+    var maxStore = 5;
+
+    //console.log('\n-----------user id: '+ userId+'--------------');
+
+    db.Following.findAll({
+        where: {
+            FollowerId: userId
+        },
+        attributes: ['affinityId', 'affinity'],
+        include: [{
+            model: db.User,
+            attributes: ['userId'],
+            include: [{
+                model: db.Post,
+                where: {
+                    createdAt: {
+                        gte: lastStreamUpdate
+                    }
+                },
+                attributes: ['postId', 'createdAt']//,
+                //order: [['createdAt', 'DESC']],
+            }]
+        }],
+        order: [['affinity', 'DESC']]
+
+    }).then(function(result){
+        //console.log('------------------------------------');
+        //console.log(JSON.stringify(result));
+        // console.log(Date());
+        //console.log('------------------------------------');
+        var toBePushed = [];
+        var postCount;
+        var toBeReduced = [];
+        var tempPosts =[];
+        var reduceBy = 0;
+
+
+        //console.log('last stream update: '+ result.values['lastStreamUpdate']);
+        console.log('\n-----------user id: '+ userId+'--------------');
+        console.log('Number of users followed by userId '+userId+' : '+ result.length);
+
+        for(var i=0;i<result.length;i++){
+            tempPosts =[];
+            postCount = 0;
+            reduceBy = 0;
+
+            if(maxStore ===0){
+                    console.log('MaxStored reached! Ignoring Next user. Returning...');
+                    break;
+                }
+                
+            for(var p=0;p<result[i].values['user'].values['posts'].length;p++){
+                if(maxStore ===0){
+                    console.log('MaxStored reached! Returning...');
+                    break;
+                }
+
+                toBePushed.push({ 
+                    Post_postId: result[i].values['user'].values['posts'][p].values['postId'], 
+                    User_userId: userId, 
+                    streamKey:0
+                });
+                tempPosts.push(result[i].values['user'].values['posts'][p].values['postId']);
+                postCount+=1;
+                maxStore -=1;
+            }
+
+            reduceBy = Math.min(postCount, result[i].values['affinity']);
+            //console.log(toBePushed);
+            console.log('affinityID: '+result[i].values['affinityId']+' reduced by '+reduceBy);
+            result[i].affinity = Math.floor(result[i].affinity);
+            result[i].affinity -= reduceBy+(Math.random()/1000);
+
+            // toBeReduced.push({
+            //     affinityId: result[i].values['affinityId'],
+            //     affinity: Math.min(postCount, result[i].values['affinity'])
+            // });
+
+
+            // FOR CHECKING ONLY
+            // console.log('userId: '+ result[i].values['user'].values['userId']);
+            // console.log('affinity: '+ result[i].values['affinity']);
+            // console.log('number of Posts: '+ postCount);
+            // console.log('postIds: '+tempPosts);
+            // console.log('recducing affinity by: '+Math.min(postCount, result[i].values['affinity']));
+            // console.log('remaining Posts: '+maxStore);
+        }
+
+        console.log('---------DB STORE-----------');
+        // console.log('Summary affinity reduction: ');
+        // console.log(toBeReduced);
+        //console.log('Items to push to stream table : '+ toBePushed.length+' items.');
+       // console.log(toBePushed);
+        console.log('Storing into stream table...');
+        storeStream(toBePushed, userId);
+        console.log('Updating affinity score...');
+        for(var i=0;i<result.length;i++){
+            result[i].save().catch(function(err){
+                console.log(err);
+            });
+        }
+        //decrementAffinity(toBeReduced);
+        console.log('---------/DB STORE-----------');
+        //console.log(JSON.stringify(result));
+        
+    })
+    
+}
+
+//This method stores the popular post into the Stream Table.
+function storeStream(storeObject, userId){
+
+    // var bulk = [];
+    // for(var i=0;i<postIdArray.length;i++){
+
+    // }
+    console.log(storeObject);
+    db.Stream.bulkCreate(
+        storeObject
+    ).success(function(){
+        console.log('Stream Stored for userId: '+ userId);
+        noUpdates -=1; 
+        console.log('updates remaining: '+noUpdates);
+        if(noUpdates===0){
+            eventEmitter.emit('Done');
+        }
+    }).catch (function(err){
+        noUpdates -=1; 
+        console.log('updates remaining: '+noUpdates);
+        if(noUpdates===0){
+            eventEmitter.emit('Done');
+        }
+        console.log('Stream Store ERROR for userId: '+ userId);
+        console.log(err);
+    });
+}
+function decrementAffinity(affinityObject){
+    var affinityId =[]
+    for(var i=0;i<affinityObject.length;i++){
+        console.log('AffinityID: '+affinityObject[i].affinityId);
+        console.log('reduced by: '+affinityObject[i].affinity);
+        if(affinityObject[i].affinity===0){
+            console.log('Not reducing affinity as it is 0 reduction. Continue...');
+            continue;
+        }
+
+    }
+}
+
+/*
+1. db.find all post of user followed> lastStreamUpdate
+2. user.getFollow, set user last stream Update = time.now()
+3. 
+you query posts createdAt > updated
+
+then sort by affinity score take top... X
+
+push to Stream table, decrement affinity
+the score is affinity score
+*/
 
 //------------The method listed below assumes that variable db is global-------------
 
@@ -230,28 +418,6 @@ function pushPostToAllFollowers(postId, userId){
     });
 }
 
-//This method stores the popular post into the Stream Table.
-function storeStream(postId, userId){
-    var streamKey = postId.toString() +'.'+ userId.toString();
-    streamKey = parseFloat(streamKey);
-    console.log(streamKey);
-
-    db.Stream.find({
-        where: {
-            streamKey: streamKey
-        },
-    }).then(function (result){
-
-        if(result){//data exist then do nothing.
-           console.log('Stream Exist!\nNot doing anything...\n ');
-            
-        } else{//data does not exist then create
-            db.Stream.create({ Post_postId: postId, User_userId: userId, streamKey: streamKey }).then(function(Stream) {
-              console.log('Pushed postId: '+postId+' to userId: '+userId+'\n');
-            });
-        }
-    });
-}
 
 /*this method will update a user Stream Table with top n number of posts from the StreamScore table.
  *IMPORTANT PARAMETERS THAT LIMIT THE DB SEARCH RESULT
