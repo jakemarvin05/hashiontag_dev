@@ -96,7 +96,7 @@ function addCommentIncrementScores(db, req){
 
         }).then(function(following){
             //console.log(following);
-            return following.increment('affinity', {by: 1})
+            return following.increment('affinity', {by: 3})
         }).then(function() {
             console.log('Incremented affinity...\n');
         }).catch(function(err) {

@@ -12,12 +12,20 @@ module.exports = function(sequelize, DataTypes) {
         },
         affinity: {
             type: DataTypes.DECIMAL(1000, 6), //or manually set datatype to real
-            allowNull: false
+            allowNull: false,
+            defaultValue: 0
         }
     }, {
         timestamps: true,
         updatedAt: false,
         tableName: 'Following', //PascalCase
+        classMethods: {
+            associate: function(models) {
+                //following belongs to user
+                Following.belongsTo(models.User, {foreignKey: 'FollowId'});
+
+            }
+        }
     });
 return Following;
 };

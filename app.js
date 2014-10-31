@@ -67,18 +67,10 @@ app.use(session({
 // app.use(session({ secret: 'hashionhashion' })); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
-//app.use(flash()); // DEPRECATED: use connect-flash for flash messages stored in session
 
 //routing
 app.use('/', routes);
 app.use('/users', users);
-
-//safari caching bug.
-//disabling etag takes away some performance gains.
-//more on this issue: https://github.com/jshttp/fresh/issues/8
-//app.disable('etag');
-
-
 
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -123,38 +123,40 @@ function addLikeIncrementScores(req){
             attribute: ['affinity']
         });
     }).then(function(following) {
-
-        return following.increment('affinity', {by: 1});
-
-    }).then(function(following) {
+        console.log('Incremented affinity...\n');
+        following.values['affinity'] = Math.floor(following.values['affinity']) + 2 + Math.random()/1000;
         return following.save();
-            console.log('Incremented affinity...\n');
+
     }).catch(function(err) {
         console.log(err);
     })
 }
 
 function removeLikeDecrementScores(req){
-    db.Post.find(req.body.postId).then(function(post) {
-        
-        return post.decrement('postScore', {by: 1});
+    db.Post.find({
+        where: {postId: req.body.postId},
+        attributes: ['postId', 'postScore', 'User_userId']
+    }).then(function(post) {
+        post
+        .decrement('postScore', {by: 1})
+        .catch(function(err) {
+            console.log(err);
+        });
 
-    }).then(function(){
         console.log('Decremented post scores....\n');
+
+        return db.Following.find({
+            where: {
+                FollowerId: req.user['userId'],
+                FollowId: post.getDataValue('User_userId')
+            },
+            attribute: ['affinity']
+        });
+    // }).then(function(following) {
+    //     console.log('Decremented affinity...\n');
+    //     return following.increment('affinity', {by: 2});//unlike should not decrement affinity.
+
     }).catch(function(err) {
-        console.log(fname + 'error in decrementing post score: ' + err);
-    });
-        
-    db.Following.find({
-        where: {
-            FollowerId: req.user.userId,
-            FollowId: req.user.postOwnerId
-        }
-    }).then(function(following){
-        //console.log(following);
-        console.log('Decremented affinity...\n');
-        return following.decrement('affinity', {by: 1});
-    }).catch(function(err) {
-        console.log(fname + 'error in decrementing affiinity: ' + err);
-    });
+        console.log(err);
+    })
 }

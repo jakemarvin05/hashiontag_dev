@@ -83,6 +83,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false
+        },
+        lastStreamUpdate:{
+            type: DataTypes.DATE,
+            allowNull: true
         }
     }, {
         timestamps: true,
@@ -105,7 +109,7 @@ module.exports = function(sequelize, DataTypes) {
                 */
                 User.hasMany(models.User, {as: 'Followers', foreignKey: 'FollowId', through: models.Following });
 
-
+                User.hasMany(models.Following, {foreignKey: 'FollowerId'});
 
                 //COMMENT
                 User.hasMany(models.Comment, {foreignKey: 'User_userId'});
