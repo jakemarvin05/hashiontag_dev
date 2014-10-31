@@ -40,7 +40,7 @@ var fs        = require('fs'),
 
 
 // db.User.sync();
-sequelize.sync()
+//sequelize.sync()
 
 fs
 .readdirSync(__dirname)

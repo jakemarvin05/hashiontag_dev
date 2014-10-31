@@ -102,15 +102,6 @@
 
             <!-- Removed navigation 
 
-            LOGOUT PUT WHERE??
-            <a href="{p.logout}">
-                <div class="navButtons">
-                    <div class="icon-heart"></div>
-                    <span>Logout</span>
-                </div>
-            </a>
-
-
             <a href="{p.following}"><div class="navButtons">Following</div></a>
             <a href="{p.followers}"><div class="navButtons">Followers</div></a>
             <a href="{p.signup}"><div class="navButtons">Signup</div></a>
@@ -122,7 +113,7 @@
 $(function() {
     var $nW = $('.navWrapper'),
         $oB = $('#opacBar'),
-        oH = $nW.height();
+        oH = $nW.height(),
         tH = 100,
         h = 50;
     $(window).scroll(function (e) {

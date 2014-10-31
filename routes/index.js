@@ -23,6 +23,17 @@ var ig = require('instagram-node').instagram();
 
 module.exports = router;
 
+router.get('/test', function(req, res) {
+    db.User.findAll().then(function(users) {
+        var i=0;
+        while(users[i]) {
+            users[i].updateAttributes({
+                lastStreamUpdate: null
+            });
+            i++;
+        }
+    });
+});
 
 router.get('/error', function(req, res) {
     res.send('error');
