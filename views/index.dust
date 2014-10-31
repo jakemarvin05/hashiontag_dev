@@ -201,14 +201,16 @@
                 var submitFlasher = Object.create(VV.utils.Flasher);
                 var takingTooLong = false;
                 $('#loginForm').on('submit', function(e) {
-                    e.preventDefault(); var $button = $('#loginForm').find('button[type="submit"]');
+                    console.log('submit clicked');
+                    e.preventDefault(); 
+                    var $button = $('#loginForm').find('button[type="submit"]');
 
                     //reset any errors
                     var $eHW = $(this).find('.errHolder');
                     $eHW.velocity('transition.slideUpOut', 200, function(el) {
                         $(el).empty();
                     });
-
+                    console.log('flashing');
                     //start flasher
                     submitFlasher.run($button, 'button');
 
@@ -218,6 +220,7 @@
 
                     //taking too long message timeout
                     takingTooLong = true;
+                    console.log('set "taking too long" timeout');
                     setTimeout(function() {
                         if(takingTooLong) {
                             $('#errHolderTooLong').html('<label>Your login seems to be taking longer than usual. Please refresh and try again.</label>');
@@ -225,23 +228,26 @@
                         }
                     }, 20000);
 
-
+                    console.log('getting form values');
                     // Get some values from elements on the page:
                     var $form = $('#loginForm'),
-                        $user = $form.find('input[name="user"]')
+                        $user = $form.find('input[name="user"]'),
                         user = $user.val(),
-                        $password = $form.find('input[name="password"]')
+                        $password = $form.find('input[name="password"]'),
                         password = $password.val(),
                         rememberMe = $form.find('input[name="rememberMe"]').is(':checked'),
                         url = $form.attr("action"),
                         submitButton = $form.find('button[id="submit"]');
 
+                    console.log('posting ajax');
                     // Send the data using post
                     var posting = $.post( url, { user: user, password: password, rememberMe: rememberMe } );
+
 
                     //done
                     posting.done(function(data) {
                         if(data.success) {
+                            console.log('success!');
                             return window.location.replace("{p.home}");
                         }
 
@@ -264,6 +270,7 @@
 
                     //fail
                     posting.fail(function() {
+                        console.log('failed!');
                         submitFlasher.kill();
                         $button.html($button.attr('data-attr-html'));
                         takingTooLong = false;

@@ -4,11 +4,11 @@ module.exports = function(sequelize, DataTypes) {
 
     var Stream = sequelize.define('Stream', {   
         
-        streamKey: {//cant change
-            type: DataTypes.INTEGER,//DataTypes.DECIMAL(1000,500), //this means 1000 digits, with 500 decimal digits
-            //primaryKey: true,
+        streamKey: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
             allowNull: false,
-            //autoIncrement: false
+            autoIncrement: false
         }
     }, {
         timestamps: true, 

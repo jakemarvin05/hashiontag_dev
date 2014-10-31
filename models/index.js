@@ -1,9 +1,9 @@
 // Digital Ocean Local URL
-var databaseUrl = 'postgresql://username:password@localhost:5432/database?native=false'
+//var databaseUrl = 'postgresql://username:password@localhost:5432/database?native=false'
 // Digital Ocean Development URL
-// var databaseURL = 'postgresql:://postgres:mondayblues@128.199.242.236/postgres_dev'
+var databaseUrl = 'postgresql://postgres:mondayblues@128.199.242.236:5432/postgres_dev';
 // Digital Ocean Production? URL
-// var databaseURL = 'postgresql:://postgres:password@localhost/postgres'
+// var databaseUrl = 'postgresql:://postgres:password@localhost/postgres'
 
 var fs        = require('fs'),
     path      = require('path'),
@@ -40,7 +40,7 @@ var fs        = require('fs'),
 
 
 // db.User.sync();
-//sequelize.sync()
+sequelize.sync()
 
 fs
 .readdirSync(__dirname)
