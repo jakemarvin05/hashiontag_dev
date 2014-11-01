@@ -172,13 +172,21 @@ module.exports = function allUserStreamUpdate(req, res) {
             //console.log('Items to push to stream table : '+ toBePushed.length+' items.');
            // console.log(toBePushed);
             console.log('Storing into stream table...');
+            //flip the order of toBePushed
+            toBePushed.reverse();
             storeStream(toBePushed, userId, res);
             console.log('Updating affinity score...');
+
+            //for all the user daos, loop through.
             for(var i=0;i<result.length;i++){
-                console.log(results[i]._hasChanged);
-                result[i].save().catch(function(err){
-                    console.log(err);
-                });
+                
+                //if there are changes, call save();
+                if(results[i]._hasChanged) {
+                    result[i].save().catch(function(err){
+                        console.log(err);
+                    });
+                }
+                
             }
             //decrementAffinity(toBeReduced);
             console.log('---------/DB STORE-----------');
