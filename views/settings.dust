@@ -49,14 +49,22 @@
         <div class="settingsCont">
             <h2>Change password</h2>
             <form id="changePassword">
-                <table>
+                <table style="width:350px;">
+                    <thead>
+                        <tr>
+                            <td></td>
+                            <td style="text-align: center;">
+                                <button type="button" style="height: 28px;font-size: 10px;" class="darkButton" id="showPassword">Show Password</button>
+                            </td>
+                        </tr>
+                    </thead>
                     <tbody>
                         <tr>
                             <td>
                                 Current password:
                             </td>
                             <td>
-                                <input type="text" id="currPwd" name="currPwd" placeholder="Type in your current password..">
+                                <input type="password" id="currPwd" name="currPwd" placeholder="Type in your current password..">
                             </td>
                         </tr>
                         <tr>
@@ -64,7 +72,7 @@
                                 New password:
                             </td>
                             <td>
-                                <input type="text" id="newPwd" name="newPwd" placeholder="Your new password">
+                                <input type="password" id="newPwd" name="newPwd" placeholder="Your new password">
                             </td>
                         </tr>
                         <tr>
@@ -72,7 +80,7 @@
                                 Type your new password again:&nbsp;
                             </td>
                             <td>
-                                <input type="text" name="newPwdR" placeholder="Type in your current password..">
+                                <input type="password" name="newPwdR" placeholder="Type in your current password..">
                             </td>
                         </tr>
                         <tr>
@@ -141,6 +149,17 @@
 
 <!-- start change password -->
 <script>
+$('#showPassword').click(function(e) {
+    e.preventDefault();
+    $('#changePassword input').each(function(i, el) {
+        var type = $(el).attr('type');
+        if(type === "password") {
+            $(el).attr('type', 'text');
+        } else {
+            $(el).attr('type', 'password');
+        }
+    });
+});
 $('#changePassword').validate({
     rules: {
         currPwd: {
@@ -238,7 +257,7 @@ $('#instagramLink').validate({
         instaScreenName: {
             required: true,
             minlength: 5,
-            regex: '^[a-zA-Z0-9_@]*$'
+            regex: '^[a-zA-Z0-9_@.]*$'
         }
     },
     messages: {
