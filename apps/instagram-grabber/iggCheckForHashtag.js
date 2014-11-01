@@ -35,7 +35,6 @@ module.exports = function iggCheckForHashtag(insta, completionCallback) {
             //this post is done.
             postComplete(insta);
 
-
         }
 
     }
