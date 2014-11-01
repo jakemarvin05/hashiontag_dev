@@ -121,8 +121,6 @@ io.on('connection', function(socket) {
     });
 });
 
-//uncomment if we need to export io instance
-//exports.io = io;
 global.ioSockets = ioSockets;
 
 module.exports = app;
@@ -132,7 +130,18 @@ server.listen(3001, function() {
 });
 
 var moment = require('moment');
+
 //console.log time very 5 minutes
 setInterval(function() {
     console.log(moment().format());
 }, 300000);
+
+//STREAM UPDATE
+//TODO, shift this and instagram grabber into another app.
+var streamUpdate = require('./apps/streamUpdate.js');
+var updateStreamEvery = 5; //5 minutes.
+streamUpdate();//initial run
+//interval
+setInterval(function() {
+    streamUpdate();
+}, updateStreamEvery*60*1000);

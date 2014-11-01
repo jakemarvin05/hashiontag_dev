@@ -11,7 +11,7 @@ eventEmitter.on('Done', function(res){
     console.log('Completed updating!');
     console.log('start time: '+startTime);
     console.log('end time: '+ Date.now());
-    res.send('Done updating Stream.');
+    if(res) { res.send('Done updating Stream.'); }
 });
 
 module.exports = function allUserStreamUpdate(req, res) {
@@ -38,7 +38,7 @@ module.exports = function allUserStreamUpdate(req, res) {
         }
 
     }).catch(function(err){
-        res.send('Error occured. '+Date.now());
+        if(res) { res.send('Error occured. '+Date.now()); }
         console.log(err);
     });
 
