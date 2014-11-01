@@ -503,8 +503,6 @@ $("#doneScaling").click(function(){
 $("#postButton").click(function(e){
     e.preventDefault();
 
-    if($('#desc').val().length === 0) { return aF.protoAlert('Please include a description.'); }
-
     $("#postCont").velocity("transition.slideLeftOut", 200);
     $("#progressBarCont").velocity("transition.slideRightIn", 200);
 

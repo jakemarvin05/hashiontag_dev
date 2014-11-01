@@ -15,7 +15,7 @@ module.exports = function(sequelize, DataTypes) {
             },
             desc: {
                 type: DataTypes.STRING(4000),
-                allowNull: false
+                allowNull: true
             },
             imgUUID: {
                 type: DataTypes.STRING,
