@@ -809,6 +809,11 @@ textarea {
   margin-top: -49px;
   position: relative;
 }
+.streamLoadMore {
+  text-align: center;
+  margin-top: 20px;
+  color: #ccc;
+}
 /* leftCol specifics */
 /*-------------------------------------------------
 5. footer

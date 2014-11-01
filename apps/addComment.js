@@ -69,6 +69,8 @@ module.exports = function addComment(req, res) {
 
 function addCommentIncrementScores(db, req){
 
+    var commentBonus = 3;
+
     db.Post.find(req.body.postId).then(function(post) {
 
         //don't increment the score if it is the owner commenting.
@@ -98,7 +100,7 @@ function addCommentIncrementScores(db, req){
             if(!following) { return false; }
 
             console.log('Incremented affinity...\n');
-            return following.increment('affinity', {by: 3});
+            return following.increment('affinity', {by: commentBonus});
 
 
         }).catch(function(err) {

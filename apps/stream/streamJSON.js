@@ -1,9 +1,7 @@
 var db = global.db;
 var likesSplicer = require('./likesSplicer');
 
-module.exports = function streamJSON(req, render, opts, START_TIME) {
-
-    START_TIME = START_TIME;
+module.exports = function streamJSON(req, render, opts) {
 
     /* OPTIONS */
     if(opts) {
@@ -59,6 +57,9 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
         [db.Comment, 'createdAt', 'ASC'] 
     ]
 
+    /*DEFAUT SETTINGS */
+    var streamLimit = 10;
+
     /*DEFAULT HOLDERS TO USE*/
     var renderJSON = {
         posts: [],
@@ -69,7 +70,7 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
 
     /* Here goes... */
 
-    if(typeof showType === 'undefined') {
+    if(typeof showType === 'undefined' || showType === 'stream') {
 
         console.log('streamJSON: no showType.. finding posts...');
          
@@ -113,7 +114,7 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
                         ['streamKey', 'DESC'], 
                         [db.Post, db.Comment, 'createdAt', 'ASC'] 
                     ],
-                    limit: 10
+                    limit: streamLimit + 1
                 }),
 
                 false
@@ -133,22 +134,25 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
 
         }).spread(function(streams, notifications) {
 
-            //unDAO'ify the results.
-            var streams = JSON.parse(JSON.stringify(streams));
 
-            //get the lastPostId and also join the posts into a single array
-            var i = 0;
-            var lastPostId;
+            //join the posts into a single array
+            //also, don't push in the limit + 1'th post. It is only for use to know if there is
+            //load more.
             var posts = [];
-            while(streams[i]) {
-                var post = streams[i].post;
+            for(var i=0; i < streamLimit; i++) {
+                var stream = streams[i];
+                if(!stream) { break; }
+                var post = stream.post;
                 posts.push(post);
-                lastPostId = post.postId;
-                i++;
             }
 
-            console.log(posts);
-
+            //assume no more posts to load
+            var lastPostId = false;
+            if(streams.length > streamLimit) {
+                //if the limit + 1'th post exist, set last id to the limit'th post.
+                lastPostId = streams[streamLimit].streamKey;
+            }
+  
             console.log('streamJSON: db retrieval complete, likes splicing...');
 
             
@@ -264,7 +268,7 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
 
     } else if(showType === 'hashtag') {
 
-        if(typeof req.params.hashtag === 'undefined') { return res.direct('/'); }
+        if(typeof req.params.hashtag === 'undefined') { return res.redirect('/'); }
 
         console.log('streamJSON: hashtags showType.. finding posts...');
 
@@ -296,12 +300,6 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
             ]
 
         }).spread(function(hashtag, follows) {
-            //console.log(JSON.stringify(hashtag));
-
-            //var posts = hashtag.posts
-            //console.log(posts);
-
-            //if(!posts || posts.length === 0) { return render(false); }
 
             if(follows) {
                 for(var i=0; i<follows.length; i++) {
@@ -311,19 +309,6 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
 
             var hashtag = JSON.parse(JSON.stringify(hashtag));
 
-            //modify the outcome
-            //need to float posts out of the nesting.
-            // var i = 0;
-            // var posts = {}
-            // var lastLikeId;
-            // while(likePosts[i]) {
-            //     var likePost = likePosts[i];
-            //     posts[i] = likePost.post;
-            //     lastLikeId = likePost.likeId;
-            //     i++;
-            // }
-            //renderJSON.lastLikeId = lastLikeId
-
             renderJSON.posts = hashtag.posts;
             renderJSON.hashtag = hashtag.hashtagId;
 
@@ -331,9 +316,9 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
 
             if(req.isAuthenticated() ) { 
                 renderJSON.posts = likesSplicer(req, renderJSON.posts, idArray);
-                renderJSON.postCount = Object.keys(renderJSON.posts).length;
+                renderJSON.postCount = renderJSON.posts.length;
             } else {
-                renderJSON.postCount = Object.keys(renderJSON.posts).length;
+                renderJSON.postCount = renderJSON.posts.length;
             }
             return render(renderJSON);
 

@@ -71,12 +71,8 @@ router.get('/error', function(req, res) {
 router.get('/', function(req, res) {
     //sys.puts(sys.inspect(req));
     var gJSON = globalJSON(req);
-    var START_TIME = Date.now();
 
     function renderTheStream(renderJSON) {
-        console.log('rendering');
-        console.log(Date.now() - START_TIME);
-
         res.render('index', {
             /* generics */
             title: meta.header(),
@@ -91,13 +87,11 @@ router.get('/', function(req, res) {
             /* specifics */
             showStream: true,
         });
-        console.log('end render');
-        console.log(Date.now() - START_TIME);
     }
 
     //do something about the "preview"
     if(req.isAuthenticated()) {
-        require('../apps/stream/streamJSON.js')(req, renderTheStream, null, START_TIME);
+        require('../apps/stream/streamJSON.js')(req, renderTheStream, null);
     } else {
         res.render('index', {
             title: meta.header(),
@@ -113,7 +107,6 @@ router.get('/', function(req, res) {
     }
 });
 
-// Homepage
 router.get('/preview', function(req, res) {
     //sys.puts(sys.inspect(req));
     var gJSON = globalJSON(req);
@@ -144,7 +137,7 @@ router.get('/preview', function(req, res) {
     require('../apps/stream/streamJSON.js')(req, thenRender, {showType: "preview"});
 });
 
-// Homepage
+
 router.get('/latest', function(req, res) {
     //sys.puts(sys.inspect(req));
     if(!req.isAuthenticated()) { return res.redirect('/'); }
@@ -169,6 +162,21 @@ router.get('/latest', function(req, res) {
     }
 
     require('../apps/stream/streamJSON.js')(req, thenRender, {showType: "preview"});
+});
+
+router.post('/api/getstream/:showtype/:lastpostid', function(req, res) {
+
+    var params = {
+        showType: req.params.showtype,
+        lastPostId: req.params.lastpostid
+    }
+
+    function render(renderJSON) {
+        res.json(renderJSON);
+    }
+
+    require('../apps/stream/streamJSON.js')(req, render, params);
+
 });
 
 router.get('/login', function(req, res) {
