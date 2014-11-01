@@ -40,13 +40,12 @@ module.exports = function iggCheckForHashtag(insta, completionCallback) {
 
     }
 
-    function postComplete(insta) {
-        insta.postCount -= 1;
-        if(insta.postCount === 0) {
-            return completionCallback("repost");
-        }
-        console.log(fname + insta.postCount + ' more posts to go for userid: ' + insta.User_userId);
-    }
+    return completionCallback("repost");
+
+}
 
 
+function postComplete(insta) {
+    insta.postCount -= 1;
+    console.log(fname + insta.postCount + ' more posts to go for userid: ' + insta.User_userId);
 }
