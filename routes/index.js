@@ -32,7 +32,10 @@ router.get('/test', function(req, res) {
             });
             i++;
         }
+    }).then(function() {
+        res.send();
     });
+
 });
 
 router.get('/error', function(req, res) {
@@ -590,8 +593,8 @@ router.post('/api/remakeimg', function(req, res) {
 
 });
 
-router.get('/api/local/update', function(req) {
-     require('../apps/streamUpdate.js')();
+router.get('/api/local/update', function(req, res) {
+     require('../apps/streamUpdate.js')(req, res);
 });
 
 /* POSTS and USERNAMES */

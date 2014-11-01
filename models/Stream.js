@@ -8,7 +8,7 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             primaryKey: true,
             allowNull: false,
-            autoIncrement: false
+            autoIncrement: true
         }
     }, {
         timestamps: true, 
@@ -18,7 +18,7 @@ module.exports = function(sequelize, DataTypes) {
   
             associate: function(models) {
                 //Post
-                Stream.belongsTo(models.Post, {foreignKey: 'Post_postId'});
+                Stream.belongsTo(models.Post, {foreignKey: 'Post_postId', onDelete: 'CASCADE', onUpdate: 'CASCADE'});
                 Stream.belongsTo(models.User, {foreignKey: 'User_userId'});
             }
         },
