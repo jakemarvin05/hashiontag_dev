@@ -409,7 +409,10 @@
                             msgOK += 'The link to reset your password has been sent to your email.';
 
                         var msgFail  = '<span class="glyphicon glyphicon-remove"></span>';
-                            msgFail += 'Either the email doesn\'t exist or a connection error occured. Please try again or contact info@vogue-verve.com.';
+                            msgFail += 'A connection error occured. Please try again or contact info@vogue-verve.com.';
+
+                        var msgNotFound = '<span class="glyphicon glyphicon-remove"></span>';
+                            msgNotFound += 'Email doesn\'t exists. Please try a different e-mail.';
 
                         forgetAjax = $.post('/api/forgetpassword', {email: email});
 
@@ -418,7 +421,6 @@
                             flasher.kill();
                             $(self).removeAttr('disabled');
                             if(res.success) {
-
                                 return $errHolder.html(msgOK);
                             }
                             $errHolder.html(msgFail);
@@ -428,7 +430,12 @@
                             flasher.kill();
                             $(self).removeAttr('disabled');
                             if(err.statusText === 'abort') { return false; }
-                            $errHolder.html(msgFail);
+
+                            if (err.status == 404) {
+                                $errHolder.html(msgNotFound);
+                            }else {
+                                $errHolder.html(msgFail);
+                            }
                         });
 
                     });
