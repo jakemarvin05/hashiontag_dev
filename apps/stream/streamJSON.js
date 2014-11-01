@@ -61,7 +61,7 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
 
     /*DEFAULT HOLDERS TO USE*/
     var renderJSON = {
-        posts: '',
+        posts: [],
         notifications: ''
     }
     var idArray = [];
@@ -70,145 +70,103 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
     /* Here goes... */
 
     if(typeof showType === 'undefined') {
-            console.log('streamJSON: no showType.. finding posts...');
-             
-            //If there is a lastPostId = next streamLoad
-            if(lastPostId){
-                console.log('streamJSON: Last post loaded is postId: '+lastPostId);
-                var streamWhere = {
-                    User_userId: req.user.userId,
-                    Post_postId: {
-                        lt: lastPostId
-                    }
+
+        console.log('streamJSON: no showType.. finding posts...');
+         
+        //If there is a lastPostId = next streamLoad
+        if(lastPostId){
+            console.log('streamJSON: Last post loaded is postId: ' + lastPostId);
+            var streamWhere = {
+                User_userId: req.user.userId,
+                streamKey: {
+                    lt: lastPostId
                 }
             }
+        }
 
-            //If there is no lastPostId = first streamLoad
-            else{
-                console.log('streamJSON: New streams loading...');
-                var streamWhere = {
-                    User_userId: req.user.userId
-                }
+        //If there is no lastPostId = first streamLoad
+        else {
+            console.log('streamJSON: New streams loading...');
+            var streamWhere = {
+                User_userId: req.user.userId
+            }
+        }
+
+        //get the users that current user is following.
+        req.user.getFollows({attributes: ['userId']}).then(function(users) {
+
+            //push it into the array for use later
+            for(var i in users) { idArray.push(users[i].userId); }
+
+
+            console.log('streamJSON: got the follows...getting posts');
+
+            return [
+
+                db.Stream.findAll({
+                    where: streamWhere, 
+                    include: [{
+                        model: db.Post,
+                        include: include
+                    }], 
+                    order: [
+                        ['streamKey', 'DESC'], 
+                        [db.Post, db.Comment, 'createdAt', 'ASC'] 
+                    ],
+                    limit: 10
+                }),
+
+                false
+                // req.user.getNotifications({
+                //     include: [
+                //         {
+                //             model: db.User,
+                //             as: 'Setter',
+                //             attributes:['userId','userNameDisp']
+                //         }
+                        
+                //     ],
+                //     attributes: ['Post_postId','createdAt','type'],
+                //     order: [['createdAt', 'DESC']]
+                // })
+            ]
+
+        }).spread(function(streams, notifications) {
+
+            //unDAO'ify the results.
+            var streams = JSON.parse(JSON.stringify(streams));
+
+            //get the lastPostId and also join the posts into a single array
+            var i = 0;
+            var lastPostId;
+            var posts = [];
+            while(streams[i]) {
+                var post = streams[i].post;
+                posts.push(post);
+                lastPostId = post.postId;
+                i++;
             }
 
-            req.user.getFollows({attributes: ['userId']}).then(function(users) {
+            console.log(posts);
 
-                for(var i in users) {
-                    idArray.push(users[i].values['userId']);
-                }
+            console.log('streamJSON: db retrieval complete, likes splicing...');
 
-                console.log('streamJSON: got the follows...getting posts');
-                var where = { User_userId : idArray};
+            
+            posts = likesSplicer(req, posts, idArray);
 
-                //curated stream implementation. awaiting complete code....
-                return [
+            //join notifications and posts
+            renderJSON.posts = posts;
+            renderJSON.lastPostId = lastPostId;
 
-                    db.Stream.findAll({
-                        where: streamWhere, 
-                        include: [{
-                            model: db.Post,
-                            include: include
-                        }], 
-                        order: [
-                            ['id', 'DESC'], 
-                            [db.Post, db.Comment, 'createdAt', 'ASC'] 
-                        ],
-                        limit: 10
-                    }
-                            // {raw: true,
-                            // nest: true}
-                    ),
+            //renderJSON.notifications = notifications;
 
-                    req.user.getNotifications({
-                        include: [
-                            {
-                                model: db.User,
-                                as: 'Setter',
-                                attributes:['userId','userNameDisp']
-                            }
-                            
-                        ],
-                        attributes: ['Post_postId','createdAt','type'],
-                        order: [['createdAt', 'DESC']]
-                    })
-                ]
+            return render(renderJSON);
 
-                // return [
-
-                //    db.Post.findAll({
-                //         where: where, 
-                //         include: include, 
-                //         order: [
-                //             ['createdAt', 'DESC'], 
-                //             [db.Comment, 'createdAt', 'ASC'] 
-                //         ],
-                //         limit: 20
-                //     }
-                //             // {raw: true,
-                //             // nest: true}
-                //     ),
-
-                //     req.user.getNotifications({
-                //         include: [
-                //             {
-                //                 model: db.User,
-                //                 as: 'Setter',
-                //                 attributes:['userId','userNameDisp']
-                //             }
-                            
-                //         ],
-                //         attributes: ['Post_postId','createdAt','type'],
-                //         order: [['createdAt', 'DESC']]
-                //     })
-                // ]
-
-            }).spread(function(streams, notifications) {
-                //console.log(JSON.stringify(streams));
-                console.log('streamJSON: db retrieval complete, likes splicing...');
-                //console.log(idArray);
-                //console.log(JSON.stringify(streams));
-
-                // //curated stream implementation
-                // var i = 0;
-                // var posts = {};
-                // while(streams[i]) {
-                //     posts[i] = streams[i].post;
-                //     i++;
-                // }
-
-                //console.log(posts);
-
-                
-                //unDAO'ify the results.
-                //var posts = JSON.parse(JSON.stringify(posts));
-
-                //comment this when stream is in implementation
-                var streams = JSON.parse(JSON.stringify(streams));
-                var posts = {};
-                var lastPostId;
-
-                for(var i=0;i<Object.keys(streams).length;i++){
-                    posts[i] = streams[i].post;
-                    lastPostId = posts[i].postId;
-                }
-                //console.log(posts);
-                //console.log(posts);
-                
-                posts = likesSplicer(posts);
-                //console.log(posts[0]);
-
-                //join notifications and posts
-                renderJSON.posts = posts;
-                renderJSON.notifications = notifications;
-                console.log(streams);
-                renderJSON.lastPostId = lastPostId;
-                //console.log(JSON.stringify(posts));
-
-                return render(renderJSON);
-
-            }).catch(throwErr);
+        }).catch(throwErr);
 
     } else if(showType === 'preview') {
+
+        /* DEAL WITH LOAD MORE */
 
         db.Post.findAll({
             include: include, 
@@ -217,11 +175,8 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
         }).then(function(posts) {
 
             console.log('streamJSON: db retrieval complete, returning the array...');
-            //console.log(JSON.stringify(posts));
 
-            //var renderJSON = {};
             renderJSON.posts = posts;
-
             return render(renderJSON);
 
         }).catch(throwErr);
@@ -231,7 +186,7 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
         console.log('streamJSON: likes showType.. finding posts...');
 
         if(lastLikeId){
-            console.log('streamJSON: Last like loaded is likeId: '+lastLikeId);
+            console.log('streamJSON: Last like loaded is likeId: ' + lastLikeId);
             var likeWhere = {
                 User_userId: req.user.userId,
                 likeId: {
@@ -241,7 +196,7 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
         }
 
         //If there is no lastPostId = first streamLoad
-        else{
+        else {
             console.log('streamJSON: New like loading...');
             var likeWhere = {
                 User_userId: req.user.userId
@@ -260,7 +215,7 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
                 //second call
                 db.Like.findAll({
                     where: {User_userId: req.user.userId},
-                    attributes: ['likeId','Post_postId'],
+                    attributes: ['likeId', 'Post_postId'],
                     include: {
                         model: db.Post,
                         include: include
@@ -270,46 +225,39 @@ module.exports = function streamJSON(req, render, opts, START_TIME) {
             ]
         }).spread(function(users, likePosts) {
 
+            console.log(likePosts);
+
             if(likePosts.length === 0 ) {
                 renderJSON = false;
                 return render(renderJSON);
             }
 
-            for(var i=0; i<users.length; i++) {
-                idArray.push(users[i].userId);
-            }
-
-            var likePosts = JSON.parse(JSON.stringify(likePosts));
-            console.log('***likePosts');
-            console.log(likePosts);
+            for(var i=0; i<users.length; i++) { idArray.push(users[i].userId); }
 
             //modify the outcome
             //need to float posts out of the nesting.
             var i = 0;
-            var posts = {}
+            var posts = [];
             var lastLikeId;
             while(likePosts[i]) {
                 var likePost = likePosts[i];
-                posts[i] = likePost.post;
+                posts.push(likePost.post);
                 lastLikeId = likePost.likeId;
                 i++;
             }
-            renderJSON.lastLikeId = lastLikeId
 
-            renderJSON.posts = posts;
-            console.log('***posts:');
-            console.log(renderJSON.posts);
-
-            console.log('streamJSON: db retrieval complete, likes splicing...');
-            //console.log(idArray);
             //console.log(posts);
 
-            //console.log(renderJSON.posts);
+            posts = likesSplicer(req, posts, idArray);
 
-            renderJSON.posts = likesSplicer(req, renderJSON.posts, idArray);
-            console.log('after splicing');
-            console.log(renderJSON.posts);
-            renderJSON.postCount = Object.keys(renderJSON.posts).length;
+
+            renderJSON.posts = posts;
+            renderJSON.lastLikeId = lastLikeId
+
+            console.log('streamJSON: db retrieval complete, likes splicing...');
+
+            renderJSON.postCount = posts.length;
+
             return render(renderJSON);
 
         }).catch(throwErr);

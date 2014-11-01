@@ -2,14 +2,19 @@
 module.exports = function likesSplicer(req, posts, idArray) {
     console.log('inside likesSplicer');
     //console.log(posts);
-    var spliced = {}
-    var count1 = Object.keys(posts).length;
+    var spliced = []
+    var count1 = posts.length;
     if(count1 === 0) { return posts; }
 
-    for(var j=0;j<count1;j++) {
-        var post = posts[j],
-            targets = post.likes,
-            count2 = Object.keys(targets).length;
+    for(var j=0; j<count1 ;j++) {
+
+        var post = posts[j];
+
+        //if post is null, skip to the next one.
+        if(!post) { continue; }
+
+        var targets = post.likes,
+            count2 = targets.length;
 
         post.hasLiked = false;
         post.totalLikes = count2;
@@ -35,7 +40,7 @@ module.exports = function likesSplicer(req, posts, idArray) {
             }
         }
         //console.timeEnd('while');
-        spliced[j] = post;
+        spliced.push(post);
 
     } //for loop closure
     return spliced;
