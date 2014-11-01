@@ -49,14 +49,6 @@ module.exports = function addRemoveLike(req, res) {
                 )
             }).then(function(likes) {
 
-                //console.log(likes);
-                //console.log(likes.length);
-                //if(likes.length > 0) {
-
-                console.log('addRemoveLike: Decrementing relevant scores...\n');
-                removeLikeDecrementScores(req);
-
-
                 var idArray = [];
                 for(var i=0; i<likes.length; i++) {
                     idArray.push(likes[i].values['likeId']);
@@ -104,59 +96,50 @@ module.exports = function addRemoveLike(req, res) {
 
 function addLikeIncrementScores(req){
 
+    var affinityBonus = 2;
+
     db.Post.find({
         where: {postId: req.body.postId},
         attributes: ['postId', 'postScore', 'User_userId']
     }).then(function(post) {
-        post
-        .increment('postScore', {by: 1})
-        .catch(function(err) {
-            console.log(err);
-        });
-        console.log('Incremented post scores....\n');
 
+        //if it is your own post, do nothing
+        if(req.user.userId === post.User_userId) {
+            return false;
+        }
+
+        
+        //post score increment
+        post.increment('postScore', {by: 1}).then(function() {
+            console.log(fname + 'Incremented post scores....\n');
+        }).catch(function(err) {
+            console.log(fname + 'Error in incrementing post score for postId' + post.postId + ' . For userId ' + req.user.User_userId + '. Error: ' + err);
+        });
+
+
+
+        //affinity between post owner and user.
         return db.Following.find({
             where: {
-                FollowerId: req.user['userId'],
-                FollowId: post.getDataValue('User_userId')
+                FollowerId: req.user.userId,
+                FollowId: post.User_userId
             },
             attribute: ['affinity']
         });
+
     }).then(function(following) {
+
+
+        //if user is not following post owner, end.
+        if(!following) { return false; }
+
+        
         console.log('Incremented affinity...\n');
-        following.values['affinity'] = Math.floor(following.values['affinity']) + 2 + Math.random()/1000;
+        following.affinity = Math.floor(following.affinity) + affinityBonus + Math.random()/1000;
         return following.save();
 
-    }).catch(function(err) {
-        console.log(err);
-    })
-}
-
-function removeLikeDecrementScores(req){
-    db.Post.find({
-        where: {postId: req.body.postId},
-        attributes: ['postId', 'postScore', 'User_userId']
-    }).then(function(post) {
-        post
-        .decrement('postScore', {by: 1})
-        .catch(function(err) {
-            console.log(err);
-        });
-
-        console.log('Decremented post scores....\n');
-
-        return db.Following.find({
-            where: {
-                FollowerId: req.user['userId'],
-                FollowId: post.getDataValue('User_userId')
-            },
-            attribute: ['affinity']
-        });
-    // }).then(function(following) {
-    //     console.log('Decremented affinity...\n');
-    //     return following.increment('affinity', {by: 2});//unlike should not decrement affinity.
 
     }).catch(function(err) {
-        console.log(err);
+        console.log(fname + 'Catch handler error: ' + err);
     })
 }

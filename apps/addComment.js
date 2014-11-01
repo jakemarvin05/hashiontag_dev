@@ -6,10 +6,8 @@ var db = global.db,
 module.exports = function addComment(req, res) {
 
     var throwErr = function(error) {
-
-            console.log(error);
-
-            return res.json({ success: false });
+        console.log(error);
+        return res.json({ success: false });
     }
 
     var commentJSON = '',
@@ -21,8 +19,7 @@ module.exports = function addComment(req, res) {
     if(req.isAuthenticated()) {
 
         console.log('addComment: saving comment....');
-        // var customUtils = require('./customUtils.js');
-        // var stripped = appUtils.stripScriptTags(req.body.comment);
+
         if(req.body.comment.length > 500) { 
             console.log(fname + 'comment is too long');
             return res.json({ success: false}); 
@@ -52,6 +49,7 @@ module.exports = function addComment(req, res) {
                 notificationSetter: req.user,
                 action: 'addComment'
             }
+
             notification(req,res,dataObj);
 
             //Analyze Comments to identify tag case.
@@ -70,16 +68,18 @@ module.exports = function addComment(req, res) {
 }
 
 function addCommentIncrementScores(db, req){
+
     db.Post.find(req.body.postId).then(function(post) {
 
+        //don't increment the score if it is the owner commenting.
+        if(post.User_userId === req.user.userId) { return false; }
+
         //Incrementing post score
-        post
-            .increment('postScore', {by: 1})
-            .then(function(post){
-                console.log('Incremented post scores...\n');
-            }).catch(function(err) {
-                console.log(err);
-            });
+        post.increment('postScore', {by: 1}).then(function(post){
+            console.log('Incremented post scores...\n');
+        }).catch(function(err) {
+            console.log(fname + 'addCommentIncrementScore post increment catch handler. Error: ' + err);
+        });
 
         //Incrementing affinity
         //console.log('USER_USERID is as followed: '+post.getDataValue('User_userId')+'\n');
@@ -90,24 +90,29 @@ function addCommentIncrementScores(db, req){
 
         db.Following.find({
             where: {
-                FollowerId: req.user['userId'],
-                FollowId: post.getDataValue('User_userId')
+                FollowerId: req.user.userId,
+                FollowId: post.User_userId
             }
-
         }).then(function(following){
-            //console.log(following);
-            return following.increment('affinity', {by: 3})
-        }).then(function() {
+
+            if(!following) { return false; }
+
             console.log('Incremented affinity...\n');
+            return following.increment('affinity', {by: 3});
+
+
         }).catch(function(err) {
             console.log(err);
         });
      
                 
+    }).catch(function(err) {
+        console.log(fname + 'addCommentIncrementScore catch handler. Error: ' + err);
     });
 }
 
 function findTaggedUserName(req, res){
+
     var matchedUserName = req.body.comment.match(/@\w+/g); //Array of result including the tag "@"
 
     //if there are tagged user, create notification for them
