@@ -13,7 +13,10 @@ module.exports = function iggMain() {
             instaRunCount: 0,
             dbRepostCount: 0,
             instagrams: {},
-            lastRunCompleted: ''
+            lastRunCompleted: '',
+            errorToken: 0,
+            hasErrored: [],
+            recoverFromError: false
         }
     }
     global.igg.busy = true;
@@ -23,8 +26,15 @@ module.exports = function iggMain() {
 
     //DURATION
     var DURATION;
-    DURATION = 900000; //15minutes
-    var retryDuration = 300000; //5 minutes
+    DURATION = 300000; //5minutes
+    var retryDuration = 60000; //1 min
+
+    //set the error recovery in place. Error checking everying DURATION * 3.
+    if(!igg.recoverFromError) { 
+        igg.recoverFromError = setInterval(function() {
+            recoverFromError();
+        }, DURATION*3)
+    }
 
     //first query
     var masterQueryTime = Date.now();
@@ -240,8 +250,10 @@ module.exports = function iggMain() {
         if(update) { 
             //perform async tasks with the "insta" instance here. Update false, means we don't even run the async task.
             //we will start a repostRunCount
+            console.log(fname + 'instagram for userId: ' + insta.User_userId + ' has pages: ' + insta.pages);
             var hasPages = insta.pages.length > 0;
             if(hasPages) {
+
                 global.igg.dbRepostCount += 1;
                 iggCheckForHashtag(insta, completionCallback);
             }
@@ -315,7 +327,26 @@ module.exports = function iggMain() {
             time: nextRun,
             _timeout: timeout
         }
+        igg.errorToken = 0;
     }
 
+    //error recovery
+    function recoverFromError() {
+        //check if igg is busy.
+        //for every time we find we add to the token.
+        var tolerance = 1
+        if(igg.busy === true) { 
+            //if we find that it is busy, add to the token.
+            igg.errorToken += 1;
+
+            //having error tokens doesn't mean something is wrong. but accumulated tokens
+            //mean the function hasn't been running for quite some time.
+            //so we jumpstart it again.
+            if(igg.errorToken > tolerance) {
+                igg.hasErrored.push(moment().format());
+                return igg.run();
+            }
+        }
+    }
 
 }

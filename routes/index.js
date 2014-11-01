@@ -323,7 +323,8 @@ router.get('/api/instagram/engine', function(req, res) {
     res.json({
         lastRunCompleted: igg.lastRunCompleted,
         busy: igg.busy,
-        nextRun: igg.nextTimeout.time
+        nextRun: igg.nextTimeout.time,
+        hasErrored: igg.hasErrored
     });
 });
 
