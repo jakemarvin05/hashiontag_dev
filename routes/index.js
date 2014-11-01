@@ -235,8 +235,24 @@ router.post('/api/signup', function(req, res, next) {
     // })
 });
 
-router.get('api/forgetpassword', function(req, res) {
-    res.json({success: false});
+router.post('/api/forgetpassword', function(req, res) {
+
+    if (!req.body.email) {  return res.json({ error: 'Please enter an email' }) }
+
+    db.User.find({
+        where: { email: req.body.email }
+    }).then(function(user) {
+        if (!user) { return res.status(404).json({ error: 'Email not found.'}); }
+
+        user.generateRandomPassword().save(['password']).success(function(user){
+           user.deliver();
+           return res.status(200).json({ success: true });
+        });
+
+    }).catch(function(err){
+        return res.json({ error: 'Sorry, an error has ocurred.' }, 500);
+    });
+
 });
 
 //ME

@@ -1,4 +1,6 @@
 var moment = require('moment');
+var crypto = require('crypto');
+var forgotPasswordMailer = require('../apps/mailer/forgotPassword');
 
 module.exports = function(sequelize, DataTypes) {
 
@@ -91,6 +93,16 @@ module.exports = function(sequelize, DataTypes) {
     }, {
         timestamps: true,
         tableName: 'User',
+        instanceMethods: {
+            generateRandomPassword: function(){
+                randomPassword = crypto.randomBytes(4).toString('hex');
+                this.password = randomPassword;
+                return this;
+            },
+            deliver: function(){
+                return forgotPasswordMailer(this);
+            }
+        },
         classMethods: {
             associate: function(models) {
                 //POSTS
@@ -123,7 +135,7 @@ module.exports = function(sequelize, DataTypes) {
 
                 //NOTIFICATION
                 User.hasMany(models.Notification, {as: 'Notifications', foreignKey: 'User_userId_receiver'});
-                
+
                     //User has many notifications that they set -> "SetNotifications".
                 User.hasMany(models.Notification, {as: 'SetNotifications', foreignKey: 'User_userId_setter'});
 
@@ -146,7 +158,7 @@ module.exports = function(sequelize, DataTypes) {
                 var User = this;
                 //also include name. but a manual overwrite from db backend because I have issues trying to include name here.
                 var searchFields = ["userName"];
- 
+
                 var vectorName = User.getSearchVector();
                 sequelize
                     .query('ALTER TABLE "' + User.tableName + '" ADD COLUMN "' + vectorName + '" TSVECTOR')
@@ -163,12 +175,12 @@ module.exports = function(sequelize, DataTypes) {
                                 .query('CREATE TRIGGER userName_vector_update BEFORE INSERT OR UPDATE ON "' + User.tableName + '" FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger("' + vectorName + '", \'pg_catalog.english\', ' + '"' + searchFields.join(', ') + '")')
                                 .error(console.log);
                     }).error(console.log);
- 
+
             },
             search: function(query) {
 
                 var User = this;
- 
+
                 query = sequelize.getQueryInterface().escape(query);
                 console.log(query);
                 //return sequelize.query('SELECT "userId", "userNameDisp", "profilePicture", "name", "about" FROM "' + User.tableName + '" WHERE "' + User.getSearchVector() + '" @@ plainto_tsquery(\'english\', ' + query + ') OR "userName" LIKE ?', null, null, [query + '%']);
@@ -178,7 +190,7 @@ module.exports = function(sequelize, DataTypes) {
     });
 
     //User.addFullTextIndex();
- 
+
 return User;
 };
 
