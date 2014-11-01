@@ -23,7 +23,7 @@ module.exports = function(sequelize, DataTypes) {
             tableName: 'Comment', //PascalCase
             classMethods: {
                 associate: function(models) {
-                    Comment.belongsTo(models.Post, {foreignKey: 'Post_postId'});
+                    Comment.belongsTo(models.Post, {foreignKey: 'Post_postId', onDelete: 'CASCADE', onUpdate: 'CASCADE'});
                     Comment.belongsTo(models.User, {foreignKey: 'User_userId'});
                 }
 

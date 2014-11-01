@@ -23,7 +23,7 @@ module.exports = function(sequelize, DataTypes) {
 
                     Notification.belongsTo(models.User, {as: 'Setter', foreignKey: 'User_userId_setter'});
                     Notification.belongsTo(models.User, {as: 'Receiver', foreignKey: 'User_userId_receiver'});
-                    Notification.belongsTo(models.Post, {foreignKey: 'Post_postId'});
+                    Notification.belongsTo(models.Post, {foreignKey: 'Post_postId', onDelete: 'CASCADE', onUpdate: 'CASCADE'});
 
                 }
 

@@ -18,7 +18,7 @@ module.exports = function(sequelize, DataTypes) {
             classMethods: {
                 
                 associate: function(models) {
-                    Like.belongsTo(models.Post, {foreignKey: 'Post_postId'});
+                    Like.belongsTo(models.Post, {foreignKey: 'Post_postId', onDelete: 'CASCADE', onUpdate: 'CASCADE'});
                     Like.belongsTo(models.User, {foreignKey: 'User_userId'});
                 }
 

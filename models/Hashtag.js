@@ -13,7 +13,7 @@ module.exports = function(sequelize, DataTypes) {
             tableName: 'Hashtag', //PascalCase
             classMethods: {
                 associate: function(models) {
-                    Hashtag.hasMany(models.Post, {foreignKey: 'Hashtag_hashtagId', through: 'Post_Hashtag'});
+                    Hashtag.hasMany(models.Post, {foreignKey: 'Hashtag_hashtagId', through: 'Post_Hashtag', onDelete: 'CASCADE', onUpdate: 'CASCADE'});
                 }
             } //classMethods
         }
