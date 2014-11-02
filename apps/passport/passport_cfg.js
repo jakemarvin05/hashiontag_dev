@@ -89,7 +89,7 @@ module.exports = function(passport) {
             function secondCall() {
                 return db.User.find({where: {email: email}, attributes: ['userId']});
             }
-            
+
             Promise.join(firstCall(), secondCall(), function(userExists, emailExists) {
                 if(userExists) {
                     var message = 'Username';
@@ -103,7 +103,7 @@ module.exports = function(passport) {
                         var message = 'Email';
                     }
                 }
-                
+
                 if(message) {
                     message += ' already taken';
                     return done(null, false, message);
@@ -132,7 +132,7 @@ module.exports = function(passport) {
 
 
 
-            // db.User.find({ where: 
+            // db.User.find({ where:
             //     db.Sequelize.or(
             //         {userName: userName},
             //         {email: email}
@@ -165,7 +165,7 @@ module.exports = function(passport) {
             //         return done(null, newUser, req.flash('loginMessage', ppMessages.success.afterSignup));
             //         }).catch(throwErr);
             //     }
-            // }).catch(throwErr);  
+            // }).catch(throwErr);
 
         }); //nextTick()
 
@@ -177,7 +177,7 @@ module.exports = function(passport) {
     // we are using named strategies since we have one for login and one for signup
     // by default, if there was no name, it would just be called 'local'
     //
-    // Notes: The done() object calls the callback defined in 
+    // Notes: The done() object calls the callback defined in
     //        passport.authenticate([strategyName],[callback])
 
     passport.use('local-login', new LocalStrategy({
@@ -189,7 +189,7 @@ module.exports = function(passport) {
     function(req, user, password, done) { // callback with email and password from our form
 
         var user = user.toLowerCase();
-        
+
 
         /* Error handling */
         var throwErr = function(error) {
@@ -223,7 +223,7 @@ module.exports = function(passport) {
                 if(!user) {
 
                     console.log('Login: email not found');
-                
+
                 return done(null, false);
                 }
                 // validate
@@ -237,7 +237,7 @@ module.exports = function(passport) {
 
                 // if no user is found, return the message
                 if(!user) {
-                    
+
                     console.log('Login: user not found');
 
                     return done(null, false);
@@ -248,7 +248,7 @@ module.exports = function(passport) {
 
             }).catch(throwErr);
         }
-        
+
     })); // closure: passport.use 'local'
 
 }; // closure: exports
