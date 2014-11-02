@@ -1,5 +1,6 @@
 var moment = require('moment');
-var crypto = require('crypto');
+var crypto = require('crypto'); //TODO:DEPRECATE ONCE WE HAVE THE ENCRYPTER
+var encrypter = require('../apps/passport/encrypter');
 var forgotPasswordMailer = require('../apps/mailer/forgotPassword');
 
 module.exports = function(sequelize, DataTypes) {
@@ -39,6 +40,10 @@ module.exports = function(sequelize, DataTypes) {
             validate: {
                 len:[6,999999]
             }
+        },
+        salt: {
+            type: DataTypes.STRING,
+            allowNull: false
         },
         name: {
             type: DataTypes.STRING,
@@ -94,9 +99,19 @@ module.exports = function(sequelize, DataTypes) {
         timestamps: true,
         tableName: 'User',
         instanceMethods: {
+            // DEPRECATE THIS FUNCTION
             generateRandomPassword: function(){
-                randomPassword = crypto.randomBytes(4).toString('hex');
-                this.password = randomPassword;
+                randomPassword  = crypto.randomBytes(4).toString('hex');
+                this.password   = randomPassword;
+                return this;
+            },
+            authenticate: function(password){
+                return encrypter.compareHash(password, this.salt, this.password);
+            },
+            setPassword: function(password){
+                var generator   = encrypter.generateHash(password);
+                this.password   = generator.hash;
+                this.salt       = generator.salt;
                 return this;
             },
             deliver: function(){

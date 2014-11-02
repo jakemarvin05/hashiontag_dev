@@ -117,8 +117,9 @@ module.exports = function(passport) {
                     userName: userName,
                     userNameDisp: userNameDisp,
                     email: email,
-                    password: password,
                 });
+
+                newUser.setPassword(password);
 
 
                 return newUser.save();
@@ -161,8 +162,8 @@ module.exports = function(passport) {
             //         // save the user
             //         newUser.save().then(function() {
             //             console.log('saving...');
-            //         return done(null, newUser, req.flash('loginMessage', ppMessages.success.afterSignup));                         
-            //         }).catch(throwErr);  
+            //         return done(null, newUser, req.flash('loginMessage', ppMessages.success.afterSignup));
+            //         }).catch(throwErr);
             //     }
             // }).catch(throwErr);  
 
@@ -200,13 +201,13 @@ module.exports = function(passport) {
         /* validate function */
         var validate = function(user) {
             console.log('user was found by email or username, validating password...');
-            if( !(user.password === password) ) {
-                // if the user is found but the password is wrong
-                console.log('password validation failed');
-                return done(null, false); // create the loginMessage and save it to session as flashdata
+
+            if (user.authenticate(password)) {
+                return done(null, user);
+            } else {
+                console.log('Password validation failed.');
+                return done(null, false);
             }
-        // all is well, return successful user
-        return done(null, user);
         }
 
 
