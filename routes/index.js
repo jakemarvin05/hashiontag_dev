@@ -23,20 +23,6 @@ var ig = require('instagram-node').instagram();
 
 module.exports = router;
 
-router.get('/test', function(req, res) {
-    db.User.findAll().then(function(users) {
-        var i=0;
-        while(users[i]) {
-            var pwd = users[i].password
-            users[i].setPassword(pwd);
-            users[i].save();
-            i++;
-        }
-    }).then(function() {
-        res.send();
-    });
-
-});
 
 router.get('/error', function(req, res) {
     res.send('error');
