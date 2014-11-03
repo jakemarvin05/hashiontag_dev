@@ -59,7 +59,7 @@
 
                 {?renderJSONraw.web}
                 <div class="profileWeb">
-                    <a id="profileWebLink" href="{renderJSONraw.web}">
+                    <a id="profileWebLink" href="{renderJSONraw.web}" target="_blank" rel="nofollow">
                         <span class="glyphicon glyphicon-link"></span><span data-form="web">{renderJSONraw.web}</span>
                     </a>
                     <script>
