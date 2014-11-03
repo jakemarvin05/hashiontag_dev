@@ -130,43 +130,6 @@ module.exports = function(passport) {
                 }
             }).catch(throwErr);
 
-
-
-            // db.User.find({ where:
-            //     db.Sequelize.or(
-            //         {userName: userName},
-            //         {email: email}
-            //     )
-            // }).then(function(user) {
-
-            //     console.log('db query is complete');
-
-            //     // check to see if theres already a user with that username
-            //     if (user) {
-            //         console.log('username "' + req.body.username + '" or email already exist');
-            //         return done(null, false, 'usernameTaken');
-            //     } else {
-
-            //         console.log('creating user...');
-            //         // if there is no user with that username
-
-            //         // create the user
-            //         var newUser = db.User.build({
-            //             // set the user's local credentials
-            //               userName: userName
-            //             , userNameDisp: userNameDisp
-            //             , email: email
-            //             , password: password
-            //         });
-
-            //         // save the user
-            //         newUser.save().then(function() {
-            //             console.log('saving...');
-            //         return done(null, newUser, req.flash('loginMessage', ppMessages.success.afterSignup));
-            //         }).catch(throwErr);
-            //     }
-            // }).catch(throwErr);
-
         }); //nextTick()
 
     }));

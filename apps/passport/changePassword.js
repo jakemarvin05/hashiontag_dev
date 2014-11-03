@@ -21,11 +21,13 @@ module.exports = function checkPassword(req, res) {
         if(!user) { return res.json({success:false, error: 'unknown'}); }
 
         //user password is incorrect
-        if(user.password !== currPwd) { return res.json({success:false, error: 'password'}); }
 
-        return user.updateAttributes({
-            password: newPwd
-        });
+        if(user.authenticate(currPwd)) { return res.json({success:false, error: 'password'}); }
+
+        user.setPassword(newPwd);
+
+        return user.save();
+        
     }).then(function() {
         return res.json({success: true});
     }).catch(function(err) {
