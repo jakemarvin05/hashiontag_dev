@@ -424,7 +424,7 @@ streamFactory.append.likeText = function(post) {
             andLikes += '</span>';
             andLikes += ' people like this.';
 
-        } else if(post.totalLikes === 1 && !post.hasLiked) {
+        } else if(post.totalLikes === 1) {
 
             // 1 person likes this.
             var offsetCount = post.totalLikes;

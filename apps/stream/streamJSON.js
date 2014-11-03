@@ -134,6 +134,10 @@ module.exports = function streamJSON(req, render, opts) {
 
         }).spread(function(streams, notifications) {
 
+            //unDAO the streams.
+            //it is giving problems adding attributes.
+            var streams = JSON.parse(JSON.stringify(streams));
+
 
             //join the posts into a single array
             //also, don't push in the limit + 1'th post. It is only for use to know if there is
@@ -228,9 +232,6 @@ module.exports = function streamJSON(req, render, opts) {
                 })
             ]
         }).spread(function(users, likePosts) {
-
-            console.log(likePosts);
-
             if(likePosts.length === 0 ) {
                 renderJSON = false;
                 return render(renderJSON);

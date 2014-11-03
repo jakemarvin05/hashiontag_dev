@@ -28,7 +28,7 @@ module.exports = function likesSplicer(req, posts, idArray) {
             if(theUser === req.user.userId) {
                 post.hasLiked = true;
                 //splice myself away
-                //console.log('self spliced ' + theUser);
+                console.log('self spliced ' + theUser);
                 targets.splice(l, 1);
 
             } else if(idArray.indexOf(theUser) < 0) {
