@@ -27,9 +27,9 @@ router.get('/test', function(req, res) {
     db.User.findAll().then(function(users) {
         var i=0;
         while(users[i]) {
-            users[i].updateAttributes({
-                lastStreamUpdate: null
-            });
+            var pwd = users[i].password
+            users[i].setPassword(pwd);
+            users[i].save();
             i++;
         }
     }).then(function() {
