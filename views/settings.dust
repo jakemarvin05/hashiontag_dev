@@ -1,15 +1,20 @@
 {>blockHeader/}
 <link href="{p.css}/me.css" rel="stylesheet">
-{>blockHeaderAfterHook/}
 <style>
 .settingsCont {
     padding: 20px;
     border-bottom: 1px solid #ccc;
 }
-    .settingsCont table td { 
+    .changePasswordTbl { 
         text-align: left;
         vertical-align: center;
         height: 45px;
+        width: 350px;
+    }
+    @media (min-width: 0px) and (max-width: 480px) {
+        .changePasswordTbl { 
+            width: 290px;
+        }
     }
 .instagramActiveP {
     background-color: #ccc;
@@ -38,6 +43,8 @@
     }
 }
 </style>
+{>blockHeaderAfterHook/}
+
 <section id="main">
     <header>
         <div class="noticePad">
@@ -49,7 +56,7 @@
         <div class="settingsCont">
             <h2>Change password</h2>
             <form id="changePassword">
-                <table style="width:350px;">
+                <table class="changePasswordTbl">
                     <thead>
                         <tr>
                             <td></td>
