@@ -255,6 +255,11 @@ header.profileHeader>div {
             .profilePostsBlock .blockInteract div[class^="icon-"] {
                 font-size: 25px;
                 padding-right: 9px;
+                color: #ccc;
+            }
+
+            .profilePostsBlock .blockInteract div[class^="icon-"]:hover, .profilePostsBlock .blockInteract .glyphicon:hover {
+              color: #565757;
             }
             .profilePostsBlock .blockInteract>div {
                 display: inline-block;
