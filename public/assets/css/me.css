@@ -139,51 +139,51 @@ header.profileHeader>div {
     /*profilePostsBlock and its article responsive */ 
     @media (min-width: 0px) and (max-width: 320px) {
         .profilePostsBlock {
-            padding: 2px;
+            padding: 4px 2px;
         }
         .profilePostsBlock article {
-            width: 153px;
-            margin: 2px;
+            width: 154px;
+            margin: 0px 2px;
         }
 
     }  
     @media (min-width: 321px) and (max-width: 480px) {
         .profilePostsBlock {
-            padding: 2px;
+            padding: 4px 2px;
         }
         .profilePostsBlock article {
-            width: 48.5%;
-            margin: 2px;
+            width: 48.7%;
+            margin: 0px 2px;
         }
 
     }  
     @media (min-width: 481px) and (max-width: 640px) {
         .profilePostsBlock {
-            padding: 2px;
+            padding: 4px 2px;
         }
         .profilePostsBlock article {
-            width: 32.3%;
-            margin: 2px;
+            width: 32.4%;
+            margin: 0px 2px;
         }
 
     }
     @media (min-width: 641px) and (max-width: 767px) {
         .profilePostsBlock {
-            padding: 5px;
+            padding: 5px 2.5px;
         }
         .profilePostsBlock article {
-            width: 23.4%;;
-            margin: 5px;
+            width: 24.2%;;
+            margin: 0px 2.5px;
         }
 
     } 
     @media (min-width: 768px){
         .profilePostsBlock {
-            padding: 10px;
+            padding: 10px 5px;
         }
         .profilePostsBlock article {
-            width: 166px;
-            margin: 10px;
+            width: 179px;
+            margin: 0px 5px;
         }
 
     } 
