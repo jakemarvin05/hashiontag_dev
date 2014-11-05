@@ -181,7 +181,7 @@ module.exports = function allUserStreamUpdate(req, res) {
             for(var i=0;i<result.length;i++){
                 
                 //if there are changes, call save();
-                if(results[i]._hasChanged) {
+                if(result[i]._hasChanged) {
                     result[i].save().catch(function(err){
                         console.log(err);
                     });
