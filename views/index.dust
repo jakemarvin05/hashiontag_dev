@@ -8,10 +8,14 @@
             {:else}
             <div style="text-align:center; margin-top: 30px; padding: 20px;">
                 <h1 style="color:#ccc;">You have no posts :(</h1>
-                <p style="margin-top: 30px;">Would you like to <a href="{p.absPath}/latest">see the latest posts</a>
-                    or <a href="{p.search}">search for your friends</a>?</p>
+                <p style="margin-top: 30px;">We have selected some people you that you might want to follow:</p>
             </div>
+
+            {>recommend/}
+
             {/renderJSONraw.posts}
+
+            
             {>"layouts/streamLayout"/}
 
         </div>
@@ -68,6 +72,8 @@
         <!-- start your posts -->
 
     </section><!-- main -->
+
+
 {:else}
 
     {! Partials slow down dust significantly. Until this is fixed, loginform is here

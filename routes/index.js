@@ -23,11 +23,6 @@ var ig = require('instagram-node').instagram();
 
 module.exports = router;
 
-
-router.get('/error', function(req, res) {
-    res.send('error');
-});
-
 /* Every page has a generic set of res.render variables:
 
     title:          (self explanatory)
@@ -163,6 +158,10 @@ router.post('/api/getstream/:showtype/:lastpostid', function(req, res) {
 
     require('../apps/stream/streamJSON.js')(req, render, params);
 
+});
+
+router.post('/api/getrecommend', function(req, res) {
+    require('../apps/stream/getRecommend.js')(req, res);
 });
 
 router.get('/login', function(req, res) {

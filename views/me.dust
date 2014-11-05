@@ -931,5 +931,15 @@ function followAjax(type) {
 }
 </script>
 <script src="{p.js}/list.js"></script>
+
+<!-- Auto open -->
+<script>
+$(window).load(function() {
+    if(VV.utils.QueryString.show) {
+        var postId = VV.utils.QueryString.show;
+        $('article[data-pid="' + postId + '"]').find('.postImage').click();
+    }
+});
+</script>
 </body>
 </html>

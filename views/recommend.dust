@@ -1,0 +1,125 @@
+<style>
+.recommendedWrapper {
+    width: 100%;
+    text-align: center;
+}
+.rBlkImg img {
+    width: 25%;
+    display: block;
+    float: left;
+}
+.rBlkUserPP {
+    text-align: center;
+    margin-top: 10px;
+}
+    .rBlkUserPP img {
+        height: 50px;
+        border-radius: 25px;
+    }
+
+.rBlkUsername {
+    font-size: 20px;
+}
+.rBlkAbout {
+    margin: 10px;
+    color: #ccc;
+}
+</style>
+<!-- rBlk = recommendedBlock -->
+<div class="recommendedWrapper">
+    <article class="rBlk" id="replaceId">
+        <div class="rBlkUser">
+            <div class="rBlkUserPP"></div>
+            <div class="rBlkUsername"></div>
+        </div>
+        <div class="rBlkAbout"></div>
+        <div class="rBlkImg clearfix"></div>
+    </article>
+</div>
+<script>
+var recommendBlk = {}
+
+recommendBlk.ajax = '';
+recommendBlk.$template = '';
+recommendBlk.template = '';
+
+recommendBlk.ajaxRun = function() {
+    var self = this;
+    var ajax = $.post(printHead.p.absPath + '/api/getrecommend');
+
+    ajax.done(function(data) {
+        console.log(data);
+
+        if(data.success) {
+            self.build(data.users);
+        }
+    });
+
+    ajax.fail(function(err) {
+        console.log(err);
+    });
+
+    this.ajax = ajax;
+}
+
+recommendBlk.build = function(users) {
+    var i = 0;
+    console.log(users[1]);
+    while(users[i]) {
+        console.log(i);
+        var user = users[i];
+        var newBlock = this.template;
+            newBlock = newBlock.replace('replaceId', 'rBlk_' + user.userNameDisp);
+        this.$template.append(newBlock);
+        var $blk = $('#rBlk_' + user.userNameDisp);
+
+        //profile picture
+        var pp = new Image();
+        pp.src = VV.utils.imageGetter(user.profilePicture, "thumb");
+        $blk.find('.rBlkUserPP').append(pp);
+        $blk.find('.rBlkUserPP img').wrap('<a href="' + printHead.p.absPath + '/' + user.userNameDisp + '"></a>');
+
+        //username
+        $blk.find('.rBlkUsername').append('<a href="' + printHead.p.absPath + '/' + user.userNameDisp + '">@' + user.userNameDisp + '</a>');
+
+        //about
+        $blk.find('.rBlkAbout').append('"' + user.about + '"');
+
+        //pictures
+        var $blkImg = $blk.find('.rBlkImg');
+        var imgClasses = [];
+        var images = [];
+        for(var j = 0; j < 4; j++) {
+            var post = user.posts[j];
+            if(!post) { break; }
+            var link = printHead.p.absPath + '/' + user.userNameDisp + '?show=' + post.postId;
+            $blkImg.append('<a href="' + link + '" class="' + post.imgUUID + '"></a>');
+            
+            $blkImg.find('.' + post.imgUUID).append(preload1);
+
+            this.appendImg($blkImg, post.imgUUID);  
+        }
+        i++;
+    }
+}
+recommendBlk.appendImg = function($blkImg, imgUUID) {
+    var img = new Image();
+    img.style.opacity = 0;
+    img.onload = function() {
+        var $a = $blkImg.find('.' + imgUUID)
+        $a.html('');
+        $a.append(this);
+        $(this).velocity({opacity: 1}, 500);
+    }
+    img.src = VV.utils.imageGetter(imgUUID, "half");
+}
+
+recommendBlk.init = function() {
+    this.$template = $('.recommendedWrapper');
+    this.template = this.$template.html();
+    this.$template.children().remove();
+    this.ajaxRun();
+}
+
+recommendBlk.init();
+</script>
