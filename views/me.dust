@@ -938,6 +938,8 @@ $(window).load(function() {
     if(VV.utils.QueryString.show) {
         var postId = VV.utils.QueryString.show;
         $('article[data-pid="' + postId + '"]').find('.postImage').click();
+
+        window.history.pushState('', '', window.location.href.substring(0, window.location.href.lastIndexOf('?')));
     }
 });
 </script>
