@@ -21,7 +21,7 @@ module.exports = function followJSON(req, res, followType) {
     }
 
     var attributes = ['userId', 'userNameDisp', 'about', 'name', 'profilePicture'];
-    var order = [['userNameDisp', 'ASC']]
+    var order = [['userNameDisp', 'ASC']];
 
 
     console.log('followJSON: user is authenticated.. finding posts...');

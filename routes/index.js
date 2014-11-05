@@ -530,12 +530,13 @@ router.post('/api/follow', function(req, res) {
 });
 
 router.post('/api/following', function(req, res) {
-    if(!req.isAuthenticated()) { res.json({success:true, results: false }); }
+    //we now allow users not logged in to see other's follower/following
+    //if(!req.isAuthenticated()) { res.json({success:true, results: false }); }
     require('../apps/follow/follower.js')(req, res, 'following');
 });
 
 router.post('/api/followers', function(req, res) {
-    if(!req.isAuthenticated()) { res.json({success:true, results: false }); }
+    //if(!req.isAuthenticated()) { res.json({success:true, results: false }); }
     require('../apps/follow/follower.js')(req, res, 'followers');
 });
 
