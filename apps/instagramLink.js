@@ -2,6 +2,8 @@ var fname = "instagramLink.js ";
 
 module.exports = function instagramLink(req, res, action) {
 
+    var retries = 0;
+
     //GET USER
     if(action === "getuser") {
         instaNode.user_search(req.body.screenName, {count: 1}, function(err, users, remaining, limit) {
@@ -28,9 +30,7 @@ module.exports = function instagramLink(req, res, action) {
         var receivedInstagram = {
             instaId: req.body.instaId,
             screenName: req.body.screenName,
-            User_userId: req.user.userId,
-            //stopArray: "[]",
-            active:true
+            User_userId: req.user.userId
         }
 
 
@@ -51,7 +51,7 @@ module.exports = function instagramLink(req, res, action) {
                 if(insta.screenName === req.body.screenName) { 
                     console.log('screenname matched');
                     //the record is exactly the same, and record is active. don't do anything
-                    return true;
+                    return false;
                 }
                 console.log('screenname changed');
                 //screenname has changed.
@@ -63,8 +63,13 @@ module.exports = function instagramLink(req, res, action) {
             receivedInstagram.stopArray = "[]";
             return insta.updateAttributes(receivedInstagram);
 
-        }).then(function() {
-            return res.json({success: true})
+        }).then(function(insta) {
+
+            res.json({success: true});
+
+            //create a new stop point.
+            grabInsta(insta);
+
         }).catch(throwErr);
 
     }
@@ -79,6 +84,38 @@ module.exports = function instagramLink(req, res, action) {
     function throwErr(err) {
         console.log(fname + "threw error: " + err);
         return res.json({success: false});
+    }
+
+    function grabInsta(insta) {
+
+        if(retries > 5) { 
+            console.log(fname + 'userId: ' + insta.User_userId + ' insta query retried ' + (retries-1) + '. End retrying....');
+            return false;
+        }
+
+        instaNode.user_media_recent(insta.instaId.toString(), function(err, medias, pagination, remaining, limit) {
+            console.log(fname + remaining + ' of ' + limit + ' instagram calls remaining');
+            if(err) { 
+                console.log(fname + 'userId: ' + insta.User_userId + ' insta query retry ' + retries + ' encountered error: ' + err); 
+                retries += 1;
+                return setTimeout(function() {
+                    grabInsta(insta);
+                }, 60000);
+            }
+
+            if(medias.length === 0) {
+                console.log(fname + 'userId: ' + insta.User_userId + ' has no medias.'); 
+                return false;
+            }
+
+            var newStopArray = [];
+            newStopArray.push(medias[0].id);
+            if(medias[1]) { newStopArray.push(medias[1].id); }
+            if(medias[2]) { newStopArray.push(medias[2].id); }
+            insta.stopArray = JSON.stringify(newStopArray);
+            insta.save().catch(function(err) { console.log(fname + 'error occurred while saving grabInsta ids for userId: ' + insta.User_userId + ' . Error: ' + err)});
+        });
+
     }
 } 
 

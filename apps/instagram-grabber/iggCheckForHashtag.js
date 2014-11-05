@@ -1,4 +1,5 @@
 var targetHashtag = ["vogueverve", "vogueandverve"],
+    targetAddtag = "@vogueverve",
     iggPost = require('./iggPost.js'),
     fname = "iggCheckForHashtag.js ";
 
@@ -15,9 +16,16 @@ module.exports = function iggCheckForHashtag(insta, completionCallback) {
             pageLength = page.length;
         for(var k=0; k<pageLength; k++) {
             var post = page[k],
-                tags = post.tags;
+                tags = post.tags,
+                caption = post.caption.text;
 
+            console.log(caption);
 
+            //check the caption for @vogueverve.
+            if(caption.toLowerCase().indexOf(targetAddtag) > -1) {
+                iggPost(insta, post);
+                continue;
+            }
 
             //for each post, loop through tags
             var tagsLength = tags.length;

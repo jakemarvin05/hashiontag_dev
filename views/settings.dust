@@ -107,7 +107,7 @@
                 <h2>Retrieve and re-post my Instagrams</h2>
                 <p>We can automatically retrieve and re-post your Instagrams onto Vogue and Verve.</p>
 
-                <p>Just hashtag <strong>#VogueVerve</strong> in your Instagram for us to grab it.</p>
+                <p>Just tag <strong>@vogueverve</strong> or hashtag <strong>#vogueverve</strong> in your Instagram for us to grab it.</p>
 
                 <div class="instagramCenterWhenMobile">
                     <button class="darkButton" id="instagramUnlink" class="instagramActiveP instagramCenterWhenMobile" {?renderJSONraw.instagramLink}{:else}style="display:none;"{/renderJSONraw.instagramLink}>Unlink my Instagram</button>

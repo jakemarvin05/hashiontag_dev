@@ -71,36 +71,10 @@ module.exports = function iggMain() {
         //attach my custom stuff to the insta instance
         insta.grabCount = grabCount;
         insta.newStopArray = [];
-        insta.isFirstGrab = false;
         insta.pages = [];
         insta.postCount = 0;
         insta.grabStartTime = Date.now();
 
-        //JSON.parse will cause errors if the stopArray parameter is empty, which shouldn't be the case.
-        try {
-
-            //if there is nothing in the stopArray, means either, this instagram link is
-            //newly established.
-            //OR the account had no posts previously.
-            //So we need to initiate a "first grab"
-            var stopArrayLength = JSON.parse(insta.stopArray).length;
-            if(stopArrayLength === 0) { insta.isFirstGrab = true; }
-
-        } catch(err) {
-            console.log(fname + 'FATAL ERROR with JSON.parse on stop array. Terminating process for userid: ' + insta.User_userId + ' , instaId ' + insta.instaId );
-            console.log(err);
-            console.log(fname + 'updating empty square brackets into instance: ' + insta.runningKey + ' for userid: ' + insta.User_userId);
-            
-            //we try to recover the error for the next update by overwritting stopArray with "[]"
-            return insta.updateAttributes({
-                stopArray: "[]"
-            }).then(function() {
-                return eachInstagramCallback(insta, false);
-            }).catch(function(err) {
-                console.log(fname + 'error in updating empty square brackets for instance:' + insta.runningKey + ', userId: ' + insta.User_userId);
-                return eachInstagramCallback(insta, false);
-            });  
-        }
         //ig module requires userId to be passed in a string... so weird.
         instaNode.user_media_recent(insta.instaId.toString(), function(err, medias, pagination, remaining, limit) {
             console.log(fname + remaining + ' of ' + limit + ' instagram calls remaining');
@@ -123,13 +97,15 @@ module.exports = function iggMain() {
     }
 
 
-
     function checkTillOverlap(insta, medias, maxId) {
 
         console.log(fname + 'checkTillOverlap, userid: ' + insta.User_userId + ' count number ' + insta.grabCount);
         var len = medias.length,
             last = false,
             stopArray = insta.stopArray;
+
+        //set stopArray to false when it is empty. this will trigger full grab.
+        if(stopArray === "[]") { stopArray = false; }
 
         //if this is the last page. set the flags such that the loop doesn't continue after this.
         if(len < 20) { last = true; }
@@ -148,20 +124,9 @@ module.exports = function iggMain() {
                 if(medias[i+2]) { insta.newStopArray.push(medias[i+2].id); }
             }
 
-            //if is first grab, just grab 3 and push it into the array.
-            if(insta.isFirstGrab) {
-                //push the next 2 ids into stopArray
-                //stop the loop here 
-                console.log(fname + 'userid: ' + insta.User_userId + ' isFirstGrab. Store ids only, no medias.'); 
-                if(medias[i+1]) { insta.newStopArray.push(medias[i+1].id); }
-                if(medias[i+2]) { insta.newStopArray.push(medias[i+2].id); }
-                eachInstagramCallback(insta);
-                break;
-            }
-
-            //its not a first grab so we need to find the overlap.
+            //if stoppArray is not empty, find the overlap.
             //if found, stop.
-            if(stopArray.indexOf(id) > -1) { 
+            if(stopArray && stopArray.indexOf(id) > -1) { 
                 console.log(fname + 'userId:' + insta.User_userId + ' at overlap, splicing post and trigger callback');
                 //splice away the pages that we ran through before
                 //then push it into pages.
