@@ -228,6 +228,32 @@ router.post('/api/signup', function(req, res, next) {
     // })
 });
 
+router.get('/forgetpassword', function(req, res) {
+    var gJSON = globalJSON(req);
+    var token = req.query.token;
+    var isTokenValid;
+
+    //if(!req.query.token) { isTokenValid = false; }
+
+    if(isTokenValid) {
+        //do a db call to verify the token
+
+        //3 cases can come out. Token is invalid, or token has expired, or is valid.
+    }
+
+    res.render('resetPassword', {
+        /* generics */
+        title: meta.header(),
+        gJSON: gJSON,
+        p: gJSON.pathsJSON.paths,
+        f: gJSON.pathsJSON.files,
+        printHead: JSON.stringify(gJSON.printHead),
+        page: "resetPassword",
+        showNav: "login"
+    });
+
+});
+
 router.post('/api/forgetpassword', function(req, res) {
 
     if (!req.body.email) {  return res.json({ error: 'Please enter an email' }) }
