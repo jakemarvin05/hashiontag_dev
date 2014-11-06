@@ -1,4 +1,5 @@
 {>blockHeader/}
+<link href="{p.css}/index.css" rel="stylesheet"> 
 {>blockHeaderAfterHook/}
 
 {?showStream}
@@ -83,77 +84,6 @@
     !}
 
     {! start login form !}
-    <style>
-    /*For vertical centering */
-    html, body, .globalWrapper, #loginCont {
-        height: 100%;
-    }
-    img.bg {
-        min-height: 100%;
-        min-width: 1024px;
-        width: 100%;
-        height: auto;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: -1;
-    }
-    @media screen and (max-width: 1024px) {
-        img.bg {
-            left: 50%;
-            margin-left: -512px; /* 50% */
-        }
-    }
-    #logoCont {
-        max-width: 66px;
-    }
-    #loginCont {
-        width: 320px;
-        margin: auto;
-        text-align: center;
-    }
-        @media (min-width: 0px) and (max-width: 480px) {
-            #splashLogo {
-                width: 200px;
-            }
-        }
-        @media (min-width: 481px) {
-            #splashLogo {
-                width: 280px;
-            }
-        }
-        #formCont {
-            display:inline-block;
-            vertical-align: middle;
-            text-align: center;
-            padding: 0px 10px;
-            width: 90%;
-        }
-            .indexForms {
-                display:block;
-            }
-            .indexForms input[type="text"], .indexForms input[type="password"], .indexForms button {
-                display: inline-block;
-                width: 212px;
-            }
-            .indexForms>input,  .indexForms>div, .indexForms>button {
-                margin-top: 8px;
-            }
-                input[name="rememberMe"] {
-                    vertical-align: baseline;
-                }
-
-            .formBottomLinks {
-                padding: 10px
-            }
-            .errHolder label {
-                display:block;
-            }
-
-            #signupForm p>label {
-                display: block;
-            }
-    </style>
     <img class="bg" id="bg1" src="{p.img}/splashbg.jpg" data-shown="yes">
     <img class="bg" id="bg2" src="{p.img}/splashbg.jpg" style="display:none;">
 
@@ -343,19 +273,15 @@
             <form class="indexForms" id="signupForm" action="api/signup" {@eq key=page value="login"}style="display:none;"{/eq}>
                 <h1>Signup</h1>
                 <p>
-                    <label for="username">Username</label>
                     <input type="text" id="username" name="username" placeholder="Your username">
                 </p>
                 <p>
-                    <label for="email">Email</label>
                     <input type="text" id="email" name="email" placeholder="Your email">
                 </p>
                 <p>
-                    <label for="password">Password</label>
                     <input type="password" id="password" name="password" placeholder="Your password">
                 </p>
                 <p>
-                    <label for="passwordR">Re-type password</label>
                     <input type="password" id="passwordR" name="passwordR" placeholder="Re-type your password">
                 </p>
                 <div class="errHolder" style="display: none; color: red;"></div>

@@ -1,0 +1,70 @@
+
+/*For vertical centering */
+html, body, .globalWrapper, #loginCont, #resetPwdCont {
+    height: 100%;
+}
+img.bg {
+    min-height: 100%;
+    min-width: 1024px;
+    width: 100%;
+    height: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+@media screen and (max-width: 1024px) {
+    img.bg {
+        left: 50%;
+        margin-left: -512px; /* 50% */
+    }
+}
+#logoCont {
+    max-width: 66px;
+}
+#loginCont {
+    width: 320px;
+    margin: auto;
+    text-align: center;
+}
+    @media (min-width: 0px) and (max-width: 480px) {
+        #splashLogo {
+            width: 200px;
+        }
+    }
+    @media (min-width: 481px) {
+        #splashLogo {
+            width: 280px;
+        }
+    }
+    #formCont {
+        display:inline-block;
+        vertical-align: middle;
+        text-align: center;
+        padding: 0px 10px;
+        width: 90%;
+    }
+        .indexForms {
+            display:block;
+        }
+        .indexForms input[type="text"], .indexForms input[type="password"], .indexForms button {
+            display: inline-block;
+            width: 212px;
+        }
+        .indexForms>input,  .indexForms>div, .indexForms>button {
+            margin-top: 8px;
+        }
+            input[name="rememberMe"] {
+                vertical-align: baseline;
+            }
+
+        .formBottomLinks {
+            padding: 10px
+        }
+        .errHolder label {
+            display:block;
+        }
+
+        #signupForm p>label {
+            display: block;
+        }

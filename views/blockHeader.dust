@@ -61,12 +61,8 @@
     <!-- fancyBox image gallery -->
     <link rel="stylesheet" href="{p.js}/fancybox/source/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen" />
 
-    <!-- HTML5 shiv for below IE10 compatibility -->
-    <!-- TO DO: CONSIDER TAKING OUT IE < 10 SUPPORT!! -->
-    <!--[if lt IE 9]>
-    <script src="{p.js}/html5shiv-printshiv.min.js"></script>
-    <script src="{p.js}/respond.min.js"></script>
-    <![endif]-->
+    <!-- placeholder polyfill css (js is in footer) -->
+    <link rel="stylesheet" href="{p.js}/placeholderpolyfill/placeholder_polyfill.min.css">
 
     <script src="{p.js}/vvUtils.js"></script>
     

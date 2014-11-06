@@ -11,6 +11,7 @@
 <script src="{p.js}/core.js"></script>
 <script src="{p.js}/custcore.js"></script>
 <script src="{p.js}/fancybox/source/jquery.fancybox.js"></script>
+<script src="{p.js}/placeholderpolyfill/placeholder_polyfill.jquery.min.combo.js" charset="utf-8"></script>
 
 {?gJSON.userHeaders.ua.isLoadEmoji}
 <!-- Emoji Polyfill -->
