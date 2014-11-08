@@ -26,13 +26,11 @@ module.exports = function getRecommend(req, res) {
         }],
         order: [[db.Post, 'createdAt', 'DESC']]
     }).then(function(users) {
-        console.log(users);
-        var joinedUsers = [];
 
+        var joinedUsers = [];
         var i = 0;
         while(users[i]) {
             var user = JSON.parse(JSON.stringify(users[i]));
-            console.log('looooping');
             joinedUsers.push(user);
             i++;
         }
