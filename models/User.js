@@ -465,6 +465,7 @@ var disallowedUsernames = [
 "explore",
 "following",
 "followers",
+"fuck",
 "help",
 "image",
 "images",
@@ -482,5 +483,8 @@ var disallowedUsernames = [
 "support",
 "signup",
 "upload",
-"uploads"
+"uploads",
+"usernname",
+"vogueverve",
+"vogue_verve"
 ]
