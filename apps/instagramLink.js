@@ -6,7 +6,7 @@ module.exports = function instagramLink(req, res, action) {
 
     //GET USER
     if(action === "getuser") {
-        instaNode.user_search(req.body.screenName, {count: 1}, function(err, users, remaining, limit) {
+        instaNode.user_search(req.body.screenName, function(err, users, remaining, limit) {
             if(err) { console.log(err); return res.json({success:false}); }
 
             var results = {
@@ -17,9 +17,31 @@ module.exports = function instagramLink(req, res, action) {
             console.log(results);
             console.log(remaining + ' out of ' + limit + ' instagram api hits available');
 
+            //FIX 08nov14
+            //When searching for "username", instagram may return "usernameXXX" as first result
+            //Need to iterate through the results to match.
+            var i = 0;
+            //a found failsafe, if cannot find exact match, return the first result.
+            var found = false;
+            while(users[i]) {
+                console.log('while ' + i);
+                if( users[i].username.toLowerCase() === req.body.screenName.toLowerCase() ) {
+                    found = true;
+                    break;
+                }
+                i++;
+            }
+
+            if(found) {
+                console.log('here ' + i);
+                var returnedUser = users[i];
+            } else {
+                var returnedUser = users[0];
+            }
+
             return res.json({
                 success: true, 
-                user: users[0]
+                user: returnedUser
             });
         });
     }
