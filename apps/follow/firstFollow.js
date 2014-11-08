@@ -19,7 +19,6 @@ module.exports = function(req, userIdToAction) {
         if(posts.length === 0) { return [false, false]; }
 
         var lastestPostDate = posts[0].createdAt;
-
         var bulkOfPosts = [];
         for(var i=0; i<posts.length; i++) {
             var create = {
@@ -31,9 +30,11 @@ module.exports = function(req, userIdToAction) {
 
         return [
             db.User.update({
-                userId: req.user.userId,
                 lastStreamUpdate: lastestPostDate,
-                hasStartFollow: true
+                hasNoFollow: false
+            }, {
+                userId: req.user.userId
+
             }),
             db.Stream.bulkCreate(bulkOfPosts)
         ]

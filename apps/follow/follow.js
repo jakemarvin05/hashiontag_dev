@@ -44,8 +44,6 @@ module.exports = function follow(req, res) {
             
             
             req.user.hasFollow(userIdToAction).then(function(user) {
-
-                console.log(user);
                 if(!user) {
 
                     return db.Following.create({
