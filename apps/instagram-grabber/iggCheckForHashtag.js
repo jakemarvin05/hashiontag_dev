@@ -63,19 +63,21 @@ module.exports = function iggCheckForHashtag(insta, completionCallback) {
             if(comments.count > 0) {
                 for(var m=0; m<3; m++) {
                     var comment = comments.data[m];
-                    if(comment.from.username === owner) {
+                    if(comment) {
+                        if(comment.from.username === owner) {
 
-                        //exercising caution...
-                        try {
-                            if(comment.text.toLowerCase().indexOf(targetAddtag) > -1 ) {
-                                console.log(fname + 'fired a repost');
-                                iggPost(insta, post);
-                                insta.newStopArray.unshift(post.id);
-                                hasChangedArray = true;
-                                break;
+                            //exercising caution...
+                            try {
+                                if(comment.text.toLowerCase().indexOf(targetAddtag) > -1 ) {
+                                    console.log(fname + 'fired a repost');
+                                    iggPost(insta, post);
+                                    insta.newStopArray.unshift(post.id);
+                                    hasChangedArray = true;
+                                    break;
+                                }
+                            } catch(err) {
+                                console.log(fname + 'has error in instagram comment checking. Error: ' + err);
                             }
-                        } catch(err) {
-                            console.log(fname + 'has error in instagram comment checking. Error: ' + err);
                         }
                     }
                 }

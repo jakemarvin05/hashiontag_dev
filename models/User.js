@@ -94,6 +94,11 @@ module.exports = function(sequelize, DataTypes) {
         lastStreamUpdate:{
             type: DataTypes.DATE,
             allowNull: true
+        },
+        hasNoFollow: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: true
         }
     }, {
         timestamps: true,

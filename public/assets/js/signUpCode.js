@@ -85,7 +85,7 @@ $('#signupForm').validate({
         posting.done(function(data) {
             if(data.success) { 
                 console.log('success');
-                return window.location.replace(printHead.p.absPath + '/me');
+                return window.location.replace(printHead.p.absPath + '/');
             }
 
             if(data.error) {

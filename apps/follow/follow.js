@@ -24,9 +24,24 @@ module.exports = function follow(req, res) {
         }
 
         if(req.body.action === 'follow') {
+            console.log(req.user.hasNoFollow);
 
+            //if user hasn't start following anyone
+            if(req.user.hasNoFollow) { 
 
+                //fire actions to initialise the news stream
+                require('./firstFollow.js')(req, userIdToAction); 
 
+                //create the relationship
+                return db.Following.create({
+                    FollowerId: req.user.userId,
+                    FollowId: userIdToAction,
+                    affinity: 0 + Math.random()/1000
+                    }).then(function(){
+                        res.json({success:true});
+                    });
+            }
+            
             
             req.user.hasFollow(userIdToAction).then(function(user) {
 
