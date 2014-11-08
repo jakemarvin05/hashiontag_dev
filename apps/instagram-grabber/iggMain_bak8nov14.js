@@ -5,7 +5,7 @@ var iggCheckForHashtag = require('./iggCheckForHashtag.js');
 module.exports = function iggMain() {
 
     //general settings/params
-    var grabCount = 0; // 0 means 1 instagram "page" -- 20 posts
+    var grabCount = 2; // 3 pages = 60 posts
 
     if(typeof global.igg === "undefined") {
         global.igg = {
@@ -70,12 +70,10 @@ module.exports = function iggMain() {
     function initQuery(insta) {
         //attach my custom stuff to the insta instance
         insta.grabCount = grabCount;
+        insta.newStopArray = [];
         insta.pages = [];
         insta.postCount = 0;
         insta.grabStartTime = Date.now();
-
-        //parse the existing array
-        insta.newStopArray = JSON.parse(insta.stopArray);
 
         //ig module requires userId to be passed in a string... so weird.
         instaNode.user_media_recent(insta.instaId.toString(), function(err, medias, pagination, remaining, limit) {
@@ -93,29 +91,20 @@ module.exports = function iggMain() {
             var maxId = pagination.next_max_id;
 
             //looping through them
-            checkWithStored(insta, medias, maxId);
+            checkTillOverlap(insta, medias, maxId);
 
         });
     }
 
 
-    function checkWithStored(insta, medias, maxId) {
+    function checkTillOverlap(insta, medias, maxId) {
 
-        /* Note: "stopArray" was originally named so because it was first formulated to
-         * create a "stopPoint" in the instagram scanning, which meant that this module
-         * knows which was the post that it had checked until, and hence won't go beyond.
-         * Now is it modified to store an array of Instagram post ids that had already
-         * been grabbed so that duplicates occur. All other posts will always be re-checked
-         * for new hashtags. This is because hashtagging can occur after posting, so posts
-         * that were not grabbed, had to be assumed to be "fresh" everytime.
-         */
-
-        console.log(fname + 'checkWithStored, userid: ' + insta.User_userId + ' count number ' + insta.grabCount);
+        console.log(fname + 'checkTillOverlap, userid: ' + insta.User_userId + ' count number ' + insta.grabCount);
         var len = medias.length,
             last = false,
             stopArray = insta.stopArray;
 
-        //set stopArray to false when it is empty. this will trigger full scan.
+        //set stopArray to false when it is empty. this will trigger full grab.
         if(stopArray === "[]") { stopArray = false; }
 
         //if this is the last page. set the flags such that the loop doesn't continue after this.
@@ -125,13 +114,28 @@ module.exports = function iggMain() {
             var media = medias[i],
                 id = media.id;
 
-            //if stoppArray is not empty, apply the stopArray filter.
+            console.log(fname + '' + i + '\'th run, checking media id' + id);
+
+            //for the first 3 media, push into the newStopArray
+            if(i === 0 && insta.grabCount === grabCount) { 
+                console.log('stopArray push');
+                insta.newStopArray.push(id);
+                if(medias[i+1]) { insta.newStopArray.push(medias[i+1].id); }
+                if(medias[i+2]) { insta.newStopArray.push(medias[i+2].id); }
+            }
+
+            //if stoppArray is not empty, find the overlap.
             //if found, stop.
             if(stopArray && stopArray.indexOf(id) > -1) { 
-                console.log(fname + 'userId:' + insta.User_userId + ' has posts that are grabbed. Splicing...');
+                console.log(fname + 'userId:' + insta.User_userId + ' at overlap, splicing post and trigger callback');
+                //splice away the pages that we ran through before
+                //then push it into pages.
+                medias.splice(i, len-i); 
+                insta.pages.push(medias);
+                insta.postCount += medias.length;
 
-                //setting to false is easier to handle
-                medias[i] = false;
+                eachInstagramCallback(insta);
+                break; 
             }
 
             //finally when it reaches the last one, we want to trigger the next query.
@@ -140,9 +144,9 @@ module.exports = function iggMain() {
                 //push all into my page array
                 insta.pages.push(medias);
                 insta.postCount += medias.length;
-                //console.log(fname + insta.postCount);
+                console.log(fname + insta.postCount);
 
-                //if this media contains less than 20, it means we reached the end
+                //if this media contains last than 20, it means we reached the end
                 //so we call for completion
                 if(last) { 
                     console.log(fname + 'ending prematurely as we reached the end of posts'); 
@@ -159,7 +163,7 @@ module.exports = function iggMain() {
 
                 //it has not, we decrement the count and continue
                 insta.grabCount -= 1;
-                performQuery(insta, maxId, checkWithStored, eachInstagramCallback);
+                performQuery(insta, maxId, checkTillOverlap, eachInstagramCallback);
             }
         }
     }
@@ -188,22 +192,57 @@ module.exports = function iggMain() {
 
 
 
-    function eachInstagramCallback(insta, runCheck) {
-        //assume when no runCheck param is given, to runCheck is true.
-        if(typeof runCheck === "undefined") { var runCheck = true; }
+    function eachInstagramCallback(insta, update) {
+        //dev only
+        //push into my igg for initial diagnosis
+        //igg.instagrams[insta.instaId] = insta.pages;
 
-        if(runCheck) { 
+        //assume when no update param is given, to update is true.
+        if(typeof update === "undefined") { var update = true; }
 
-            console.log(fname + 'instagram for userId: ' + insta.User_userId + ' has pages: ' + insta.pages.length);
+        //check if the array is the same. If it is, just ignore the update.
+        if(update) {
+            insta.newStopArray = JSON.stringify(insta.newStopArray);
+            if(insta.newStopArray === insta.stopArray) {
+                console.log(fname + ' no change for User_userId ' + insta.User_userId);
+                update = false;
+            }
+        }
+
+        //if none of the criterias above switched the update flag, perform update.
+
+        
+        if(update) { 
+            //perform async tasks with the "insta" instance here. Update false, means we don't even run the async task.
+            //we will start a repostRunCount
+            console.log(fname + 'instagram for userId: ' + insta.User_userId + ' has pages: ' + insta.pages);
             var hasPages = insta.pages.length > 0;
             if(hasPages) {
+
                 global.igg.dbRepostCount += 1;
                 iggCheckForHashtag(insta, completionCallback);
-                
-            } 
-            return completionCallback("insta");
-        } else {
+            }
+    
+            //db tasks.
+            insta.updateAttributes({
+                stopArray: insta.newStopArray
+            }).then(function(insta) {
+                console.log(fname + 'UserId: ' + insta.User_userId + ' , screenName: ' + insta.screenName + ' , for instaId: ' + insta.instaId + ' completed WITH update to stopArray');
+
+                return completionCallback("insta");
+
+            }).catch(function(err) {
+                console.log(fname + ' error occured for User_usderId' + insta.User_userId + ' , instaId: ' + insta.instaId + '. Error: ' + err);
+
+                return completionCallback("insta");
+            });
+        }
+        
+        //when update is false:
+        if(!update) {
+            
             console.log(fname + 'UserId: ' + insta.User_userId + ' , screenName: ' + insta.screenName + ' , for instaId: ' + insta.instaId + ' completed WITHOUT update to stopArray');
+
             return completionCallback("insta");
         }
 

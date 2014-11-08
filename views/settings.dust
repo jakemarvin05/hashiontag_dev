@@ -122,7 +122,7 @@
                 <p class="instagramCenterWhenMobile">
                     Find Instagram screenname:
                     <br>
-                    <input type="text" name="instaScreenName" placeholder="screenname" required><br>
+                    <input type="text" name="instaScreenName" placeholder="screenname" value="{renderJSONraw.userNameDisp}" required><br>
                 </p>
 
                 <div class="instagramResultBlock instagramCenterWhenMobile" style="display:none;">

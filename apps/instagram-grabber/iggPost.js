@@ -17,8 +17,16 @@ var request = require("request");
 module.exports = function iggPost(insta, post) {
 
     var userId = insta.User_userId,
-        desc = post.caption.text,
         imgUUID = uuid();
+
+    //instagram caption can be null
+    var caption = post.caption;
+    if(caption) {
+        var desc = caption.text;
+    } else {
+        var desc = caption;
+    }
+        
 
     console.log(fname + 'starting instagram re-post for userId: ' + insta.User_userId + '. imgUUID: ' + imgUUID + '. Instagram: '+ post.link);
 

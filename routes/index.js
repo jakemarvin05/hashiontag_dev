@@ -309,7 +309,7 @@ router.get('/settings', function(req, res) {
     var gJSON = globalJSON(req);
 
 
-    require('../apps/settings.js')(req,res, "render", gJSON, thenRender);
+    require('../apps/settings.js')(req, res, "render", gJSON, thenRender);
 
     //bind the final callback first
     function thenRender(renderJSON) {

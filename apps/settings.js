@@ -14,13 +14,12 @@ module.exports = function settings(req, res, action, gJSON, render) {
         }).then(function(instagramLink) {
 
             if(instagramLink) {
-                var link = instagramLink.screenName;
-                renderJSON.instagramLink = link;
-                return render(renderJSON);
+                renderJSON.instagramLink = instagramLink.screenName;
+            } else {
+                renderJSON.instagramLink = false;
             }
 
-            renderJSON.instagramLink = false;
-            console.log(renderJSON);
+            renderJSON.userNameDisplay = req.user.userNameDisplay;
             return render(renderJSON);
 
         }).catch(throwErr);
