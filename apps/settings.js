@@ -19,7 +19,7 @@ module.exports = function settings(req, res, action, gJSON, render) {
                 renderJSON.instagramLink = false;
             }
 
-            renderJSON.userNameDisplay = req.user.userNameDisplay;
+            renderJSON.userNameDisp = req.user.userNameDisp;
             return render(renderJSON);
 
         }).catch(throwErr);
