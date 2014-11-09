@@ -233,13 +233,18 @@ router.get('/forgetpassword', function(req, res) {
     var token = req.query.token;
     var isTokenValid;
 
-    //if(!req.query.token) { isTokenValid = false; }
+    db
+    .User
+    .find({ where: { passwordResetToken: token, passwordResetTokenExpire: { gt: Date.now() } } })
+    .then(function(user){
+        if (!user) { return res.status(400).json({ error: 'Token is invalid or has expired.'} ) };
 
-    if(isTokenValid) {
-        //do a db call to verify the token
+        // Do something?
 
-        //3 cases can come out. Token is invalid, or token has expired, or is valid.
-    }
+    })
+    .catch(function(err){
+        return res.status(500).json({ error: 'Sorry, an error has ocurred.' } );
+    });
 
     res.render('resetPassword', {
         /* generics */
@@ -256,20 +261,25 @@ router.get('/forgetpassword', function(req, res) {
 
 router.post('/api/forgetpassword', function(req, res) {
 
-    if (!req.body.email) {  return res.json({ error: 'Please enter an email' }) }
+    if (!req.body.email) {  return res.json({ error: 'Please enter an email' }) };
 
-    db.User.find({
-        where: { email: req.body.email }
-    }).then(function(user) {
-        if (!user) { return res.status(404).json({ error: 'Email not found.'}); }
+    db
+    .User
+    .find({ where: { email: req.body.email }})
+    .then(function(user) {
+        if (!user) { return res.status(404).json({ error: 'Email not found.'}); };
 
-        user.generateRandomPassword().save(['password']).success(function(user){
-           user.deliver();
-           return res.status(200).json({ success: true });
+        user
+        .generatePasswordResetToken()
+        .save()
+        .success(function(user){
+            var host = req.protocol + '://' + req.get('host');
+
+            user.deliver(host);
+            return res.status(200).json({ success: true });
         });
-
     }).catch(function(err){
-        return res.json({ error: 'Sorry, an error has ocurred.' }, 500);
+        return res.status(500).json({ error: 'Sorry, an error has ocurred.' });
     });
 
 });

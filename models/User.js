@@ -41,6 +41,12 @@ module.exports = function(sequelize, DataTypes) {
                 len:[6,999999]
             }
         },
+        passwordResetToken: {
+            type: DataTypes.STRING
+        },
+        passwordResetTokenExpire: {
+            type: DataTypes.DATE
+        },
         salt: {
             type: DataTypes.STRING,
             allowNull: false
@@ -97,17 +103,16 @@ module.exports = function(sequelize, DataTypes) {
         },
         hasNoFollow: {
             type: DataTypes.BOOLEAN,
-            allowNull: true,
+            allowNull: true, // no need to allow null if you have a default value.
             defaultValue: true
         }
     }, {
         timestamps: true,
         tableName: 'User',
         instanceMethods: {
-            // DEPRECATE THIS FUNCTION
-            generateRandomPassword: function(){
-                randomPassword  = crypto.randomBytes(4).toString('hex');
-                this.password   = randomPassword;
+            generatePasswordResetToken: function(){
+                this.passwordResetToken  = crypto.randomBytes(16).toString('hex');
+                this.passwordResetTokenExpire = moment().add(12, 'hours').format(); //add .format()?
                 return this;
             },
             authenticate: function(password){
@@ -119,8 +124,8 @@ module.exports = function(sequelize, DataTypes) {
                 this.salt       = generator.salt;
                 return this;
             },
-            deliver: function(){
-                return forgotPasswordMailer(this);
+            deliver: function(host){
+                return forgotPasswordMailer(this, host);
             }
         },
         classMethods: {
