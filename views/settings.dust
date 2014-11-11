@@ -216,7 +216,7 @@ $('#changePassword').validate({
         // Get some values from elements on the page:
         var data = $form.serialize();
 
-        var uri = printHead.p.absPath + '/api/changepassword';
+        var uri = printHead.p.absPath + '/api/password/changepassword';
 
         // Send the data using post
         var posting = $.post(uri, data);

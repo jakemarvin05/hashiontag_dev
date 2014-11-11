@@ -1,15 +1,7 @@
     <p class="searchNote">(to search hashtags, use '#'.)</p>
     <input type="text" id="search" class="search" name="search" placeholder="Type to search...">
     <div class="searchLoaderCont">
-        <div class="searchLoaderWrap">
-            <!--<div class="searchLoader" style="display:none;">
-            
-                <div class="searchLoaderStud" ></div>
-                <div class="searchLoaderStud"></div>
-                <div class="searchLoaderStud"></div>
-                <div class="vaDiv"></div>
-            </div>-->
-        </div>
+        <div class="searchLoaderWrap"></div>
         <div class="searchQueryMessage" style="display:none;"></div>
     </div>
 

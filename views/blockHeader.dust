@@ -24,7 +24,7 @@
     <meta property="og:title" content="{title.title}">
     <meta property="og:description" content="{title.desc}">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="http://vogue-verve.com/{title.img}">
+    <meta property="og:image" content="http://vogueverve.com/{title.img}">
 
 
     <!-- Twitter Card data
