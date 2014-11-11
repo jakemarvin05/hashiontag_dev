@@ -1,4 +1,5 @@
 var db = global.db;
+var likesSplicer = require('./likesSplicer.js');
 
 module.exports = function singlePostJSON(req, eventEmitter) {
 
@@ -61,8 +62,6 @@ module.exports = function singlePostJSON(req, eventEmitter) {
         ]
     }).spread(function(post, ids) {
 
-        //console.log(post);
-        //console.log(ids);
         if(ids) {
             var idArray = [];
             var idrun = 0;
@@ -71,58 +70,18 @@ module.exports = function singlePostJSON(req, eventEmitter) {
                 idrun++;
             }
         }
-
-        //console.log(idArray);
-
-        console.log('singlePostJSON: db retrieval complete');
-
-        if(isAuth) {
-
-            console.log('singlePostJSON: likes splicing...');
-            //console.log(idArray);
-            //console.log(posts);
-            //unDAO'ify the results.
-            var post = JSON.parse(JSON.stringify(post));
-            
-            var targets = post.likes,
-                count2 = Object.keys(targets).length;
-                //count2 = targets.length;
-
-            post.hasLiked = false;
-            post.totalLikes = count2;
-
-
-            var l = 0;
-            //console.time('while');
-            while(targets[l]) {
-
-                var theUser = targets[l].User_userId;
-
-                if(theUser === req.user.userId) {
-                    post[j].hasLiked = true;
-                    //splice myself away
-                    //console.log('self spliced ' + theUser);
-                    targets.splice(l, 1);
-
-                } else if(idArray.indexOf(theUser) < 0) {
-                    //splice away all that user is not following
-                    //console.log('non-following spliced ' + theUser);
-                    targets.splice(l, 1);
-                } else {
-                    l++;
-                }
-            }
-            //console.timeEnd('while');
-        }
+        var post = JSON.parse(JSON.stringify(post));
 
         //streamFactory is programmed to handle posts array.
         //we trick streamFactory into processing by giving it an array of posts with 1 post.
         //provide better solution when able.
         var renderJSON = {}
-        renderJSON.posts = {}
-        renderJSON.posts[0] = post;
+        renderJSON.posts = []
+        renderJSON.posts.push(post);
 
-        //console.log(JSON.stringify(posts));
+        if(isAuth) {
+            renderJSON.posts = likesSplicer(req, renderJSON.posts, idArray);
+        }
 
         return eventEmitter.emit( 'singlePostJSONDone', JSON.stringify(renderJSON) );
 
