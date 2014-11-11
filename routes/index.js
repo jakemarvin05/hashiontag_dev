@@ -46,7 +46,16 @@ module.exports = router;
 
 */
 
-
+router.get('/test', function(req,res) {
+    db.Like.find({
+        where: {
+            User_userId: 1
+        },
+        order: [ [ 'createdAt', 'ASC' ] ]
+    }).then(function(like) {
+        res.json(like);
+    });
+});
 
 // Homepage
 router.get('/', function(req, res) {
@@ -228,23 +237,13 @@ router.post('/api/signup', function(req, res, next) {
     // })
 });
 
-router.get('/forgetpassword', function(req, res) {
+router.get('/passwordtokenreset', function(req, res) {
     var gJSON = globalJSON(req);
-    var token = req.query.token;
-    var isTokenValid;
-
-    db
-    .User
-    .find({ where: { passwordResetToken: token, passwordResetTokenExpire: { gt: Date.now() } } })
-    .then(function(user){
-        if (!user) { return res.status(400).json({ error: 'Token is invalid or has expired.'} ) };
-
-        // Do something?
-
-    })
-    .catch(function(err){
-        return res.status(500).json({ error: 'Sorry, an error has ocurred.' } );
-    });
+    if(req.query.token) {
+        var token = req.query.token;
+    } else {
+        var token = false;
+    }
 
     res.render('resetPassword', {
         /* generics */
@@ -254,12 +253,20 @@ router.get('/forgetpassword', function(req, res) {
         f: gJSON.pathsJSON.files,
         printHead: JSON.stringify(gJSON.printHead),
         page: "resetPassword",
-        showNav: "login"
+        showNav: "login",
+        token: token
     });
+
 
 });
 
-router.post('/api/forgetpassword', function(req, res) {
+router.post('/api/password/checktoken', function(req, res) {
+    var token = req.body.token;
+    if(!token) { return res.json({success: false}); }
+    require('../apps/passport/checkToken.js')(req, res, token);
+});
+
+router.post('/api/password/forget', function(req, res) {
 
     if (!req.body.email) {  return res.json({ error: 'Please enter an email' }) };
 
@@ -337,8 +344,7 @@ router.get('/settings', function(req, res) {
 
     }
 });
-router.post('/api/changepassword', function(req, res) {
-    if(!req.isAuthenticated()) { return res.json({success:false}); }
+router.post('/api/password/changepassword', function(req, res) {
     require('../apps/passport/changePassword.js')(req, res);
 });
 
