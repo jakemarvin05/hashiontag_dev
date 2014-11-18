@@ -191,6 +191,8 @@ img[id^=img_preview], canvas[id^=img_preview] {
                 msg: "Description is too long...",
                 limit: 1000
             });
+            //tags highlighting
+            $(function() { $("#desc").hashtags('newpost'); });
             </script>
 
             <div class="postWhereDidYou">

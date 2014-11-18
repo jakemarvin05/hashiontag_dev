@@ -1,0 +1,50 @@
+.jqueryHashtags {
+	margin:0 auto;
+	position: relative;
+}
+.jqueryHashtags .highlighter{
+  white-space: pre-wrap;
+	color:transparent;
+	overflow: hidden; 
+	position: absolute;
+	padding: 4px 9px;
+	text-align:left;
+	word-wrap: break-word;
+}
+
+.jqueryHashtags .theSelector{
+	background-color: transparent; 
+	position: relative; 
+	direction: ltr; 
+	resize:none !important;
+	padding: 4px 9px;
+	line-height:20px;
+}
+
+.jqueryHashtags .hashtag{
+	background: -webkit-linear-gradient(#dce6f8, #bdcff1);
+	border-radius: 2px;
+	box-shadow: 0 0 0 1px #a3bcea;
+	white-space: pre-wrap;
+	line-height:20px;
+}
+
+.jqueryHashtags .startag{
+	background: -webkit-linear-gradient(#f8dce6, #f1bdcf);
+	border-radius: 2px;
+	box-shadow: 0 0 0 1px #a3bcea;
+	font-size:14px;
+	white-space: pre-wrap;
+	line-height:20px;
+}
+
+.jqueryHashtags .username{
+	background: -webkit-linear-gradient(#e6f8dc, #cff1bd);
+	border-radius: 2px;
+	box-shadow: 0 0 0 1px #a3bcea;
+	white-space: pre-wrap;
+	line-height:20px;
+}
+.jqueryHashtags .typehead textarea {
+	width: 100%;
+}

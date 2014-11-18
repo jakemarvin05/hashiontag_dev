@@ -12,6 +12,7 @@
 <script src="{p.js}/custcore.js"></script>
 <script src="{p.js}/fancybox/source/jquery.fancybox.js"></script>
 <script src="{p.js}/placeholderpolyfill/placeholder_polyfill.jquery.min.combo.js" charset="utf-8"></script>
+<script src="{p.js}/jtags/jquery.hashtags.modified.js"></script>
 
 {?gJSON.userHeaders.ua.isLoadEmoji}
 <!-- Emoji Polyfill -->
@@ -37,6 +38,7 @@ function buttonsInitStack() {
     likeButton.init($('.likeButton')); 
     sendComment();
     settingsButton();
+    if(typeof starApprove === "function") { starApprove(); }
 }
 $(function() { buttonsInitStack(); });
 </script>
@@ -44,7 +46,7 @@ $(function() { buttonsInitStack(); });
 <!-- sendComment button -->
 <script>
 function sendComment() {
-    $('.sendComment').unbind('click.vv').on('click.vv', function() {
+    $('.sendComment').unbind('click.vv').bind('click.vv', function() {
         var postId = $(this).attr('data-pid'),
             postOwnerId = $(this).attr('data-uid'),
             $thisBlock = $(this).closest('article'),
@@ -99,8 +101,150 @@ function sendComment() {
         });
         //fail
         posting.fail(function() {
-                alertFactory.commentError();
+            alertFactory.commentError();
         });
+    });
+}
+</script>
+
+<!-- editDesc button -->
+<script>
+function editDesc($edit, $cancel) {
+
+    $edit.unbind('click.vv').bind('click.vv', function() {
+
+        var $thisBlock = $(this).closest('article'),
+            postId = $(this).attr('data-pid'),
+            postOwnerId = $(this).attr('data-uid'),
+
+            $desc = $thisBlock.find('.blockTextHolder textarea'),
+            descInput = $desc.val(),
+
+            $itemLink = $thisBlock.find('input[name="itemlink"]'),
+            itemLink = $itemLink.val(),
+
+            $itemAddTag = $thisBlock.find('input[name="itemaddtag"]'),
+            itemAddTag = $itemAddTag.val(),
+
+            $itemPrice = $thisBlock.find('input[name="itemprice"]'),
+            itemPrice = $itemPrice.val(),
+
+            $editButton = $thisBlock.find('.editDesc');
+
+        //original elements
+        var $descDiv = $thisBlock.find('.description'),
+            $itemLink = $thisBlock.find('.postItemLink'),
+            $itemAddTag = $thisBlock.find('.postItemAddTag'),
+            $itemPrice = $thisBlock.find('.postItemPrice');
+
+        //containers
+        var $textHolder = $thisBlock.find('.blocktTextHolder'),
+            $metaHolder = $thisBlock.find('.blockMoreInfo');
+
+        //store all the original HTML for reversion
+        revertDescHTML = $textHolder.html();
+        revertMetasHTML = $metaHolder.html();
+
+
+        $thisBlock.find('.editingDOMS').remove();
+
+        var check1 = $descDiv.attr('data-raw') === encodeURIComponent(descInput);
+        var check2 = ($itemLink.attr('data-attr') === itemLink) || (typeof $itemLink.attr('data-attr') === "undefined" && itemLink === '');
+        var check3 = $itemAddTag.attr('data-attr') === itemAddTag || (typeof $itemAddTag.attr('data-attr') === "undefined" && itemAddTag === '');
+        var check4 = $itemPrice.attr('data-attr') === itemPrice || (typeof $itemPrice.attr('data-attr') === "undefined" && itemPrice === '');
+
+        console.log(check1, check2, check3, check4);
+
+
+        if(check1 && check2 && check3 && check4) {
+            $descDiv.show();
+            $thisBlock.find('.editDescButtons').hide();
+            console.log('no change...')
+            return false;
+        }
+
+        //there are changes, prepare for submission
+
+        var itemMeta = {
+            "itemLink": itemLink,
+            "itemAddTag": itemAddTag,
+            "itemPrice": itemPrice
+        }
+        itemMeta = JSON.stringify(itemMeta);
+        console.log('posting ajax..');
+        // AJAX post
+        var posting = $.post( "{p.absPath}/api/post/edit", { 
+            postId: postId,
+            desc: descInput,
+            itemMeta: itemMeta,
+            User_userId: postOwnerId
+        });
+
+        //done
+        posting.done(function( data ) {
+            console.log(data);
+            if(data.success) {
+                $descDiv
+                    .html(data.post.descHTML)
+                    .attr('data-raw', encodeURIComponent(data.post.desc));
+
+            } else {
+                $textHolder.html(revertDescHTML);
+                $metaHolder.html(revertMetasHTML);
+                aF.protoAlert('An error occurred. Changes to your post may not be captured. Please refresh and try again.');
+            }  
+        });
+        //fail
+        posting.fail(function(err) {
+            $textHolder.html(revertDescHTML);
+            $metaHolder.html(revertMetasHTML);
+            aF.protoAlert('An error occurred. Changes to your post may not be captured. Please refresh and try again.');
+            console.log(err);
+        });
+
+        //now do all the INSTANT replacements
+        if(!check1) {
+            $descDiv
+                .attr('data-raw', encodeURIComponent(descInput))
+                .html(descInput);
+        }
+
+        //any of the metas are changed
+        if(!(check2 && check3 && check4)) {
+            if(itemAddTag.indexOf('@') === 0) {
+                itemAddTag = itemAddTag.substring(1);
+            }
+            var post = {
+                postMeta: {
+                    itemAddTag: itemAddTag,
+                    itemLink: itemLink,
+                    itemPrice: itemPrice
+                }
+            }
+
+            $thisBlock.find('.blockMoreInfo').html('');
+
+            var moreInfo = streamFactory.append.moreInfoBlock($thisBlock, post);
+
+            if(moreInfo) { 
+                $thisBlock.find('.blockMoreInfo').append(moreInfo.html);
+                streamFactory.append.moreInfoImg($thisBlock, post, moreInfo);
+                streamFactory.append.moreInfoBindButton($thisBlock.find('.moreInfo'));
+            }
+
+        }
+
+        $descDiv.show();
+        $thisBlock.find('.editDescButtons').hide();
+
+    });
+
+    $cancel.unbind('click.vv').bind('click.vv', function() {
+        var $thisBlock = $(this).closest('article');
+
+        $thisBlock.find('.editingDOMS').remove();
+        $thisBlock.find('.description').show();
+        $thisBlock.find('.editDescButtons').hide();
     });
 }
 </script>
@@ -165,7 +309,8 @@ var likeButton = {
 function settingsButton() {
     var $settingsBut = $('.settingsButton'),
         $postDelete = $('.settingsDelete'),
-        $postMark = $('.settingsMark');
+        $postMark = $('.settingsMark'),
+        $postEdit = $('.settingsEdit');
 
     $settingsBut.unbind('click.vv').bind('click.vv', function() {
         var pid = $(this).attr('data-pid'),
@@ -176,7 +321,7 @@ function settingsButton() {
             $(this).parent().find('.blockInteractSettingsWrap').hide();
             $(this).removeClass('settingActive');
         } else {
-            hideAllTabs();
+            VV.utils.hideSettingsTab();
             $(this).parent().find('.blockInteractSettingsWrap').show();
             $(this).addClass('settingActive');
         }
@@ -184,14 +329,15 @@ function settingsButton() {
 
     $postDelete.unbind('click.vv').bind('click.vv', function() {
 
-        hideAllTabs();
+        VV.utils.hideSettingsTab();
         var msg = Object.create(aF);
 
         var pid = $(this).attr('data-pid');
+        var uid = $(this).attr('data-uid');
         var isProfilePicture = $(this).attr('data-isprofile');
 
         var text  = '<h1 style="color:#ccc;text-align:center;">Are you sure?</h1>';
-            text += '<h2 style="text-align:center;"><span class="clickable" onclick="VV.utils.deletePostAjax(' + pid + ', ' + isProfilePicture + ')">Yes</span>';
+            text += '<h2 style="text-align:center;"><span class="clickable" onclick="VV.utils.deletePostAjax(' + pid + ', ' + uid + ', ' + isProfilePicture + ')">Yes</span>';
             text += '&nbsp;|&nbsp;<span class="clickable" onclick="$.fancybox.close()"> No</span></h2>';
 
         if(isProfilePicture) {
@@ -205,16 +351,9 @@ function settingsButton() {
         });
     });
 
-    $(document).unbind('click.settings').on('click.settings', function(e) {
-        var target = e.target;
-        if ( !$(target).is('.settingsButton') && !$(target).parents().is('.settingsButton') && !$(target).is('.settingsMark') ) {
-            hideAllTabs();
-        }
-    });
-
     $postMark.unbind('click.vv').bind('click', function() {
         $(this).parent().velocity('callout.pulse', 400, function() {
-            hideAllTabs();
+            VV.utils.hideSettingsTab();
         });
 
         var data = {
@@ -224,10 +363,79 @@ function settingsButton() {
         var markAjax = $.post(printHead.p.absPath + '/api/post/mark', data);
     });
 
-    function hideAllTabs() {
-        $('.blockInteractSettingsWrap').hide();
-        $settingsBut.removeClass('settingActive');
-    }
+    $postEdit.unbind('click.vv').bind('click', function() {
+        $article = $(this).closest('article');
+        var dataArticle = $article.attr('id');
+
+        if($article.parent().hasClass('profilePostsBlock')) {
+            $article.find('.postImage').click();
+            return setTimeout(function() {
+                var $fancyBoxArt = $('article[data-articleid="' + dataArticle + '"]');
+                $fancyBoxArt.find('.settingsEdit').click();
+
+                var scrollToElement = function(el, ms){
+                    var speed = (ms) ? ms : 600;
+                    $('.fancybox-inner').animate({
+                        scrollTop: $(el).offset().top
+                    }, speed);
+                }
+
+                // specify id of element and optional scroll speed as arguments
+                scrollToElement('.blockPad', 600);
+
+            }, 0);
+        }
+
+        if($article.find('.editingDOMS').length === 0) { 
+
+            //description
+            $desc = $article.find('.description');
+            var $edit = $desc.edit_hashtags();
+            $edit.addClass('editingDOMS');
+            $desc.hide();
+            VV.utils.tooLong($edit, {
+                msg: "Description is too long...",
+                limit: 1000
+            });
+
+            //metas
+            var itemLink = $article.find('.postItemLink').attr('data-attr');
+            if(!itemLink) { itemLink = ''; }
+
+            var itemAddTag = $article.find('.postItemAddTag').attr('data-attr');
+            if(!itemAddTag) { itemAddTag = ''; }
+
+            var itemPrice = $article.find('.postItemPrice').attr('data-attr');
+            if(!itemPrice) { itemPrice = ''; }
+
+            var metaHTML  = '<div class="editingDOMS"><p style="text-align:center;"><span class="glyphicon glyphicon-link"></span><input type="text" name="itemlink" id="itemlink" placeholder="http://" value="'+ itemLink +'"></p>';
+                metaHTML += '<p style="text-align:center;"><span class="glyphicon glyphicon-tag"></span><input type="text" name="itemaddtag" id="itemaddtag" placeholder="@shopname" value="'+ itemAddTag +'"></p>';
+                metaHTML += '<p style="text-align:center;"><span class="glyphicon glyphicon-usd"></span><input type="text" name="itemprice" id="itemprice" placeholder="price" value="'+ itemPrice +'"></p></div>';
+
+            $(metaHTML).insertAfter($edit);
+
+
+            $article.find('.editDescButtons').show();
+
+            //bind the buttons
+            var $edit = $article.find('.editDesc');
+            var $cancel = $article.find('.editDescCancel');
+            editDesc($edit, $cancel);
+
+        }
+
+        $(this).parent().velocity('callout.pulse', 400, function() {
+            VV.utils.hideSettingsTab();
+        });
+
+    });
+
+    $(document).unbind('click.settings').on('click.settings', function(e) {
+        var target = e.target;
+        if ( !$(target).is('.settingsButton') && !$(target).parents().is('.settingsButton') && !$(target).is('.settingsMark') ) {
+            VV.utils.hideSettingsTab();
+        }
+    });
 }
 </script>
 
