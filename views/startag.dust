@@ -1,0 +1,197 @@
+{>blockHeader/}
+<link href="{p.css}/index.css" rel="stylesheet"> 
+<style>
+@media (min-width: 481px) {
+
+    .starApprove article {
+        width: 100%;
+    }
+    .starApprove .blockImgHolder {
+        width: 50%;
+        float: left;
+    }
+    .starApprove .blockPad {
+        width: 50%;
+        float: left;
+    }
+    .starApprove .blockMainInfo {
+        border: 0px !important;
+    }
+    .starApprove .blockMoreInfo {
+        position: absolute;
+    }
+}
+.starApprove article {
+    position: relative;
+}
+.starApprove .postInteractions, .starApprove .likeButton {
+    display: none;
+}
+.starApprove .approvedGlyph {
+    color: #ef4549;
+    font-size: 40px;
+    position: absolute;
+    top: 5px;
+    left: 0px;
+}
+</style>
+{>blockHeaderAfterHook/}
+
+
+    <section id="main">
+        <div class="mainColBlock starApprove">
+            
+            {>"layouts/streamLayout"/}
+
+        </div>
+        <!-- end your stream -->
+
+        {?renderJSONraw.lastPostId}
+        <div class="streamLoadMore">
+            <button data-lastpostid="false" type="button" id="streamLoadMorePosts" class="darkButton">Load More</button>
+        </div>
+
+        <script>
+        $('#streamLoadMorePosts').click(function(e) {
+            var self = this;
+            e.preventDefault();
+            var flasher = Object.create(VV.utils.Flasher);
+            flasher.run($(this), 'button');
+
+            var buttonLastPostId = $(this).attr('data-lastpostid');
+            if(buttonLastPostId === "false") {
+                var lastPostId = renderJSON.lastPostId;
+            } else {
+                var lastPostId = buttonLastPostId;
+            }
+
+            var loadMoreAjax = $.post(printHead.p.absPath + '/api/getstream/startag/' + lastPostId);
+
+            loadMoreAjax.done(function(res) {
+                if(!res) { 
+                    //fail silently...
+                    console.log(res);
+                }
+                console.log(res);
+
+                streamFactory.init(res.posts, {
+                    pinchZoom: true
+                });
+
+                flasher.kill();
+
+                if(!res.lastPostId) {
+                    return $('.streamLoadMore').html('No more posts....');
+                }
+                return self.attr('data-lastpostid', res.lastPostId);
+            });
+
+            loadMoreAjax.fail(function(err) {
+                flasher.kill();
+                console.log(err);
+            })
+        });
+        </script>
+        {/renderJSONraw.lastPostId}
+
+        <!-- start your posts -->
+
+    </section><!-- main -->
+
+{>blockFooter/}
+
+{?renderJSON}
+    <script src="{p.js}/streamFactory.js"></script>
+    <script>
+    var starFactory = Object.create(streamFactory);
+
+    starFactory.getLayoutHTML = function() {
+        var approveDiv  = '<div class="starApprove blockInteractSettingsOptions">';
+            approveDiv += 'Approve';
+            approveDiv += '</div>';
+
+        var rejectDiv  = '<div class="starReject blockInteractSettingsOptions">';
+            rejectDiv += 'Reject';
+            rejectDiv += '</div>';
+
+        $layout = $('.' + this.layoutClass);
+        $layout.find('.blockInteractSettingsWrap').append(approveDiv).append(rejectDiv);
+        $layout.wrap('<div></div>');
+        this.layoutHTML = $layout.parent('div').html();
+        $layout.unwrap();
+        $layout.remove();
+    }
+    starFactory.init(renderJSON.posts, {
+        burst:5,
+        pinchZoom: true
+    });
+
+    function starApprove() {
+
+        $('.blockInteractSettingsWrap .starReject').unbind('click.vv').bind('click.vv', function() {
+            var postId = $(this).attr('data-pid'),
+                postOwnerId = $(this).attr('data-uid'),
+                $thisBlock = $(this).closest('article');
+
+            $thisBlock.velocity('transition.slideUpOut', 600);
+
+            var reject = $.post( "{p.absPath}/api/post/starreject", {postId: postId, postOwnerId: postOwnerId});
+
+            //done
+            reject.done(function(data) {
+                if(!data.success) {
+                    $thisBlock.velocity('fadeIn');
+                    aF.protoAlert('Something went wrong. Please check your internet connection. If fault persists, please contact us at info@vogueverve.com and we will help you!');
+                }  
+            });
+            //fail
+            reject.fail(function() {
+                $thisBlock.velocity('fadeIn');
+                aF.protoAlert('Something went wrong. Please check your internet connection.');
+            });
+
+        });
+
+        $('.blockInteractSettingsWrap .starApprove').unbind('click.vv').bind('click.vv', function() {
+            var postId = $(this).attr('data-pid'),
+                postOwnerId = $(this).attr('data-uid'),
+                $thisBlock = $(this).closest('article');
+
+            var $settingsButtons = $(this).closest('.settings');
+
+            $settingsButtons.hide();
+
+            $thisBlock.append('<span style="opacity:0;" class="glyphicon glyphicon-ok-circle approvedGlyph"></span>');
+
+            var $approvedGlyph = $thisBlock.find('.approvedGlyph');
+
+            $approvedGlyph.velocity({opacity: 0.7}, 100, function(el) {
+                $(el).velocity('callout.pulse');
+            });
+   
+            // AJAX post
+            var approve = $.post( "{p.absPath}/api/post/starapprove", { postId: postId, postOwnerId: postOwnerId });
+
+
+            //done
+            approve.done(function(data) {
+                if(!data.success) {
+                    $settingsButtons.show();
+                    $approvedGlyph.remove()
+                    aF.protoAlert('Oops.. something went wrong. Please check your internet connection. If fault persists, please contact us at info@vogueverve.com and we will help you!');
+                }
+            });
+            //fail
+            approve.fail(function() {
+                $settingsButtons.show();
+                $approvedGlyph.remove()
+                aF.protoAlert('Oops.. something went wrong. Please check your internet connection');
+            });
+        });
+    }
+
+
+    </script>
+{/renderJSON}
+</body>
+</html>
