@@ -42,7 +42,10 @@
 
     <section id="main">
         <div class="mainColBlock starApprove">
-            
+            {?renderJSONraw.posts}
+            {:else}
+            <h2 style="margin-top:30px; color:#ccc; text-align:center;">No star tagged post for you to approve.</h2>
+            {/renderJSONraw.posts}
             {>"layouts/streamLayout"/}
 
         </div>
