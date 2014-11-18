@@ -173,6 +173,10 @@ module.exports = function(sequelize, DataTypes) {
                 //Instagram
                 User.hasOne(models.Instagram, {foreignKey: 'User_userId'});
 
+                //STAR TAG
+                User.hasMany(models.StarTag, {foreignKey: 'User_userId'});
+                User.hasMany(models.Post, {as: 'attributedUser', foreignKey: 'User_userId_attributed'})
+
 
             },
             getSearchVector: function() {

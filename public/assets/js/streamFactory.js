@@ -120,7 +120,10 @@ streamFactory.append.init = function($stream, i) {
     /*
     * description
     */
-    $stream.find('.description').html(post.desc);
+    var $desc = $stream.find('.description');
+    $desc
+        .html(post.descHTML)
+        .attr('data-raw', encodeURIComponent(post.desc));
 
 
     /*
@@ -157,11 +160,14 @@ streamFactory.append.init = function($stream, i) {
 
     //convert the metas into .value chain
     var digestedPostMeta = this.digestPostMeta(post);
+
+
+    /* is instagram or startag? */
+    this.blockVia($stream, post);
+
+
     //if there is nothing in postMeta, return
-    if(!digestedPostMeta) { 
-        $stream.find('.moreInfo').remove();
-        return true;
-    }
+    if(!digestedPostMeta) { $stream.find('.moreInfo').hide(); return false; }
 
     //update the parent and re-reference post
     this.parent.posts[i].postMeta = digestedPostMeta;
@@ -177,11 +183,7 @@ streamFactory.append.init = function($stream, i) {
         this.moreInfoImg($stream, post, moreInfo);
         this.moreInfoBindButton($stream.find('.moreInfo'));
     }
-    //run once
-    //if(i===0) { this.callbacks.push(this.moreInfoBindButton) }
 
-    /* is instagram? */
-    this.viaInstagram($stream, post);
 }
 
 /* not enabled yet */
@@ -383,7 +385,6 @@ streamFactory.append.likeText = function(post) {
             }
         }
 
-        //TODO: Do away with text-based like description....
         var andLikes = '';
         if(likersFollowedCount > 0) {
 
@@ -573,9 +574,13 @@ streamFactory.append.eachComment = function($stream, comment, toShow, postId, ap
 streamFactory.append.settingsButton = function($stream, post) {
     if(post.User_userId !== printHead.userHeaders.userId) {
         $stream.find('.settingsDelete').remove();
+        $stream.find('.settingsEdit').remove();
+        $stream.find('.editDesc').remove();
+        $stream.find('.editDescTextArea').remove();
     } else {
         $stream.find('.settingsMark').remove();
         $stream.find('.settingsDelete').attr('data-isprofile', post.isProfilePicture);
+        this.identifier($stream.find('.editDesc'), post);
     }
 }
 streamFactory.append.digestPostMeta = function(post) {
@@ -619,7 +624,7 @@ streamFactory.append.moreInfoBlock = function($stream, post) {
         itemAddTagImgDiv = '<div class="postItemAddTagImg"></div>';
 
         //username
-        itemAddTagDiv  = '<div class="postItemAddTag" itemprop="shop">';
+        itemAddTagDiv  = '<div class="postItemAddTag" itemprop="shop" data-attr="' + data.addTag + '">';
         itemAddTagDiv += '<a href="' + printHead.p.absPath + '/' + data.addTag + '">';
         itemAddTagDiv += '@' + meta.itemAddTag + '</a></div>';
     }
@@ -636,7 +641,7 @@ streamFactory.append.moreInfoBlock = function($stream, post) {
             workingLink = itemLink;
         }
         showLink = (itemLink.length > 25) ? itemLink.substring(0,25) + '...': itemLink;
-        itemLinkDiv  = '<div class="postItemLink">';
+        itemLinkDiv  = '<div class="postItemLink" data-attr="' + showLink + '">';
         itemLinkDiv += '<span class="glyphicon glyphicon-link"></span>';
         itemLinkDiv += '<a rel="nofollow" href="' + workingLink + '" target="_blank">' + showLink + '</a>';
         itemLinkDiv += '</div>'; 
@@ -644,13 +649,14 @@ streamFactory.append.moreInfoBlock = function($stream, post) {
     if(meta.itemPrice) {
        
         hasMoreInfo = true;
-        itemPriceDiv  = '<div class="postItemPrice" itemprop="price">';
+        itemPriceDiv  = '<div class="postItemPrice" itemprop="price" data-attr="' + meta.itemPrice + '">';
         itemPriceDiv += '<span class="glyphicon glyphicon-usd"></span>';
         itemPriceDiv += meta.itemPrice + '</div>';
     }
     
-    if(!hasMoreInfo) { $stream.find('.moreInfo').remove(); return false; }
+    if(!hasMoreInfo) { $stream.find('.moreInfo').hide(); return false; }
 
+    $stream.find('.moreInfo').show();
     data.html  = itemAddTagImgDiv;
     data.html += itemAddTagDiv;
     data.html += itemLinkDiv;
@@ -665,6 +671,7 @@ streamFactory.append.moreInfoBindButton = function($custButton) {
         $buttons = $('.' + this.parent.streamContClass).find('.moreInfo');
     }
     $buttons.on('click.vv', function() {
+        VV.utils.hideSettingsTab();
         //find its parent the find the button. more resistant to layout changes.
         var $moreInfo = $(this).closest('article').find('.blockMoreInfo');
 
@@ -711,12 +718,25 @@ streamFactory.append.moreInfoImg = function($stream, post, moreInfo) {
     });
     ajaxGetImg.fail(function() { return $imgCont.remove(); });
 }
-streamFactory.append.viaInstagram = function($stream, post) {
+streamFactory.append.blockVia = function($stream, post) {
     var link = post.postMeta.isInstagram;
     if(link) {
         var append  = 'via <a href="' + link + '" target="_blank">';
             append += 'Instagram';
             append += '</a>'
-        $stream.find('.blockVia').append(append);
+        return $stream.find('.blockVia').append(append);
+    }
+    var startag = post.User_userId_attributed;
+    var approved = post.isAttributionApproved;
+    if(startag && approved) {
+
+        var tags = JSON.parse(post.tags);
+
+        var link = printHead.p.absPath + '/' + tags.star.unique[0];
+
+        var append  = '<span class="glyphicon glyphicon-star"></span><a href="' + link + '">';
+            append += tags.star.unique[0];
+            append += '</a>';
+        return $stream.find('.blockVia').append(append);
     }
 }

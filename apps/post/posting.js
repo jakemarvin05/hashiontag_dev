@@ -23,7 +23,7 @@ var fs = require('fs'),
     //they should usually be empty
     routeTempFiles = require('./routeTempFiles.js');
 
-var fname = 'posting';
+var fname = 'posting.js ';
 
 var pSuffix = '--p',
     cropSize = 640,
@@ -36,11 +36,11 @@ module.exports = function posting(req, res, socket) {
     console.log(fname + '...');
 
     var throwErr = function(error) {
-        console.log(fname + error);
+        console.log(fname + 'Error occured: ' + error);
         return res.json({success: false });
     }
 
-     console.log('Authenticating User...');
+    console.log('Authenticating User...');
     if(!req.isAuthenticated()) { return res.json({success: false}); }
     
     console.log('User Authenticated.');
@@ -154,9 +154,7 @@ module.exports = function posting(req, res, socket) {
                     });
                 
                 //task 4 - add the post.
-                addPost(req, newUUID, newPath, fields, null, throwErr, function(post) {
-                    callback(post);
-                });
+                addPost(req, res, newUUID, newPath, fields, callback);
 
                 function callback(post) {
                     if(post) { POST = post }

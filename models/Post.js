@@ -17,6 +17,14 @@ module.exports = function(sequelize, DataTypes) {
                 type: DataTypes.STRING(4000),
                 allowNull: true
             },
+            descHTML: {
+                type: DataTypes.STRING(10000),
+                allowNull: true
+            },
+            tags: {
+                type: DataTypes.STRING(20000),
+                allowNull: true
+            },
             imgUUID: {
                 type: DataTypes.STRING,
                 allowNull: false
@@ -29,6 +37,10 @@ module.exports = function(sequelize, DataTypes) {
             isProfilePicture: {
                 type: DataTypes.BOOLEAN,
                 allowNull: true
+            },
+            isAttributionApproved: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false
             }
         }, {
             timestamps: true,
@@ -39,6 +51,7 @@ module.exports = function(sequelize, DataTypes) {
                 associate: function(models) {
                     //Post
                     Post.belongsTo(models.User, {foreignKey: 'User_userId'});
+
 
                     //Profile picture
                     //This relationship is to enable post.hasProfilePictureUser so that user can be alerted
@@ -63,6 +76,10 @@ module.exports = function(sequelize, DataTypes) {
 
                     //Metatag
                     Post.hasMany(models.PostMeta, {foreignKey: 'Post_postId'});
+
+                    //Star Tag Attribution
+                    Post.belongsTo(models.User, {as: 'attributedPost', foreignKey: 'User_userId_attributed'});
+
                 }
             },
             getterMethods: {
