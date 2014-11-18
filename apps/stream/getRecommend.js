@@ -1,5 +1,6 @@
 var db = global.db,
-    fname = "getRecommend.js ";
+    fname = "getRecommend.js ",
+    utils = require('../utils.js');
 
 
 module.exports = function getRecommend(req, res) {
@@ -13,8 +14,11 @@ module.exports = function getRecommend(req, res) {
         11, //bellywellyjelly
         37, //floraisabelle
         34, //clubcouture
-        30 //awfullyamanda
+        30, //awfullyamanda
+        43, //mongabong
     ]
+
+    var recUserIds = utils.getRandom(recUserIds);
 
     db.User.findAll({
         where: {

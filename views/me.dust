@@ -147,7 +147,7 @@
                 <div class="profileInputsAbout">
                     <label> About </label><textarea name="about" id="about"  data-orgin="{renderJSONraw.about}">{renderJSONraw.about}</textarea><br/>
                     <script>
-                        VV.utils.tooLong($('textarea[name="about"'), {
+                        VV.utils.tooLong($('textarea[name="about"]'), {
                             msg: "We're sorry but your input is too long. Please shorten it :)",
                             limit: 250
                         });

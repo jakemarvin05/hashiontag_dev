@@ -2,7 +2,7 @@
 module.exports = {
     title: {
         title: 'Vogue&Verve',
-        desc: 'Follow the kind Vogue that you love.',
+        desc: 'Social fashion feeds that way you love it.',
         img: 'images/logo-splash.png'
     },
 
