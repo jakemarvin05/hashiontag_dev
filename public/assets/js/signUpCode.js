@@ -89,14 +89,12 @@ $('#signupForm').validate({
             }
 
             if(data.error) {
-                console.log(data.error);
                 if(data.error) {
                     //exception cases
                     if(data.error === 'unknown') {
                         $eHW.html('Something went wrong. Please refresh and try again. If this persist, please contact us and we will help you!');
                         $button.velocity('callout.shakeShort');
                     } else {
-                        console.log('test');
                         //generic user/email cases
                         $eHW.html(data.error);
                         if(data.error.toLowerCase().indexOf('username') > -1) {
