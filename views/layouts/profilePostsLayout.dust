@@ -48,6 +48,9 @@ Explore if it is possible to just share the 2
                             <div class="settingsDelete blockInteractSettingsOptions">
                                 Delete
                             </div>
+                            <div class="settingsEdit blockInteractSettingsOptions">
+                                Edit
+                            </div>
                         </div>
                     </div>
                     
@@ -59,6 +62,10 @@ Explore if it is possible to just share the 2
 
                 <div class="blockTextHolder">
                     <div class="description convert-emoji"></div>
+                    <div class="editDescButtons" style="display:none;">
+                        <button class="editDesc darkerButton" data-id="">Done</button>
+                        <button class="editDescCancel darkerButton">Cancel</button>
+                    </div>
                 </div>
             </div>
 

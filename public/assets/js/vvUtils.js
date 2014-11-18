@@ -134,7 +134,7 @@ VV.utils.alertFactory = {
         }
         var uid = new Date().getTime();
         $('body').append('<div id="error' + uid + '" style="display:none;">' + text + '</div>');
-        console.log(msg.text);
+        //console.log(msg.text);
         $.fancybox.open([{
             href : '#error' + uid,
             title : title
@@ -164,7 +164,7 @@ VV.utils.imageGetter = function(imgUUID, type, opts) {
 
     //console.log('req for ' + imgUUID + ' ' + type);
     var sizes = ['full','half','small','thumb'];
-    if(sizes.indexOf(type) < 0) { console.log('assume full'); var type = "full" }
+    if(sizes.indexOf(type) < 0) { var type = "full" }
     //options:
     var includePath = true;
     if(opts) {
@@ -213,7 +213,7 @@ VV.utils.errorReceiver = function(hash) {
     $.post(printHead.p.absPath + '/api/errorreceiver', hash);
 }
 
-VV.utils.deletePostAjax = function(pid, isProfilePicture) {
+VV.utils.deletePostAjax = function(pid, uid, isProfilePicture) {
     var ajax = $.post('/api/post/delete', {pid:pid});
     if(printHead.page === "singlePost") {
         return window.location.href = printHead.p.absPath + '/';
@@ -221,10 +221,12 @@ VV.utils.deletePostAjax = function(pid, isProfilePicture) {
 
     $.fancybox.close();
     var $articleToDel = $('article[data-pid="' + pid + '"]')
-    if(isProfilePicture) {
-        ajax.done(function() {
-            window.location.href = window.location.href;
-        });
+    if(uid === printHead.userHeaders.userId) {
+        if(isProfilePicture) {
+            ajax.done(function() {
+                window.location.href = window.location.href;
+            });
+        }
     }
     $articleToDel.velocity('fadeOut', 200, function(el) {
         $(el).remove();
@@ -285,7 +287,6 @@ VV.utils.tooLong = function($el, opts) {
     }
     $el.on('keyup', function(e) {
         var $t = $(this), len = $t.val().length;
-        console.log(len);
 
         if(len > limit) {
             e.preventDefault();
@@ -325,3 +326,9 @@ VV.utils.QueryString = function () {
   } 
     return query_string;
 } ();
+
+VV.utils.hideSettingsTab = function () {
+    var $settingsBut = $('.settingsButton');
+    $('.blockInteractSettingsWrap').hide();
+    $settingsBut.removeClass('settingActive');
+}

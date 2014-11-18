@@ -11,20 +11,30 @@ header.profileHeader>div {
     overflow: hidden;
     position: relative;
 }
-    #profileSettingsCog {
+
+    .profileSettingsWrap {
         position: absolute;
-        right: 10px;
-        top: 10px;
-        border: 2px solid #ccc;
-        padding: 4px;
+        border: 2px solid #ccc; 
         color: #ccc;
         font-size: 17px;
         width: 29px;
         height: 29px;
     }
-    #profileSettingsCog:hover {
+    .profileSettingsWrap:hover {
         color: #565757;
     }
+
+    #profileSettingsCog {
+        right: 10px;
+        top: 10px;
+        padding: 4px;
+    }
+    #profileSettingsStar {
+        right: 44px;
+        top: 10px;
+        padding: 2px;
+    }
+
     
         .profilePictureCont {
             width: 100px;
@@ -251,11 +261,13 @@ header.profileHeader>div {
             .profilePostsBlock .blockInteract .blockInteractText {
                 display: none;
             }
+            .profilePostsBlock .blockInteractButtons {
+                color: #ccc;
+            }
 
             .profilePostsBlock .blockInteract div[class^="icon-"] {
                 font-size: 25px;
                 padding-right: 9px;
-                color: #ccc;
             }
 
             .profilePostsBlock .blockInteract div[class^="icon-"]:hover, .profilePostsBlock .blockInteract .glyphicon:hover {

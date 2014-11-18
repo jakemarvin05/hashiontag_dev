@@ -8,43 +8,57 @@ module.exports = function deletePost(req, res) {
 
     var postToDelete = req.body.pid;
 
-    //to block unauthorised deletion by manipulated requests, we delete by
-    //strick ruling of finding postId with its matching req's userid.
-    //if no post exist, it is likely to be unauthorised, and automatically
-    //blocked.
+    var isProfilePicture = false;
+    var isDisAttribution = false;
+    var isRejected = false;
+
     db.Post.find({
-        where: {
-            postId: postToDelete,
-            User_userId: req.user.userId
-        },
-        attributes: ['postId', 'imgUUID', 'isProfilePicture']
+        where: { postId: postToDelete }
     }).then(function(post) {
-        if(post) {
-            var imgpath = uploadDir + post.imgUUID,
-                deleteArr = [];
+        if(!post) { return res.json({success: false}); }
 
-                deleteArr.push(imgpath + '.jpg');
-                deleteArr.push(imgpath + '-half.jpg');
-                deleteArr.push(imgpath + '-small.jpg');
-                deleteArr.push(imgpath + '-thumb.jpg');
+        //check if the post owner is the requestor
+        if(post.User_userId !== req.user.userId) {
 
-            for(var i=0; i<4; i++) {
-                fs.unlink(deleteArr[i], function(err) {
-                    if(err) {
-                        console.log(fname + ' Err: Error deleting ' + deleteArr[i]);
-                        console.log(err);
-                    }
-                });
+            //owner is not the requestor, check if the post is attributed
+            if(post.User_userId_attributed === req.user.userId) {
+                post.User_userId_attributed = null;
+                post.isAttributionApproved = false;
+                return post.save();
             }
-            var isProfilePicture = (req.user.profilePicture === post.imgUUID);
-            return [
-                post.destroy(),
-                isProfilePicture
-            ]
+
+            //the requestor is not the post owner, and is not attributed. reject.
+            isReject = true;
+            return res.json({success: false});
         }
-    }).spread(function(destroy, isProfilePicture) {
-        console.log(fname + postToDelete + ' destroyed.');
-        if(!isProfilePicture) { return res.json({success:true}); }
+
+        //post owner is the requestor. she/he wants to delete it.
+        var imgpath = uploadDir + post.imgUUID,
+            deleteArr = [];
+
+            deleteArr.push(imgpath + '.jpg');
+            deleteArr.push(imgpath + '-half.jpg');
+            deleteArr.push(imgpath + '-small.jpg');
+            deleteArr.push(imgpath + '-thumb.jpg');
+
+        for(var i=0; i<4; i++) {
+            fs.unlink(deleteArr[i], function(err) {
+                if(err) {
+                    console.log(fname + ' Err: Error deleting ' + deleteArr[i]);
+                    console.log(err);
+                }
+            });
+        }
+        isProfilePicture = (req.user.profilePicture === post.imgUUID);
+        return post.destroy();
+    
+    }).then(function(destroyOrSave) {
+
+        if (isRejected) { return false; }
+
+        if (isDisAttribution) { return res.json({success: true}); }
+
+        if (!isProfilePicture) { return res.json({success: true}); }
 
         db.Post.findAll({
             where: {User_userId: req.user.userId},
@@ -67,9 +81,8 @@ module.exports = function deletePost(req, res) {
                     return res.json({success:true});
                 }).catch(function(err) {
                     console.log(fname + 'error setting user profile picture to null: ' + err);
+                    res.json({success:false});
                 });
-
-                return res.json({success:true}); 
             }
 
             //else we update the new profile picture.
@@ -87,8 +100,14 @@ module.exports = function deletePost(req, res) {
                 return res.json({success:true});
             }).catch(function(err) {
                 console.log(fname + 'error setting user profile picure: ' + err);
+                res.json({success:false});
             });
+
+        }).catch(function(err) {
+            console.log(fname + 'db.User update catch handler. Error: ' + err);
+            res.json({success:false});
         });
+
     }).catch(function(err) {
         console.log(fname + postToDelete + ' not destroyed.');
         console.log(err);

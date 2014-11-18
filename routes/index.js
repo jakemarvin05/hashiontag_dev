@@ -47,13 +47,39 @@ module.exports = router;
 */
 
 router.get('/test', function(req,res) {
-    db.Like.find({
-        where: {
-            User_userId: 1
-        },
-        order: [ [ 'createdAt', 'ASC' ] ]
-    }).then(function(like) {
-        res.json(like);
+    db.Post.findAll().then(function(posts) {
+        var i = 0;
+        while(posts[i]) {
+            posts[i].isAttributionApproved = false;
+            posts[i].save();
+            i++;
+        }
+    })
+})
+
+router.get('/seed', function(req, res) {
+    //strip html for desc and put it back
+
+
+    db.Post.findAll().then(function(posts) {
+        var i = 0;
+        while(posts[i]) {
+            posts[i].descHTML = posts[i].desc;
+            posts[i].desc = S(posts[i].desc).stripTags().s;
+            posts[i].save();
+            i++;
+        }
+        return res.send('seeding complete');
+    }).catch(function(err) {
+        console.log(err);
+    })
+});
+
+router.post('/test', function(req,res) {
+    var tagsHandler = require('../apps/post/tagsHandler.js');
+
+    tagsHandler(req.body.desc, function(descJSON) {
+        return res.json(descJSON);
     });
 });
 
@@ -154,6 +180,73 @@ router.get('/latest', function(req, res) {
     require('../apps/stream/streamJSON.js')(req, thenRender, {showType: "preview"});
 });
 
+
+router.get('/startag', function(req, res) {
+    var gJSON = globalJSON(req);
+
+    function thenRender(renderJSON) {
+        res.render('startag', {
+            /* generics */
+            title: meta.header(),
+            gJSON: gJSON,
+            p: gJSON.pathsJSON.paths,
+            f: gJSON.pathsJSON.files,
+            printHead: JSON.stringify(gJSON.printHead),
+            renderJSON: JSON.stringify(renderJSON),
+            renderJSONraw: renderJSON,
+            page: "startag",
+
+        });
+    }
+    require('../apps/stream/streamJSON.js')(req, thenRender, {showType: "startag"});
+});
+
+router.post('/api/post/starapprove', function(req, res) {
+    if(!req.isAuthenticated()) { return res.json({success: false}); }
+
+    db.Post.find({
+        where: {
+            postId: req.body.postId
+        }
+    }).then(function(post) {
+        if(post.User_userId_attributed !== req.user.userId) { return res.json({success: false}); }
+
+        if(post.isAttributionApproved) { return res.json({success: true}); }
+
+        post.isAttributionApproved = true;
+        return post.save();
+    }).then(function(post) {
+        if(post) { return res.json({success:true}); }
+    }).catch(function(err) {
+        console.log('star approve db error: ' + err);
+        return res.json({success: false});
+    });
+
+});
+
+router.post('/api/post/starreject', function(req, res) {
+
+    if(!req.isAuthenticated()) { return res.json({success: false}); }
+
+    db.Post.find({
+        where: {
+            postId: req.body.postId
+        }
+    }).then(function(post) {
+        if(post.User_userId_attributed !== req.user.userId) { return res.json({success: false}); }
+
+        post.isAttributionApproved = false;
+        post.User_userId_attributed = null;
+        return post.save();
+    }).then(function(post) {
+        if(post) { return res.json({success:true}); }
+    }).catch(function(err) {
+        console.log('star reject db error: ' + err);
+        return res.json({success: false});
+    });
+    
+});
+
 router.post('/api/getstream/:showtype/:lastpostid', function(req, res) {
 
     var params = {
@@ -180,8 +273,8 @@ router.get('/login', function(req, res) {
 router.post('/api/login', function(req, res) {
     passport.authenticate('local-login', function(err, user) {
 
-        if (err) { return res.json({ error: 'unknown'}) }
-        if (!user) { return res.json({error : 'userpassword'}); }
+        if (err) { return res.json({success:false, error: 'unknown'}) }
+        if (!user) { return res.json({success:false, error : 'userpassword'}); }
 
         req.login(user, {}, function(err) {
             if (err) { return res.json({error:err}); }
@@ -218,10 +311,10 @@ router.post('/api/signup', function(req, res, next) {
 
     passport.authenticate('local-signup', function(err, user, info) {
         if(err) {
-            return res.json({error: 'unknown'});
+            return res.json({success: false, error: 'unknown'});
         }
         if(!user) {
-            return res.json({error: info});
+            return res.json({success: false, error: info});
         }
         //log the user in
         req.logIn(user, function(err) {
@@ -230,11 +323,6 @@ router.post('/api/signup', function(req, res, next) {
         });
     })(req, res, next);
 
-    // passport.authenticate('local-signup', {
-    //     successRedirect : '/login', // redirect to the secure profile section
-    //     failureRedirect : '/signup', // redirect back to the signup page if there is an error
-    //     failureFlash : true // allow flash messages
-    // })
 });
 
 router.get('/passwordtokenreset', function(req, res) {
@@ -451,16 +539,18 @@ router.post('/api/post', function(req, res) {
     var socketId = global.ioSockets[req.header('sioId')];
     require('../apps/post/posting.js')(req, res, socketId);
 });
-router.post('/api/post/:action', function(req, res) {
-    if(req.params.action === 'delete') {
-        require('../apps/post/deletePost.js')(req, res);
-    }
-    if(req.params.action === 'mark') {
-        require('../apps/post/markPost.js')(req, res);
-    }
 
+router.post('/api/post/delete', function(req, res) {
+    require('../apps/post/deletePost.js')(req, res);
 });
 
+router.post('/api/post/mark', function(req, res) {
+    require('../apps/post/markPost.js')(req, res);
+});
+
+router.post('/api/post/edit', function(req,res) {
+    require('../apps/post/editPost.js')(req, res);
+}); 
 router.get('/likes', function(req, res) {
 
     var gJSON = globalJSON(req);
@@ -631,10 +721,11 @@ router.post('/api/getimage', function(req, res) {
             where: param,
             attributes: ['profilePicture']
         }, {raw: true}).then(function(user) {
+            if(!user) { return res.sendStatus(404); }
             return res.json({success: true, imgUUID: user.profilePicture});
         }).catch(function(err) {
             console.log('"/api/getimage" error: ' + err);
-            return res.json({success: false});
+            return res.sendStatus(500);
         });
     }
 

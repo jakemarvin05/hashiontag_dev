@@ -28,9 +28,13 @@ module.exports = function editProfile(req,res) {
         //3) user has already set a profile picture.
         if(req.body.picture !== 'undefined' && req.body.picture && req.body.picture !== req.user.profilePicture) {
 
+            //force strict rule to find picture that belongs to the user.
             return [
                 db.Post.find({
-                    where: {imgUUID: req.body.picture}
+                    where: {
+                        imgUUID: req.body.picture,
+                        User_userId: req.user.userId
+                    }
                 }),
 
                 getUser()
@@ -83,20 +87,6 @@ module.exports = function editProfile(req,res) {
     }).spread(function() {
         return res.json({ success: true});
     }).catch(function(err) {
-        // var msg = [];
-        // console.log(err);
-        // if (typeof err.name == "object"){ // "Name" is a reserved keyword
-        //     msg.push("Invalid name provided.");
-        // }
-        // if (typeof err.email != "undefined"){
-        //     msg.push("Invalid email provided.");
-        // }
-        // if (typeof err.about != "undefined"){
-        //     msg.push("Invalid description provided.");
-        // }
-        // if (msg.length==0){
-        //     msg.push("An unknown error has occured.");
-        // }
         console.log(err);
         return res.json({success:false});
     });

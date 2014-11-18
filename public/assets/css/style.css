@@ -269,6 +269,7 @@ body {
   font-family: 'NeutraText', Helvetica, Arial;
   font-size: 15px;
   color: #565757;
+  word-wrap: break-word;
 }
 p {
   font-family: 'NeutraText', Helvetica, Arial;
@@ -642,6 +643,9 @@ textarea {
     word-wrap: break-word;
   }
 }
+.blockVia .glyphicon {
+  color: #ccc;
+}
 .blockTimelapse {
   font-family: 'NeutraText', Helvetica, Arial;
   font-size: 13px;
@@ -675,10 +679,12 @@ textarea {
 .blockInteractSettingsWrap {
   width: 200px;
   position: relative;
+  z-index: 10;
   left: -181px;
   text-align: right;
   background-color: #ef4549;
   color: #fff;
+  margin-top: 5px;
 }
 .blockInteractSettingsOptions {
   padding: 10px 5px;
@@ -703,7 +709,7 @@ textarea {
   color: #ccc;
 }
 .likeButton[data-action="unlike"] {
-  color: #d91639;
+  color: #d91639 !important;
 }
 .moreInfo.active {
   color: #d91639;
@@ -741,6 +747,9 @@ textarea {
 .blockTextHolder {
   padding: 20px 0px;
   line-height: 130%;
+}
+.editDescButtons {
+  text-align: center;
 }
 .blockLoadMoreCommentsCont {
   width: 100%;

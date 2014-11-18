@@ -6,11 +6,23 @@
 <section id="main">
 
     <header class="profileHeader">
-        <a href="{p.absPath}/settings">
-            <div id="profileSettingsCog" class="clickable">
-                <div class="icon-cog"></div>
-            </div>
-        </a>
+        {?renderJSONraw.isOwnProfile}
+        <div data-vel="normalDisplay">
+            {?renderJSONraw.hasStarTag}
+            <a href="{p.absPath}/startag">
+                <div class="profileSettingsWrap" id="profileSettingsStar" class="clickable">
+                    <div class="glyphicon glyphicon-star"></div>
+                </div>
+            </a>
+            {/renderJSONraw.hasStarTag}
+            <a href="{p.absPath}/settings">
+                <div class="profileSettingsWrap" id="profileSettingsCog" class="clickable">
+                    <div class="icon-cog"></div>
+                </div>
+            </a>
+        </div>
+        {/renderJSONraw.isOwnProfile}
+
 
         <div id="thumbnailScrollerWrap" style="display:none;">
             <div id="thumbnailScroller" class="clearfix">
@@ -229,9 +241,6 @@
 {>blockFooter/}
 
 <script>
-function profilePostFactory(posts) {
-
-}
 var profilePostFactory = Object.create(streamFactory);
 profilePostFactory.append = Object.create(streamFactory.append);
 
@@ -240,22 +249,7 @@ profilePostFactory.streamContClass = 'profilePostsBlock';
 profilePostFactory.append.identifier = function($el, post) {
     return $el.attr('data-uid', post.User_userId).attr('data-pid', post.postId);
 }
-profilePostFactory.append.profileThumb = function(post) {
-    var theParent = this.parent;
-    var profilePic = renderJSON.profilePicture;
 
-    var pp = (profilePic) ? theParent.mediaDir + '/' + profilePic + '.jpg' : theParent.errorImg;
-
-    var blockProfileThumbHTML  = '<a href="/' + renderJSON.userNameDisp + '">';
-        blockProfileThumbHTML += '<img src="' + pp + '"></a>';
-
-    return blockProfileThumbHTML;
-}
-profilePostFactory.append.userName = function(post) {
-    var blockUserNameHTML  = '<a href="/' + renderJSON.userNameDisp + '">';
-        blockUserNameHTML += renderJSON.userNameDisp + '</a>';
-    return blockUserNameHTML;
-}
 profilePostFactory.append.effect = function($el) {
     return $el.velocity('fadeIn', {
         duration: 300,
@@ -365,6 +359,36 @@ profilePostFactory.append.moreInfoBindButton = function($custBut) {
         //will fall through.
         return false;
     });
+}
+profilePostFactory.append.settingsButton = function($stream, post) {
+    if(post.User_userId !== printHead.userHeaders.userId) {
+        //not the owner
+
+        //check if user has been attributed
+        if(post.User_userId_attributed === printHead.userHeaders.userId) {
+
+            //attributed posts can't be edited
+            $stream.find('.settingsEdit').remove();
+            $stream.find('.editDesc').remove();
+            $stream.find('.editDescTextArea').remove();
+            $stream.find('.settingsMark').remove();
+
+        } else {
+            //not the owner and user has not been attributed. it shouldn't even be here.
+            $stream.find('.settingsDelete').remove();
+            $stream.find('.settingsEdit').remove();
+            $stream.find('.editDesc').remove();
+            $stream.find('.editDescTextArea').remove();      
+        }
+  
+
+
+    } else {
+        //is own post.
+        $stream.find('.settingsMark').remove();
+        $stream.find('.settingsDelete').attr('data-isprofile', post.isProfilePicture);
+        this.identifier($stream.find('.editDesc'), post);
+    }
 }
 
 profilePostFactory.init(renderJSON.posts, {
@@ -718,19 +742,19 @@ function editProfile() {
             //IE10 has no support for .dataset.
             //img.dataset.imgid = profileImgId;
             $('#thumbnailScroller').append(img);
-            $(img).attr('imgid','profileImgId');
+            $(img).attr('data-imgid', profileImgId);
         }
 
         //then append the rest
         var $posts = $('article .blockImgHolder img');
-        console.log(1);
         if($posts.length === 0) { return hasNoPosts = true; }
-        console.log(2);
         $posts.each(function(i, elem) {
             var imgid = $(elem).attr('data-imgid');
+            var uid = parseFloat($(elem).closest('article').attr('data-uid'));
             if(imgid) {
                 //don't append if this is the profile picture, cause its in the first position alr.
-                if(imgid !== profileImgId && elem.className !== "errorImg") {
+                //and don't append if it is attributed post.
+                if(imgid !== profileImgId && elem.className !== "errorImg" && uid === printHead.userHeaders.userId) {
 
                     //else continue.
                     var img = new Image();

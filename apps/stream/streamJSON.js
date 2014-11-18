@@ -172,6 +172,93 @@ module.exports = function streamJSON(req, render, opts) {
 
         }).catch(throwErr);
 
+    } else if(showType === 'startag') {
+
+        var streamWhere = db.Sequelize.and(
+            {User_userId_attributed: req.user.userId},
+            {isAttributionApproved: false}
+        );
+
+
+        //If there is a lastPostId = next streamLoad
+        if(lastPostId){
+            console.log('streamJSON: Last post loaded is postId: ' + lastPostId);
+            var streamWhere = db.Sequelize.and(
+                {User_userId_attributed: req.user.userId},
+                db.Seqeuelize.or(
+                    {isAttributionApproved: false},
+                    {isAttributionApproved: null}
+                ),
+                { lt: lastPostId }
+            );
+        }
+
+        //get the users that current user is following.
+        req.user.getFollows({attributes: ['userId']}).then(function(users) {
+
+            //push it into the array for use later
+            for(var i in users) { idArray.push(users[i].userId); }
+
+
+            console.log('streamJSON: got the follows...getting posts');
+
+            return [
+
+                db.Post.findAll({
+                    where: streamWhere, 
+                    include: include,
+                    order: [
+                        [ 'postId', 'DESC'], 
+                        [ db.Comment, 'createdAt', 'ASC'] 
+                    ],
+                    limit: streamLimit + 1
+                }),
+
+                false
+                // req.user.getNotifications({
+                //     include: [
+                //         {
+                //             model: db.User,
+                //             as: 'Setter',
+                //             attributes:['userId','userNameDisp']
+                //         }
+                        
+                //     ],
+                //     attributes: ['Post_postId','createdAt','type'],
+                //     order: [['createdAt', 'DESC']]
+                // })
+            ]
+
+        }).spread(function(streams, notifications) {
+
+            //unDAO the streams.
+            //it is giving problems adding attributes.
+            var streams = JSON.parse(JSON.stringify(streams));
+
+
+            //assume no more posts to load
+            var lastPostId = false;
+            if(streams.length > streamLimit) {
+                //if the limit + 1'th post exist, set last id to the limit'th post.
+                lastPostId = streams[streamLimit].streamKey;
+                streams.splice(streamLimit, 1);
+            }
+  
+            console.log('streamJSON: db retrieval complete, likes splicing...');
+
+            
+            posts = likesSplicer(req, streams, idArray);
+
+            //join notifications and posts
+            renderJSON.posts = posts;
+            renderJSON.lastPostId = lastPostId;
+
+            //renderJSON.notifications = notifications;
+
+            return render(renderJSON);
+
+        }).catch(throwErr);
+
     } else if(showType === 'preview') {
 
         /* DEAL WITH LOAD MORE */
