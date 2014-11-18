@@ -23,9 +23,9 @@ module.exports = function(sequelize, DataTypes) {
         classMethods: {
             associate: function(models) {
                 //Post
-                PostMeta.belongsTo(models.Post);
+                PostMeta.belongsTo(models.Post, {foreignKey: 'Post_postId'});
             }
-        },
+        }
     });
  
 return PostMeta;

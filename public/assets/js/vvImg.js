@@ -76,10 +76,7 @@ VV.img.upload = function(attrs, callback) {
     */
 
 
-    if(!attrs) {
-        console.log('upload attributes are undefined');
-        return false;
-    }
+    if(!attrs) { return false; }
 
     var data = new FormData();
     data.append("action", attrs.action);
@@ -114,20 +111,15 @@ VV.img.upload = function(attrs, callback) {
                 title:'Oops...'
             });
         } else {
-            console.log('upload ajax returned');
-            
             if(data.actionCompleted === 'rawReturned') {
-                console.log('appendimage');
                 return callback(data);
             }
 
             if(data.actionCompleted === 'stored') {
-                console.log('post is complete. redirect user to /me');
                 return callback(data);
             }
 
             //fell through all cases
-            console.log('data.actionCompleted returned wrong values');
             return aF.protoAlert({
                 text:'Oops... something has gone wrong. Please refresh and try again.', 
                 title:'Oops...'
@@ -140,7 +132,8 @@ VV.img.upload = function(attrs, callback) {
 
 
     //fail
-    posting.fail(function() {
+    posting.fail(function(err) {
+        //console.log(err);
         return aF.protoAlert({
             text:'Oops... something has gone wrong. Please refresh and try again.', 
             title:'Oops...'
@@ -174,7 +167,7 @@ VV.img.maxWH = function($img, $layer1img, tallOrWide) {
         $img.attr('data-tallorwide', 'wide');
         $layer1img.css('height', height+'px');
     } else {
-        return console.log('tallOrWide not properly specified');
+        return false;
     }
 
 }
@@ -197,7 +190,7 @@ VV.img.center = function($img, $layer1img, tallOrWide) {
         $layer1img.css('left', VV.img.IMG_X +'px');
         return true;
     } else {
-        return console.log('tallOrWide not properly specified');
+        return false;
     }
 
 }
@@ -208,7 +201,6 @@ VV.img.canvasrise = function(img, scaleTo) {
         h = img.height;
 
     var determinant = (h > w)? h : w;
-    console.log(determinant);
 
     if(determinant < scaleTo) {
         canvas.width = w;
@@ -224,12 +216,10 @@ VV.img.canvasrise = function(img, scaleTo) {
         //the canvas is large enough to be folded into half
         //this means that the outstanding pixels will be handed
         //over to hermite for resizing.
-        console.log('fold it');
         canvas.width = w/2;
         canvas.height = h/2;
     } else {
         //the canvas is small enough to be resized by <canvas>
-        console.log('canvas will do resizing');
         var AR = w/h;
         if(h>w) {
             canvas.height = scaleTo;
@@ -425,71 +415,6 @@ VV.img.canvasRotate = function(canvas, img, exif) {
     }
 
     return canvas;
-    // return data.onload = function() { 
-    //     ctx.drawImage(data, 0, 0); 
-    //     //console.log('end rotate' + Date.now());
-    //     if(callback) { return callback(canvas); }
-    //     return canvas;
-    // }
-
-
-
-
-//     //OLD CODE - doesn't transform flipped images
-//     if(!$.isEmptyObject(VV.img.STOCK_IMG_EXIF)) {
-//         if(VV.img.STOCK_IMG_EXIF.Orientation) {
-//             var orientation = parseFloat(VV.img.STOCK_IMG_EXIF.Orientation);
-//             if(orientation === 3 || orientation === 4) {
-//                 VV.img.STOCK_IMG_ROTATE = 180;
-//             } else if(orientation === 5 || orientation === 6) {
-//                 VV.img.STOCK_IMG_ROTATE = 90;
-//             } else if(orientation === 7 || orientation === 9) {
-//                 VV.img.STOCK_IMG_ROTATE = -90;
-//             }
-
-//         }
-//     }
-//     if(VV.img.STOCK_IMG_ROTATE) {
-
-//         var degree = VV.img.STOCK_IMG_ROTATE;
-//         var data = new Image();
-//             data.src = canvas.toDataURL();
-//         var cContext = canvas.getContext('2d');
-
-//         var newCW = canvas.width, 
-//             newCH = canvas.height,
-//             cy = 0,
-//             cx = 0;
-
-//         //   Calculate new canvas size and x/y coorditates for image
-//         if(degree === 90) {
-//             newCW = canvas.height;
-//             newCH = canvas.width;
-//             cy = canvas.height * (-1);
-//         } else if (degree === 180) {
-//             cx = canvas.width * (-1);
-//             cy = canvas.height * (-1);
-//         } else if (degree === -90) {
-//             newCW = canvas.height;
-//             newCH = canvas.width;
-//             cx = canvas.width * (-1);
-//         }
-
-//         //  Rotate image
-//         canvas.width = newCW;
-//         canvas.height = newCH;
-//         cContext.rotate(degree * Math.PI / 180);
-//         data.onload = function() { 
-//             cContext.drawImage(data, cx, cy); 
-//             console.log('end rotate');
-//             console.log(Date.now());
-//             return callback(canvas);
-//         }
-
-//     }
-//     else {
-//         return callback(canvas);
-//     }
 }
 
 VV.img.canvasCrop = function(type, file, m, scale, callback) {
