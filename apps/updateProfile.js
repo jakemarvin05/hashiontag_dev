@@ -1,5 +1,6 @@
 var db = global.db;
 var Promise = require('bluebird');
+var S = require('string');
 module.exports = function editProfile(req,res) {
 
     /* this function will receive:
@@ -14,6 +15,17 @@ module.exports = function editProfile(req,res) {
     */
 
     if(!req.isAuthenticated()){ return res.redirect('/'); }
+
+
+    //do all the escaping...
+    for(var key in req.body) {
+        req.body[key] = S(req.body[key]).stripTags().s;
+    }
+
+    if(req.body.gender !== "male" || req.body.gender !== "female") {
+        req.body.gender = null;
+    }
+
 
     //console.log(req.body);
 
