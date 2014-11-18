@@ -11,6 +11,7 @@ module.exports = function getRecommend(req, res) {
     /*Current list of recommended users */
     var recUserIds = [
         11, //bellywellyjelly
+        37, //floraisabelle
         34, //clubcouture
         30 //awfullyamanda
     ]

@@ -23,38 +23,37 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
     //generics
     var attributes = [ 'userId', 'userNameDisp', 'email', 'name', 'gender', 'about', 'web', 'country', 'profilePicture', 'isPrivate' ];
     var include = [{
-        //the user's posts
-        model: db.Post,
+        model: db.User,
+        attributes: ['userNameDisp', 'profilePicture']
+    }, {
+        model: db.Comment,
+        attributes: ['commentId', 'comment','createdAt'],
         include: [{
-            //the posts' comments
-            model: db.Comment,
-            attributes: ['commentId', 'comment','createdAt'],
-            include: [{
-                model: db.User,
-                attributes: ['userNameDisp','profilePicture']
-            }]
-        }, {
-            model: db.Like,
-            attributes: [ 'User_userId' ],
-            include: [{
-                model: db.User,
-                attributes: [ 'userNameDisp' ]
-            }]
-        }, {
-            model: db.PostMeta,
-            attributes: ['key', 'value'],
-            where: db.Sequelize.or(
-                {'key': 'itemLink'}, 
-                {'key': 'itemAddTag'}, 
-                {'key': 'itemPrice'},
-                {'key': 'isInstagram'}
-            ),
-            required: false
-        }]//sub models include closure
-    }];// db.Post include closure
+            model: db.User,
+            attributes: ['userNameDisp','profilePicture']
+        }]
+    }, {
+        model: db.Like,
+        attributes: [ 'User_userId' ],
+        include: [{
+            model: db.User,
+            attributes: [ 'userNameDisp' ]
+        }]
+    }, {
+        model: db.PostMeta,
+        attributes: ['key', 'value'],
+        where: db.Sequelize.or(
+            {'key': 'itemLink'}, 
+            {'key': 'itemAddTag'}, 
+            {'key': 'itemPrice'},
+            {'key': 'isInstagram'}
+        ),
+        required: false
+    }]// include closure
+
     var order = [ 
-        [db.Post, 'createdAt', 'DESC'], 
-        [db.Post, db.Comment, 'createdAt','ASC'] 
+        ['createdAt', 'DESC'], 
+        [ db.Comment, 'createdAt','ASC'] 
     ];
 
     //isAuth
@@ -94,7 +93,17 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
 
                 db.User.find({
                     where: {userId: userId},
-                    attributes: attributes,
+                    attributes: attributes
+                }),
+
+                db.Post.findAll({
+                    where: db.Sequelize.or(
+                        {User_userId: userId},
+                        db.Sequelize.and(
+                            {User_userId_attributed: userId},
+                            {isAttributionApproved: true}
+                        )
+                    ),
                     include: include,
                     order: order
                 }),
@@ -107,10 +116,15 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
                 })()
             ]
 
-        }).spread(function(user, following) {
-            console.log('got the user!');
+        }).spread(function(user, posts, following) {
+
             //remove the DAO and store the JSON
             returnedUser = JSON.parse(JSON.stringify(user));
+            
+            posts = JSON.parse(JSON.stringify(posts));
+
+            //join them
+            returnedUser.posts = posts;
 
             if(following.length > 0) {
                 for(var i=0; i<following.length; i++) {
@@ -157,6 +171,7 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
 
                     false,
                     false,
+                    false,
                     false
                 ]
             }
@@ -178,7 +193,12 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
 
                     false,
                     false,
-                    true
+                    true,
+                    db.StarTag.find({
+                        where: {
+                            User_userId: req.user.userId
+                        }
+                    })
                 ]
 
             }
@@ -199,10 +219,11 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
 
                 req.user.hasFollow(returnedUser.userId),
                 req.user.hasFollower(returnedUser.userId),
+                false,
                 false
             ]
 
-        }).spread(function(followingCount, followerCount, hasFollow, hasFollower, ownProfile) {
+        }).spread(function(followingCount, followerCount, hasFollow, hasFollower, ownProfile, starTag) {
 
             // console.log('count');
             // console.log(followingCount);
@@ -223,6 +244,7 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
             if(ownProfile) {
                 returnedUser.isOwnProfile = true;
                 returnedUser.isFollowable = false;
+                returnedUser.hasStarTag = (starTag) ? true : false;
                 returnedUser.posts = likesSplicer(req, returnedUser.posts, idArray);
                 return eventEmitter.emit( 'profileJSONDone', returnedUser );
             }
