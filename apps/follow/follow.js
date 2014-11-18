@@ -4,15 +4,6 @@ var fname = "followjs ";
 
 module.exports = function follow(req, res) {
 
-
-    var throwErr = function(error) {
-
-        console.log(error);
-
-        return res.json({success:false});
-
-    }
-
     var userIdToAction = req.body.userId;
 
     //authenticated and not yourself
@@ -24,7 +15,6 @@ module.exports = function follow(req, res) {
         }
 
         if(req.body.action === 'follow') {
-            console.log(req.user.hasNoFollow);
 
             //if user hasn't start following anyone
             if(req.user.hasNoFollow) { 
@@ -37,33 +27,36 @@ module.exports = function follow(req, res) {
                     FollowerId: req.user.userId,
                     FollowId: userIdToAction,
                     affinity: 0 + Math.random()/1000
-                    }).then(function(){
-                        res.json({success:true});
-                    });
-            }
-            
-            
-            req.user.hasFollow(userIdToAction).then(function(user) {
-                if(!user) {
+                }).then(function(){
+                    res.json({success:true});
+                });
 
-                    return db.Following.create({
-                        FollowerId: req.user.userId,
-                        FollowId: userIdToAction,
-                        affinity: 0 + Math.random()/1000
+            } else {
+
+                req.user.hasFollow(userIdToAction).then(function(user) {
+                    if(!user) {
+
+                        require('./firstFollow.js')(req, userIdToAction); 
+
+                        return db.Following.create({
+                            FollowerId: req.user.userId,
+                            FollowId: userIdToAction,
+                            affinity: 0 + Math.random()/1000
                         }).then(function(){
                             res.json({success:true});
                         });
 
-                } else {
+                    } else {
 
-                    console.log('Error: User trying to follow someone he/she is already following.')
-                    //but we don't care
-                    return res.json({success:true});
-                }
+                        console.log('Error: User trying to follow someone he/she is already following.')
+                        //but we don't care
+                        return res.json({success:true});
+                    }
 
 
-            }).catch(throwErr);
+                }).catch(throwErr);
 
+            }
 
         }
 
@@ -102,6 +95,12 @@ module.exports = function follow(req, res) {
     } else {
 
         //either never login, or is yourself.
+        return res.json({success:false});
+    }
+
+
+    var throwErr = function(error) {
+        console.log(error);
         return res.json({success:false});
     }
 
