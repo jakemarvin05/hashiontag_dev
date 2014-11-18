@@ -141,6 +141,9 @@ function editDesc($edit, $cancel) {
         var $textHolder = $thisBlock.find('.blocktTextHolder'),
             $metaHolder = $thisBlock.find('.blockMoreInfo');
 
+        //for "me" page, need to update the base element also.
+        var $baseArt = $('.profilePostsBlock #mainStream_' + postId);
+
         //store all the original HTML for reversion
         revertDescHTML = $textHolder.html();
         revertMetasHTML = $metaHolder.html();
@@ -188,6 +191,12 @@ function editDesc($edit, $cancel) {
                     .html(data.post.descHTML)
                     .attr('data-raw', encodeURIComponent(data.post.desc));
 
+                if($baseArt.length > 0) {
+                    $baseArt.find('.description')
+                        .html(data.post.descHTML)
+                        .attr('data-raw', encodeURIComponent(data.post.desc));
+                }
+
             } else {
                 $textHolder.html(revertDescHTML);
                 $metaHolder.html(revertMetasHTML);
@@ -207,6 +216,8 @@ function editDesc($edit, $cancel) {
             $descDiv
                 .attr('data-raw', encodeURIComponent(descInput))
                 .html(descInput);
+
+            //not replacing for base art.
         }
 
         //any of the metas are changed
@@ -223,6 +234,7 @@ function editDesc($edit, $cancel) {
             }
 
             $thisBlock.find('.blockMoreInfo').html('');
+            if($baseArt.length > 0) { $baseArt.find('.blockMoreInfo').html(''); }
 
             var moreInfo = streamFactory.append.moreInfoBlock($thisBlock, post);
 
@@ -230,6 +242,14 @@ function editDesc($edit, $cancel) {
                 $thisBlock.find('.blockMoreInfo').append(moreInfo.html);
                 streamFactory.append.moreInfoImg($thisBlock, post, moreInfo);
                 streamFactory.append.moreInfoBindButton($thisBlock.find('.moreInfo'));
+
+
+                if($baseArt.length > 0) { 
+                    $baseArt.find('.blockMoreInfo').append(moreInfo.html);
+                    streamFactory.append.moreInfoImg($baseArt, post, moreInfo);
+                    streamFactory.append.moreInfoBindButton($baseArt.find('.moreInfo'));
+                }
+
             }
 
         }
