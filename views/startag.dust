@@ -28,11 +28,13 @@
     display: none;
 }
 .starApprove .approvedGlyph {
-    color: #ef4549;
+    color: #fff;
     font-size: 40px;
     position: absolute;
-    top: 5px;
-    left: 0px;
+    top: 10px;
+    left: 7px;
+    padding: 6px;
+    background: #565757;
 }
 </style>
 {>blockHeaderAfterHook/}

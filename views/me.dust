@@ -752,9 +752,15 @@ function editProfile() {
             var imgid = $(elem).attr('data-imgid');
             var uid = parseFloat($(elem).closest('article').attr('data-uid'));
             if(imgid) {
+
                 //don't append if this is the profile picture, cause its in the first position alr.
+                var isNotProfileImg = (imgid !== profileImgId);
                 //and don't append if it is attributed post.
-                if(imgid !== profileImgId && elem.className !== "errorImg" && uid === printHead.userHeaders.userId) {
+                var isNotAttr = (uid === printHead.userHeaders.userId);
+                //don't append if it is error img.
+                var isNotErr = (elem.className !== "errorImg" && elem.src.indexOf('image404') === -1);
+
+                if(isNotProfileImg && isNotAttr && isNotErr) {
 
                     //else continue.
                     var img = new Image();
