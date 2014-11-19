@@ -12,13 +12,6 @@ module.exports = function editPost(req, res) {
 
     //if somehow the user was able to edit a post that wasn't hers/his
     if(req.user.userId !== parseFloat(req.body.User_userId)) { return res.json({success:false}); }
-
-    var TASKS = 2;
-    //bind update before caller.
-    eventEmitter.on('postRetrieved', function() {
-        TASKS -= 1;
-        if(TASKS === 0){ return update(); }
-    });
  
     var POST;
     var POSTMETA;
@@ -53,7 +46,7 @@ module.exports = function editPost(req, res) {
 
     }).spread(function(postMeta, hashtags) {
 
-        eventEmitter.emit('postRetrieved');
+        return update();
 
     }).catch(function(err) {
         console.log(fname + 'db.Post catch handler. Error: ' + err);
@@ -95,17 +88,19 @@ module.exports = function editPost(req, res) {
     var DESCJSON;
     tagsHandler(desc, null, function(descJSON) {
         DESCJSON = descJSON;
-        TASKS -= 1;
-        if(TASKS === 0) { return update(descJSON); }
+        return update(descJSON);
     });
 
-    function update(descJSON) {
 
-        if(descJSON) { DESCJSON = descJSON; }
+    var TASKS = 2;
+    function update(descJSON) {
+        if (descJSON) { DESCJSON = descJSON; }
+
+        TASKS -= 1;
+        if (TASKS !== 0){ return false; }
 
         POST.desc = DESCJSON.desc;
         POST.descHTML = DESCJSON.descHTML;
-        console.log(DESCJSON);
 
         var NEWPOST;
         db.Post.find().then(function() {
