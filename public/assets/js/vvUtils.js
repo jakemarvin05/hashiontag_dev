@@ -332,3 +332,10 @@ VV.utils.hideSettingsTab = function () {
     $('.blockInteractSettingsWrap').hide();
     $settingsBut.removeClass('settingActive');
 }
+
+VV.utils.getDOMHTML = function($dom) {
+    var d = $dom.wrap('<div></div>');
+    var html = d.parent().html();
+    d.unwrap();
+    return html;
+}

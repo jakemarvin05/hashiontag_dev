@@ -138,16 +138,14 @@ function editDesc($edit, $cancel) {
             $itemPrice = $thisBlock.find('.postItemPrice');
 
         //containers
-        var $textHolder = $thisBlock.find('.blocktTextHolder'),
-            $metaHolder = $thisBlock.find('.blockMoreInfo');
+        var $metaHolder = $thisBlock.find('.blockMoreInfo');
 
         //for "me" page, need to update the base element also.
         var $baseArt = $('.profilePostsBlock #mainStream_' + postId);
 
         //store all the original HTML for reversion
-        revertDescHTML = $textHolder.html();
+        revertDescHTML = VV.utils.getDOMHTML($descDiv);
         revertMetasHTML = $metaHolder.html();
-
 
         $thisBlock.find('.editingDOMS').remove();
 
@@ -156,13 +154,9 @@ function editDesc($edit, $cancel) {
         var check3 = $itemAddTag.attr('data-attr') === itemAddTag || (typeof $itemAddTag.attr('data-attr') === "undefined" && itemAddTag === '');
         var check4 = $itemPrice.attr('data-attr') === itemPrice || (typeof $itemPrice.attr('data-attr') === "undefined" && itemPrice === '');
 
-        console.log(check1, check2, check3, check4);
-
-
         if(check1 && check2 && check3 && check4) {
             $descDiv.show();
             $thisBlock.find('.editDescButtons').hide();
-            console.log('no change...')
             return false;
         }
 
@@ -174,7 +168,6 @@ function editDesc($edit, $cancel) {
             "itemPrice": itemPrice
         }
         itemMeta = JSON.stringify(itemMeta);
-        console.log('posting ajax..');
         // AJAX post
         var posting = $.post( "{p.absPath}/api/post/edit", { 
             postId: postId,
@@ -198,14 +191,16 @@ function editDesc($edit, $cancel) {
                 }
 
             } else {
-                $textHolder.html(revertDescHTML);
+                $descDiv.replaceWith(revertDescHTML)
+                $thisBlock.find('.description').show();
                 $metaHolder.html(revertMetasHTML);
                 aF.protoAlert('An error occurred. Changes to your post may not be captured. Please refresh and try again.');
             }  
         });
         //fail
         posting.fail(function(err) {
-            $textHolder.html(revertDescHTML);
+            $descDiv.replaceWith(revertDescHTML);
+            $thisBlock.find('.description').show();
             $metaHolder.html(revertMetasHTML);
             aF.protoAlert('An error occurred. Changes to your post may not be captured. Please refresh and try again.');
             console.log(err);
