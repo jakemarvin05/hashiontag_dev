@@ -61,7 +61,7 @@ module.exports = function tagsHandler(desc, CALLBACK, callback) {
     //extract the tags
     hash.raw = desc.match(/#([a-zA-Z0-9]+)/g);
     add.raw = desc.match(/@([a-zA-Z0-9_]+)/g);
-    star.raw = desc.match(/\*([a-zA-Z0-9_]+)/); //only match for 1 startag.
+    star.raw = desc.match(/\*([a-zA-Z0-9]+)/); //only match for 1 startag.
 
     //after calling match, if there are no match {tag}.raw will default to null.
 
@@ -70,7 +70,7 @@ module.exports = function tagsHandler(desc, CALLBACK, callback) {
         desc = desc.replace(/@([a-zA-Z0-9_]+)/g, '{{{addtag}}}'); 
     }
     if(star.raw) { 
-        desc = desc.replace(/\*([a-zA-Z0-9_]+)/, '{{{startag}}}'); 
+        desc = desc.replace(/\*([a-zA-Z0-9]+)/, '{{{startag}}}'); 
     }
     //keep the one that has hashtags.
     //this is to produce a raw desc with the properly CASED add and star tags.

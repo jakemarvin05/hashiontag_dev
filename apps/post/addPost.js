@@ -65,8 +65,11 @@ module.exports = function addPost(req, res, uuid, path, fields, CALLBACK) {
             var attrUserId = descJSON.descTags.star.userId;
             if(attrUserId.length > 0) {
                 var id = attrUserId[0];
-                console.log(id);
-                postHash.User_userId_attributed = id;
+
+                //user cannot self attribute
+                if(id !== req.user.userId) {
+                    postHash.User_userId_attributed = id;
+                }
             }
 
             //if user has no profile picture, set this one as profile picture.
