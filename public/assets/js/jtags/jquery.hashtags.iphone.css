@@ -1,0 +1,6 @@
+/*iPhone css overwrites */
+
+/* on iOS safari, textarea had extra padding. */
+.jqueryHashtags .highlighter{
+    padding: 5px 13px !important;
+}

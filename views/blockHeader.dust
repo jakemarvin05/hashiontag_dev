@@ -45,6 +45,11 @@
 
     <!-- Tags Highlight -->
     <link href="{p.js}/jtags/jquery.hashtags.css" rel="stylesheet"> 
+    <script>
+    if (navigator.userAgent.indexOf('iPhone') !== -1) {
+      document.write('<link rel="stylesheet" href="{p.js}/jtags/jquery.hashtags.iphone.css">');
+    }
+    </script>
 
 
     <script src="{p.js}/vvUtils.js"></script>
