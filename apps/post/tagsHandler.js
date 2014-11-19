@@ -275,7 +275,7 @@ module.exports = function tagsHandler(desc, CALLBACK, callback) {
             //only 1 star tag allowed now. so just access it via 0.
             star.raw[0] = array.starTag;
             star.userId.push(array.userId);
-            star.link.push('<a data-tagtype="star" href="' + baseURI+ '/' + array.userNameDisp + '">*' + array.userNameDisp + '</a>');
+            star.link.push('<a data-tagtype="star" href="' + baseURI+ '/' + array.userNameDisp + '">*' + array.starTag + '</a>');
             star.unique.push(array.starTag);
 
             if(tagSearchCounter === 0) {
