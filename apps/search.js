@@ -8,7 +8,6 @@ module.exports = function search(req, res) {
     }//end throwErr
 
     var parseUsers = function(users){
-        console.log(users);
         console.log('search: db retrieval complete');
 
         results = {
@@ -28,8 +27,6 @@ module.exports = function search(req, res) {
     var input = req.body.query,
         hasAdd = input.indexOf('@') === 0,
         hasHash = input.indexOf('#') === 0;
-
-    console.log(input);
 
     if(hasAdd) {
         //username trying to key a @screenname, trim it
