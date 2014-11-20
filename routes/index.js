@@ -21,6 +21,10 @@ var globalJSON = require('../apps/globalJSON.js');
 //instagram
 var ig = require('instagram-node').instagram();
 
+router.post('/test', function(req, res) {
+    console.log(req.body);
+});
+
 module.exports = router;
 
 /* Every page has a generic set of res.render variables:
@@ -46,43 +50,6 @@ module.exports = router;
 
 */
 
-router.get('/test', function(req,res) {
-    db.Post.findAll().then(function(posts) {
-        var i = 0;
-        while(posts[i]) {
-            posts[i].isAttributionApproved = false;
-            posts[i].save();
-            i++;
-        }
-    })
-})
-
-router.get('/seed', function(req, res) {
-    //strip html for desc and put it back
-
-
-    db.Post.findAll().then(function(posts) {
-        var i = 0;
-        while(posts[i]) {
-            posts[i].descHTML = posts[i].desc;
-            posts[i].desc = S(posts[i].desc).stripTags().s;
-            posts[i].save();
-            i++;
-        }
-        return res.send('seeding complete');
-    }).catch(function(err) {
-        console.log(err);
-    })
-});
-
-router.post('/test', function(req,res) {
-    var tagsHandler = require('../apps/post/tagsHandler.js');
-
-    tagsHandler(req.body.desc, function(descJSON) {
-        return res.json(descJSON);
-    });
-});
-
 // Homepage
 router.get('/', function(req, res) {
     //sys.puts(sys.inspect(req));
@@ -91,7 +58,7 @@ router.get('/', function(req, res) {
     function renderTheStream(renderJSON) {
         res.render('index', {
             /* generics */
-            title: meta.header(),
+            title: meta(),
             gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
@@ -110,7 +77,7 @@ router.get('/', function(req, res) {
         require('../apps/stream/streamJSON.js')(req, renderTheStream, null);
     } else {
         res.render('index', {
-            title: meta.header(),
+            title: meta(),
             gJSON: gJSON,
         p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
@@ -130,7 +97,7 @@ router.get('/preview', function(req, res) {
     function thenRender(renderJSON) {
         res.render('index', {
             /* generics */
-            title: meta.header(),
+            title: meta(),
             gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
@@ -162,7 +129,7 @@ router.get('/latest', function(req, res) {
     function thenRender(renderJSON) {
         res.render('index', {
             /* generics */
-            title: meta.header(),
+            title: meta(),
             gJSON: gJSON,
         p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
@@ -187,7 +154,7 @@ router.get('/startag', function(req, res) {
     function thenRender(renderJSON) {
         res.render('startag', {
             /* generics */
-            title: meta.header(),
+            title: meta(),
             gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
@@ -296,7 +263,7 @@ router.get('/signup', function(req, res) {
 
     res.render('index', {
         /* generics */
-        title: meta.header(),
+        title: meta(),
         gJSON: gJSON,
         p: gJSON.pathsJSON.paths,
         f: gJSON.pathsJSON.files,
@@ -335,7 +302,7 @@ router.get('/passwordtokenreset', function(req, res) {
 
     res.render('resetPassword', {
         /* generics */
-        title: meta.header(),
+        title: meta(),
         gJSON: gJSON,
         p: gJSON.pathsJSON.paths,
         f: gJSON.pathsJSON.files,
@@ -390,7 +357,7 @@ router.get('/me', function(req, res) {
     eventEmitter.on('profileJSONDone', function thenRender(renderJSON) {
 
         res.render('me', {
-            title: meta.header(),
+            title: meta(renderJSON, 'profile'),
             isLoggedIn: isLoggedIn(req),
             gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
@@ -419,7 +386,7 @@ router.get('/settings', function(req, res) {
     //bind the final callback first
     function thenRender(renderJSON) {
         res.render('settings', {
-            title: meta.header(),
+            title: meta(),
             isLoggedIn: isLoggedIn(req),
             gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
@@ -523,7 +490,7 @@ router.get('/post', function(req, res) {
     CSRender = 30;
 
     return res.render('post', {
-        title: meta.header(),
+        title: meta(),
         isLoggedIn: isLoggedIn(req),
         gJSON: gJSON,
         p: gJSON.pathsJSON.paths,
@@ -561,7 +528,7 @@ router.get('/likes', function(req, res) {
     function thenRender(renderJSON) {
         res.render('likes', {
             /* generics */
-            title: meta.header(),
+            title: meta(),
             gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
@@ -594,7 +561,7 @@ router.get('/search', function(req, res) {
 
         res.render('search', {
             /* generics */
-            title: meta.header(),
+            title: meta(),
             gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
@@ -633,7 +600,7 @@ router.get('/hashtag/:hashtag', function(req, res) {
 
         res.render('hashtag', {
             /* generics */
-            title: meta.header(),
+            title: meta(),
             gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
@@ -760,13 +727,13 @@ router.get('/p/:pid', function(req,res) {
     //bind the final callback first
     eventEmitter.on('singlePostJSONDone', function thenRender(renderJSON) {
         res.render('singlePost', {
-            title: meta.header(),
+            title: meta(renderJSON, 'singlePost'),
             isLoggedIn: req.isAuthenticated(),
             gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
             printHead: JSON.stringify(gJSON.printHead),
-            renderJSON: JSON.parse(JSON.stringify(renderJSON)),
+            renderJSON: JSON.stringify(renderJSON),
             isStream: 'stream',
             page: 'singlePost',
 
@@ -812,7 +779,7 @@ router.get('/:user', function(req, res) {
 
         res.render('me', {
             /*generic */
-            title: meta.header(),
+            title: meta(renderJSON, 'profile'),
             gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,

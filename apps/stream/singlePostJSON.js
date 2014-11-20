@@ -83,7 +83,7 @@ module.exports = function singlePostJSON(req, eventEmitter) {
             renderJSON.posts = likesSplicer(req, renderJSON.posts, idArray);
         }
 
-        return eventEmitter.emit( 'singlePostJSONDone', JSON.stringify(renderJSON) );
+        return eventEmitter.emit('singlePostJSONDone', renderJSON);
 
     }).catch(throwErr);
 }
