@@ -641,7 +641,7 @@ streamFactory.append.moreInfoBlock = function($stream, post) {
             workingLink = itemLink;
         }
         showLink = (itemLink.length > 25) ? itemLink.substring(0,25) + '...': itemLink;
-        itemLinkDiv  = '<div class="postItemLink" data-attr="' + showLink + '">';
+        itemLinkDiv  = '<div class="postItemLink" data-attr="' + meta.itemLink + '">';
         itemLinkDiv += '<span class="glyphicon glyphicon-link"></span>';
         itemLinkDiv += '<a rel="nofollow" href="' + workingLink + '" target="_blank">' + showLink + '</a>';
         itemLinkDiv += '</div>'; 
