@@ -8,7 +8,6 @@ VV.utils.Flasher = {
     $el: false,
     speed: 500,
     run: function($el, type) {
-        console.log(this);
         this.state = true;
         this.$el = $el;
         this.elType = type;

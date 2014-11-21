@@ -44,22 +44,20 @@
             var loadMoreAjax = $.post(printHead.p.absPath + '/api/getstream/stream/' + lastPostId);
 
             loadMoreAjax.done(function(res) {
+                flasher.kill();
+
                 if(!res) { 
-                    //fail silently...
-                    console.log(res);
+                    return false;
                 }
-                console.log(res);
 
                 streamFactory.init(res.posts, {
                     pinchZoom: true
                 });
 
-                flasher.kill();
-
                 if(!res.lastPostId) {
                     return $('.streamLoadMore').html('No more posts....');
                 }
-                return self.attr('data-lastpostid', res.lastPostId);
+                return $(self).attr('data-lastpostid', res.lastPostId);
             });
 
             loadMoreAjax.fail(function(err) {
