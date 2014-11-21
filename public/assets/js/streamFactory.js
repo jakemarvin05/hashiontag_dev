@@ -160,6 +160,9 @@ streamFactory.append.init = function($stream, i) {
 
     //convert the metas into .value chain
     var digestedPostMeta = this.digestPostMeta(post);
+    //update the parent and re-reference post
+    this.parent.posts[i].postMeta = digestedPostMeta;
+    post = this.parent.posts[i];
 
 
     /* is instagram or startag? */
@@ -169,9 +172,6 @@ streamFactory.append.init = function($stream, i) {
     //if there is nothing in postMeta, return
     if(!digestedPostMeta) { $stream.find('.moreInfo').hide(); return false; }
 
-    //update the parent and re-reference post
-    this.parent.posts[i].postMeta = digestedPostMeta;
-    post = this.parent.posts[i];
 
     /*
     * More info
@@ -720,6 +720,7 @@ streamFactory.append.moreInfoImg = function($stream, post, moreInfo) {
 }
 streamFactory.append.blockVia = function($stream, post) {
     var link = post.postMeta.isInstagram;
+    console.log(post.postMeta);
     if(link) {
         var append  = 'via <a href="' + link + '" target="_blank">';
             append += 'Instagram';
