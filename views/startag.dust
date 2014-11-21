@@ -57,6 +57,7 @@
         </div>
 
         <script>
+        /* TO DO: Modularise this */
         $('#streamLoadMorePosts').click(function(e) {
             var self = this;
             e.preventDefault();
@@ -73,22 +74,18 @@
             var loadMoreAjax = $.post(printHead.p.absPath + '/api/getstream/startag/' + lastPostId);
 
             loadMoreAjax.done(function(res) {
-                if(!res) { 
-                    //fail silently...
-                    console.log(res);
-                }
-                console.log(res);
+                flasher.kill();
+                if(!res) { return false; }
+
 
                 streamFactory.init(res.posts, {
                     pinchZoom: true
                 });
 
-                flasher.kill();
-
                 if(!res.lastPostId) {
                     return $('.streamLoadMore').html('No more posts....');
                 }
-                return self.attr('data-lastpostid', res.lastPostId);
+                return $(self).attr('data-lastpostid', res.lastPostId);
             });
 
             loadMoreAjax.fail(function(err) {
