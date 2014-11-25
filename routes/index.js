@@ -21,46 +21,6 @@ var globalJSON = require('../apps/globalJSON.js');
 //instagram
 var ig = require('instagram-node').instagram();
 
-router.get('/test', function(req, res) {
-    db.User.findAll().then(function(users) {
-        for(var i=0; i<users.length;i++) {
-
-            var user = users[i];
-            var pp = user.profilePicture;
-
-            (function(pp) {
-                user.getPosts().then(function(posts) {
-
-                    for(var i=0; i<posts.length; i++) {
-
-                        var post = posts[i];
-
-                        var postIsPP = post.isProfilePicture;
-
-
-                            console.log(pp + ' || ' + post.imgUUID)
-                            if(pp !== post.imgUUID) {
-                                post.updateAttributes({isProfilePicture: false});
-                            } else {
-                                post.updateAttributes({isProfilePicture: true});
-                            }
-
-
-                    }
-
-                }).catch(function(err) {
-                    console.log('*** user.getPosts() '+user.userId+' caught: ' + err);
-                });
-
-            })(pp)
-
-
-        }
-    }).catch(function(err) {
-        console.log('*** db.User caught: ' + err);
-    });
-});
-
 module.exports = router;
 
 /* Every page has a generic set of res.render variables:
