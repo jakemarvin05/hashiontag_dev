@@ -1,3 +1,8 @@
+/* Dependents:
+   addPost.js
+   iggPost.js
+*/
+
 var fname = "tagsHandler.js ";
 var events = require('events');
 var eventEmitter = new events.EventEmitter();

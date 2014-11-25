@@ -7,7 +7,7 @@ Profile page re-writes:
 (Fill in here....)
 
 */
-var streamFactory = {
+var streamFactoryCopy = {
     streamContClass: 'mainColBlock',
     $cont: '',
     streamPrefix: 'mainStream_',
@@ -22,8 +22,7 @@ var streamFactory = {
     pinchZoom: false,
     imageType: "full"
 }
-streamFactory.getLayoutHTML = function() {
-    //console.log('streamFactory.getLayoutHTML');
+streamFactoryCopy.getLayoutHTML = function() {
     $layout = $('.' + this.layoutClass);
     //$layout.css('display', 'none');
     $layout.wrap('<div></div>');
@@ -31,14 +30,13 @@ streamFactory.getLayoutHTML = function() {
     $layout.unwrap();
     $layout.remove();
 }
-streamFactory.noObj = function() {
-    //console.log('streamFactory.noObj');
+streamFactoryCopy.noObj = function() {
+    //console.log('streamFactoryCopy.noObj');
 }
-streamFactory.init = function(posts, options) {
+streamFactoryCopy.init = function(posts, options) {
     if(!this.layoutHTML) { this.getLayoutHTML(); }
     if(!posts) { return false; }
 
-    //console.log('streamFactory.init');
     if(options) {
         if(options.burst !== 'undefined') { this.burst = options.burst; }
         if(options.streamContClass) { this.streamContClass = options.streamContClass; }
@@ -56,8 +54,8 @@ streamFactory.init = function(posts, options) {
     if(postCount < 1) { return this.noObj(); }
     this.buildBlocks(postCount);
 }
-streamFactory.buildBlocks = function(postCount) {
-    //console.log('streamFactory.buildBlocks');
+streamFactoryCopy.buildBlocks = function(postCount) {
+    //console.log('streamFactoryCopy.buildBlocks');
     //cache the burst count to the append method
     if(this.burst>0) { this.append.imageBurstCount = this.burst; }
 
@@ -80,11 +78,10 @@ streamFactory.buildBlocks = function(postCount) {
 
 }
 
-streamFactory.append = {}
-streamFactory.append.callbacks = [];
+streamFactoryCopy.append = {}
+streamFactoryCopy.append.callbacks = [];
 
-streamFactory.append.init = function($stream, i) {
-    //console.log('streamFactory.append.init');
+streamFactoryCopy.append.init = function($stream, i) {
     var post = this.parent.posts[i];
     //set the data attributes
     this.identifier($stream, post);
@@ -187,37 +184,31 @@ streamFactory.append.init = function($stream, i) {
 }
 
 /* not enabled yet */
-streamFactory.append.loadAnimate = function($stream) {
+streamFactoryCopy.append.loadAnimate = function($stream) {
     var $blockImgH = $stream.find('.blockImgHolder');
     return $blockImgH.children('img').velocity({opacity: 0.6}, { duration: 400, delay: 300, loop: true });
 }
 
-streamFactory.append.profileThumb = function(user) {
-    //console.log('streamFactory.append.profileThumb');
+streamFactoryCopy.append.profileThumb = function(user) {
+
     var theParent = this.parent;
-
     var pp = (user.profilePicture) ? VV.utils.imageGetter(user.profilePicture, "thumb") : theParent.errorImg;
-
     var blockProfileThumbHTML  = '<a href="/' + user.userNameDisp + '">';
         blockProfileThumbHTML += '<img src="' + pp + '"></a>';
-        //console.log("profileThumb " + pp);
 
     return blockProfileThumbHTML;
 }
 
-streamFactory.append.userName = function(user) {
+streamFactoryCopy.append.userName = function(user) {
     var blockUserNameHTML  = '<a href="/' + user.userNameDisp + '">';
         blockUserNameHTML += user.userNameDisp + '</a>';
     return blockUserNameHTML;
 }
 
-streamFactory.append.identifier = function($el, post) {
-    //console.log('streamFactory.append.identifier');
+streamFactoryCopy.append.identifier = function($el, post) {
     return $el.attr('data-uid', post.user.userId).attr('data-pid', post.postId);
 }
-streamFactory.append.effect = function($el, callback) {
-    //console.log('streamFactory.append.effect');
-
+streamFactoryCopy.append.effect = function($el, callback) {
     var hasUA = VV.utils.checkNested(printHead, "userHeader", "ua");
 
     //exception handling base on User agent.
@@ -237,8 +228,7 @@ streamFactory.append.effect = function($el, callback) {
         $el.velocity('fadeIn', { duration: speed, display: "block" });
     }
 }
-streamFactory.append.imageBurst = function ($stream, i) {
-    //console.log('streamFactory.append.imageBurst');
+streamFactoryCopy.append.imageBurst = function ($stream, i) {
     //if it so happens that the burst overtook the DOM building (very very unlikely...)
     //we simply load append sequentially as per normal.
     if(this.imageBurstComplete) {
@@ -255,15 +245,15 @@ streamFactory.append.imageBurst = function ($stream, i) {
         this.imageDeferredArray.push(literal);
     }
 }
-streamFactory.append.imageBurstCount = false;
-streamFactory.append.imageBurstComplete = false;
-streamFactory.append.imageDeferredArray = [];
-streamFactory.append.imageLink = function($stream, img, imgURL) {
-    //console.log('imageLink');
+streamFactoryCopy.append.imageBurstCount = false;
+streamFactoryCopy.append.imageBurstComplete = false;
+streamFactoryCopy.append.imageDeferredArray = [];
+streamFactoryCopy.append.imageLink = function($stream, img, imgURL) {
+    //not in use.
     return false;
     $stream.find('.blockImgHolder').append('<a class="fancybox" alt="' + img.alt + '" href="' + imgURL + '"></a>');
 }
-streamFactory.append.imageOnLoad = function($stream, img) {
+streamFactoryCopy.append.imageOnLoad = function($stream, img) {
     var $imgHolder = $stream.find('.imgLoaderHolder');
     var $blockHolder = $stream.find('.blockImgHolder');
     //get the container to hold the height cause we are gonna switch out.
@@ -277,8 +267,7 @@ streamFactory.append.imageOnLoad = function($stream, img) {
     //pinchZooming
     if(this.parent.pinchZoom) { pinchZoom.init(img); }
 }
-streamFactory.append.image = function($stream, i, burst) {
-    //console.log('streamFactory.append.image' + i);
+streamFactoryCopy.append.image = function($stream, i, burst) {
     //image
     var imgURL = '',
         img = new Image(),
@@ -290,8 +279,6 @@ streamFactory.append.image = function($stream, i, burst) {
         //set it to transparent for fading.
         img.style.opacity = 0;
         img.style.display = "block"
-
-    //console.log('appending ' + i);
 
     img.onload = function() {
         //console.log('img.onload');
@@ -343,8 +330,8 @@ streamFactory.append.image = function($stream, i, burst) {
     img.src = imgURL;
     this.imageLink($stream, img, imgURL);
 }
-streamFactory.append.likeText = function(post) {
-    //console.log('streamFactory.append.likeText');
+streamFactoryCopy.append.likeText = function(post) {
+    //console.log('streamFactoryCopy.append.likeText');
     var theParent = this.parent;
     var toPrepend = '';
 
@@ -444,8 +431,8 @@ streamFactory.append.likeText = function(post) {
     //console.log(toPrepend);
     return toPrepend;
 }
-streamFactory.append.commentBlock = function($stream, post) {
-    //console.log('streamFactory.append.commentBlock');
+streamFactoryCopy.append.commentBlock = function($stream, post) {
+    //console.log('streamFactoryCopy.append.commentBlock');
     var comments = post.comments,
         commentCount = VV.utils.objCount(comments),
         showComments = 3;
@@ -479,8 +466,8 @@ streamFactory.append.commentBlock = function($stream, post) {
         }
     }
 }
-streamFactory.append.commentList = {}
-streamFactory.append.commentBlockMoreButton = function($cont) {
+streamFactoryCopy.append.commentList = {}
+streamFactoryCopy.append.commentBlockMoreButton = function($cont) {
     if(!$cont) {
         var contClass = this.parent.streamContClass;
         var $buts = $('.' + contClass).find('.blockLoadMoreCommentsBut');
@@ -528,8 +515,8 @@ streamFactory.append.commentBlockMoreButton = function($cont) {
             $(this).attr('data-power', p+1);
         });
 }
-streamFactory.append.eachComment = function($stream, comment, toShow, postId, append) {
-    //console.log('streamFactory.append.eachComment');
+streamFactoryCopy.append.eachComment = function($stream, comment, toShow, postId, append) {
+    //console.log('streamFactoryCopy.append.eachComment');
     var hide = '',
         user = comment.user,
         commentText = VV.utils.htmlEntities(comment.comment);
@@ -571,7 +558,7 @@ streamFactory.append.eachComment = function($stream, comment, toShow, postId, ap
 
     return $comment;
 }
-streamFactory.append.settingsButton = function($stream, post) {
+streamFactoryCopy.append.settingsButton = function($stream, post) {
     if(post.User_userId !== printHead.userHeaders.userId) {
         $stream.find('.settingsDelete').remove();
         $stream.find('.settingsEdit').remove();
@@ -583,7 +570,7 @@ streamFactory.append.settingsButton = function($stream, post) {
         this.identifier($stream.find('.editDesc'), post);
     }
 }
-streamFactory.append.digestPostMeta = function(post) {
+streamFactoryCopy.append.digestPostMeta = function(post) {
     var metas = post.postMeta,
         len = metas.length;
     //meta is an Array. Check it for length
@@ -598,7 +585,7 @@ streamFactory.append.digestPostMeta = function(post) {
     }
     return postMeta;
 }
-streamFactory.append.moreInfoBlock = function($stream, post) { 
+streamFactoryCopy.append.moreInfoBlock = function($stream, post) { 
     /*
     <h2 class="itemName" itemprop="item"></h2>
     <h2 class="shopName" itemprop="shop"></h2>
@@ -663,7 +650,7 @@ streamFactory.append.moreInfoBlock = function($stream, post) {
     data.html += itemPriceDiv;
     return data;
 }
-streamFactory.append.moreInfoBindButton = function($custButton) {
+streamFactoryCopy.append.moreInfoBindButton = function($custButton) {
     var $buttons;
     if($custButton) { 
         $buttons = $custButton
@@ -700,7 +687,7 @@ streamFactory.append.moreInfoBindButton = function($custButton) {
         return false;
     });
 }
-streamFactory.append.moreInfoImg = function($stream, post, moreInfo) {
+streamFactoryCopy.append.moreInfoImg = function($stream, post, moreInfo) {
     if(!moreInfo.hasAddTag) { return false; }
 
     var $imgCont = $stream.find('.postItemAddTagImg');
@@ -718,9 +705,8 @@ streamFactory.append.moreInfoImg = function($stream, post, moreInfo) {
     });
     ajaxGetImg.fail(function() { return $imgCont.remove(); });
 }
-streamFactory.append.blockVia = function($stream, post) {
+streamFactoryCopy.append.blockVia = function($stream, post) {
     var link = post.postMeta.isInstagram;
-    console.log(post.postMeta);
     if(link) {
         var append  = 'via <a href="' + link + '" target="_blank">';
             append += 'Instagram';

@@ -307,8 +307,13 @@ $('#instagramLink').validate({
         
         //done
         instaAjax.done(function(data) {
-            console.log(data);
             if(data.success) {
+                if(!data.user) {
+                    alertFactory.protoAlert('<h2>No user found :(</h2>');
+                    try { flasher.kill(); } catch(err) {}
+                    try { flasher2.kill(); } catch(err) {}
+                    return false;
+                }
                 instaBuilder.build(data.user)
                 if(!searched) {
                     $form.attr('data-searched', 'true');

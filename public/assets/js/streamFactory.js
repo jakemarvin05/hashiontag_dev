@@ -23,7 +23,6 @@ var streamFactory = {
     imageType: "full"
 }
 streamFactory.getLayoutHTML = function() {
-    //console.log('streamFactory.getLayoutHTML');
     $layout = $('.' + this.layoutClass);
     //$layout.css('display', 'none');
     $layout.wrap('<div></div>');
@@ -38,7 +37,6 @@ streamFactory.init = function(posts, options) {
     if(!this.layoutHTML) { this.getLayoutHTML(); }
     if(!posts) { return false; }
 
-    //console.log('streamFactory.init');
     if(options) {
         if(options.burst !== 'undefined') { this.burst = options.burst; }
         if(options.streamContClass) { this.streamContClass = options.streamContClass; }
@@ -84,7 +82,6 @@ streamFactory.append = {}
 streamFactory.append.callbacks = [];
 
 streamFactory.append.init = function($stream, i) {
-    //console.log('streamFactory.append.init');
     var post = this.parent.posts[i];
     //set the data attributes
     this.identifier($stream, post);
@@ -193,14 +190,11 @@ streamFactory.append.loadAnimate = function($stream) {
 }
 
 streamFactory.append.profileThumb = function(user) {
-    //console.log('streamFactory.append.profileThumb');
+
     var theParent = this.parent;
-
     var pp = (user.profilePicture) ? VV.utils.imageGetter(user.profilePicture, "thumb") : theParent.errorImg;
-
     var blockProfileThumbHTML  = '<a href="/' + user.userNameDisp + '">';
         blockProfileThumbHTML += '<img src="' + pp + '"></a>';
-        //console.log("profileThumb " + pp);
 
     return blockProfileThumbHTML;
 }
@@ -212,12 +206,9 @@ streamFactory.append.userName = function(user) {
 }
 
 streamFactory.append.identifier = function($el, post) {
-    //console.log('streamFactory.append.identifier');
     return $el.attr('data-uid', post.user.userId).attr('data-pid', post.postId);
 }
 streamFactory.append.effect = function($el, callback) {
-    //console.log('streamFactory.append.effect');
-
     var hasUA = VV.utils.checkNested(printHead, "userHeader", "ua");
 
     //exception handling base on User agent.
@@ -238,7 +229,6 @@ streamFactory.append.effect = function($el, callback) {
     }
 }
 streamFactory.append.imageBurst = function ($stream, i) {
-    //console.log('streamFactory.append.imageBurst');
     //if it so happens that the burst overtook the DOM building (very very unlikely...)
     //we simply load append sequentially as per normal.
     if(this.imageBurstComplete) {
@@ -259,7 +249,7 @@ streamFactory.append.imageBurstCount = false;
 streamFactory.append.imageBurstComplete = false;
 streamFactory.append.imageDeferredArray = [];
 streamFactory.append.imageLink = function($stream, img, imgURL) {
-    //console.log('imageLink');
+    //not in use.
     return false;
     $stream.find('.blockImgHolder').append('<a class="fancybox" alt="' + img.alt + '" href="' + imgURL + '"></a>');
 }
@@ -278,7 +268,6 @@ streamFactory.append.imageOnLoad = function($stream, img) {
     if(this.parent.pinchZoom) { pinchZoom.init(img); }
 }
 streamFactory.append.image = function($stream, i, burst) {
-    //console.log('streamFactory.append.image' + i);
     //image
     var imgURL = '',
         img = new Image(),
@@ -290,8 +279,6 @@ streamFactory.append.image = function($stream, i, burst) {
         //set it to transparent for fading.
         img.style.opacity = 0;
         img.style.display = "block"
-
-    //console.log('appending ' + i);
 
     img.onload = function() {
         //console.log('img.onload');
@@ -720,7 +707,6 @@ streamFactory.append.moreInfoImg = function($stream, post, moreInfo) {
 }
 streamFactory.append.blockVia = function($stream, post) {
     var link = post.postMeta.isInstagram;
-    console.log(post.postMeta);
     if(link) {
         var append  = 'via <a href="' + link + '" target="_blank">';
             append += 'Instagram';

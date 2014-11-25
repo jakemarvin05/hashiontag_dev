@@ -1,6 +1,7 @@
-/* addPost.js is called by posting.js */
+/* Dependents:
+   post.js
+*/
 
-/* TODO REFACTOR THIS */
 
 var fname = 'addPost';
 var fs = require('fs');

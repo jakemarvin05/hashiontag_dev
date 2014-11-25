@@ -1,3 +1,8 @@
+/* Dependents:
+   addPost.js
+   iggPost.js
+*/
+
 var db = global.db;
 var fname = 'addHashtags.js ';
 
