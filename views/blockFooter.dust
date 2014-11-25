@@ -355,7 +355,7 @@ function settingsButton() {
             text += '<h2 style="text-align:center;"><span class="clickable" onclick="VV.utils.deletePostAjax(' + pid + ', ' + uid + ', ' + isProfilePicture + ')">Yes</span>';
             text += '&nbsp;|&nbsp;<span class="clickable" onclick="$.fancybox.close()"> No</span></h2>';
 
-        if(isProfilePicture) {
+        if(isProfilePicture === "true") {
             text +='<p style="color:#ccc; text-align:center;">Note: This is your profile picture. ';
             text += 'Your latest post will be automatically set as your new profile picture.</p>';
         }

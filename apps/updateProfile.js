@@ -66,34 +66,36 @@ module.exports = function editProfile(req,res) {
             about: req.body.about
         }
 
+        if(!post) {
+            return [ false, user.updateAttributes(updateHash) ]
+        }
+
         //if we get a valid post value, it means the picture has changed.
         //the relationship between Post and User as profile picture has no constraint.
         //we have to remove the previous Post set as user profile pic.
-        if(post) {
-            console.log('new profile picture post is found')
-            //asynchronous
-            db.Post.find({
-                where:{imgUUID: req.user.profilePicture}
-            }).then(function(post) {
-                console.log('old one found... removing it');
-                if(post) {
-                    return post.updateAttributes({
-                        isProfilePicture: false
-                    });
-                }
-                return false;
-            }).catch(function(err) {
-                console.log(err);
-            });
 
-            updateHash.profilePicture = post.imgUUID;
-            updateHash.Post_postId_profilePicture = post.postId;
+        console.log('new profile picture post is found')
+        //asynchronous
+        db.Post.find({
+            where:{imgUUID: req.user.profilePicture}
+        }).then(function(post) {
+            console.log('old one found... removing it');
+            if(post) {
+                return post.updateAttributes({
+                    isProfilePicture: false
+                });
+            }
+            return false;
+        }).catch(function(err) {
+            console.log(err);
+        });
 
-        }
+        updateHash.profilePicture = post.imgUUID;
+        updateHash.Post_postId_profilePicture = post.postId;
 
 
         return [
-            (function() { if(post) { return post.updateAttributes({ isProfilePicture: true }); } })(),
+            post.updateAttributes({ isProfilePicture: true }),
             user.updateAttributes(updateHash)
         ]
     }).spread(function() {
