@@ -20,6 +20,8 @@ module.exports = function tagsHandler(desc, CALLBACK, callback) {
     6) Return descJSON
     */
 
+    var desc = S(desc).stripTags('script').s; //absolutely need to strip the <script> tags.
+
     var descJSON = {
         desc: desc,
         descHTML: desc,

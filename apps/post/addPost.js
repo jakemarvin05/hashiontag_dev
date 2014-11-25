@@ -20,8 +20,6 @@ module.exports = function addPost(req, res, uuid, path, fields, CALLBACK) {
 
 
     var desc = fields['desc'];
-    desc = S(desc).stripTags('script').s; //absolutely need to strip the <script> tags.
-
     var itemMeta = JSON.parse(fields['itemMeta']);
     
 
