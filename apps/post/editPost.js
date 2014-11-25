@@ -17,6 +17,7 @@ module.exports = function editPost(req, res) {
     var POSTMETA;
     var POSTMETAIDARRAY = [];
     var POSTHT;
+    var DESCJSON = false;
 
     //get the post first
     //and its hashtag and meta array to destroy
@@ -33,8 +34,15 @@ module.exports = function editPost(req, res) {
 
         if(post.desc === req.body.desc) {
             var deleteHashtags = false;
+            update();
         } else {
+
+            //desc has changed. delete the previous hashtags and run the tagsHandlers again.
             deleteHashtags = db.sequelize.query('DELETE FROM "Post_Hashtag" WHERE "Post_postId" = ' + post.postId );
+            tagsHandler(post.desc, null, function(descJSON) {
+                DESCJSON = descJSON;
+                return update(descJSON);
+            });
         }
 
         deleteMetas = db.sequelize.query('DELETE FROM "PostMeta" WHERE "Post_postId" = ' + post.postId + ' AND ( key = \'itemLink\' OR key = \'itemPrice\' OR key = \'itemAddTag\' )');
@@ -56,9 +64,6 @@ module.exports = function editPost(req, res) {
 
 
     //while searching for post, perform some other task.
-    var desc = req.body.desc;
-    desc = S(desc).stripTags('script').s; //absolutely need to strip the <script> tags.
-
     var itemMeta = JSON.parse(req.body.itemMeta);
     
     //check for nullity first before invoking HTML tags stripping.
@@ -84,23 +89,18 @@ module.exports = function editPost(req, res) {
         itemMeta.itemPrice = S(itemMeta.itemPrice).strip('\'','"').s; 
     }
 
-    //console.log(desc);
-    var DESCJSON;
-    tagsHandler(desc, null, function(descJSON) {
-        DESCJSON = descJSON;
-        return update(descJSON);
-    });
-
-
     var TASKS = 2;
     function update(descJSON) {
         if (descJSON) { DESCJSON = descJSON; }
+        console.log('***UPDATE');
 
         TASKS -= 1;
         if (TASKS !== 0){ return false; }
 
-        POST.desc = DESCJSON.desc;
-        POST.descHTML = DESCJSON.descHTML;
+        if(POST.desc !== DESCJSON.desc) {
+            POST.desc = DESCJSON.desc;
+            POST.descHTML = DESCJSON.descHTML;
+        }
 
         var NEWPOST;
         db.Post.find().then(function() {
@@ -110,7 +110,7 @@ module.exports = function editPost(req, res) {
             ]
         }).spread(function(post, addtag) {
             NEWPOST = post;
-            addHashTags(DESCJSON.descTags.hash, post);
+            if(DESCJSON) { addHashTags(DESCJSON.descTags.hash, post); }
 
             return [
                 (function() {
