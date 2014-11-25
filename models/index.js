@@ -10,6 +10,7 @@ var fs        = require('fs'),
     Sequelize = require('sequelize'),
     lodash    = require('../node_modules/sequelize/node_modules/lodash'),
     sequelize = new Sequelize(databaseUrl),
+    //sequelize = new Sequelize(databaseUrl, {logging: false}),
     db        = {}
 
 

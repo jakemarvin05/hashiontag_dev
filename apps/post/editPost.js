@@ -33,13 +33,14 @@ module.exports = function editPost(req, res) {
         POST = post;
 
         if(post.desc === req.body.desc) {
+            console.log('post desc is the same');
             var deleteHashtags = false;
             update();
         } else {
-
+            console.log('post desc is not the same');
             //desc has changed. delete the previous hashtags and run the tagsHandlers again.
             deleteHashtags = db.sequelize.query('DELETE FROM "Post_Hashtag" WHERE "Post_postId" = ' + post.postId );
-            tagsHandler(post.desc, null, function(descJSON) {
+            tagsHandler(req.body.desc, null, function(descJSON) {
                 DESCJSON = descJSON;
                 return update(descJSON);
             });
@@ -92,7 +93,6 @@ module.exports = function editPost(req, res) {
     var TASKS = 2;
     function update(descJSON) {
         if (descJSON) { DESCJSON = descJSON; }
-        console.log('***UPDATE');
 
         TASKS -= 1;
         if (TASKS !== 0){ return false; }
