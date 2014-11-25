@@ -427,7 +427,7 @@
             <script>
             $('#backToLoginForgetPwd').click(function() {
                 //reset the form
-                forgetAjax.abort();
+                try { forgetAjax.abort(); } catch(err) {};
                 $('#forgetEmail').val('');
                 $('.emailErrorHolder').html('');
 
