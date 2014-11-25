@@ -33,6 +33,10 @@
 	   -moz-border-radius: 4px;
 	        border-radius: 4px;
 }
+	/*Mods*/
+	#fancyboxCont .postImage {
+		max-width: 640px;
+	}
 
 .fancybox-opened {
 	z-index: 8030;
