@@ -104,8 +104,9 @@ module.exports = function iggMain() {
         /* Note: "stopArray" was originally named so because it was first formulated to
          * create a "stopPoint" in the instagram scanning, which meant that this module
          * knows which was the post that it had checked until, and hence won't go beyond.
+         *
          * Now is it modified to store an array of Instagram post ids that had already
-         * been grabbed so that duplicates occur. All other posts will always be re-checked
+         * been grabbed so that no duplicates occur. All other posts will always be re-checked
          * for new hashtags. This is because hashtagging can occur after posting, so posts
          * that were not grabbed, had to be assumed to be "fresh" everytime.
          */

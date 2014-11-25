@@ -12,6 +12,8 @@ var fname = 'iggPost.js ',
     };
 
 var request = require("request");
+var tagsHandler = require('../post/tagsHandler.js');
+var addHashTags = require('../post/addHashTags.js');
 
 
 module.exports = function iggPost(insta, post) {
@@ -88,37 +90,44 @@ module.exports = function iggPost(insta, post) {
         }
         console.log(fname + 'response is ok. retrieved full image, instagram re-post for userId: ' + insta.User_userId + '. imgUUID: ' + imgUUID + '. Instagram: '+ post.link);
 
-        //create the post
-        var postHash = {
-            User_userId: userId,
-            desc: desc,
-            imgUUID: imgUUID
+        tagsHandler(desc, null, create);
+
+        function create(descJSON) {
+            //create the post
+            var postHash = {
+                User_userId: userId,
+                desc: descJSON.desc,
+                descHTML: descJSON.descHTML,
+                tags: JSON.stringify(descJSON.descTags),
+                imgUUID: imgUUID
+            }
+
+            db.Post.create(postHash).then(function(repost) {
+
+                //not critical
+                db.PostMeta.create({
+                    Post_postId: repost.postId,
+                    key: "isInstagram",
+                    value: post.link
+                }).catch(function(err) {
+                    console.log(fname + ' error in setPostMeta for postId ' + repost.postId + '. Error: ' + err);
+                });
+
+                //addhashtags
+                addHashTags(descJSON.descTags.hash, repost);
+
+                console.log(fname + 'added instagram post: ' + post.link + ' added for userId:' + userId + ' . PostId: ' + repost.postId);
+
+            }).catch(function(err) {
+
+                console.log(fname + ' Error in Instagram post grabbing for userId: ' + userId + ' . Instagram post: ' + post.link);
+                console.log(fname + err);
+                console.log(fname + ' Cancelling http myRequests and attempt to delete files..');
+                rollback();
+
+            });
         }
 
-        db.Post.create(postHash).then(function(repost) {
-
-            //not critical
-            db.PostMeta.create({
-                Post_postId: repost.postId,
-                key: "isInstagram",
-                value: post.link
-            }).catch(function(err) {
-                console.log(fname + ' error in setPostMeta for postId ' + repost.postId + '. Error: ' + err);
-            });
-
-            //addhashtags
-            addHashTags(post.tags, repost);
-
-            console.log(fname + 'added instagram post: ' + post.link + ' added for userId:' + userId + ' . PostId: ' + repost.postId);
-
-        }).catch(function(err) {
-
-            console.log(fname + ' Error in Instagram post grabbing for userId: ' + userId + ' . Instagram post: ' + post.link);
-            console.log(fname + err);
-            console.log(fname + ' Cancelling http myRequests and attempt to delete files..');
-            rollback();
-
-        });
     });
     fullRequest.on('data', function(chunk) { 
         full.write(chunk); 
@@ -130,36 +139,6 @@ module.exports = function iggPost(insta, post) {
     function reqErr(code) {
         if(code >=400 && code <500) { return true; }
         return false;
-    }
-
-    function addHashTags(hashTags, post) {
-        //asynchronous hashtag adding. non-critical process so we don't really care.
-        console.log(fname + ' creating hashTags...');
-        console.log(fname + ' ' + hashTags);
-
-        if(hashTags) {
-            var postId = post.postId;
-            var hashTags = hashTags;
-            
-            //arrange the hashtags for bulkCreation
-            var bulk = [];
-            for(var i=0; i<hashTags.length; i++) {
-                var push = { hashtagId: hashTags[i]}
-                bulk.push(push);
-            }
-            db.Hashtag
-                .bulkCreate(bulk)
-                .then(function() {
-                    console.log(fname + ' ' + 'hashtags: ' + hashTags + ' added for post id ' + postId);
-                    return post.addHashtags(hashTags);
-                }).catch(function(err) {
-                    console.log(fname + ' ' + err);
-
-                    //if the hashtags are already created, promise chain will be brought here.
-                    //so we just add the hashtags anyway..
-                    return post.addHashtags(hashTags);
-                });
-        }
     }
 
     function rollback() {
