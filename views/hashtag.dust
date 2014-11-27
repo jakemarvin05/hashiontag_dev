@@ -59,7 +59,7 @@
         {/renderJSONraw.postCount}
 
         {@eq key=renderJSONraw.postCount value=1}
-        <h2>There is <span class="likesPostCount">1</span> post for #{renderJSONraw.hashtag}</h2>
+        <h2>There is <span class="likesPostCount">1</span> post for #{hashtag}</h2>
         {/eq}
 
         {@gt key=renderJSONraw.postCount value="1" type="number"}

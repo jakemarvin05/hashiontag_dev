@@ -358,8 +358,8 @@ module.exports = function streamJSON(req, render, opts) {
 
         if(typeof req.params.hashtag === 'undefined') { return res.redirect('/'); }
 
-        console.log('streamJSON: hashtags showType.. finding posts...');
-
+        var hashtag = req.params.hashtag.toLowerCase();
+        
         db.Hashtag.find(req.params.hashtag).then(function(hashtag) {
 
             if(!hashtag) { return [false,false]; }

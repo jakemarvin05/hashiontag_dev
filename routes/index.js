@@ -606,10 +606,11 @@ router.get('/hashtag/:hashtag', function(req, res) {
             page: "hashtag",
 
             /* specifics */
+            hashtag: req.params.hashtag,
 
             //isPreview is used to block like buttons and comment box from
             //being generated in the view.
-            isPreview: !req.isAuthenticated
+            isPreview: !req.isAuthenticated()
 
         });
 
