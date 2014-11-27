@@ -2,6 +2,15 @@
 <link href="{p.css}/me.css" rel="stylesheet">
 <link href="{p.css}/search.css" rel="stylesheet">
 <script src="{p.js}/streamFactory.js"></script>
+{?renderJSONraw.isOwnProfile}
+<script>
+if ( window.location.href.substring(window.location.href.lastIndexOf('/')).indexOf("me") > -1) {
+    try {
+        window.history.replaceState('', '', window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/' + printHead.userHeaders.userNameDisp);
+    } catch (err) {}
+}
+</script>
+{/renderJSONraw.isOwnProfile}
 {>blockHeaderAfterHook/}
 <section id="main">
 
@@ -258,7 +267,8 @@ profilePostFactory.append.effect = function($el) {
 }
 
 profilePostFactory.append.imageLink = function($stream, img) {
-    var id = $stream.attr('id')
+    var id = $stream.attr('id');
+    var pid = $stream.attr('data-pid');
     var strId = '#' + id;
     var self = this;
     img.onclick = function() {
@@ -277,18 +287,28 @@ profilePostFactory.append.imageLink = function($stream, img) {
         //later.
         VVGLOBAL.scrollTop = $(window).scrollTop();
 
-        //then make fancybox open it.
-        $.fancybox.open([{
-            href : '#fancyboxCont',
-            title : ''
-        }], {
-            padding : 10,
-            enableNav: true,
-            maxWidth: 640,
-            afterClose: function() {
-                $('html').velocity("scroll", { duration: 500, offset: VVGLOBAL.scrollTop })  
-            }
-        });
+        if(!$.fancybox.isOpen) {
+            //then make fancybox open it.
+            $.fancybox.open([{
+                href : '#fancyboxCont',
+                title : ''
+            }], {
+                padding : 10,
+                enableNav: true,
+                maxWidth: 640,
+                afterClose: function() {
+                    $('html').velocity("scroll", { duration: 500, offset: VVGLOBAL.scrollTop })  ;
+                    try { 
+                        window.history.pushState(null, null, window.location.href.substring(0, window.location.href.lastIndexOf('?')));
+                    } catch(err) {}
+                }
+            });
+        }
+
+
+        try { 
+            window.history.pushState(null, null, window.location.href.substring(0, window.location.href.lastIndexOf('?')) + '?show=' + pid);
+        } catch(err) {}
 
         //bind back all the buttons
         //comment, like, settings
@@ -457,8 +477,6 @@ var followButton = {
         
         //done
         posting.done(function(data) {
-            console.log(data);
-
             if(data.success) {
                 console.log('success');
             } else {
@@ -976,13 +994,24 @@ function followAjax(type) {
 <!-- Auto open -->
 <script>
 $(window).load(function() {
-    if(VV.utils.QueryString.show) {
-        var postId = VV.utils.QueryString.show;
+    var qs = VV.utils.QueryString()
+    if(qs.show) {
+        var postId = qs.show;
         $('article[data-pid="' + postId + '"]').find('.postImage').click();
-
-        window.history.pushState('', '', window.location.href.substring(0, window.location.href.lastIndexOf('?')));
     }
 });
+window.onpopstate = function(e){
+
+    //TODO: Not ideal implementation of back/foward button.
+    var qs = VV.utils.QueryString()
+    if(qs.show) {
+        var postId = qs.show;
+        $('article[data-pid="' + postId + '"]').find('.postImage').click();
+    } else { 
+        $.fancybox.close();
+    }
+
+};
 </script>
 </body>
 </html>
