@@ -123,7 +123,8 @@
         $layout.unwrap();
         $layout.remove();
     }
-    starFactory.init(renderJSON.posts, {
+    
+    starFactory.init(renderJSON, {
         burst:5,
         pinchZoom: true
     });

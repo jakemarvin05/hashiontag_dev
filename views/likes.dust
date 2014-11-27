@@ -166,7 +166,7 @@ likesPostFactory.append.imageOnLoad = function($stream, img) {
     this.effect($(img));
 }
 
-likesPostFactory.init(renderJSON.posts, {
+likesPostFactory.init(renderJSON, {
     burst: 5,
     imageType: 'half'
 });

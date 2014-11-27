@@ -450,7 +450,7 @@
 {?renderJSON}
     <script src="{p.js}/streamFactory.js"></script>
     <script>
-    streamFactory.init(renderJSON.posts, {
+    streamFactory.init(renderJSON, {
         burst:5,
         pinchZoom: true
     });

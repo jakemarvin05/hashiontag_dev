@@ -33,9 +33,12 @@ streamFactory.getLayoutHTML = function() {
 streamFactory.noObj = function() {
     //console.log('streamFactory.noObj');
 }
-streamFactory.init = function(posts, options) {
+streamFactory.init = function(renderJSON, options) {
     if(!this.layoutHTML) { this.getLayoutHTML(); }
+    var posts = renderJSON.posts;
     if(!posts) { return false; }
+
+    this.uid = renderJSON.userId;
 
     if(options) {
         if(options.burst !== 'undefined') { this.burst = options.burst; }

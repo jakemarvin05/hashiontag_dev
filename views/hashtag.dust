@@ -127,7 +127,7 @@ likesPostFactory.append.imageOnLoad = function($stream, img) {
     this.effect($(img));
 }
 
-likesPostFactory.init(renderJSON.posts, {burst: 5});
+likesPostFactory.init(renderJSON, {burst: 5});
 
 
 </script>

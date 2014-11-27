@@ -328,7 +328,6 @@ profilePostFactory.append.moreInfoBindButton = function($custBut) {
     var $buttons = $('.' + this.parent.streamContClass).find('.moreInfo');
     if($custBut) { $buttons = $custBut; }
     $buttons.click(function() {
-            console.log('c');
         //find its parent the find the button. more resistant to layout changes.
         var $moreInfo = $(this).closest('article').find('.blockMoreInfoTop');
 
@@ -374,7 +373,7 @@ profilePostFactory.append.settingsButton = function($stream, post) {
             $stream.find('.settingsMark').remove();
 
         } else {
-            //not the owner and user has not been attributed. it shouldn't even be here.
+            //not the owner and post not attributed. disallow all functions less marking.
             $stream.find('.settingsDelete').remove();
             $stream.find('.settingsEdit').remove();
             $stream.find('.editDesc').remove();
@@ -385,13 +384,25 @@ profilePostFactory.append.settingsButton = function($stream, post) {
 
     } else {
         //is own post.
-        $stream.find('.settingsMark').remove();
-        $stream.find('.settingsDelete').attr('data-isprofile', post.isProfilePicture);
-        this.identifier($stream.find('.editDesc'), post);
+
+        //but if viewing it in other's account, don't allow authoring
+        if(this.parent.uid !== printHead.userHeaders.userId) {
+            $stream.find('.settingsDelete').remove();
+            $stream.find('.settingsEdit').remove();
+            $stream.find('.editDesc').remove();
+            $stream.find('.editDescTextArea').remove();    
+        } else {
+
+            //viewing post in your own page. allow authoring.
+            $stream.find('.settingsMark').remove();
+            $stream.find('.settingsDelete').attr('data-isprofile', post.isProfilePicture);
+            this.identifier($stream.find('.editDesc'), post);
+        }
+
     }
 }
 
-profilePostFactory.init(renderJSON.posts, {
+profilePostFactory.init(renderJSON, {
     burst: 0, 
     imageType: 'half'
 });
