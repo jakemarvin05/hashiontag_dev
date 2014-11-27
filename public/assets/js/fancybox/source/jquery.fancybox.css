@@ -34,7 +34,7 @@
 	        border-radius: 4px;
 }
 	/*Mods*/
-	#fancyboxCont .postImage {
+	#fancyboxCont article {
 		max-width: 640px;
 	}
 
