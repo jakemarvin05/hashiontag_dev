@@ -30,6 +30,15 @@
                         <span class="blockInteractText">info</span>
                     </div>
 
+                    <div class="blockInteractButtons settings clickable">
+                        <span class="glyphicon glyphicon-align-justify settingsButton"></span>
+                        <div class="blockInteractSettingsWrap" style="display:none;">
+                            <div class="settingsOpen blockInteractSettingsOptions">
+                                Open page
+                            </div>
+                        </div>
+                    </div>
+
                     {! removed settings button
                     <div class="blockInteractButtons settings clickable">
                         <span class="glyphicon glyphicon-align-justify settingsButton"></span>

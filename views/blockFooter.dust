@@ -325,7 +325,8 @@ function settingsButton() {
     var $settingsBut = $('.settingsButton'),
         $postDelete = $('.settingsDelete'),
         $postMark = $('.settingsMark'),
-        $postEdit = $('.settingsEdit');
+        $postEdit = $('.settingsEdit'),
+        $openPage = $('.settingsOpen');
 
     $settingsBut.unbind('click.vv').bind('click.vv', function() {
         var pid = $(this).attr('data-pid'),
@@ -443,6 +444,11 @@ function settingsButton() {
             VV.utils.hideSettingsTab();
         });
 
+    });
+
+    $openPage.unbind('click.vv').bind('click', function() {
+        var $article = $(this).closest('article');
+        window.open('/p/' + $article.attr('data-pid'));
     });
 
     $(document).unbind('click.settings').on('click.settings', function(e) {

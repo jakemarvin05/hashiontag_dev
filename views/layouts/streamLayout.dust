@@ -40,6 +40,9 @@
                             <div class="settingsEdit blockInteractSettingsOptions">
                                 Edit
                             </div>
+                            <div class="settingsOpen blockInteractSettingsOptions">
+                                Open page
+                            </div>
                         </div>
                     </div>
 
