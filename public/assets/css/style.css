@@ -676,6 +676,21 @@ textarea {
     padding: 10px;
   }
 }
+.blockInteractButtons.settings {
+  color: #ccc;
+  display: block;
+  width: 28px;
+  position: absolute;
+  right: 10px;
+  margin-top: -6px;
+  text-decoration: none;
+}
+.settingsButton {
+  padding: 6px 8px;
+}
+.settingsButton.settingActive {
+  color: #ef4549;
+}
 .blockInteractSettingsWrap {
   width: 200px;
   position: relative;
@@ -690,19 +705,8 @@ textarea {
   padding: 10px 5px;
   border: 1px solid #fff;
 }
-.blockInteractButtons.settings {
-  color: #ccc;
-  display: block;
-  width: 28px;
-  position: absolute;
-  right: 10px;
-  margin-top: -6px;
-}
-.settingsButton {
-  padding: 6px 8px;
-}
-.settingsButton.settingActive {
-  color: #ef4549;
+.blockInteractSettingsOptions:hover {
+  text-decoration: underline;
 }
 .likeButton:hover,
 .moreInfo:hover {

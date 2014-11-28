@@ -477,21 +477,6 @@ textarea {
             }  
         }
 
-        .blockInteractSettingsWrap {
-            width: 200px;
-            position: relative;
-            z-index: 10;
-            left: -181px;
-            text-align: right;
-            background-color: #ef4549;
-            color: #fff;
-            margin-top: 5px;
-        }
-        .blockInteractSettingsOptions {
-            padding: 10px 5px;
-            border: 1px solid #fff;
-        }
-
             .blockInteractButtons.settings {
                 color: #ccc;
                 display: block;
@@ -499,6 +484,7 @@ textarea {
                 position: absolute;
                 right: 10px;
                 margin-top: -6px;
+                text-decoration: none;
             }
                 .settingsButton {
                     padding: 6px 8px;
@@ -506,6 +492,26 @@ textarea {
                 .settingsButton.settingActive {
                     color: #ef4549;
                 }
+
+                    .blockInteractSettingsWrap {
+                        width: 200px;
+                        position: relative;
+                        z-index: 10;
+                        left: -181px;
+                        text-align: right;
+                        background-color: #ef4549;
+                        color: #fff;
+                        margin-top: 5px;
+                    }
+                    .blockInteractSettingsOptions {
+                        padding: 10px 5px;
+                        border: 1px solid #fff;
+                    }
+                    .blockInteractSettingsOptions:hover {
+                        text-decoration: underline;
+                    }
+
+
         .likeButton:hover, .moreInfo:hover {
             color: #ccc;
         }
