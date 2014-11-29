@@ -952,7 +952,6 @@ function transitIn($el1, $el2) {
         var $el1 = $profileBlock;
         var $el2 = $followBlock;
     }
-    console.log("running effects");
     $el1.velocity('transition.slideLeftOut', 200, function() {
         loader.kill();
         initList();
@@ -976,7 +975,7 @@ function followAjax(type) {
         }
         //clear the container
         $('.mainColBlock').html('');
-        userFactory.init(data.results, {streamType: "user"});
+        userFactory.init(data, {streamType: "user"});
         //after userFactory is complete, cache the HTML
         if(type === "followers") { followerCache = $('.mainColBlock').html() };
         if(type === "following") { followingCache = $('.mainColBlock').html() };
@@ -989,8 +988,6 @@ function followAjax(type) {
     })
 }
 </script>
-<script src="{p.js}/list.js"></script>
-
 <!-- Auto open -->
 <script>
 $(window).load(function() {
@@ -1013,5 +1010,7 @@ window.onpopstate = function(e){
 
 };
 </script>
+<!-- list.js library -->
+<script src="{p.js}/list.js"></script>
 </body>
 </html>

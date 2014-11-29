@@ -8,10 +8,11 @@
     <ul class="mainColBlock list">
         {>"layouts/userSLayout"/}
     </ul>
-    {! TO DO: Fix object cloning !}
-    <script src="{p.js}/streamFactoryCopy.js"></script>
+    {! TO DO: Monitor object cloning fix !}
+    <!--<script src="{p.js}/streamFactoryCopy.js"></script>-->
     <script>
-    userFactory = Object.create(streamFactoryCopy);
+    userFactory = Object.create(streamFactory);
+    userFactory.append = Object.create(streamFactory.append);
     userFactory.streamPrefix = 'userBlock_';
     userFactory.layoutClass = 'userLayout';
     userFactory.noObj = function() {
@@ -60,6 +61,7 @@
         return user.userNameDisp + ' ' + user.name;
     }
     userFactory.append.init = function($stream, i) {
+            console.log('userFactory*****');
 
         if(this.parent.streamType === "user") {
             var user = this.parent.posts[i];
@@ -89,6 +91,5 @@
         }
 
     }
-
     $(function() { userFactory.init(); });
     </script>

@@ -24,18 +24,17 @@ var streamFactory = {
 }
 streamFactory.getLayoutHTML = function() {
     $layout = $('.' + this.layoutClass);
-    //$layout.css('display', 'none');
     $layout.wrap('<div></div>');
     this.layoutHTML = $layout.parent('div').html();
-    $layout.unwrap();
-    $layout.remove();
+    $layout.unwrap().remove();
 }
 streamFactory.noObj = function() {
     //console.log('streamFactory.noObj');
 }
 streamFactory.init = function(renderJSON, options) {
     if(!this.layoutHTML) { this.getLayoutHTML(); }
-    var posts = renderJSON.posts;
+    if(!renderJSON) { return false; }
+    var posts = renderJSON.posts || renderJSON.results;
     if(!posts) { return false; }
 
     this.uid = renderJSON.userId;
@@ -48,7 +47,11 @@ streamFactory.init = function(renderJSON, options) {
         if(options.imageType) { this.imageType = options.imageType; }
     }
 
+    //running streamFactory.init after instantiating the whole factory function
+    //will set the "parent" pseudo property of .append back to the parent branch
+    //this allows .append to access its parent.
     this.append.parent = this;
+
     this.posts = posts;
     var postCount = VV.utils.objCount(this.posts);
     this.postCount = postCount;
@@ -58,21 +61,21 @@ streamFactory.init = function(renderJSON, options) {
     this.buildBlocks(postCount);
 }
 streamFactory.buildBlocks = function(postCount) {
-    //console.log('streamFactory.buildBlocks');
+    console.log('streamFactory.buildBlocks');
     //cache the burst count to the append method
     if(this.burst>0) { this.append.imageBurstCount = this.burst; }
 
     for(var i=0; i<postCount; i++) {
-        //if(this.posts[i].postId > 55) {
-            var post = this.posts[i];
-            var streamId = this.streamPrefix + post.postId;
 
-            //create the block
-            var newBlock = this.layoutHTML.replace('layoutId', streamId);
-            this.$cont.append(newBlock);
-            var $stream = $('#' + streamId);
-            this.append.init($stream, i);
-        //}
+        var post = this.posts[i];
+        var streamId = this.streamPrefix + post.postId;
+
+        //create the block
+        var newBlock = this.layoutHTML.replace('layoutId', streamId);
+        this.$cont.append(newBlock);
+        var $stream = $('#' + streamId);
+        this.append.init($stream, i);
+
     }//for loop
 
     for(var i in this.append.callbacks) {
