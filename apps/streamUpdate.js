@@ -7,7 +7,7 @@ var startTime;
 var moment = require('moment');
 var fname = "streamUpdate.js ";
 
-eventEmitter.on('Done', function(res){
+eventEmitter.once('Done', function(res){
     console.log('Completed updating!');
     console.log('start time: '+startTime);
     console.log('end time: '+ Date.now());

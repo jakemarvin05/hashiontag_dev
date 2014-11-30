@@ -59,7 +59,7 @@
 
                 } else if (words[j].match(/^\*([a-zA-Z0-9_]+)$/)) {
 
-                    html+="<span class='startag'>"+words[j]+"</span>  ";
+                    html+="<span class='startag'>"+words[j]+"</span> ";
 
                 } else if (words[j].match(/^#([a-zA-Z0-9#]+$)/g)) {
 

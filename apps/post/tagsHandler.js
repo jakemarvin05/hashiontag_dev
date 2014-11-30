@@ -91,11 +91,11 @@ module.exports = function tagsHandler(desc, CALLBACK, callback) {
     //need to do a search with DB after obtaining the tags.
     //bind the search listeners here.
     //********************
-    eventEmitter.on('addTagSearchDone', function(array) {
+    eventEmitter.once('addTagSearchDone', function(array) {
         tagSearchCounter -= 1;
         replaceAddAndStarArrays('add', array);
     });
-    eventEmitter.on('starTagSearchDone', function(array) {
+    eventEmitter.once('starTagSearchDone', function(array) {
         tagSearchCounter -= 1;
         replaceAddAndStarArrays('star', array);
     });
