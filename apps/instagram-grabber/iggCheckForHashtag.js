@@ -16,15 +16,16 @@ module.exports = function iggCheckForHashtag(insta, completionCallback) {
     var hasChangedArray = false;
 
     //for each instance, loop through the pages.
+    //in reverse seqeuence.
     var pagesLength = insta.pages.length;
-    for(var i=0; i<pagesLength; i++) {
+    for(var i=pagesLength-1; i>-1; i--) {
 
 
 
         //for each page, loop through its posts
         var page = insta.pages[i],
             pageLength = page.length;
-        for(var k=0; k<pageLength; k++) {
+        for(var k=pageLength-1; k>-1; k--) {
             var post = page[k];
             if(!post) { continue; }
             var postId = post.id,
@@ -37,7 +38,7 @@ module.exports = function iggCheckForHashtag(insta, completionCallback) {
 
                 //check the caption for @vogueverve.
                 if(caption.indexOf(targetAddtag) > -1) {
-                    iggPost(insta, post);
+                    (function(insta, post) { return iggPost(insta, post); })(insta, post);
                     insta.newStopArray.unshift(post.id);
                     hasChangedArray = true;
                     continue;
@@ -50,7 +51,7 @@ module.exports = function iggCheckForHashtag(insta, completionCallback) {
                 var tag = tags[j].toLowerCase();
                 if(targetHashtag.indexOf(tag) > -1) {
                     console.log(fname + 'fired a repost');
-                    iggPost(insta, post);
+                    (function(insta, post) { return iggPost(insta, post); })(insta, post);
                     insta.newStopArray.unshift(post.id);
                     hasChangedArray = true;
                     break;
@@ -70,7 +71,7 @@ module.exports = function iggCheckForHashtag(insta, completionCallback) {
                             try {
                                 if(comment.text.toLowerCase().indexOf(targetAddtag) > -1 ) {
                                     console.log(fname + 'fired a repost');
-                                    iggPost(insta, post);
+                                    (function(insta, post) { return iggPost(insta, post); })(insta, post);
                                     insta.newStopArray.unshift(post.id);
                                     hasChangedArray = true;
                                     break;

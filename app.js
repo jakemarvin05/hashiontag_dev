@@ -37,7 +37,7 @@ instaNode.use({
 global.instaNode = instaNode;
 
 var igg = require('./apps/instagram-grabber/iggMain.js');
-igg();
+//igg(5); //duration in minutes
 
 var app = express();
 
@@ -135,10 +135,10 @@ setInterval(function() {
 
 //STREAM UPDATE
 //TODO, shift this and instagram grabber into another app.
-var streamUpdate = require('./apps/streamUpdate.js');
-var updateStreamEvery = 5; //5 minutes.
-//streamUpdate();//initial run
-//interval
-setInterval(function() {
-    streamUpdate();
-}, updateStreamEvery*60*1000);
+// var streamUpdate = require('./apps/streamUpdate.js');
+// var updateStreamEvery = 5; //5 minutes.
+// streamUpdate();//initial run
+// //interval
+// setInterval(function() {
+//     streamUpdate();
+// }, updateStreamEvery*60*1000);

@@ -2,7 +2,7 @@ var fname = "iggMain.js ";
 var moment = require('moment');
 var iggCheckForHashtag = require('./iggCheckForHashtag.js');
 
-module.exports = function iggMain() {
+module.exports = function iggMain(duration) {
 
     //general settings/params
     var grabCount = 0; // 0 means 1 instagram "page" -- 20 posts
@@ -25,8 +25,7 @@ module.exports = function iggMain() {
     global.igg.nextTimeout = {}
 
     //DURATION
-    var DURATION;
-    DURATION = 300000; //5minutes
+    var DURATION = duration*1000*60*60 || 300000;
     var retryDuration = 60000; //1 min
 
     //set the error recovery in place. Error checking everying DURATION * 3.
@@ -126,10 +125,10 @@ module.exports = function iggMain() {
             var media = medias[i],
                 id = media.id;
 
-            //if stoppArray is not empty, apply the stopArray filter.
+            //if stopArray is not empty, apply the stopArray filter.
             //if found, stop.
             if(stopArray && stopArray.indexOf(id) > -1) { 
-                console.log(fname + 'userId:' + insta.User_userId + ' has posts that are grabbed. Splicing...');
+                console.log(fname + 'userId:' + insta.User_userId + ' has posts that are grabbed.');
 
                 //setting to false is easier to handle
                 medias[i] = false;
@@ -171,10 +170,10 @@ module.exports = function iggMain() {
     //finalCallback is compulsory for looping situations! Else the loop will never end.
     function performQuery(insta, maxId, callback, finalCallback) {
 
-        var next_max_id = {}
-        if(typeof maxId !== "undefined") { next_max_id.next_max_id = maxId; }
+        var options = {}
+        if(typeof maxId !== "undefined") { options.max_id = maxId; }
 
-        instaNode.user_media_recent(insta.instaId.toString(), next_max_id, function(err, medias, pagination, remaining, limit) {        
+        instaNode.user_media_recent(insta.instaId.toString(), options, function(err, medias, pagination, remaining, limit) {        
             if(err) {
                 console.log(fname + 'encountered error in performQuery for userId' + insta.User_userId + '. Error: ' + err); 
                 if(finalCallback) { return finalCallback(insta); }
@@ -243,7 +242,7 @@ module.exports = function iggMain() {
         igg.lastRunCompleted = moment(runCompleted).format();
         
         var timeout = setTimeout(function() {
-            igg.run();
+            igg.run(DURATION);
         }, DURATION);
 
         var nextRun = moment().add(DURATION, 'milliseconds');

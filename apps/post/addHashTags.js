@@ -19,7 +19,6 @@ module.exports = function addHashTags(hashTags, post) {
                     hashtagId: hashTags
                 }
             }).then(function(existings) {
-                console.log(existings);
   
                 var j = 0;
                 while(existings[j]) {
