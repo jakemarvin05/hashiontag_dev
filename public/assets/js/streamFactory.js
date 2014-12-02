@@ -70,7 +70,11 @@ streamFactory.buildBlocks = function(postCount) {
         var post = this.posts[i];
         var streamId = this.streamPrefix + post.postId;
 
-        //create the block
+        //make stream factory resistant to duplicates
+        var $stream = $('#' + streamId);
+        if($stream.length > 0) { continue; }
+
+        //else create the block
         var newBlock = this.layoutHTML.replace('layoutId', streamId);
         this.$cont.append(newBlock);
         var $stream = $('#' + streamId);

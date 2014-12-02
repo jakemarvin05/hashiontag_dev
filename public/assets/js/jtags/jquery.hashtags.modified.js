@@ -53,6 +53,7 @@
         var html = "";
         for (var i=0,l=lines.length;i<l;i++){
             var words = lines[i].split(" ");
+            //TODO: deal with punctuation after hashtag or @tag.
             for (var j=0,w=words.length;j<w;j++){
                 if (words[j].match(/((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/)){
                     html+=words[j] + ' ';
