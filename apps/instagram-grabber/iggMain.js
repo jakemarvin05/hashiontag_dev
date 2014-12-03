@@ -44,8 +44,8 @@ module.exports = function iggMain(duration) {
 
     //get the accounts:
     var INSTAGRAMS = {}
-    db.Instagram.findAndCountAll().then(function(instagrams) {
-        var count = instagrams.count
+    db.Instagram.findAll().then(function(instagrams) {
+        var count = instagrams.length;
         if(count < 1) { 
             //WARNING: do not call "kill" in asynchronous processes.
             console.log(fname + 'db.Instagram: nothing to update...'); 
@@ -53,7 +53,7 @@ module.exports = function iggMain(duration) {
         }
 
         global.igg.instaRunCount = count;
-        INSTAGRAMS = instagrams.rows;
+        INSTAGRAMS = instagrams;
         console.log(fname + 'got the instagram instances, running loop.');
 
         for(var i=0; i<count; i++) {
