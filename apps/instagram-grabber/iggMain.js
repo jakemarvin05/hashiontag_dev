@@ -242,7 +242,9 @@ module.exports = function iggMain(duration) {
         igg.lastRunCompleted = moment(runCompleted).format();
         
         var timeout = setTimeout(function() {
-            igg.run(DURATION);
+            //DURATION is in milliseconds
+            //igg.run takes in minutes
+            igg.run(DURATION/1000/60/60);
         }, DURATION);
 
         var nextRun = moment().add(DURATION, 'milliseconds');
@@ -260,7 +262,7 @@ module.exports = function iggMain(duration) {
     function recoverFromError() {
         //check if igg is busy.
         //for every time we find we add to the token.
-        var tolerance = 1
+        var tolerance = 5
         if(igg.busy === true) { 
             //if we find that it is busy, add to the token.
             igg.errorToken += 1;
@@ -270,7 +272,22 @@ module.exports = function iggMain(duration) {
             //so we jumpstart it again.
             if(igg.errorToken > tolerance) {
                 igg.hasErrored.push(moment().format());
-                return igg.run();
+                clearTimeout(igg.nextTimeout._timeout);
+                return igg.run(DURATION/1000/60/60);
+            } else {
+                if (igg.nextTimeout.time && igg.nextTimeout._timeout) {
+                    //the time and timeouts are set.
+                    //now check if the time has passed
+                    if (moment(igg.nextTimeout.time) > moment()) {
+                        //time not passed.
+                        //all checks are good, return the function.
+                        return false;
+                    }
+                }
+                //check will arrive here if tests are failed
+                igg.hasErrored.push(moment().format());
+                clearTimeout(igg.nextTimeout._timeout);
+                return igg.run(DURATION/1000/60/60);
             }
         }
     }

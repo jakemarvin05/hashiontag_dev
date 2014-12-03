@@ -30,14 +30,20 @@ var pgSession = require('connect-pg-simple')(session)
 
 
 var instaNode = require('instagram-node').instagram();
+// //calvintwr
+// instaNode.use({
+//     client_id: '4a9652ccccb249f080062589a45abcbd',
+//     client_secret: '1b39017f1b824f569c02ace3de52a665'
+// });
+//vogueverve
 instaNode.use({
-    client_id: '4a9652ccccb249f080062589a45abcbd',
-    client_secret: '1b39017f1b824f569c02ace3de52a665'
+    client_id: '844863a3cde44828abd6fb9c36171807',
+    client_secret: '828501c67ad643cca11109b4e728f735'
 });
 global.instaNode = instaNode;
 
 var igg = require('./apps/instagram-grabber/iggMain.js');
-//igg(5); //duration in minutes
+igg(5); //duration in minutes
 
 var app = express();
 
