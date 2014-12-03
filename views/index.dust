@@ -50,7 +50,7 @@
                     return false;
                 }
 
-                streamFactory.init(res.posts, {
+                streamFactory.init(res, {
                     pinchZoom: true
                 });
 

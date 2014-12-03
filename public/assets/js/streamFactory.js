@@ -61,7 +61,6 @@ streamFactory.init = function(renderJSON, options) {
     this.buildBlocks(postCount);
 }
 streamFactory.buildBlocks = function(postCount) {
-    console.log('streamFactory.buildBlocks');
     //cache the burst count to the append method
     if(this.burst>0) { this.append.imageBurstCount = this.burst; }
 
