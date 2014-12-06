@@ -25,15 +25,23 @@ module.exports = function iggMain(duration) {
     global.igg.nextTimeout = {}
 
     //DURATION
-    var DURATION = duration*1000*60*60 || 300000;
+    if(duration > 0) {
+        var DURATION = duration*1000*60*60;
+    } else if (duration === "no rerun") {
+        var DURATION = duration;
+    } else {
+        var DURATION = 300000; //defaults to retry of 5 minutes
+    }
+    
     var retryDuration = 60000; //1 min
 
+    //calvin: i think we will move to cronning schedule 
     //set the error recovery in place. Error checking everying DURATION * 3.
-    if(!igg.recoverFromError) { 
-        igg.recoverFromError = setInterval(function() {
-            recoverFromError();
-        }, DURATION*3)
-    }
+    // if(!igg.recoverFromError) { 
+    //     igg.recoverFromError = setInterval(function() {
+    //         recoverFromError();
+    //     }, DURATION*3)
+    // }
 
     //first query
     var masterQueryTime = Date.now();
@@ -240,7 +248,16 @@ module.exports = function iggMain(duration) {
     function setNextTimeout(DURATION) {
         var runCompleted = Date.now();
         igg.lastRunCompleted = moment(runCompleted).format();
-        
+        igg.errorToken = 0;
+
+        if(DURATION === "no rerun") {
+            igg.nextTimeout.time = false;
+            igg._timeout = false;
+            return false;
+        } 
+
+        //duration is given. may be a routine cyclic situation or a retry situation.
+        //set up the timeout.
         var timeout = setTimeout(function() {
             //DURATION is in milliseconds
             //igg.run takes in minutes
@@ -251,11 +268,9 @@ module.exports = function iggMain(duration) {
         console.log(fname + 'next run is at ' + nextRun.format());
 
         //set the global object
-        igg.nextTimeout = {
-            time: nextRun,
-            _timeout: timeout
-        }
-        igg.errorToken = 0;
+        igg.nextTimeout.time = nextRun;
+        igg._timeout = timeout;
+  
     }
 
     //error recovery
