@@ -380,6 +380,11 @@ profilePostFactory.append.moreInfoBindButton = function($custBut) {
     });
 }
 profilePostFactory.append.settingsButton = function($stream, post) {
+
+    var $settingsButtonsWrap = $stream.find('.blockInteractSettingsWrap');
+    var $settingsButtons = $settingsButtonsWrap.find('.blockInteractSettingsOptions');
+
+
     if(post.User_userId !== printHead.userHeaders.userId) {
         //not the owner
 
@@ -387,17 +392,17 @@ profilePostFactory.append.settingsButton = function($stream, post) {
         if(post.User_userId_attributed === printHead.userHeaders.userId) {
 
             //attributed posts can't be edited
-            $stream.find('.settingsEdit').remove();
-            $stream.find('.editDesc').remove();
-            $stream.find('.editDescTextArea').remove();
-            $stream.find('.settingsMark').remove();
+            $settingsButtonsWrap.find('.settingsEdit').remove();
+            $settingsButtonsWrap.find('.editDesc').remove();
+            $settingsButtonsWrap.find('.editDescTextArea').remove();
+            $settingsButtonsWrap.find('.settingsMark').remove();
 
         } else {
             //not the owner and post not attributed. disallow all functions less marking.
-            $stream.find('.settingsDelete').remove();
-            $stream.find('.settingsEdit').remove();
-            $stream.find('.editDesc').remove();
-            $stream.find('.editDescTextArea').remove();      
+            $settingsButtonsWrap.find('.settingsDelete').remove();
+            $settingsButtonsWrap.find('.settingsEdit').remove();
+            $settingsButtonsWrap.find('.editDesc').remove();
+            $settingsButtonsWrap.find('.editDescTextArea').remove();      
         }
   
 
@@ -407,19 +412,23 @@ profilePostFactory.append.settingsButton = function($stream, post) {
 
         //but if viewing it in other's account, don't allow authoring
         if(this.parent.uid !== printHead.userHeaders.userId) {
-            $stream.find('.settingsDelete').remove();
-            $stream.find('.settingsEdit').remove();
-            $stream.find('.editDesc').remove();
-            $stream.find('.editDescTextArea').remove();    
+            $settingsButtonsWrap.find('.settingsDelete').remove();
+            $settingsButtonsWrap.find('.settingsEdit').remove();
+            $settingsButtonsWrap.find('.editDesc').remove();
+            $settingsButtonsWrap.find('.editDescTextArea').remove();    
         } else {
 
             //viewing post in your own page. allow authoring.
-            $stream.find('.settingsMark').remove();
-            $stream.find('.settingsDelete').attr('data-isprofile', post.isProfilePicture);
-            this.identifier($stream.find('.editDesc'), post);
+            $settingsButtonsWrap.find('.settingsMark').remove();
+            $settingsButtonsWrap.find('.settingsDelete').attr('data-isprofile', post.isProfilePicture);
         }
 
     }
+    
+    var $openPage = $settingsButtonsWrap.find('.settingsOpen');
+    $openPage.wrapInner('<a href="/p/' + post.postId + '" target="_blank"></a>');
+
+    this.identifier($settingsButtons, post);
 }
 
 profilePostFactory.init(renderJSON, {

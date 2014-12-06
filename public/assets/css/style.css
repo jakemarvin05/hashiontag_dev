@@ -708,6 +708,16 @@ textarea {
 .blockInteractSettingsOptions:hover {
   text-decoration: underline;
 }
+.blockInteractSettingsWrap a {
+  color: #fff;
+}
+.blockInteractSettingsWrap a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+.blockInteractSettingsWrap a:visited {
+  color: #fff;
+}
 .likeButton:hover,
 .moreInfo:hover {
   color: #ccc;

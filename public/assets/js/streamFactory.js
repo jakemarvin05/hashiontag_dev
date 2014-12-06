@@ -156,9 +156,7 @@ streamFactory.append.init = function($stream, i) {
     var likeText = this.parent.append.likeText(post);
     $stream.find('.blockLikeText' ).prepend(likeText);
 
-    /* Delete button */
-    var $settingsButtons = $stream.find('.blockInteractSettingsOptions');
-    this.identifier($settingsButtons, post);
+    /* Settings button */
     this.settingsButton($stream, post);
 
 
@@ -568,16 +566,24 @@ streamFactory.append.eachComment = function($stream, comment, toShow, postId, ap
     return $comment;
 }
 streamFactory.append.settingsButton = function($stream, post) {
+
+    var $settingsButtonsWrap = $stream.find('.blockInteractSettingsWrap');
+    var $settingsButtons = $settingsButtonsWrap.find('.blockInteractSettingsOptions');
+
     if(post.User_userId !== printHead.userHeaders.userId) {
-        $stream.find('.settingsDelete').remove();
-        $stream.find('.settingsEdit').remove();
-        $stream.find('.editDesc').remove();
-        $stream.find('.editDescTextArea').remove();
+        $settingsButtonsWrap.find('.settingsDelete').remove();
+        $settingsButtonsWrap.find('.settingsEdit').remove();
+        $settingsButtonsWrap.find('.editDesc').remove();
+        $settingsButtonsWrap.find('.editDescTextArea').remove();
     } else {
-        $stream.find('.settingsMark').remove();
-        $stream.find('.settingsDelete').attr('data-isprofile', post.isProfilePicture);
-        this.identifier($stream.find('.editDesc'), post);
+        $settingsButtonsWrap.find('.settingsMark').remove();
+        $settingsButtonsWrap.find('.settingsDelete').attr('data-isprofile', post.isProfilePicture);
     }
+
+    var $openPage = $settingsButtonsWrap.find('.settingsOpen');
+    $openPage.wrapInner('<a href="/p/' + post.postId + '" target="_blank"></a>');
+
+    this.identifier($settingsButtons, post);
 }
 streamFactory.append.digestPostMeta = function(post) {
     var metas = post.postMeta,
