@@ -42,9 +42,6 @@ instaNode.use({
 });
 global.instaNode = instaNode;
 
-var igg = require('./apps/instagram-grabber/iggMain.js');
-igg(5); //duration in minutes
-
 var app = express();
 
 app.use(favicon(__dirname + '/public/assets/favicon/favicon-160x160.png'));
@@ -108,6 +105,11 @@ app.use(function(err, req, res, next) {
     });
 });
 
+var moment = require('moment');
+//console.log time very 5 minutes
+setInterval(function() {
+    console.log(moment().format());
+}, 300000);
 
 //start the server
 var server = require('http').Server(app);
@@ -132,18 +134,16 @@ server.listen(3001, function() {
     console.log('Congrats, nothing broke!! Listening on port %d', server.address().port);
 });
 
-
-var moment = require('moment');
-//console.log time very 5 minutes
-setInterval(function() {
-    console.log(moment().format());
-}, 300000);
+//instagram
+var igg = require('./apps/instagram-grabber/iggMain.js');
+//igg(5); //duration in minutes. use "no rerun" if running single instance.
+//igg("no rerun");
 
 //STREAM UPDATE
 //TODO, shift this and instagram grabber into another app.
-// var streamUpdate = require('./apps/streamUpdate.js');
-// var updateStreamEvery = 5; //5 minutes.
-// streamUpdate();//initial run
+var streamUpdate = require('./apps/streamUpdate.js');
+//var updateStreamEvery = 5; //5 minutes.
+//streamUpdate();//initial run
 // //interval
 // setInterval(function() {
 //     streamUpdate();

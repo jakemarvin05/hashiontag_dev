@@ -9,8 +9,9 @@ var fname = "streamUpdate.js ";
 
 eventEmitter.once('Done', function(res){
     console.log('Completed updating!');
-    console.log('start time: '+startTime);
-    console.log('end time: '+ Date.now());
+    console.log('start time: ' + moment(startTime).format());
+    console.log('end time: '+ moment().format());
+    console.log('total time taken: ' + (Date.now() - startTime)/1000 + ' seconds');
     if(res) { res.send('Done updating Stream.'); }
 });
 
@@ -19,22 +20,19 @@ module.exports = function allUserStreamUpdate(req, res) {
     var allUserInstance;
     startTime = Date.now();
     db.User.findAll({
+        //sequelize 2.0dev doesn't allow instance manipulation if its not a full select
+        //TODO: re-enable smaller dataset select once sequelize is updated.
         //attributes: ['userId', 'lastStreamUpdate']
-    }).then(function(result){
-        //console.log(JSON.stringify(result));
-        noUpdates = Object.keys(result).length;
-        var item = Object.keys(result).length;
-        console.log('Number of Users: '+item);
-        for (var i=0;i<item;i++){
-            //console.log(JSON.stringify(result[i]));
-            //for each user do something
-            updateStream(result[i].userId, result[i].lastStreamUpdate);
-            //console.log(Date.now());
-            result[i].lastStreamUpdate = Date.now();
-            //console.log(JSON.stringify(result[i]));
-            result[i].save().catch(function(err){
-                console.log(err);
-            });
+    }).then(function(results){
+
+        var len = results.length;
+        noUpdates = len; //noUpdates is a global variable. TODO: use sore thumb case NO_UPDATES
+        console.log('Number of Users: ' + len);
+
+        for (var i=0; i<len; i++){
+
+            updateStream(results[i].userId, results[i].lastStreamUpdate);
+
         }
 
     }).catch(function(err){
@@ -61,34 +59,60 @@ module.exports = function allUserStreamUpdate(req, res) {
 
 
     function updateStream(userId, lastStreamUpdate){
-        var maxStore = 5;
+        var maxStore = 5; // this is a very important number
 
         if(!lastStreamUpdate) { var lastStreamUpdate = moment(0).format(); }
 
         //console.log('\n-----------user id: '+ userId+'--------------');
+        db.User.find().then(function() {
 
-        db.Following.findAll({
-            where: {
-                FollowerId: userId
-            },
-            attributes: ['affinityId', 'affinity'],
-            include: [{
-                model: db.User,
-                attributes: ['userId'],
-                include: [{
-                    model: db.Post,
+            var timeStamp = moment().format();
+
+            //get new posts of the users. and update the timestamp at the same time.
+            return [
+                db.Following.findAll({
                     where: {
-                        createdAt: {
-                            gte: lastStreamUpdate
-                        }
+                        FollowerId: userId
                     },
-                    attributes: ['postId', 'createdAt']//,
-                    //order: [['createdAt', 'DESC']],
-                }]
-            }],
-            order: [['affinity', 'DESC']]
+                    attributes: ['affinityId', 'affinity'],
+                    include: [{
+                        model: db.User,
+                        attributes: ['userId'],
+                        include: [{
+                            model: db.Post,
+                            where: {
+                                createdAt: {
+                                    gte: lastStreamUpdate
+                                }
+                            },
+                            attributes: ['postId', 'createdAt']//,
+                            //order: [['createdAt', 'DESC']],
+                        }]
+                    }],
+                    order: [['affinity', 'DESC']]
+                }),
 
-        }).then(function(result){
+                // //rc2 syntax. Requires the 'where' property. TODO: change to this after sequelize update
+                // db.User.update({
+                //     lastStreamUpdate: moment().format()
+                // }, {
+                //     where: { userId: results[i].userId }
+                // }).catch(function(err){
+                //     console.log(fname + 'user lastStreamUpdate Error: ' + err);
+                // });
+
+                //dev12 syntax
+                db.User.update({
+                    lastStreamUpdate: timeStamp
+                }, {
+                    userId: userId 
+                }).catch(function(err){
+                    console.log(fname + 'user lastStreamUpdate Error: ' + err);
+                })
+
+            ]
+
+        }).spread(function(result, update){
             //console.log('------------------------------------');
             //console.log(JSON.stringify(result));
             // console.log(Date());
@@ -106,28 +130,27 @@ module.exports = function allUserStreamUpdate(req, res) {
             var tempPosts =[];
             var reduceBy = 0;
 
-
             //console.log('last stream update: '+ result.values['lastStreamUpdate']);
             console.log('\n-----------user id: '+ userId+'--------------');
             console.log('Number of users followed by userId '+userId+' : '+ result.length);
 
-            for(var i=0;i<result.length;i++){
+            for (var i=0;i<result.length;i++) {
                 tempPosts =[];
                 postCount = 0;
                 reduceBy = 0;
 
-                if(maxStore ===0){
-                        console.log('MaxStored reached! Ignoring Next user. Returning...');
-                        break;
-                    }
+                if (maxStore ===0) {
+                    console.log('MaxStored reached! Ignoring Next user. Returning...');
+                    break;
+                }
 
                 var posts = result[i].user.posts,
                     pLen = posts.length;
 
-                if(posts.length === 0) { continue; }
+                if (posts.length === 0) { continue; }
 
-                for(var p=0; p<pLen ;p++){
-                    if(maxStore ===0){
+                for (var p=0; p<pLen ;p++){
+                    if(maxStore === 0){
                         console.log('MaxStored reached! Returning...');
                         break;
                     }
@@ -145,6 +168,7 @@ module.exports = function allUserStreamUpdate(req, res) {
                 //console.log(toBePushed);
                 console.log('affinityID: '+result[i].affinityId+' reduced by '+reduceBy);
                 if(reduceBy !== 0) {
+                    //add in the random mathematical seed
                     result[i].affinity = Math.floor(result[i].affinity);
                     result[i].affinity -= reduceBy + (Math.random()/1000);
                     result[i]._hasChanged = true;
