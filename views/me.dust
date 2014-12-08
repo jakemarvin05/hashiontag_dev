@@ -393,16 +393,16 @@ profilePostFactory.append.settingsButton = function($stream, post) {
 
             //attributed posts can't be edited
             $settingsButtonsWrap.find('.settingsEdit').remove();
-            $settingsButtonsWrap.find('.editDesc').remove();
-            $settingsButtonsWrap.find('.editDescTextArea').remove();
+            $stream.find('.editDesc').remove();
+            $stream.find('.editDescTextArea').remove();
             $settingsButtonsWrap.find('.settingsMark').remove();
 
         } else {
             //not the owner and post not attributed. disallow all functions less marking.
             $settingsButtonsWrap.find('.settingsDelete').remove();
             $settingsButtonsWrap.find('.settingsEdit').remove();
-            $settingsButtonsWrap.find('.editDesc').remove();
-            $settingsButtonsWrap.find('.editDescTextArea').remove();      
+            $stream.find('.editDesc').remove();
+            $stream.find('.editDescTextArea').remove();      
         }
   
 
@@ -414,8 +414,8 @@ profilePostFactory.append.settingsButton = function($stream, post) {
         if(this.parent.uid !== printHead.userHeaders.userId) {
             $settingsButtonsWrap.find('.settingsDelete').remove();
             $settingsButtonsWrap.find('.settingsEdit').remove();
-            $settingsButtonsWrap.find('.editDesc').remove();
-            $settingsButtonsWrap.find('.editDescTextArea').remove();    
+            $stream.find('.editDesc').remove();
+            $stream.find('.editDescTextArea').remove();    
         } else {
 
             //viewing post in your own page. allow authoring.
@@ -429,6 +429,7 @@ profilePostFactory.append.settingsButton = function($stream, post) {
     $openPage.wrapInner('<a href="/p/' + post.postId + '" target="_blank"></a>');
 
     this.identifier($settingsButtons, post);
+    this.identifier($stream.find('.editDesc'), post);
 }
 
 profilePostFactory.init(renderJSON, {

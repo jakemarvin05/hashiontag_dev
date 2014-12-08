@@ -573,8 +573,8 @@ streamFactory.append.settingsButton = function($stream, post) {
     if(post.User_userId !== printHead.userHeaders.userId) {
         $settingsButtonsWrap.find('.settingsDelete').remove();
         $settingsButtonsWrap.find('.settingsEdit').remove();
-        $settingsButtonsWrap.find('.editDesc').remove();
-        $settingsButtonsWrap.find('.editDescTextArea').remove();
+        $stream.find('.editDesc').remove();
+        $stream.find('.editDescTextArea').remove();
     } else {
         $settingsButtonsWrap.find('.settingsMark').remove();
         $settingsButtonsWrap.find('.settingsDelete').attr('data-isprofile', post.isProfilePicture);
@@ -584,6 +584,7 @@ streamFactory.append.settingsButton = function($stream, post) {
     $openPage.wrapInner('<a href="/p/' + post.postId + '" target="_blank"></a>');
 
     this.identifier($settingsButtons, post);
+    this.identifier($stream.find('.editDesc'), post);
 }
 streamFactory.append.digestPostMeta = function(post) {
     var metas = post.postMeta,
