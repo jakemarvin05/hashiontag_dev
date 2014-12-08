@@ -12,7 +12,8 @@ module.exports = function search(req, res) {
 
         results = {
             success: true,
-            userArray: users
+            results: users,
+            resultType: 'user'
         }
     
         console.log('returning the array...');
@@ -44,7 +45,8 @@ module.exports = function search(req, res) {
         }).then(function(hashtags) {
             results = {
                 success: true,
-                hashArray: hashtags
+                results: hashtags,
+                resultType: 'hashtag'
             }
             res.json(results);
         }).catch(throwErr);

@@ -29,7 +29,7 @@ VV.search.cacheManager = function(query) {
     var query = query.toLowerCase()
     if(this.ajaxedQuery) {
         if(query === this.ajaxedQuery) { 
-            console.log('same query, returning');
+            //console.log('same query, returning');
 
             //check if the results is hidden. if yes, show it.
             if(this.$resultCont.css('display') === 'none') {
@@ -39,7 +39,7 @@ VV.search.cacheManager = function(query) {
         } else {
             //query is not the same, but check if it has been cached.
             if(this.cachedQuery[query]) {
-                console.log('cached query, returning the cache');
+                //console.log('cached query, returning the cache');
                 this.ajaxedQuery = query;
                 if(this.$resultCont.css('display') === 'none') {
                     this.$resultCont.html(this.cachedQuery[query]);
@@ -66,23 +66,23 @@ VV.search.searchAjax = function(query) {
 
     //start the new ajax.
     this.ajaxFired = true;
-    console.log('ajax fired');
+    //console.log('ajax fired');
     var self = this;
     // AJAX post
     this.ajax = $.post( printHead.p.absPath + "/api/search", {query: query});
 
     //done
     this.ajax.done(function(data) {   
-        console.log(data);
+        //console.log(data);
         if(data.success) {
-            console.log('append results');
+            //console.log('append results');
             self.ajaxedQuery = query;
-            if(data.hashArray) { userFactory.init(data.hashArray, {streamType: "hashtag"}); }
-            if(data.userArray) { userFactory.init(data.userArray, {streamType: "user"}); }
+            if(data.resultType === 'hashtag') { userFactory.init(data, {streamType: "hashtag"}); }
+            if(data.resultType === 'user') { userFactory.init(data, {streamType: "user"}); }
             //cache the query... for the fickled minded...
             if(self.ajaxedQuery) { self.cachedQuery[self.ajaxedQuery.toLowerCase()] = self.$resultCont.html(); }
         } else {
-            console.log('error');
+            //console.log('error');
             return self.loaderEffect.kill(function() {
                 self.$sqm
                     .html('An error has occured. Please refresh and try again.')
@@ -95,7 +95,7 @@ VV.search.searchAjax = function(query) {
     this.ajax.fail(function(err) {
         if(err.statusText === 'abort') { return false; }
 
-        console.log('error');
+        //console.log('error');
         self.loaderEffect.kill(function() {
             self.$sqm
                 .html('An error has occured. Please refresh and try again.')
@@ -113,13 +113,13 @@ VV.search.queryTooShort = function() {
 
 VV.search.loaderEffect = Object.create(VV.utils.loaderEffect);
 VV.search.reset = function() {
-    console.log('resetting');
-    console.log(this.timeout);
+    //console.log('resetting');
+    //console.log(this.timeout);
     for(var i in this.timeout) {
         clearTimeout(this.timeout[i]);
     }
     this.timeout = [];
-    if(this.ajaxFired) { this.ajax.abort(); console.log('abort ajax'); }
+    if(this.ajaxFired) { this.ajax.abort(); }
     this.$sqm.velocity('stop').hide();
     this.loaderEffect.kill();
     //hide the results. but don't clear it yet.
@@ -138,32 +138,31 @@ VV.search.init = function() {
 
     $('#search').keyup(function(e) {
         var charCode = e.which || e.keyCode;
-        console.log(charCode);
 
         self.entered = false;
 
         if(charCode != '13') {
             self.enterBlock = false;
             self.entered = false;
-            console.log('enter is unblocked');
+            //console.log('enter is unblocked');
         } else {
             if(self.enterBlock && charCode == '13') {
-                console.log('blocked!');
+                //console.log('blocked!');
                 return false;
             }
             self.entered = true;
         }
 
-        console.log('keydown that went through event');
+        //console.log('keydown that went through event');
 
         //setting up a new enter block if is enter key
         //block future enter entries for a duration
         if(self.entered) {
             self.enterBlock = true;
-            console.log('enter is blocked');
+            //console.log('enter is blocked');
             setTimeout(function() {
                 self.enterBlock = false;
-                console.log('enter is unblocked');
+                //console.log('enter is unblocked');
             }, 2000);
         }
 
@@ -183,13 +182,11 @@ VV.search.init = function() {
         var offset = 0;
         if(query.indexOf('@') === 0) { offset = 4 };
         if(query.indexOf('#') === 0) { offset = 1 };
-        
-        console.log(qLength);
 
         //if too short, set timeout function for alert message.
         if(qLength < 3+offset) {
             if(self.entered) { 
-                console.log('immediately returning');
+                //console.log('immediately returning');
                 return self.queryTooShort();
             }
             var timeout = setTimeout(function() {
@@ -216,7 +213,7 @@ VV.search.init = function() {
         //4) the cache didn't contain the user's query.
 
         //set the ajax call ticking....
-        console.log('setting ajax timeout');
+        //console.log('setting ajax timeout');
 
         var timeout = setTimeout(function() {
             self.loaderEffect.run();
