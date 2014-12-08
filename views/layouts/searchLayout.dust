@@ -61,7 +61,6 @@
         return user.userNameDisp + ' ' + user.name;
     }
     userFactory.append.init = function($stream, i) {
-            console.log('userFactory*****');
 
         if(this.parent.streamType === "user") {
             var user = this.parent.posts[i];

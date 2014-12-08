@@ -33,7 +33,6 @@ module.exports = function instagramLink(req, res, action) {
             }
 
             if(found) {
-                console.log('here ' + i);
                 var returnedUser = users[i];
             } else {
                 var returnedUser = users[0];

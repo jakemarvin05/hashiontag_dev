@@ -178,7 +178,7 @@ function editDesc($edit, $cancel) {
 
         //done
         posting.done(function( data ) {
-            console.log(data);
+            
             if(data.success) {
                 $descDiv
                     .html(data.post.descHTML)

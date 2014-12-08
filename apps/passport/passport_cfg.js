@@ -173,10 +173,6 @@ module.exports = function(passport) {
             }
         }
 
-
-
-        console.log("finding users...");
-
         /* start */
         if(user.indexOf('@') > -0.5) {
             //it is an email login

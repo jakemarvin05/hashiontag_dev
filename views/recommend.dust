@@ -48,15 +48,13 @@ recommendBlk.ajaxRun = function() {
     var ajax = $.post(printHead.p.absPath + '/api/getrecommend');
 
     ajax.done(function(data) {
-        console.log(data);
-
         if(data.success) {
             self.build(data.users);
         }
     });
 
     ajax.fail(function(err) {
-        console.log(err);
+        return false; //do nothing
     });
 
     this.ajax = ajax;
@@ -64,9 +62,7 @@ recommendBlk.ajaxRun = function() {
 
 recommendBlk.build = function(users) {
     var i = 0;
-    console.log(users[1]);
     while(users[i]) {
-        console.log(i);
         var user = users[i];
         var newBlock = this.template;
             newBlock = newBlock.replace('replaceId', 'rBlk_' + user.userNameDisp);

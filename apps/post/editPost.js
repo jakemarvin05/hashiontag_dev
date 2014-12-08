@@ -4,8 +4,6 @@ var VVutils = require('../utils.js');
 var metaAddTag = require('./metaAddTag.js');
 var tagsHandler = require('./tagsHandler.js');
 var S = require('string');
-var events = require('events');
-var eventEmitter = new events.EventEmitter();
 var addHashTags = require('./addHashTags.js');
 
 module.exports = function editPost(req, res) {
