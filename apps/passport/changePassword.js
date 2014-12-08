@@ -29,25 +29,26 @@ module.exports = function changePassword(req, res) {
     //length shouldn't be less than 6.
     if(newPwd.length < 6) { return res.json({success:false, error: 'unknown'}); }
 
-
     db.User.find({
         where: where
     }).then(function(user) {
 
+
         //cannot find the user, unknown error.
-        if(!user) { return res.json({success:false, error: 'unknown'}); }
+        if(!user) { return 'unknown'; }
 
         //if not a token reset, authenticate password.
         if (!isTokenReset) {
-            if(user.authenticate(currPwd)) { return res.json({success:false, error: 'password'}); }
+            if(!user.authenticate(currPwd)) { return 'password'; }
         }
 
         //either the token is valid, or user is properly authenticated
         user.setPassword(newPwd);
-
         return user.save();
         
-    }).then(function() {
+    }).then(function(result) {
+        if (result === 'unknown') { return res.json({success:false, error: 'unknown'}); }
+        if (result === 'password') { return res.json({success:false, error: 'password'}); }
         return res.json({success: true});
     }).catch(function(err) {
         console.log(fname + err);

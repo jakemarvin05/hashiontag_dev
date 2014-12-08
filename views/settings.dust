@@ -223,7 +223,6 @@ $('#changePassword').validate({
         //done
         posting.done(function(data) {
             if(data.success) { 
-                //console.log('success');
                 var text = '<span style="color:green; font-size: 18px;" class="glyphicon glyphicon-ok-circle"></span> ';
                     text += 'Your password change is successful. Returning you back to profile page.';
                 aF.protoAlert({
