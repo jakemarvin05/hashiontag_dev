@@ -1,11 +1,11 @@
 var db = global.db;
 var likesSplicer = require('./likesSplicer.js');
 
-module.exports = function singlePostJSON(req, eventEmitter) {
+module.exports = function singlePostJSON(req, thenRender) {
 
     var throwErr = function(error) {
         console.log(error);
-        return eventEmitter.emit('singlePostJSONDone', false);
+        return thenRender(false);
     }
     var storedPost;
     var isAuth = req.isAuthenticated();
@@ -62,6 +62,8 @@ module.exports = function singlePostJSON(req, eventEmitter) {
         ]
     }).spread(function(post, ids) {
 
+        if(!post) { return thenRender(false); }
+
         if(ids) {
             var idArray = [];
             var idrun = 0;
@@ -83,7 +85,7 @@ module.exports = function singlePostJSON(req, eventEmitter) {
             renderJSON.posts = likesSplicer(req, renderJSON.posts, idArray);
         }
 
-        return eventEmitter.emit('singlePostJSONDone', renderJSON);
+        return thenRender(renderJSON);
 
     }).catch(throwErr);
 }

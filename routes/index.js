@@ -2,7 +2,6 @@ var express = require('express');
 var app = require('../app.js');
 var router = express.Router();
 //var async = require('async');
-var events = require('events');
 //var sys = require('sys');
 var meta = require('../apps/meta.js');
 
@@ -16,7 +15,6 @@ var db = require('../models/');
 
 // globalJSON
 var globalJSON = require('../apps/globalJSON.js');
-
 
 //instagram
 var ig = require('instagram-node').instagram();
@@ -344,13 +342,17 @@ router.post('/api/password/forget', function(req, res) {
 
 //ME
 router.get('/me', function(req, res) {
-    if(!req.isAuthenticated()) { return res.redirect('/'); }
-    //sys.puts(sys.inspect(req));
-    var gJSON = globalJSON(req);
-    var eventEmitter = new events.EventEmitter();
 
-    //bind the final callback first
-    eventEmitter.on('profileJSONDone', function thenRender(renderJSON) {
+    if(!req.isAuthenticated()) { return res.redirect('/'); }
+    var gJSON = globalJSON(req);
+
+    var profileJSON = require('../apps/stream/profileJSON.js')(req, thenRender, true);
+
+    function thenRender(renderJSON) {
+
+        if(renderJSON === 'redirect') { return res.redirect('/'); }
+
+        if(renderJSON === 'userNotFound') { return res.send(404); }
 
         res.render('me', {
             title: meta(renderJSON, 'profile'),
@@ -364,10 +366,7 @@ router.get('/me', function(req, res) {
             page: 'me'
         });
 
-    });
-
-    //now run callback dependents
-    var profileJSON = require('../apps/stream/profileJSON.js')(req, eventEmitter, true);
+    }
 
 });
 //Settings
@@ -710,7 +709,6 @@ router.get('/p/:pid', function(req,res) {
     //sys.puts(sys.inspect(req));
 
     var gJSON = globalJSON(req),
-        eventEmitter = new events.EventEmitter(),
         showNav = '',
         isAuth = req.isAuthenticated();
 
@@ -720,9 +718,13 @@ router.get('/p/:pid', function(req,res) {
 
     //insert page identity into gJSON
     gJSON.printHead.page = 'singlePost';
+    
+    var streamJSON = require('../apps/stream/singlePostJSON.js')(req, thenRender);
 
-    //bind the final callback first
-    eventEmitter.on('singlePostJSONDone', function thenRender(renderJSON) {
+    function thenRender(renderJSON) {
+
+        if(!renderJSON) { return res.sendStatus(404); }
+
         res.render('singlePost', {
             title: meta(renderJSON, 'singlePost'),
             isLoggedIn: req.isAuthenticated(),
@@ -740,10 +742,7 @@ router.get('/p/:pid', function(req,res) {
             showNav: showNav
         });
 
-    });
-
-    //now run callback dependents
-    var streamJSON = require('../apps/stream/singlePostJSON.js')(req, eventEmitter);
+    }
 
 });
 
@@ -751,12 +750,14 @@ router.get('/p/:pid', function(req,res) {
 
 //:user
 router.get('/:user', function(req, res) {
-    //sys.puts(sys.inspect(req));
-    var gJSON = globalJSON(req);
-    var eventEmitter = new events.EventEmitter();
 
-    //bind the final callback first
-    eventEmitter.on('profileJSONDone', function thenRender(renderJSON) {
+    var gJSON = globalJSON(req);
+
+    //now run callback dependents
+    var profileJSON = require('../apps/stream/profileJSON.js')(req, thenRender, false);
+
+    function thenRender(renderJSON) {
+
         var reason = false;
 
         if(renderJSON === 'redirect') {
@@ -764,14 +765,13 @@ router.get('/:user', function(req, res) {
         }
 
         if(renderJSON === 'userNotFound') {
-            reason = renderJSON;
-            renderJSON = false;
+            return res.send(404);
         }
         if(renderJSON === 'reqNotAuthUserIsPrivate') {
             reason = renderJSON;
             renderJSON = false;
         }
-        //console.log(renderJSON);
+
         if(!req.isAuthenticated()) { var showNav = "login";}
 
         res.render('me', {
@@ -794,10 +794,7 @@ router.get('/:user', function(req, res) {
             showNav: showNav
         });
 
-    });
-
-    //now run callback dependents
-    var profileJSON = require('../apps/stream/profileJSON.js')(req, eventEmitter, false);
+    }
 
 });
 
@@ -833,51 +830,4 @@ router.post('/api/errorreceiver', function(req, res) {
         return res.send('end');
     });
 
-});
-
-
-///////////////////////////////////////////////////////
-
-//dev routes
-//disable :user routes to get here.
-router.get('/dbtest', function(req, res) {
-
-    db.sequelize.authenticate().complete(function(err) {
-        if (!!err) {
-            console.log('Unable to connect to the database:', err);
-            res.send(err);
-        } else {
-            console.log('Connection has been established successfully.');
-            res.send('Connection has been established successfully.');
-        }
-    });
-
-});
-
-//uap example
-router.get('/ua-parser', function(req, res) {
-    var uap = require('ua-parser').parseUA(req.headers['user-agent']);
-
-    res.json({
-        'everything': uap
-    });
-
-    var family = uap.family.toLowerCase();
-    var major = parseFloat(uap.major);
-    var CSRender = false;
-
-    //reject cases
-    if(family.indexOf('mobile') > -1 ) {
-        //reject
-    } else if(family.indexOf('safari') > -1) {
-        //reject
-    } else {
-        //no mobile branch, check for firefox and chrome.
-        if(family.indexOf('chrome') > -1 && major >=  37) {
-            CSRender = true;
-        }
-        if(family.indexOf('firefox') > -1 && major >=  32) {
-            CSRender = true;
-        }
-    }
 });

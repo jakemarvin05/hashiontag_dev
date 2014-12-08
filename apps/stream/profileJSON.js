@@ -4,7 +4,7 @@ var likesSplicer = require('./likesSplicer');
 
 /* TODO !!! DEAL WITH PRIVATE CASES */
 
-module.exports = function profileJSON(req, eventEmitter, isSelf) {
+module.exports = function profileJSON(req, thenRender, isSelf) {
 
     //if first character is "@", cut it away before use.
     if(req.params.user) {
@@ -15,7 +15,7 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
 
     var throwErr = function(error) {
         console.log(error);
-        return eventEmitter.emit('profileJSONDone', false);
+        return thenRender(false);
     }
     //to store the returned results
     var returnedUser = {};
@@ -49,7 +49,7 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
             {'key': 'isInstagram'}
         ),
         required: false
-    }]// include closure
+    }];// include closure
 
     var order = [ 
         ['createdAt', 'DESC'], 
@@ -83,7 +83,7 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
         if(isAuth) {
             return getProfile(req.user.userId, true);
         } else {
-            return eventEmitter.emit( 'profileJSONDone', 'redirect' );
+            return thenRender('redirect');
         }
     }
     function getProfile(userId, ownProfile, isPublicView) {
@@ -238,7 +238,7 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
             if(isPublicView) {
                 returnedUser.isPublicView = true;
                 returnedUser.isFollowable = false;
-                return eventEmitter.emit( 'profileJSONDone', returnedUser );
+                return thenRender(returnedUser);
             }
 
             if(ownProfile) {
@@ -246,14 +246,14 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
                 returnedUser.isFollowable = false;
                 returnedUser.hasStarTag = (starTag) ? true : false;
                 returnedUser.posts = likesSplicer(req, returnedUser.posts, idArray);
-                return eventEmitter.emit( 'profileJSONDone', returnedUser );
+                return thenRender(returnedUser);
             }
 
             returnedUser.viewerFollowedTarget = hasFollow;
             returnedUser.targetFollowedViewer = hasFollower;
             returnedUser.isFollowable = true;
             returnedUser.posts = likesSplicer(req, returnedUser.posts, idArray);
-            return eventEmitter.emit( 'profileJSONDone', returnedUser );
+            return thenRender(returnedUser);
 
         }).catch(function(error) {
             return throwErr(error);
@@ -267,7 +267,7 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
     }).then(function(user) {
         //user don't exist
         if(!user) {
-            return eventEmitter.emit('profileJSONDone', 'userNotFound');
+            return thenRender('userNotFound');
         } 
         console.log(user.isPrivate);
         // 3) If profile is not public... check authentication and 2 sub-conditions
@@ -290,7 +290,7 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
                                 return getProfile(targetUser.userId, false);
                             }
                             //user is private and not following requestor.
-                            return eventEmitter.emit('profileJSONDone', 'userIsPrivate');
+                            return thenRender('userIsPrivate');
                         })
                         .catch(function(error) {
                             return throwErr(error);
@@ -301,7 +301,7 @@ module.exports = function profileJSON(req, eventEmitter, isSelf) {
             }
 
             //request is not authenticated.
-            return eventEmitter.emit('profileJSONDone', 'reqNotAuthUserIsPrivate');
+            return thenRender('reqNotAuthUserIsPrivate');
 
 
         } //closure for user.isPrivate
