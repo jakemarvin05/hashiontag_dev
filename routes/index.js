@@ -11,7 +11,7 @@ var isLoggedIn = require('../apps/passport/isLoggedIn.js');
 var globalJSON = require('../apps/globalJSON.js');
 
 //instagram
-var ig = require('instagram-node').instagram();
+//var ig = require('instagram-node').instagram();
 
 module.exports = router;
 
