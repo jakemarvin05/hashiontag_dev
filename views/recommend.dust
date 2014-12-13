@@ -3,32 +3,47 @@
     width: 100%;
     text-align: center;
 }
-.rBlkImg img {
-    width: 25%;
-    display: block;
-    float: left;
+.rBlk .profileFollowButton {
+    position: absolute;
+    right: 10px;
+    top: 0px;
+    font-size: 12px;
+    height: 24px;
+    width: 100px;
+    padding: 7px 0px;
 }
-.rBlkUserPP {
-    text-align: center;
-    margin-top: 10px;
+.rBlkUser {
+    position: relative;
 }
-    .rBlkUserPP img {
-        height: 50px;
-        border-radius: 25px;
+    .rBlkImg img {
+        width: 25%;
+        display: block;
+        float: left;
     }
+    .rBlkUserPP {
+        text-align: center;
+        margin-top: 10px;
+    }
+        .rBlkUserPP img {
+            height: 50px;
+            border-radius: 25px;
+        }
 
-.rBlkUsername {
-    font-size: 20px;
-}
-.rBlkAbout {
-    margin: 10px;
-    color: #ccc;
-}
+    .rBlkUsername {
+        font-size: 20px;
+    }
+    .rBlkAbout {
+        margin: 10px;
+        color: #ccc;
+    }
 </style>
 <!-- rBlk = recommendedBlock -->
 <div class="recommendedWrapper">
     <article class="rBlk" id="replaceId">
         <div class="rBlkUser">
+
+            <button class="darkButton profileFollowButton" data-action="follow" data-uid="">Follow</button>
+
             <div class="rBlkUserPP"></div>
             <div class="rBlkUsername"></div>
         </div>
@@ -50,6 +65,7 @@ recommendBlk.ajaxRun = function() {
     ajax.done(function(data) {
         if(data.success) {
             self.build(data.users);
+            self.followButton($('.rBlk .profileFollowButton'));
         }
     });
 
@@ -69,14 +85,17 @@ recommendBlk.build = function(users) {
         this.$template.append(newBlock);
         var $blk = $('#rBlk_' + user.userNameDisp);
 
+        //follow button
+        $blk.find('.profileFollowButton').attr('data-uid', user.userId);
+
         //profile picture
         var pp = new Image();
         pp.src = VV.utils.imageGetter(user.profilePicture, "thumb");
         $blk.find('.rBlkUserPP').append(pp);
-        $blk.find('.rBlkUserPP img').wrap('<a href="' + printHead.p.absPath + '/' + user.userNameDisp + '"></a>');
+        $blk.find('.rBlkUserPP img').wrap('<a href="' + printHead.p.absPath + '/' + user.userNameDisp + '" target="_blank"></a>');
 
         //username
-        $blk.find('.rBlkUsername').append('<a href="' + printHead.p.absPath + '/' + user.userNameDisp + '">@' + user.userNameDisp + '</a>');
+        $blk.find('.rBlkUsername').append('<a href="' + printHead.p.absPath + '/' + user.userNameDisp + '" target="_blank">@' + user.userNameDisp + '</a>');
 
         //about
         $blk.find('.rBlkAbout').append('"' + user.about + '"');
@@ -89,7 +108,7 @@ recommendBlk.build = function(users) {
             var post = user.posts[j];
             if(!post) { break; }
             var link = printHead.p.absPath + '/' + user.userNameDisp + '?show=' + post.postId;
-            $blkImg.append('<a href="' + link + '" class="' + post.imgUUID + '"></a>');
+            $blkImg.append('<a href="' + link + '" class="' + post.imgUUID + '" target="_blank"></a>');
             
             $blkImg.find('.' + post.imgUUID).append(preload1);
 
@@ -108,6 +127,61 @@ recommendBlk.appendImg = function($blkImg, imgUUID) {
         $(this).velocity({opacity: 1}, 500);
     }
     img.src = VV.utils.imageGetter(imgUUID, "half");
+}
+recommendBlk.followButton = function($selector) {
+
+    //this is a modification from the main followButton function found in me.dust
+    var followButton = {
+        main: function($el) {
+
+            var followed = $el.attr('data-followed');
+            if (followed === "true") { return false; }
+
+            var targetUserId = $el.attr('data-uid'),
+                action = $el.attr('data-action'),
+                $followButton = $el;
+
+            //disallow action if user is trying to follow her/himself:
+            if(printHead.userHeaders.userId === parseFloat(targetUserId)) { return false; }
+
+            //change the state
+            $followButton.attr('data-followed','true');
+            $followButton.velocity('callout.pulse', 200);
+            $followButton.html('followed!');
+
+            // Send the data using post
+            var posting = $.post( "{p.absPath}/api/follow", { 
+                userId: targetUserId, 
+                action: action 
+            });
+            
+            //done
+            posting.done(function(data) {
+                if(data.success) {
+                    console.log('success');
+                } else {
+                    console.log('error');
+                    alertFactory.protoAlert('Please either login or check your internet connection.');
+                }
+            });
+
+            //fail
+            posting.fail(function() {
+                alertFactory.protoAlert('Please either login or check your internet connection.');
+            });
+        },
+        init: function($el) {
+            var self = this;
+            $el.each(function(i, el) {
+                var $own = $(el);
+                $own.click(function(e) {
+                    e.preventDefault();
+                    return self.main($own);
+                });
+            });
+        }
+    }
+    followButton.init($selector);
 }
 
 recommendBlk.init = function() {

@@ -16,15 +16,15 @@ module.exports = function getRecommend(req, res) {
         34, //clubcouture
         30, //awfullyamanda
         43, //mongabong
+        58, //joycelynthiang
+        54 //gerritheberri
     ]
-
-    var recUserIds = utils.getRandom(recUserIds);
 
     db.User.findAll({
         where: {
             userId: recUserIds
         },
-        attributes: ['profilePicture', 'userNameDisp', 'about'],
+        attributes: ['userId', 'profilePicture', 'userNameDisp', 'about'],
         include: [{
             model: db.Post,
             atttributes: ['postId', 'imgUUID']
@@ -32,18 +32,21 @@ module.exports = function getRecommend(req, res) {
         order: [[db.Post, 'createdAt', 'DESC']]
     }).then(function(users) {
 
-        var joinedUsers = [];
-        var i = 0;
-        while(users[i]) {
-            var user = JSON.parse(JSON.stringify(users[i]));
-            joinedUsers.push(user);
-            i++;
+        var shuffled = users.slice(0),
+            temp, index,
+            i = users.length;
+
+        while(i--) {
+            index = Math.floor( (i+1) * Math.random() );
+            temp = shuffled[index];
+            shuffled[index] = shuffled[i];
+            shuffled[i] = temp;
         }
 
-        return res.json({success: true, users: joinedUsers});
+        return res.json({success: true, users: shuffled});
     }).catch(function(err) {
         console.log(fname + ' db error: ' + err);
-        //return res.json({ success: false });
+        return res.json({ success: false });
     });
     
 }
