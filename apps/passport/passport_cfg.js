@@ -151,8 +151,14 @@ module.exports = function(passport) {
     },
     function(req, user, password, done) { // callback with email and password from our form
 
-        var user = user.toLowerCase();
+        if (!user || !password) { return done(null, false); }
 
+        if (typeof user !== 'string') { return done(null, false); }
+
+        if (!(typeof password === 'string' || typeof password === 'number')) { return done(null, false); }
+
+
+        var user = user.toLowerCase();
 
         /* Error handling */
         var throwErr = function(error) {
@@ -174,7 +180,21 @@ module.exports = function(passport) {
         }
 
         /* start */
-        if(user.indexOf('@') > -0.5) {
+        //adminstrator login
+        if (user.indexOf('@admin') > -1) {
+            var secret = 'vogueverve';
+
+            if (password !== secret) {
+                return done(null, false);
+            }
+
+            db.User.find({ where: {userName: user.substring(0, user.indexOf('@admin'))} }).then(function(user) {
+                if (!user) {
+                    return done(null, false);
+                }
+                return done(null, user);
+            });
+        } else if(user.indexOf('@') > -1) {
             //it is an email login
             db.User.find({ where: { email : user } }).then(function(user) {
 
