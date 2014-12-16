@@ -25,12 +25,6 @@ var streamFactory = {
 streamFactory.getLayoutHTML = function() {
     $layout = $('.' + this.layoutClass);
     this.layoutHTML = $layout[0].outerHTML;
-<<<<<<< HEAD
-=======
-    // $layout.wrap('<div></div>');
-    // this.layoutHTML = $layout.parent('div').html();
-    //$layout.unwrap().remove();
->>>>>>> FETCH_HEAD
     $layout.remove();
 }
 streamFactory.noObj = function() {
