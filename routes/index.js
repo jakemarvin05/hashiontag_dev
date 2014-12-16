@@ -137,6 +137,9 @@ router.get('/latest', function(req, res) {
 
 
 router.get('/startag', function(req, res) {
+
+    if (!req.isAuthenticated()) { res.redirect('/'); }
+    
     var gJSON = globalJSON(req);
 
     function thenRender(renderJSON) {
