@@ -1,4 +1,4 @@
-
+"use strict";
 /* 
 This is being extended by profile page 
 
@@ -23,7 +23,7 @@ var streamFactory = {
     imageType: "full"
 }
 streamFactory.getLayoutHTML = function() {
-    $layout = $('.' + this.layoutClass);
+    var $layout = $('.' + this.layoutClass);
     this.layoutHTML = $layout[0].outerHTML;
     $layout.remove();
 }
@@ -277,43 +277,41 @@ streamFactory.append.image = function($stream, i, burst) {
     //image
     var imgURL = '',
         img = new Image(),
-        x = i,
         theParent = this.parent,
-        post = theParent.posts[x],
+        post = theParent.posts[i],
         burst = burst;
 
         //set it to transparent for fading.
         img.style.opacity = 0;
         img.style.display = "block"
 
-    img.onload = function() {
-        //console.log('img.onload');
-        //cache the i. not too sure if not doing this will cause a bug
-        var i = x,
-            $theStream = $stream;
-        //if this is a burst image, decrement the count
-        if(burst) {
-            //console.log('bursting and loaded: this is the ' + i);
-            theParent.append.imageBurstCount -= 1;
-            if(theParent.append.imageBurstCount === 0) {
-                //console.log('burst count has decremented to 0....');
-                //set the status to complete
-                theParent.append.imageBurstComplete = true;
+    img.onload = (function(theParent, $stream, post) {
+        return function() {
 
-                //time to append all deferred images.
-                var defItem = 0;
-                while(theParent.append.imageDeferredArray[defItem]) {
-                    var item = theParent.append.imageDeferredArray[defItem];
-                    theParent.append.image(item.$str, item.n);
-                    defItem++;
+            //if this is a burst image, decrement the count
+            if(burst) {
+                //console.log('bursting and loaded: this is the ' + i);
+                theParent.append.imageBurstCount -= 1;
+                if(theParent.append.imageBurstCount === 0) {
+                    //console.log('burst count has decremented to 0....');
+                    //set the status to complete
+                    theParent.append.imageBurstComplete = true;
+
+                    //time to append all deferred images.
+                    var defItem = 0;
+                    while(theParent.append.imageDeferredArray[defItem]) {
+                        var item = theParent.append.imageDeferredArray[defItem];
+                        theParent.append.image(item.$str, item.n);
+                        defItem++;
+                    }
                 }
             }
-        }
-        //IE10 support
-        $(this).attr('data-imgid', post.imgUUID);
+            //IE10 support
+            $(this).attr('data-imgid', post.imgUUID);
 
-        theParent.append.imageOnLoad($theStream, this);
-    }
+            theParent.append.imageOnLoad($stream, this);
+        }
+    })(theParent, $stream, post);
 
     if(!post.imgUUID || post.imgUUID === null) {
         imgURL = theParent.errorImg;
@@ -358,7 +356,7 @@ streamFactory.append.likeText = function(post) {
                 loopRuns = likersFollowedCount;
             }
 
-            for(k=0;k<loopRuns;k++) {
+            for(var k=0;k<loopRuns;k++) {
                 var name = likersDisp[k].user.userNameDisp;
                 if(k>0) {
                     if(k<show-1) {
@@ -527,7 +525,7 @@ streamFactory.append.eachComment = function($stream, comment, toShow, postId, ap
         user = comment.user,
         commentText = VV.utils.htmlEntities(comment.comment);
 
-    commentId = 'commentId' + comment.commentId;
+    var commentId = 'commentId' + comment.commentId;
 
     if(!toShow) { hide = ' style="display:none" ';}
     //in append, we want to trigger the effect. So hide it first.
