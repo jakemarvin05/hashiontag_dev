@@ -24,9 +24,11 @@ var streamFactory = {
 }
 streamFactory.getLayoutHTML = function() {
     $layout = $('.' + this.layoutClass);
-    $layout.wrap('<div></div>');
-    this.layoutHTML = $layout.parent('div').html();
-    $layout.unwrap().remove();
+    this.layoutHTML = $layout[0].outerHTML;
+    // $layout.wrap('<div></div>');
+    // this.layoutHTML = $layout.parent('div').html();
+    //$layout.unwrap().remove();
+    $layout.remove();
 }
 streamFactory.noObj = function() {
     //console.log('streamFactory.noObj');
