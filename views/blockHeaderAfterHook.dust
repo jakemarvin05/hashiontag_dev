@@ -33,7 +33,7 @@
                 {@select key=showNav}
                     {@eq value="continue"}
                         <a href="{p.absPath}/preview">
-                            <button class="darkButton">Continue Without Login</button>
+                            <button class="darkButton">Look around...</button>
                         </a>
                     {/eq}
                     {@eq value="login"}
