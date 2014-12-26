@@ -86,7 +86,7 @@
         } else {
             var hashtag = this.parent.posts[i];
 
-            $stream.find('.blockTop').html('<a href="/hashtag/' + hashtag.hashtagId + '"><h2 class="htext">#' + hashtag.hashtagId + '</h2></a>');
+            $stream.find('.blockTop').html('<h2 class="htext"><a href="/hashtag/' + hashtag.hashtagId + '">#' + hashtag.hashtagId + '</a></h2>');
         }
 
     }
