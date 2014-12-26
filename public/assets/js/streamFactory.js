@@ -36,7 +36,7 @@ streamFactory.init = function(renderJSON, options) {
     var posts = renderJSON.posts || renderJSON.results;
     if(!posts) { return false; }
 
-    this.uid = renderJSON.userId;
+    this.uid = renderJSON.userId || printHead.userHeaders.userId;
 
     if(options) {
         if(options.burst !== 'undefined') { this.burst = options.burst; }
