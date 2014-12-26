@@ -63,6 +63,7 @@
 {?printHead}
 <script>
 var printHead = {printHead|s};
+var P = printHead.p;
 </script>
 {/printHead}
 
