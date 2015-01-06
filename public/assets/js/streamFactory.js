@@ -515,7 +515,7 @@ streamFactory.append.commentBlockMoreButton = function($cont) {
             if(newCount === 0) { $('.commentsButForPID' + postId).velocity('fadeOut', 200); }
 
             //update data attrs
-            $('.commentsCountForPID31').attr('data-count', newCount).html(newCount);
+            $('.commentsCountForPID' + postId).attr('data-count', newCount).html(newCount);
             $(this).attr('data-power', p+1);
         });
 }
