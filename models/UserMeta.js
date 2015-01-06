@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
 
-    var UserMeta = sequelize.define('UserMeta',
+    var UserMeta = sequelize.define('userMeta',
         {
             //camelCase
             userMetaId: {

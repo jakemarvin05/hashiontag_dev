@@ -33,7 +33,7 @@
     "pg": "^3.4.0",
     "request": "2.46.0",
     "sendgrid": "^1.2.2",
-    "sequelize": "2.0.0-dev12",
+    "sequelize": "2.0.0rc6",
     "serve-favicon": "^2.1.6",
     "socket.io": "1.1.0",
     "string": "^2.2.0",

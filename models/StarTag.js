@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
 
-    var StarTag = sequelize.define('StarTag', {
+    var StarTag = sequelize.define('starTag', {
         //camelCase
         starTagId: {
             type: DataTypes.INTEGER,

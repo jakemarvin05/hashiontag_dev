@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
 
-    var MarkedPost = sequelize.define('MarkedPost',
+    var MarkedPost = sequelize.define('markedPost',
         {   
             id: {
                 type: DataTypes.INTEGER,

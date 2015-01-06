@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
 
-    var Instagram = sequelize.define('Instagram',
+    var Instagram = sequelize.define('instagram',
         {
             //camelCase
             runningKey: {

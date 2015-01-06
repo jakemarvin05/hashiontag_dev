@@ -2,7 +2,7 @@ module.exports = function(sequelize, DataTypes) {
 
 //note: jQuery validation rules applied at clientside should sync with this
 
-    var Like = sequelize.define('Like',
+    var Like = sequelize.define('like',
         {
             //camelCase
             likeId: {

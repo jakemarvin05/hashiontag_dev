@@ -2,7 +2,7 @@ module.exports = function(sequelize, DataTypes) {
 
 //note: (bug) have to manually add these fields because the association create this table already.
 
-    var Following = sequelize.define('Following', {
+    var Following = sequelize.define('following', {
         //camelCase
         affinityId: {
             type: DataTypes.INTEGER,

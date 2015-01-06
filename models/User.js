@@ -7,7 +7,7 @@ module.exports = function(sequelize, DataTypes) {
 
 //note: jQuery validation rules applied at clientside should sync with this
 
-    var User = sequelize.define('User', {
+    var User = sequelize.define('user', {
         userId: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -105,6 +105,11 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.BOOLEAN,
             allowNull: true, // no need to allow null if you have a default value.
             defaultValue: true
+        },
+        hasShop: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false
         }
     }, {
         timestamps: true,

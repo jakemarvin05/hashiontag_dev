@@ -24,7 +24,8 @@ fs.readdirSync(__dirname).filter(function(file) {
 }).forEach(function(file) {
 
     var model = sequelize.import(path.join(__dirname, file))
-    db[model.name] = model
+    var name = file.substring(0, file.indexOf(".")); //ugly hack to restore uppercase
+    db[name] = model
 
 });
 

@@ -2,7 +2,7 @@ module.exports = function(sequelize, DataTypes) {
 
 //note: jQuery validation rules applied at clientside should sync with this
 
-    var StreamScore = sequelize.define('StreamScore',
+    var StreamScore = sequelize.define('streamScore',
         {   
             id: {//cant change
                 type: DataTypes.INTEGER,

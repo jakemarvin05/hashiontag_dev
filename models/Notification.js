@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
 
-    var Notification = sequelize.define('Notification',
+    var Notification = sequelize.define('notification',
         {
             //camelCase
             notificationId: {

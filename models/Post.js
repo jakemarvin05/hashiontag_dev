@@ -4,7 +4,7 @@ module.exports = function(sequelize, DataTypes) {
 
 //note: jQuery validation rules applied at clientside should sync with this
 
-    var Post = sequelize.define('Post',
+    var Post = sequelize.define('post',
         {
             //camelCase
             postId: {

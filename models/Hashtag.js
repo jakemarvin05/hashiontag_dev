@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
 
-    var Hashtag = sequelize.define('Hashtag',
+    var Hashtag = sequelize.define('hashtag',
         {
             //camelCase
             hashtagId: {

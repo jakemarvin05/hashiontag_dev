@@ -2,7 +2,7 @@ module.exports = function(sequelize, DataTypes) {
 
 //note: jQuery validation rules applied at clientside should sync with this
 
-    var PostMeta = sequelize.define('PostMeta', {   
+    var PostMeta = sequelize.define('postMeta', {   
         metaId: {
             type: DataTypes.INTEGER,
             primaryKey: true,

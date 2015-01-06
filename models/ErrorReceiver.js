@@ -2,7 +2,7 @@ module.exports = function(sequelize, DataTypes) {
 
 //note: jQuery validation rules applied at clientside should sync with this
 
-    var ErrorReceiver = sequelize.define('ErrorReceiver',
+    var ErrorReceiver = sequelize.define('errorReceiver',
         {   
             id: {//cant change
                 type: DataTypes.INTEGER,
