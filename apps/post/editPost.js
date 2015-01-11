@@ -37,14 +37,14 @@ module.exports = function editPost(req, res) {
         } else {
             console.log('post desc is not the same');
             //desc has changed. delete the previous hashtags and run the tagsHandlers again.
-            deleteHashtags = db.sequelize.query('DELETE FROM "Post_Hashtag" WHERE "Post_postId" = ' + post.postId );
+            var deleteHashtags = db.sequelize.query('DELETE FROM "Post_Hashtag" WHERE "Post_postId" = ' + post.postId );
             tagsHandler(req.body.desc, null, function(descJSON) {
                 DESCJSON = descJSON;
                 return update(descJSON);
             });
         }
 
-        deleteMetas = db.sequelize.query('DELETE FROM "PostMeta" WHERE "Post_postId" = ' + post.postId + ' AND ( key = \'itemLink\' OR key = \'itemPrice\' OR key = \'itemAddTag\' )');
+        var deleteMetas = db.sequelize.query('DELETE FROM "PostMeta" WHERE "Post_postId" = ' + post.postId + ' AND ( key = \'itemLink\' OR key = \'itemPrice\' OR key = \'itemAddTag\' )');
 
         return [
             deleteMetas,
@@ -78,7 +78,7 @@ module.exports = function editPost(req, res) {
         itemMeta.itemAddTag = S(itemMeta.itemAddTag).stripTags().s;
         //strip away the '@'
         if(itemMeta.itemAddTag.indexOf('@') === 0) {
-            itemMeta.itemAddTag.substring(1);
+            itemMeta.itemAddTag = itemMeta.itemAddTag.substring(1);
         }
     }
 
@@ -87,6 +87,7 @@ module.exports = function editPost(req, res) {
         itemMeta.itemPrice = S(itemMeta.itemPrice).stripTags().s; 
         itemMeta.itemPrice = S(itemMeta.itemPrice).strip('\'','"').s; 
     }
+
 
     var TASKS = 2;
     function update(descJSON) {
@@ -100,61 +101,25 @@ module.exports = function editPost(req, res) {
             POST.descHTML = DESCJSON.descHTML;
         }
 
-        var NEWPOST;
         db.Post.find().then(function() {
-            return [
-                POST.save(),
-                metaAddTag(itemMeta.itemAddTag)
-            ]
-        }).spread(function(post, addtag) {
-            NEWPOST = post;
-            if(DESCJSON) { addHashTags(DESCJSON.descTags.hash, post); }
 
-            return [
-                (function() {
-                    if(addtag) {
-                        return db.PostMeta.create({
-                            key: "itemAddTag",
-                            value: addtag.userNameDisp,
-                            Post_postId: post.postId
-                        });
-                    }
-                    return false;
-                })(),
 
-                (function() {
-                    if(itemMeta.itemLink) {
-                        console.log(fname + ' ' + 'has itemLink');
-                        console.log(itemMeta.itemLink, post.postId);
-                        return db.PostMeta.create({
-                            key: "itemLink",
-                            value: itemMeta.itemLink,
-                            Post_postId: post.postId
-                        }).catch(function(err) {
-                            console.log('itemLink error: ' + err);
-                        });
-                    } else {
-                        return false;
-                    }
-                })(),
+            if(DESCJSON) { addHashTags(DESCJSON.descTags.hash, POST); }
 
-                (function() {
-                    if(itemMeta.itemPrice) {
-                        console.log(fname + ' ' + 'has price');
-                        return db.PostMeta.create({
-                            key: "itemPrice",
-                            value: itemMeta.itemPrice,
-                            Post_postId: post.postId
-                        }).catch(function(err) {
-                            console.log('itemLink error: ' + err);
-                        });
-                    } else {
-                        return false;
-                    }
-                })()
-            ]
-        }).spread(function() {
-            return res.json({success: true, post: NEWPOST});
+            return metaAddTag(itemMeta.itemAddTag);
+
+        }).then(function(addtag) {
+
+            var post = POST;
+            if (!addtag) { delete itemMeta.itemAddTag; }
+            POST.dataMeta.itemMeta = itemMeta;
+
+            return POST.save({fields: (POST.changed() || []).concat(['dataMeta'])});
+    
+        }).then(function(newPost) {
+            //return res.json({success: true, post: newPost});
+            //for the time being we don't want to return the whole post
+            return res.json({success: true});
         }).catch(function(err) {
             console.log(fname + 'update catch handler. Error: ' + err);
         });

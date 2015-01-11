@@ -158,34 +158,11 @@ streamFactory.append.init = function($stream, i) {
     /* Settings button */
     this.settingsButton($stream, post);
 
-
-    /* All POST META stuff comes under here */
-
-    //convert the metas into .value chain
-    var digestedPostMeta = this.digestPostMeta(post);
-    //update the parent and re-reference post
-    this.parent.posts[i].postMeta = digestedPostMeta;
-    post = this.parent.posts[i];
-
-
     /* is instagram or startag? */
     this.blockVia($stream, post);
 
+    this.moreInfoBlock($stream, post);
 
-    //if there is nothing in postMeta, return
-    if(!digestedPostMeta) { $stream.find('.moreInfo').hide(); return false; }
-
-
-    /*
-    * More info
-    */
-
-    var moreInfo = this.moreInfoBlock($stream, post);
-    if(moreInfo) { 
-        $stream.find('.blockMoreInfo').append(moreInfo.html);
-        this.moreInfoImg($stream, post, moreInfo);
-        this.moreInfoBindButton($stream.find('.moreInfo'));
-    }
 
 }
 
@@ -604,7 +581,17 @@ streamFactory.append.moreInfoBlock = function($stream, post) {
     <h2 class="shopName" itemprop="shop"></h2>
     <h3 class="price" itemprop="price"></h3>
     */
-    var meta = post.postMeta,
+
+    //if there is nothing in itemMeta, return
+    if(D.get(post, 'dataMeta.itemMeta')) { 
+        if (Object.keys(post.dataMeta.itemMeta).length === 0) {
+            $stream.find('.moreInfo').hide(); return false;
+        }
+    } else {
+        $stream.find('.moreInfo').hide(); return false;
+    }
+
+    var meta = post.dataMeta.itemMeta,
         hasMoreInfo = false;
 
     var itemAddTagDiv = '',
@@ -661,7 +648,12 @@ streamFactory.append.moreInfoBlock = function($stream, post) {
     data.html += itemAddTagDiv;
     data.html += itemLinkDiv;
     data.html += itemPriceDiv;
-    return data;
+
+
+    $stream.find('.blockMoreInfo').append(data.html);
+    this.moreInfoBindButton($stream.find('.moreInfo'));
+    if (data.hasAddTag) { this.moreInfoImg($stream, post, data); }
+
 }
 streamFactory.append.moreInfoBindButton = function($custButton) {
     var $buttons;
@@ -719,7 +711,7 @@ streamFactory.append.moreInfoImg = function($stream, post, moreInfo) {
     ajaxGetImg.fail(function() { return $imgCont.remove(); });
 }
 streamFactory.append.blockVia = function($stream, post) {
-    var link = post.postMeta.isInstagram;
+    var link = D.get(post, 'dataMeta.isInstagram');
     if(link) {
         var append  = 'via <a href="' + link + '" target="_blank">';
             append += 'Instagram';

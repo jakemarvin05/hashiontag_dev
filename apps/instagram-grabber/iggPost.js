@@ -99,7 +99,10 @@ module.exports = function iggPost(insta, post) {
                 desc: descJSON.desc,
                 descHTML: descJSON.descHTML,
                 tags: JSON.stringify(descJSON.descTags),
-                imgUUID: imgUUID
+                imgUUID: imgUUID,
+                dataMeta: {
+                    "isInstagram": post.link
+                }
             }
 
             db.Post.create(postHash).then(function(repost) {

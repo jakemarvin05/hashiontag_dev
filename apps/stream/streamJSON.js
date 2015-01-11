@@ -41,17 +41,19 @@ module.exports = function streamJSON(req, render, opts) {
             model: db.User,
             attributes: [ 'userNameDisp' ]
         }]
-    }, {
-        model: db.PostMeta,
-        attributes: ['key', 'value'],
-        where: db.Sequelize.or(
-            {'key': 'itemLink'}, 
-            {'key': 'itemAddTag'}, 
-            {'key': 'itemPrice'},
-            {'key': 'isInstagram'}
-        ),
-        required: false
-    }]
+    }
+    // , {
+    //     model: db.PostMeta,
+    //     attributes: ['key', 'value'],
+    //     where: db.Sequelize.or(
+    //         {'key': 'itemLink'}, 
+    //         {'key': 'itemAddTag'}, 
+    //         {'key': 'itemPrice'},
+    //         {'key': 'isInstagram'}
+    //     ),
+    //     required: false
+    // }
+    ]
     var order = [
         ['createdAt', 'DESC'], 
         [db.Comment, 'createdAt', 'ASC'] 

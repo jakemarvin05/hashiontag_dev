@@ -34,17 +34,19 @@ module.exports = function singlePostJSON(req, thenRender) {
                         model: db.User,
                         attributes: [ 'userNameDisp' ]
                     }]
-                }, {
-                    model: db.PostMeta,
-                    attributes: ['key', 'value'],
-                    where: db.Sequelize.or(
-                        {'key': 'itemLink'}, 
-                        {'key': 'itemAddTag'}, 
-                        {'key': 'itemPrice'},
-                        {'key': 'isInstagram'}
-                    ),
-                    required: false
-                }], 
+                }
+                // ,{
+                //     model: db.PostMeta,
+                //     attributes: ['key', 'value'],
+                //     where: db.Sequelize.or(
+                //         {'key': 'itemLink'}, 
+                //         {'key': 'itemAddTag'}, 
+                //         {'key': 'itemPrice'},
+                //         {'key': 'isInstagram'}
+                //     ),
+                //     required: false
+                // }
+                ], 
                 order: [
                     [db.Comment, 'createdAt', 'ASC'] 
                 ]

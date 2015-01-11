@@ -166,13 +166,12 @@ function editDesc($edit, $cancel) {
             "itemLink": itemLink,
             "itemAddTag": itemAddTag,
             "itemPrice": itemPrice
-        }
-        itemMeta = JSON.stringify(itemMeta);
+        };
         // AJAX post
         var posting = $.post( "{p.absPath}/api/post/edit", { 
             postId: postId,
             desc: descInput,
-            itemMeta: itemMeta,
+            itemMeta: JSON.stringify(itemMeta),
             User_userId: postOwnerId
         });
 

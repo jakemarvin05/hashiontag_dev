@@ -3386,7 +3386,7 @@ if (typeof Object.create != 'function') {
 
 //Dottie 0.2.6
 //https://github.com/mickhansen/dottie.js
-
+var D; //expose dottie
 (function(undefined) {
     var root = this;
 
@@ -3558,7 +3558,7 @@ if (typeof Object.create != 'function') {
     }
 
     //modification. D as shorthand.
-    var D = Dottie;
+    D = Dottie;
 })();
 
 

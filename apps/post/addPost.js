@@ -21,7 +21,6 @@ module.exports = function addPost(req, res, uuid, path, fields, CALLBACK) {
 
     var desc = fields['desc'];
     var itemMeta = JSON.parse(fields['itemMeta']);
-    
 
     //check for nullity first before invoking HTML tags stripping.
     //by default null should occur very frequently, so don't incur strip tags overheads unneccessarily
@@ -36,7 +35,7 @@ module.exports = function addPost(req, res, uuid, path, fields, CALLBACK) {
         itemMeta.itemAddTag = S(itemMeta.itemAddTag).stripTags().s;
         //strip away the '@'
         if(itemMeta.itemAddTag.indexOf('@') === 0) {
-            itemMeta.itemAddTag.substring(1);
+            itemMeta.itemAddTag = itemMeta.itemAddTag.substring(1);
         }
     }
 
@@ -47,18 +46,24 @@ module.exports = function addPost(req, res, uuid, path, fields, CALLBACK) {
     }
 
 
+
     tagsHandler(desc, CALLBACK, finalCreate);
 
     function finalCreate(descJSON, CALLBACK) {
         //create the post
         db.User.find().then(function() {
+            return metaAddTag(itemMeta.itemAddTag);
+        }).then(function(foundAddTag) {
+
+            if (!foundAddTag) { delete itemMeta.itemAddTag; }
 
             var postHash = { 
                 desc: descJSON.desc,
                 descHTML: descJSON.descHTML,
                 tags: JSON.stringify(descJSON.descTags),
                 User_userId: req.user.userId,
-                imgUUID: uuid
+                imgUUID: uuid,
+                dataMeta: { itemMeta: itemMeta }
             }
 
             var attrUserId = descJSON.descTags.star.userId;
@@ -78,15 +83,9 @@ module.exports = function addPost(req, res, uuid, path, fields, CALLBACK) {
                 setProfileFlag = true;
             }
 
-            return [
+            return db.Post.create(postHash);
 
-                db.Post.create(postHash),
-                //run metaAddTag to attempt to get back the user instance
-                metaAddTag(itemMeta.itemAddTag),
-
-            ]
-
-        }).spread(function(post, addtag) {
+        }).then(function(post) {
 
             //set the profilepicture async.
             if(setProfileFlag) { 
@@ -104,48 +103,6 @@ module.exports = function addPost(req, res, uuid, path, fields, CALLBACK) {
             //asynchronous hashtag adding. non-critical process so we don't really care.
             addHashTags(descJSON.descTags.hash, post);
 
-            return [
-                post,
-                
-                (function() {
-                    if(addtag) {
-                        return db.PostMeta.create({
-                            key: "itemAddTag",
-                            value: addtag.userNameDisp,
-                            Post_postId: post.postId
-                        });
-                    }
-                    return false;
-                })(),
-
-                (function() {
-                    if(itemMeta.itemLink) {
-                        console.log(fname + ' ' + 'has itemLink');
-                        return db.PostMeta.create({
-                            key: "itemLink",
-                            value: itemMeta.itemLink,
-                            Post_postId: post.postId
-                        });
-                    } else {
-                        return false;
-                    }
-                })(),
-
-                (function() {
-                    if(itemMeta.itemPrice) {
-                        console.log(fname + ' ' + 'has price');
-                        return db.PostMeta.create({
-                            key: "itemPrice",
-                            value: itemMeta.itemPrice,
-                            Post_postId: post.postId
-                        });
-                    } else {
-                        return false;
-                    }
-                })()
-            ]
-        }).spread(function(post) {
-            console.log(fname + ' Fields inserted.');
             return CALLBACK(post); 
 
         }).catch(function(err) {

@@ -551,6 +551,7 @@ $("#postButton").click(function(e){
             imgData: file,
             processData: false,
             desc: $('#desc').val(),
+            dataMeta: {},
             itemMeta: {}
         }
 
@@ -563,20 +564,19 @@ $("#postButton").click(function(e){
 
 
         if($whereFields.attr('data-show') === "true" && (itemLink||itemAddTag||itemPrice) ) {
-            console.log('something is true');
             //data-show is true, and either some or all inputs have values -> get values
+
             attrs.itemMeta = {
                 "itemLink": itemLink,
                 "itemAddTag": itemAddTag,
-                "itemPrice":itemPrice
+                "itemPrice": itemPrice
             }
+
         }
-        console.log(attrs);
 
         VV.img.upload(attrs, function(data) {
             //redirect to post
-            window.location.href = '/p/' + data.postId;
-            console.log(data.postId);    
+            window.location.href = '/p/' + data.postId;  
         });
 
     } else {
