@@ -23,8 +23,10 @@ module.exports = function addRemoveLike(req, res) {
             //console.log(req.user.userId);
 
             db.Like.findOrCreate({
-                User_userId: req.user.userId,
-                Post_postId: req.body.postId
+                where: {
+                    User_userId: req.user.userId,
+                    Post_postId: req.body.postId
+                }
             }).spread(function(like, created) {
                 
                 if(created) {
@@ -57,7 +59,9 @@ module.exports = function addRemoveLike(req, res) {
                 console.log(idArray);
 
                 return [
-                    db.Like.destroy({likeId: idArray}),
+                    db.Like.destroy({
+                        where: {likeId: idArray}
+                    }),
                     db.Post.find({ where:{postId:req.body.postId}, attributes: ['postId'] })
                 ]
                     

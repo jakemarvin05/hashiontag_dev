@@ -96,7 +96,9 @@ module.exports = function instagramLink(req, res, action) {
     }
 
     if(action === "unlink") {
-        db.Instagram.destroy({ User_userId: req.user.userId }).then(function() {
+        db.Instagram.destroy({
+            where: { User_userId: req.user.userId }
+        }).then(function() {
             return res.json({success: true})
         }).catch(throwErr);
     }

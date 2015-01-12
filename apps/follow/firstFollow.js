@@ -38,8 +38,7 @@ module.exports = function(req, userIdToAction) {
                     lastStreamUpdate: lastestPostDate,
                     hasNoFollow: false
                 }, {
-                    userId: req.user.userId
-
+                    where: { userId: req.user.userId}
                 }),
                 db.Stream.bulkCreate(bulkOfPosts)
             ]
