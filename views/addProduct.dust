@@ -1,0 +1,1393 @@
+{>blockHeader/}
+
+<script src="{p.js}/socket.io.js"></script>
+<script>
+var socket = io.connect();
+var socketId = '';
+
+socket.on('welcome', function (data) {
+    socketId = data.message;
+});
+
+// Reconnects on disconnection
+socket.on('disconnect', function(){
+    console.log("reconnecting to server....");
+    //VERIFY
+    socket.connect();
+});
+
+socket.on('uploadProgress', function(data){
+    var percentage = data.bytesReceived/data.bytesExpected;
+    console.log(percentage);
+    $('#progressBar').css('width', (percentage*100).toString()+'%');
+});
+</script>
+
+<script src="{p.js}/vvImg.js"></script>
+
+<style>
+    /* stylings shared with post.dust */
+    #main {
+        overflow: hidden;
+    }
+    #cropPortCont {
+        width: 100%;
+        position: relative;
+    }
+        #cropPortBg {
+            max-height: 0px;
+            position: relative;
+            top: 20px;
+            width: 280px;
+            margin: auto;
+        }
+         #cropPortBg img {
+            display: block;
+            margin: auto;
+            position: relative;
+            opacity: 0.4;
+            filter: alpha(opacity=40);
+         }
+        #cropPort {
+            height:280px; 
+            width:280px; 
+            box-sizing:border-box; 
+            outline:2px dotted #e44447;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+    img[id^=img_preview], canvas[id^=img_preview] {
+        position:relative;
+    }
+    #img_field {
+        opacity: 0;
+        filter: alpha(opacity=0);
+        position: absolute;
+        max-height: 0px;
+        max-width: 0px;
+    }
+    #browseCont, #scaleCont, #masterButtonsCont {
+        text-align:center;
+    }
+    #scaleSliderCont {
+        width:280px;
+        height: 50px;
+        padding-top: 20px;
+        margin:auto;
+    }
+        #scaleSlider {
+            width: 100%;
+            height: 2px;
+            background-color: #ccc;
+        }   
+        #scaleSliderBut {
+            background-color: #e74447;
+            margin-top: -14px;
+            margin-left: 10px;
+            width: 50px;
+            height: 25px;
+            cursor: move;
+        }
+
+    #progressBarCont {
+        height: 20px;
+        width: 280px;
+        background-color: #ccc;
+        margin: auto;
+    }
+        #progressBar {
+            height: 100%;
+            width: 0%;
+            background-color: #d91639;
+            -webkit-transition: width 0.5s;
+            transition: width 0.5s;
+        }
+
+    /* loader studs styling */
+    #loaderStuds {
+        position: absolute;
+        top: 49%;
+        width: 100%;
+    }
+    .searchLoader {
+        margin: auto;
+        width: 30px;
+    }
+
+    /*end stylings shared with post.dust */
+
+    /*start addProduct stylings */
+    .jqueryHashtags {
+        margin: 0px !important;
+    }
+    #imagesFields {
+        display: none;
+    }
+    .addImage {
+        position: absolute;
+        margin: auto;
+        top: 0; left: 0; bottom: 0; right: 0;
+        height: 24px;
+        width: 100px;
+        text-align: center;
+    }
+    #previewImagesCont, #productDetailsInputs {
+        width: 280px;
+        margin: auto;
+    }
+        #previewImagesCont .removeImage {
+            position: absolute;
+            right: 0px;
+            top: 0px;
+            font-size: 25px;
+            color: #ef4945;
+            background: #fff;
+            padding: 5px;
+            opacity: 0.7;
+            display: none;
+        }
+
+    .previewImagesBorder {
+        box-sizing: border-box;
+        border: 1px solid #ef4549;
+        width: 47.5%;
+        float: left;
+        margin-bottom: 5%;
+        position: relative;
+        overflow: hidden;
+    }
+        .previewImagesBorder.leftPad {
+            margin-left: 5%;
+        }
+        .previewImagesBorder img.previewImagePlaceHolder {
+            width: 100%;
+            height: 100%;
+            display: block !important;
+        }
+        .previewImagesBorder .previewImage {
+            display: none;
+            position: absolute;
+            top: 0px; right: 0px;
+            width: 100%;
+            height: 100%;
+        }
+
+    label {
+        font-weight: bold;
+    }
+    .inventoryTbl th {
+        text-align: left;
+    }
+    select#pdi_shipping_type {
+        padding-bottom: 10px;
+        display: block;
+    }
+    .shippingTypeInfo {
+        display: none;
+    }
+    #shippingCost {
+        display: none;
+    }
+        #shippingCost input[type="text"] {
+            width: 100px;
+            margin-left: 10px;
+        }
+        #shippingCost input[type="checkbox"] {
+            margin: 0px 5px 0px 0px;
+        }
+        #shippingCost th, .shippingCost td {
+            text-align: left;
+            height: 34px;
+        }
+
+    #sizesAndStock tbody td {
+        padding: 5px;
+    }
+        #sizesAndStock tbody input.quantities {
+            width: 70px;
+        }
+    #sizesAndStock tfoot td {
+        text-align: center;
+        padding: 15px 0px;
+    }
+        .addButton {
+            padding: 5px;
+            background-color: #ef4549;
+            color: #fff;
+            border-radius: 2px;
+        }
+    #labelList {
+        border: 1px solid #ef4549;
+    }
+
+        .prodLabel {
+            display: inline-block;
+            padding: 5px;
+            background: #ef4549;
+            color: #fff;
+            margin: 4px 2px;
+            border-radius: 8px;
+        }
+        .labelSearch {
+            border: 0px !important;
+            text-align: left;
+            padding: 5px;
+        }
+
+        ul.list, ul.list li {
+            list-style-type: none;
+            list-style-position: inside;
+        }
+        ul.list {
+            width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        ul.list li {
+            padding: 4px 5px;
+            display: inline-block;
+            background: #ef4549;
+            color: #fff;
+            margin-left: 3px;
+            border-radius: 8px;
+        }
+        ul.list li:hover {
+            cursor: pointer;
+        }
+
+    #masterButtonsCont {
+        margin-top: 20px;
+    }
+</style>
+{>blockHeaderAfterHook/}
+
+<section id="main">
+    <div class="mainColBlock">
+        <h2 style="padding-left: 20px;">Add Product</h2>
+
+        {?isLoggedIn}
+        <div id="productFormOuter">
+            <div id="imagesFields">
+                <input id="img_field" type="file" name="img" accept="image/jpeg,image/gif,image/png">
+            </div>
+
+            <div id="previewImagesCont" class="clearfix">
+                <div class="previewImagesBorder loadActive">
+                    <img class="previewImagePlaceHolder" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
+                    <img class="previewImage">
+
+                    <div class="addButton addImage clickable">
+                        + Add Image
+                    </div>
+
+                    <span class="glyphicon glyphicon-remove-circle removeImage clickable"></span>
+                </div>
+
+                <div class="previewImagesBorder leftPad" style="display:none;">
+                    <img class="previewImagePlaceHolder" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
+                    <img class="previewImage">
+
+                    <div class="addButton addImage clickable">
+                        + Add Image
+                    </div>
+
+                    <span class="glyphicon glyphicon-remove-circle removeImage clickable"></span>
+                </div>
+                <div class="previewImagesBorder" style="display:none;">
+                    <img class="previewImagePlaceHolder" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
+                    <img class="previewImage">
+
+                    <div class="addButton addImage clickable">
+                        + Add Image
+                    </div>
+
+                    <span class="glyphicon glyphicon-remove-circle removeImage clickable"></span>
+                </div>
+                <div class="previewImagesBorder leftPad" style="display:none;">
+                    <img class="previewImagePlaceHolder" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
+                    <img class="previewImage">
+
+                    <div class="addButton addImage clickable">
+                        + Add Image
+                    </div>
+
+                    <span class="glyphicon glyphicon-remove-circle removeImage clickable"></span>
+                </div>
+            </div>
+            <script>
+            (function() {
+                $('.addImage').click(function() {
+                    //init dragShifting here
+                    dragShifting.init();
+
+                    $('#productFormOuter').velocity('transition.slideLeftOut', 200, function() {
+                        $('#addPicCont').velocity('transition.slideRightIn', 200);
+                    });
+                });
+
+                $('.removeImage').click(function() {
+
+                    //count the number of loaded images remaining
+                    var $allLoaded = $('#previewImagesCont .previewLoaded');
+                    var noOfLoaded = $allLoaded.length;
+
+                    if (noOfLoaded === 0) { return false; }
+
+                    var $cont = $(this).closest('.previewImagesBorder');
+
+                    //check its position
+                    var posit = $cont.index();
+
+                    $allLoaded.each(function(i, el) {
+
+                        var $selfCont = $(el),
+                            replacement;
+
+                        if (i < posit) { return; }
+
+                        if (i+1 < noOfLoaded) {
+
+                            //not the last dom. do replacement.
+                            replacement = $($allLoaded[i+1]).find('img.previewImage').attr('src');
+
+                            $selfCont.find('.previewImage').velocity('fadeOut', 100, function(el) {
+                                $(el).on('load.replacement', function() {
+                                    $(this)
+                                        .off('load.replacement')
+                                        .velocity('fadeIn', 100);
+                                });
+                                $(el).attr('src', replacement);
+                            });
+
+                        } else {
+
+                            //the last dom, remove image. this applies to where there is only 1 image loaded
+                            var $imgToRemove = $(el).find('img.previewImage');
+
+                            $imgToRemove.hide().attr('src', '');
+
+                            $selfCont
+                                .removeClass('previewLoaded')
+                                .addClass('loadActive');
+                
+                            $selfCont.find('.addButton').show();
+                            $selfCont.find('.removeImage').hide();
+                            $selfCont.next().hide();
+
+                        }
+
+                        
+                    });
+
+                });
+            })();
+            </script>
+
+            <div id="productDetailsInputs">
+                <p>
+                    <label for="pdi_name">Name:</label>
+                    <br>
+                    <input type="text" class="inputSpecial" placeholder="Name" id="pdi_name" name="name" data-branch="dataProduct.name" required>
+                </p>
+                <p>
+                    <label for="pdi_price">Price (SGD):</label>
+                    <br>
+                    <input type="text" class="inputSpecial" placeholder="Price" id="pdi_price" name="price" data-branch="dataProduct.price" required>
+                </p>
+                <p>
+                    <label for="pdi_description">Description:</label>
+                    <br>
+                    <textarea name="desc" id="pdi_description" class="inputSingle" placeholder="Write a description..." required></textarea>
+
+                    <script>
+                    //tags highlighting
+                    $(function() { $("#pdi_description").hashtags('newpost'); });
+                    </script>
+                </p>
+                <p>
+                    <label for="pdi_skuref">Product SKU or reference number:</label>
+                    <br>
+                    <input type="text" class="inputSpecial" placeholder="sku or ref. number" id="pdi_skuref" name="skuref" data-branch="dataProduct.skuref">
+                    <input type="hidden" class="inputSpecial" id="pdi_skuref_autogen" value="{gJSON.printHead.userHeaders.userId}-{timestamp}" data-branch="dataProduct.skuref">
+                    <br>
+                    *if left empty, auto-generated SKU is:
+                    <br>
+                    <u>{gJSON.printHead.userHeaders.userId}-{timestamp}</u>
+
+                </p>
+                <table class="inventoryTbl" id="shippingCostHdr">
+                    <tr>
+                        <th>Shipping (SGD):</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select name="shipping_type" class="inputSpecial" id="pdi_shipping_type" data-branch="dataProduct.shipping.shippingType" required>
+                                <option value="none">- select item type -</option>
+                                <option value="light">This is a light item</option>
+                                <option value="heavy">This is a heavy item</option>
+                            </select>
+                            <br>
+                            <span class="shippingTypeInfo" id="lightLabel">*Shipping for light items are charged at a flat rate up to your defined "step quantity". Additional flat shipping rates are applied per "step quantity".</span>
+                            <span class="shippingTypeInfo" id="heavyLabel">*Shipping for heavy items are charged on a per item basis. Customers do not enjoy shipping discounts when purchasing more of these items.</span>
+                        </td>
+                    </tr>
+                </table>
+                <table class="inventoryTbl" id="shippingCost">
+                    <tr class="shippingCostNoHide">
+                        <td>
+                            <label for="pdi_shipping_usc_cost">US & Cananda</label>
+                        </td>
+                        </td>
+                        <td>
+                            <input type="text" class="shippingHeavyCost inputSpecial" id="pdi_shipping_usc_cost" name="shipping_usc_cost" placeholder="enter cost"  data-branch="dataProduct.shipping.list.usc">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <label for="pdi_shipping_sea_cost">Southeast Asia</label>
+                        </td>
+                        <td>
+                            <input type="text" class="shippingHeavyCost inputSpecial" name="shipping_sea_cost" placeholder="enter cost" data-branch="dataProduct.shipping.list.sea">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <label for="pdi_shipping_asiaeu_cost">Rest of Asia & Europe</label>
+                        </td>
+                        <td>
+                            <input type="text" class="shippingHeavyCost inputSpecial" name="shipping_asiaeu_cost" placeholder="enter cost" data-branch="dataProduct.shipping.list.asiaeu">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <label for="pdi_shipping_austnz_cost">Australia & NZ</label>
+                        </td>
+                        <td>
+                            <input type="text" class="shippingHeavyCost inputSpecial" name="shipping_austnz_cost" placeholder="enter cost" data-branch="dataProduct.shipping.list.austnz">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <label for="pdi_shipping_row_cost">Rest of the World</label>
+                        </td>
+                        <td>
+                            <input type="text" class="shippingHeavyCost inputSpecial" name="shipping_row_cost" placeholder="enter cost" data-branch="dataProduct.shipping.list.row">
+                        </td>
+                    </tr>
+                </table>
+                <script>
+                (function() {
+                    var $light = $('#lightLabel'),
+                        $heavy = $('#heavyLabel'),
+                        $table = $('#shippingCost'),
+                        $fields = $('.shippingHeavyCost');
+
+                    $('select#pdi_shipping_type').change(function() {
+                        var v = $(this).val();
+                        if (v === "none") { 
+                            $light.hide();
+                            $heavy.hide();
+                            $table.hide();
+                            $fields.prop('required', false);
+                        } else if (v === "light") {
+                            $light.velocity('transition.slideDownIn', 200);
+                            $heavy.hide();
+                            $table.hide();
+                            $fields.prop('required', false);
+                        } else if( v === "heavy") {
+                            $light.hide();
+                            $heavy.velocity('transition.slideDownIn', 200);
+                            $table.velocity('transition.slideDownIn', 200);
+                            $fields.prop('required', true);
+                        }
+                    });
+                })();
+                </script>
+                <p>
+                    <label for="pdi_sizes">Sizes and Stock:</label>
+                    <br>
+                    <select name="sizeType" id="pdi_sizes" class="inputSpecial" data-branch="dataProduct.size.sizeType" required>
+                        <option value="nosize">This item has only one size/ is a free-size</option>
+                        <option value="hassize">This item has sizes</option>
+                    </select>
+                    
+                    <input class="inputSpecial" type="text" name="nosize_qty" placeholder="quantity available" data-branch="dataProduct.size.nosizeQty" required>
+                </p>
+
+                <table class="inventoryTbl" id="sizesAndStock" style="display:none;">
+                    <!-- variable size & qty block -->
+                    <tbody>
+                        <tr class="sizesQtyTr">
+                            <td>
+                                <input class="sizes inputSpecial" type="text" placeholder="size" data-branch="dataProduct.size.sizes" data-type="key" data-groupedcont=".sizesQtyTr">
+                            </td>
+                            <td>
+                                <input class="quantities inputSpecial" type="text" placeholder="qty" data-branch="dataProduct.size.sizes" data-type="value" data-groupedcont=".sizesQtyTr">
+                            </td>
+                            <td>
+                                <span class="removeSizeQtyRow glyphicon glyphicon-remove-circle clickable"></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3"><span id="addNewSize" class="addButton clickable">+ Add new size</span></td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <script>
+                (function() {
+
+                    //pdi_sizes select. toggle form changes between single input to multiple
+                    $('#pdi_sizes').on('change', function() {
+                        var val = $(this).val();
+                        if (val === "nosize") {
+                            $('#sizesAndStock').velocity('transition.slideUpOut', 200);
+                            $('input[name="nosize_qty"]').show().prop('required', true);
+                            $('.sizesQtyTr input').prop('required', false);
+                        } else if (val === "hassize") {
+                            $('#sizesAndStock').velocity('transition.slideDownIn', 200);
+                            $('input[name="nosize_qty"]').hide().prop('required', false);
+
+                            $('.sizesQtyTr:first-child input').prop('required', true);
+                            $('.sizesQtyTr').each(function(i, el) {
+                                if ( i === 0) { return; }
+
+                                var $inputs = $(el).find('input');
+
+                                //loop through them. as long as there are non-empty fields within the row, make the row "required"
+                                $inputs.each(function(i, el) {
+                                    if ($(el).val().length !== 0) {
+                                        $inputs.prop('required', true);
+                                    }
+                                });
+                            });
+                        }
+                    });
+
+                    //cache the html of <tr> to repeat when adding new sizes
+                    $('.sizesQtyTr').css('display','none');
+                    var newRow = $('.sizesQtyTr')[0]['outerHTML'];
+                    $('.sizesQtyTr').removeAttr('style');
+
+                    //initialize its button
+                    removeSizeQtyRow($('.sizesQtyTr'));
+
+                    //add a new row
+                    $('#addNewSize').click(function() {
+                        var inputs = $('.sizesQtyTr:last-child').find('input');
+
+                        for(var i = 0; i < inputs.length; i++) {
+                            if ($(inputs[i]).val().length === 0) { 
+                                return aF.protoAlert('Please complete the current size and quantity before creating a new row.');
+                            }
+                        }
+
+
+                        $('#sizesAndStock tbody').append(newRow);
+                        var $lastRow = $('#sizesAndStock tbody .sizesQtyTr:last');
+                        $lastRow.velocity('transition.slideDownIn', 200);
+
+                        removeSizeQtyRow($lastRow);
+                        toggleRequired($lastRow);
+
+                        sizesQtyInputRestriction($lastRow);
+
+                    });
+
+                    //delete row
+                    function removeSizeQtyRow($row) {
+                        var $removeButton = $row.find('.removeSizeQtyRow');
+
+                        $removeButton.click(function() {
+                            var trLen = $('#sizesAndStock tbody tr').length;
+                            if (trLen < 2) { return false; }
+
+                            $row.velocity('transition.slideUpOut', 200, function() {
+                                $row.remove();
+                            });
+                        });
+                    }
+
+                    //bind the toggling of required.
+                    function toggleRequired($row) {
+
+                        var $inputs = $row.find('input');
+
+                        $inputs.on('change', function() {
+                            if ($(this).val().length !== 0) {
+                                $inputs.prop('required', true);
+                            } else {
+                                var theOtherInputs = $(this).closest('.sizesQtyTr').find('input').not(this);
+
+                                for(var i = 0; i<theOtherInputs.length; i++) {
+                                    if ($(theOtherInputs[i]).val().length !== 0) { return false;}
+                                }
+
+                                //if the loop return didn't trigger, means all fields are empty.
+                                $inputs.prop('required', false);
+                            }
+
+                        });
+                    }
+
+                })();
+                </script>
+
+
+                <div id="addLabelCont">
+                    <label>Labels</label>
+                    <br>
+                    *Labels are for organising your inventory. Label this product by typing into the box.
+                    
+                    <div id="labelAjaxList">
+                        <div id="labelList">
+                            <input type="text" style="width: 100%;" placeholder="type in tags and separate with commas..." class="labelSearch">
+                        </div>
+
+                        <br>
+                        Labels used:
+                        <ul class="list"></ul>
+
+                    </div>
+    
+                    <script>
+                    $(function() {
+                        var options = {
+                            item: '<li><span class="labels"></span></li>',
+                            searchClass: 'labelSearch'
+                        };
+
+                        var values = [
+                            { labels: 'dresses' },
+                            { labels: 'outerwear' }
+                        ];
+
+                        var initList = new List('labelAjaxList', options, values);
+
+                        var $searchField = $('.labelSearch');
+                        var $labelList = $('ul.list');
+
+                        $('.labelSearch').on('keypress keyup', function(e) {
+                            var self = this;
+
+                            if (e.type === 'keypress' && e.charCode === 44 || e.type === 'keypress' && e.charCode === 13) {
+                                if ($(this).val().length === 0) { return e.preventDefault(); }
+
+                                var val = $(this).val().replace(',', '');
+
+                                createLabel.create(val, $searchField);
+
+                                //setTimeout to fire value removal after key is inserted (at the succeeding keyup event.
+                                var self = this;
+                                setTimeout(function() { $(self).val(''); }, 0);
+                            }
+
+                            
+                            if (e.type === 'keyup') {
+                                if ($(this).val().length === 1 && $(this).val() === ',') {
+                                    $(this).val(''); //a fail safe in case some browsers fire the setTimeout before the keyup event.
+                                }
+                            }
+
+                        });
+
+                        //focus the label entry field when clicking anywhere else in the label cont.
+                        $('#labelList').click(function(e) {
+                            if ($(e.target).attr('id') === $(this).attr('id')) {
+                                $('.labelSearch').focus();
+                            }
+                        });
+
+                        $('ul.list li').click(function() {
+
+                            var thisLabel = $(this).find('.labels').html();
+                            createLabel.create(thisLabel, $searchField);
+
+                        });
+
+                        var createLabel = {
+                            create: function(val, $searchField) {
+
+                                if (!this.isNotOnList(val)) { return this.fieldBehaviour($searchField); }
+
+                                var newLabel  = '<div class="prodLabel" data-value="' + val + '">';
+                                    newLabel += '<span class="labelsEntered">' + val + '</span>';
+                                    newLabel += '<span class="clickable glyphicon glyphicon-remove-circle"></span>';
+                                    newLabel += '</div>';
+                                var $newLabel = $(newLabel);
+                                
+                                $newLabel
+                                    .insertBefore($searchField)
+                                    .find('.glyphicon-remove-circle').click(function() {
+                                        $(this).closest('.prodLabel').remove();
+                                        if ($('#labelList .prodLabel').length === 0) {
+                                            //restore width and placeholder
+                                            $searchField
+                                                .attr('placeholder', $searchField.attr('data-placeholder'))
+                                                .css('width', '100%');
+                                        }
+                                    });
+
+                                return this.fieldBehaviour($searchField);
+                            },
+                            fieldBehaviour: function($searchField) {
+                                if (!$searchField.attr('data-placeholder')) { 
+                                    var pl = $searchField.attr('placeholder');
+                                    $searchField.attr('data-placeholder', pl)
+                                }
+
+                                $searchField
+                                    .attr('placeholder', '')
+                                    .css('width', '')
+                                    .inputsAutosize(10);
+                            },
+                            isNotOnList: function(label) {
+
+                                var $labels = $('.labelsEntered');
+
+                                if ($labels.length === 0) { return label; }
+
+                                var list = [];
+
+                                $labels.each(function(i, el) {
+                                    list.push($(el).html());
+                                });
+
+                                if (list.indexOf(label) > -1) {
+                                    return false;
+                                } else {
+                                    return label;
+                                }
+                            }
+                        };
+                    });
+                    </script>
+                </div>
+
+            </div><!-- productDetailsInputs -->
+
+            <div id="masterButtonsCont">
+                <button id="saveButton">Save</button>
+                <button id="publishButton" class="darkButton">Save and Publish</button>
+            </div>
+
+            <script>
+            var dataAppend = {
+
+                run: function($e) {
+                    if ($e.hasClass('inputSingle')) { return this.simple($e); }
+                    if ($e.hasClass('inputSpecial')) { return this.complex($e); }
+                },
+
+                simple: function($e) {
+                
+                    //all inputSingle fields are appended with key = name attribute, value = val()
+                    return this.attrs[$e.attr('name')] = $e.val();
+                },
+
+                complex: function($e) {
+
+                    var self = this;
+
+                    var name = $e.attr('name');
+                    var val = $e.val();
+
+                    if (!val) { return false; } //don't accept empty values.
+
+                    //branches management
+                    var branches = $e.attr('data-branch');
+
+                    //key value pair management
+                    var isKey = ($e.attr('data-type') === "key");
+                    var isValue = ($e.attr('data-type') === "value");
+
+                    //key value type.
+                    if(isKey || isValue) {
+
+                        if(isKey) {
+                            return false; //don't need to create anything for key
+                        }
+                        if(isValue) {
+                            //get the key
+                            var groupClass = $e.attr('data-groupedcont');
+                            var key = $(groupClass).find('input[data-type="key"]').val();
+
+                            // don't set value if this value is empty or if key is empty.
+                            if (!key || !val) {
+                                //key or val is undefined or empty
+                                return false;
+                            }
+                            var setVal = val;
+                        }
+
+                        var chain = branches + '.' + key;
+                        D.set(self.attrs, chain, setVal);
+
+                    } else {
+                        //simple branch type
+                        var chain = branches;
+                        D.set(self.attrs, chain, val)
+                    }
+                    
+                },
+
+                images: function(file) {
+                    this.attrs.imgData.push(file);
+                },
+
+                labels: function(labelText) {
+                    var labels = this.attrs.dataProduct.labels;
+                    if (labels === null) {
+                        this.attrs.dataProduct.labels = [ labelText ];
+                    } else {
+                        labels.push(labelText);
+                    }
+                }
+            };
+
+            $('#publishButton').click(function() {
+                dataAppend.attrs = {
+                    action: 'store',
+                    imgData: [],
+                    processData: false,
+                    desc: '',
+                    dataProduct: {
+                        name: '',
+                        price: '',
+                        skuref: '',
+                        shipping: {},
+                        size: {},
+                        labels: null
+                    }
+                };
+
+                var proceed = true;
+                var scrollTo = 99999999; // just any super large number
+
+                //validate all inputs
+                $('body input, body textarea, body select').each(function(i, el) {
+                    var $e = $(el);
+
+                    if ($e.prop('required')) {
+
+                        //validate selects
+                        if($e.is('select')) {
+                            
+                            //shipping select
+                            if ($e.attr('id') === 'pdi_shipping_type') {
+                                if ($e.val() === "none") {
+                                    proceed = false;
+                                    $e.css('background', '#ffe7e7')
+                                        .off('change.vali')
+                                        .on('change.vali', function() {
+                                          if ($(this).val() !== 'none') {
+                                              $(this)
+                                                  .css('background', '')
+                                                  .off('change.vali');
+                                          }
+                                        });
+
+                                    if ($e.offset().top < scrollTo) {
+                                        scrollTo = $e.offset().top;
+                                    }
+
+                                } else {
+                                    $e.css('background', '');
+                                }
+                            }
+                            
+                        }
+                        
+
+                        if ( $e.val().length === 0 ) {
+                            $e.css('background', '#ffe7e7')
+                              .off('keypress.vali')
+                              .on('keypress.vali', function() {
+                                if ($(this).val().length > 0) {
+                                    $(this)
+                                        .css('background', '')
+                                        .off('keypress.vali');
+                                }
+                              });
+
+                            if ($e.offset().top < scrollTo) {
+                                scrollTo = $e.offset().top;
+                            }
+
+                            proceed = false;
+
+                        } else {
+                            $e.css('background', '');
+                        }
+
+                        //appending data
+                        dataAppend.run($e);
+                    } 
+
+                });
+
+                //validate images input
+                var $imagesUploaded = $('.previewImagesBorder.previewLoaded');
+                if ($imagesUploaded.length === 0) {
+                    var self = $('.loadActive');
+                    proceed = false;
+
+                    self
+                        .css('background', '#ffe7e7')
+                        .find('img.previewImage')
+                            .on('load.vali', function() {
+                                $(this).off('load.vali');
+                                self.css('background', '');
+                            });
+
+                    if (self.offset().top < scrollTo) {
+                        scrollTo = self.offset().top;
+                    }
+                }
+
+                //append images
+                var $images = $('.previewLoaded .previewImage');
+                $images.each(function(i, el) {
+                    $e = $(el);
+                    var file = VV.utils.imgToBin($e.attr('src'));
+
+                    dataAppend.images(file);
+                });
+
+                //append labels
+                var $labels = $('.prodLabel');
+                $labels.each(function(i, el) {
+                    dataAppend.labels($(el).attr('data-value'));
+                });
+
+                //other fields that are optional
+                var optionalFields = [
+                    'input[name="skuref"]'
+                ];
+
+                $.each(optionalFields, function(i, el) {
+                    var $e = $(el);
+
+                    //skuref
+                    if ($e.attr('name') === "skuref") {
+
+                        if ($e.val().length === 0) {
+                            //the skuref is empty, use default
+                            var autogenSelector = '#' + $e.attr('id') + '_autogen';
+                            return dataAppend.run($(autogenSelector));
+                        }
+                        return dataAppend.run($e);
+                    }
+
+                    //if it is not return above (fall through all cases), it will be returned here.
+                    return dataAppend.run($e);
+
+                });
+
+                //other attributes:
+                dataAppend.attrs.postType = 'product';
+
+
+                if (!proceed) { 
+                    $('html, body').animate({
+                        scrollTop: scrollTo - parseFloat($('#opacBar').height()) - 50 //offset with navbar and some more buffer
+                    }, 200);
+
+                } else { 
+                    console.log(dataAppend.attrs);
+                    VV.img.upload(dataAppend.attrs, '/api/post', function(data) {});
+                }
+            });
+            </script>
+
+        </div><!-- productFormOuter -->
+
+        <div id="addPicCont" style="display:none;">
+            <div id="cropPortCont">
+                <div id="cropPortBg"></div>
+                <div id="cropPort"></div>
+                <div id="loaderStuds"></div>
+            </div>
+            <script>
+                //initialize the loader
+                var loaderStuds = Object.create(VV.utils.loaderEffect);
+                loaderStuds.init($('#loaderStuds'));
+                //set the crop port
+                var windowW = $(window).width();
+                if(windowW > 640) {
+                    VV.img.CROP_PORT = 480;
+                    $("#cropPort").css('height', VV.img.CROP_PORT).css('width', VV.img.CROP_PORT);
+                    $("#cropPortBg").css('width', VV.img.CROP_PORT);
+                }
+                //init pinch scaling
+                $(function() { scaleSlider.pinch.init(document.getElementById('cropPort')); });
+            </script>
+            <div id="browseCont">
+                <button class="cancelButton">Cancel</button>
+                <button id="browseButton" class="darkButton">Browse</button>
+            </div>
+            <script>
+            //bind button to input="file"
+            $('#browseButton').click(function() {
+                $('#img_field').focus().trigger('click');
+            });
+            </script>
+
+            {! Bindings for these buttons are below !}
+            <div id="scaleCont" style="display:none">
+                <div id="scaleSliderCont">
+                    <div id="scaleSlider"></div>
+                    <div id="scaleSliderBut"></div>
+                    <script>
+                    //init scale slider button
+                    $(function() { scaleSlider.init($('#scaleSliderBut')) });
+                    </script>
+                </div>
+                <button id="backToBrowse">Back</button>&nbsp;<button class="cancelButton">Cancel</button>&nbsp;<button id="doneScaling" class="darkButton">Done</button>
+            </div>
+        </div>
+
+        <div id="progressBarCont" style="display:none">
+            <h2>Uploading..</h2>
+            <div id="progressBar"></div>
+        </div>
+
+        {:else}
+        <div class="noticePad">
+            <h2>Add Product</h2>
+            You are not logged in. Please log in <a href="{#p}{login}{/p}">here</a>
+        </div>
+        {/isLoggedIn}
+    </div>
+    <!-- end your stream -->
+</section><!-- main -->
+
+{>blockFooter/}
+
+<script src="{p.js}/exif.binaryjax.js"></script>
+
+<script>
+
+/*******************
+* Image processing *
+*******************/
+
+/* Functional schema
+    
+    $("#img_field").change()
+        !--> reader.readAsDataURL()
+                !--> reader.onload()
+                        !--> VV.img.STOCK_IMG.onload()
+                                !--> ends.
+*/
+
+var $img_field = $('img_field');
+var el_img_field = document.getElementById('img_field');
+
+VV.img.STOCK_IMG.onload = function() {
+    var self = this;
+
+    //480x480
+    if(this.height < 480 || this.width < 480 ) {
+        loaderStuds.kill();
+        return aF.protoAlert({
+                text:'Please select an image with at least 480px by 480px resolution', 
+                title:'Resolution too small'
+        });
+    }
+
+    VV.img.STOCK_IMG_MP = this.height*this.width/1000000;
+    if(VV.img.STOCK_IMG_MP > VV.img.RESIZE_MP_LIMIT) {
+        loaderStuds.kill();
+        return aF.protoAlert({
+                text:'Please resize your image before uploading.', 
+                title:'Resolution too high'
+        });
+    }
+
+    //ok clear to proceed...
+
+    //store the heights for use later.
+    VV.img.STOCK_IMG_W = this.width;
+    VV.img.STOCK_IMG_H = this.height;
+    
+
+    //get EXIF first, returns a hasEXIF flag.
+    //callback the subsequent steps
+    VV.img.getEXIF(el_img_field.files[0], function(exif) {
+
+        //set resizer
+        //the picture don't have to be larger than what we allow users to scale.
+        //our base size is 640x640, which means the smaller of the width of height
+        //is 1280(if scale limit is 2), which essentially allows users to 2x their image.
+        //scaleTo indicates the smaller of the dimension when image is downsized proportionally.
+        var scaleTo = VV.img.CROP_SIZE*VV.img.SCALE_LIMIT;
+
+        //prepare the canvas size.
+        var canvas = VV.img.canvasrise(self, scaleTo);
+
+        //everything passes through to canvasResize for resizing/rotating.
+        //if you want to rotate, pass in the EXIF information.
+        //if the canvas comes with image, set 2nd argument to FALSE.
+        //it takes argument:
+        //1.[the prepared canvas], 2.[desired scale], 3.[img or FALSE], 4.[exif or FALSE], 5.[callback]
+        //canvasResize returns a resized canvas with image drawn.
+        //it is synchronous, as at 14Oct14. But a callback is provided anyway.
+        VV.img.canvasResize(canvas, scaleTo, self, exif, function(canvas) {
+            //iOS mobile might fail at this point. but we can proceed and check later.
+            VV.img.dispTmp('canvas', canvas);  
+        });  
+
+    });
+    
+
+    //TRANSITIONS
+    $("#browseCont").velocity("transition.slideLeftOut", 200);
+    $("#cropPort").css('cursor', 'move');  
+} //img onload
+
+var reader = new FileReader();
+reader.onload = function(e) {
+    VV.img.STOCK_IMG.src = '';
+    VV.img.STOCK_IMG.src = e.target.result;
+}
+
+//File Input onchange
+$("#img_field").change(function(){
+    var self = this;
+    //console.log("New file");
+
+    if(!this.files && !this.files[0]) { return false; }
+
+    //file is not an image
+    if( (this.files[0].type).indexOf('image') === -1 ) { 
+        VV.utils.resetFormElement($('#img_field'));
+        return aF.protoAlert({
+                text:'It seems that your file is not an image or corrupted.', 
+                title:'File type error.'
+            });
+    }
+
+    //console.log(this.files[0].size);
+    var tooBig = function(size) {
+        aF.protoAlert({
+            text:'Your image file is too large. Please resize your image to below ' + size, 
+            title:'Max filesize exceeded.'
+        });
+    }
+    //limit 5mb for mobile
+    if( printHead.userHeaders.isMobile && this.files[0].size > 5242880 ) {
+        return tooBig('5mb');
+    } else {
+        //limit 10mb for the rest
+        if(this.files[0].size > 10485760) {
+            return tooBig('10mb');
+        }
+    }
+
+    //start the loading.
+    loaderStuds.run();
+    reader.readAsDataURL(this.files[0]);
+
+    //reset all globals
+    VV.img.resetGlobal();
+    scaleSlider.reset($('#scaleSliderBut'));
+});
+
+/******************
+* Post processing *
+******************/
+
+
+$("#doneScaling").click(function() {
+    //unbind dragShifting
+    var $cP = $('#cropPort');
+    dragShifting.kill($cP);
+    loaderStuds.run();
+
+    var $imgPrev = $('#img_preview');
+    $imgPrev.hide();
+    $cP.css('cursor', 'default');
+
+    //clear the img_field
+    VV.utils.resetFormElement($('#img_field'));
+
+    //m tells you how much bigger the image used for processing is.
+    //this is used to multiply the drag shifted offsets IMG_X and IMG_Y
+    if(VV.img.TEMP_IMG_H.height > VV.img.TEMP_IMG_W.width) {
+        var m = VV.img.TEMP_IMG_W / (VV.img.CROP_PORT*VV.img.SCALE);
+    } else {
+        var m = VV.img.TEMP_IMG_H / (VV.img.CROP_PORT*VV.img.SCALE);
+    }
+
+    var canvas = $imgPrev[0];
+    //canvasCrop takes in a drawn canvas and returns
+    VV.img.canvasCrop('canvas', canvas, m, VV.img.SCALE, function(cropped) {
+        VV.img.canvasResize(cropped, VV.img.CROP_SIZE, false, false, function(canvas) {
+
+            var injectImg = canvas.toDataURL('image/jpeg', VV.img.QUALITY);
+            var elem_injectTo = $('#previewImagesCont>div:not(".previewLoaded")')[0];
+
+            $(elem_injectTo).removeClass('loadActive').addClass('previewLoaded');
+            $(elem_injectTo).find('.addButton').hide(); //hide addButton
+            var $injectTo = $(elem_injectTo).find('img.previewImage');
+
+            $injectTo
+                .on('load.upload', function() { fadeInImage.trigger($(this)); })
+                .attr('src', injectImg);
+
+            var hasNextBlock;
+            var $nextBlocks = $('#previewImagesCont>div:not(".previewLoaded")');
+            if ($nextBlocks.length > 0) {
+                hasNextBlock = true;
+                $nextBlock = $($nextBlocks[0]);
+                $nextBlock.addClass('loadActive');
+            }
+
+            var fadeInImage = {
+                eventsCounter: false,
+                trigger: function(self) {
+                    self.off('load.upload');
+                    $('#addPicCont').velocity('transition.slideRightOut', 200, function() {
+                        $('#productFormOuter').velocity('transition.slideLeftIn', 200, function() {
+                            loaderStuds.kill();
+                            $injectTo.velocity('transition.fadeIn', 2000);
+                            $(elem_injectTo).find('.removeImage').show();
+                            $nextBlock.velocity('transition.fadeIn', 200);
+                        });
+                    });
+                }
+
+            }
+
+            //safari sometimes don't respond to the first call.
+            //so we try again when it is less busy.
+            setTimeout(function() {
+                loaderStuds.kill();
+            }, 50);
+
+            return resetToBrowse();
+        });
+    });
+}); // #processImage click
+</script>
+<script>
+/******************
+* Reversals *
+******************/
+//all the back buttons here
+$('#backToBrowse').click(function() {
+    $(this).attr('disabled', 'disabled');
+    var $but = $(this)
+    setTimeout(function() {
+        $but.removeAttr('disabled');
+    }, 500);
+
+    return resetToBrowse();
+
+});
+
+//this is the post image's cancel button.
+$('.cancelButton').click(function() {
+    $('#addPicCont').velocity('transition.slideRightOut', 200, function() {
+        $('#productFormOuter').velocity('transition.slideLeftIn', 200, function() {
+            loaderStuds.kill();
+            resetToBrowse();
+        });
+    });
+});
+
+function resetToBrowse() {
+    //reset mouse cursor
+    $("#cropPort").css('cursor', 'default');  
+    //fade and remove the uploaded picture.
+    $('#cropPortBg img').velocity('fadeOut', 200, function(el) {
+        $(el).remove();
+    });
+    VV.utils.resetFormElement($('#img_field'));
+
+    $('#img_preview').velocity('fadeOut', 200, function(el) {
+        $(el).remove();
+    });
+    $('#scaleCont').velocity('transition.slideRightOut', 200, function() {
+        $("#browseCont").velocity("transition.slideLeftIn", 200);
+    })  
+}
+</script>
+
+<!-- confirm leave page on navigation -->
+<script>
+var confirmOnPageExit = function (e) {
+    // If we haven't been passed the event get the window.event
+    e = e || window.event;
+    var message = 'You are leaving this page. Any unsaved changes will not be made.';
+
+    // For IE6-8 and Firefox prior to version 4
+    if (e) { e.returnValue = message; }
+
+    // For Chrome, Safari, IE8+ and Opera 12+
+    return message;
+};
+// Turn it on - assign the function that returns the string
+window.onbeforeunload = confirmOnPageExit;
+</script>
+
+<!-- field input limits -->
+<script>
+$('#pdi_name').inputsRestrict({
+    type: "inputLength",
+    limit: 30,
+    alert: true
+});
+
+$('#pdi_price').inputsRestrict({
+    type: "price"
+});
+
+$('#pdi_description').inputsRestrict({
+    type: "inputLength",
+    limit: 1000,
+    alert: true
+});
+
+$('#pdi_skuref').inputsRestrict({
+    type: "inputLength",
+    limit: 30,
+    alert: true
+});
+
+$('.shippingHeavyCost').inputsRestrict({
+    type: "price"
+});
+
+//sizes and quantity is dynamic. Use a function instead
+function sizesQtyInputRestriction($row) {
+    $row.find('.quantities').inputsRestrict({
+        type: "numbers",
+        limit: 6,
+        alert: false
+    });
+
+    $row.find('.sizes').inputsRestrict({
+        type: "inputLength",
+        limit: 20
+    });
+}
+sizesQtyInputRestriction($('tr.sizesQtyTr'));
+
+$('.labelSearch').inputsRestrict({
+    type: "alphaNumeric",
+    limit: 20,
+    regex: new RegExp("^[a-zA-Z0-9,\-]+$")
+});
+</script>
+<!-- list.js library -->
+<script src="{p.js}/list.js"></script>
+</body>
+</html>

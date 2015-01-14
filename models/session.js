@@ -8,10 +8,10 @@ module.exports = function(sequelize, DataTypes) {
             primaryKey: true,
             allowNull: false
         },
-        // sess: {
-        //     type: DataTypes.JSON,
-        //     allowNull: false
-        // },
+        sess: {
+            type: DataTypes.JSON,
+            allowNull: false
+        },
         expire: {
             type: DataTypes.DATE,
             allowNull: false

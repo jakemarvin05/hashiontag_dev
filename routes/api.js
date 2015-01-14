@@ -185,7 +185,7 @@ router.post('/follow', function(req, res) {
     follow(req, res);
 });
 
-router.post('/following', function(req, res) {
+router.post('/followings', function(req, res) {
     //we now allow users not logged in to see other's follower/following
     //if(!req.isAuthenticated()) { res.json({success:true, results: false }); }
     require('../apps/follow/follower.js')(req, res, 'following');
@@ -288,7 +288,7 @@ router.post('/post/starreject', function(req, res) {
     
 });
 
-router.post('/getstream/:showtype/:lastpostid', function(req, res) {
+router.post('/getstream/:showtype/:lastpostid?', function(req, res) {
 
     var params = {
         showType: req.params.showtype,
@@ -299,6 +299,10 @@ router.post('/getstream/:showtype/:lastpostid', function(req, res) {
         res.json(renderJSON);
     }
 
+    if (params.showType.indexOf('product') > -1) {
+        return require('../apps/stream/productJSON.js')(req, render, params);
+    }
+    
     require('../apps/stream/streamJSON.js')(req, render, params);
 
 });

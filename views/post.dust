@@ -508,6 +508,7 @@ $("#postButton").click(function(e){
     $("#postCont").velocity("transition.slideLeftOut", 200);
     $("#progressBarCont").velocity("transition.slideRightIn", 200);
 
+    /* CSRender is deprecated. All images are rendered by client-side by defalt */
     if(VV.img.CSRender !== false) {
         //var submittedCanvas = document.getElementById('img_preview');
         //var tempCanvas = VV.img.cloneCanvas(submittedCanvas);
@@ -539,12 +540,7 @@ $("#postButton").click(function(e){
         var el_finalCanvas = document.getElementById('img_preview2');
 
         var data = el_finalCanvas.toDataURL('image/jpeg', VV.img.QUALITY);
-        var blobBin = atob( data.split(',')[1] );
-        var array = [];
-        for(var i = 0; i < blobBin.length; i++) {
-            array.push(blobBin.charCodeAt(i));
-        }
-        var file = new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
+        var file = VV.utils.imgToBin(data);
 
         var attrs = {
             action: 'store',
@@ -552,7 +548,8 @@ $("#postButton").click(function(e){
             processData: false,
             desc: $('#desc').val(),
             dataMeta: {},
-            itemMeta: {}
+            itemMeta: {},
+            postType: 'post'
         }
 
         //get the meta values
@@ -574,35 +571,36 @@ $("#postButton").click(function(e){
 
         }
 
-        VV.img.upload(attrs, function(data) {
+        VV.img.upload(attrs, '/api/post', function(data) {
             //redirect to post
             window.location.href = '/p/' + data.postId;  
         });
 
     } else {
+        var x123;
+        /* THIS IS DEPRECATED */
+        // var processData = {
+        //     crop: {
+        //         x: VV.img.IMG_X,
+        //         y: VV.img.IMG_Y,
+        //         scale: VV.img.SCALE,
+        //         cp: VV.img.CROP_PORT
+        //     }
+        // }
+        // console.log(processData);
 
-        var processData = {
-            crop: {
-                x: VV.img.IMG_X,
-                y: VV.img.IMG_Y,
-                scale: VV.img.SCALE,
-                cp: VV.img.CROP_PORT
-            }
-        }
-        console.log(processData);
+        // var attrs = {
+        //     action: 'process',
+        //     imgData: VV.img.TEMP_IMG.src,
+        //     processData: processData,
+        //     desc: $('#desc').val()
+        // }
 
-        var attrs = {
-            action: 'process',
-            imgData: VV.img.TEMP_IMG.src,
-            processData: processData,
-            desc: $('#desc').val()
-        }
-
-        VV.img.upload(attrs, function(data) {
-            window.location.href = '/p/' + data.postId;
-            console.log(data.postId);
+        // VV.img.upload(attrs, function(data) {
+        //     window.location.href = '/p/' + data.postId;
+        //     console.log(data.postId);
             
-        });
+        // });
     }    
 }); //submit onclick
 </script>

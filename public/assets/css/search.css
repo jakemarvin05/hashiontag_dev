@@ -3,7 +3,7 @@ p.searchNote {
     text-align: center;
     color: #ccc;
 }
-#search {
+input[name="search"] {
     width: 80%;
     max-width: 300px;
     display: block;

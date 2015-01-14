@@ -27,7 +27,7 @@ module.exports = function(passport) {
         db.User
         .find({
             where: {userId: id},
-            attributes: ['userId', 'userNameDisp', 'profilePicture', 'hasNoFollow']
+            attributes: ['userId', 'userNameDisp', 'profilePicture', 'hasNoFollow', 'hasShop']
         }).then(function(user){
             return done(null, user);
         }).catch(function(err){

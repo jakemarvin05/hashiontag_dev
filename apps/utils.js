@@ -67,11 +67,12 @@ VV.utils.escape = function(str) {
     div.appendChild(document.createTextNode(str));
     return div.innerHTML;
 }
+//to be deprecated and replaced by S lib.
 VV.utils.stripScriptTags = function(str) {
     return String(str).replace('<script>', '').replace('</script>', '');
 }
 VV.utils.nullIfEmpty = function(str) {
-    if(str === '') { return null; }
+    if(str === "" || typeof str === "undefined") { return null; }
     return str;
 }
 

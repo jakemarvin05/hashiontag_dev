@@ -297,11 +297,10 @@ pinchZoom.init = function(el) {
 *****************/
 var dragShifting = {}
 dragShifting.$target = '';
-dragShifting.getTarget = function() { return dragShifting.$target = $('#img_preview'); }
+dragShifting.getTarget = function() { dragShifting.$target = $('#img_preview'); return this.$target; }
 dragShifting.mousedown = function(self, e) {
     //console.log("Mousedown Event");
-    self.getTarget(); //set $target
-    if(self.$target.length === 0) { return false; }
+    if(self.getTarget().length === 0) { console.log(1); return false; }
     if(e.button === 0 || e.type === "touchstart") {
         if(e.type==="touchstart") {
             if(e.originalEvent.touches.length === 2) {
@@ -401,7 +400,7 @@ scaleSlider.init = function($el) {
     scaleSlider.travel = scaleSlider.lengthOf - (2 * scaleSlider.stopLimits) - scaleSlider.buttonWidth;
 
     $(window).on("mouseup.sl touchend.sl", function(e) {
-        console.log("mouseup event");
+        //console.log("mouseup event");
         $(window).unbind("mousemove.sl touchmove.sl");
     })
 
@@ -415,7 +414,7 @@ scaleSlider.init = function($el) {
 
             $(window).on("mousemove.sl touchmove.sl", function(e){
 
-                console.log('mousemove');
+                //console.log('mousemove');
                 if (e.type=="touchmove") e=e.originalEvent.touches[0]||e.originalEvent.changedTouches[0];
                 endX = e.pageX;
                 var moveX = endX - scaleSlider.startX;

@@ -329,6 +329,9 @@ span {
   cursor: pointer;
   text-decoration: underline;
 }
+.clickable.glyphicon {
+  text-decoration: none !important;
+}
 .noticePad {
   padding: 0px 20px 10px 20px;
 }
@@ -363,11 +366,6 @@ body,
   background-color: #ccc;
   margin: 2px;
   vertical-align: middle;
-}
-/* miniLink */
-.miniLink {
-  display: inline-block;
-  cursor: pointer;
 }
 /* Textarea autosize transition */
 textarea {
@@ -761,6 +759,9 @@ textarea {
 .blockTextHolder {
   padding: 20px 0px;
   line-height: 130%;
+}
+.blockTextHolder .description {
+  white-space: pre;
 }
 .editDescButtons {
   text-align: center;

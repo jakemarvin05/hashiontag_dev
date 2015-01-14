@@ -21,7 +21,22 @@ module.exports = function profileJSON(req, thenRender, isSelf) {
     var returnedUser = {};
 
     //generics
-    var attributes = [ 'userId', 'userNameDisp', 'email', 'name', 'gender', 'about', 'web', 'country', 'profilePicture', 'isPrivate' ];
+    var attributes = [ 
+        'userId', 
+        'userNameDisp', 
+        'email', 
+        'name', 
+        'gender', 
+        'about', 
+        'web', 
+        'country', 
+        'profilePicture', 
+        'isPrivate', 
+        'hasShop', 
+        'dataMeta' 
+    ];
+
+    /* post includes */
     var include = [{
         model: db.User,
         attributes: ['userNameDisp', 'profilePicture']
@@ -39,16 +54,6 @@ module.exports = function profileJSON(req, thenRender, isSelf) {
             model: db.User,
             attributes: [ 'userNameDisp' ]
         }]
-    }, {
-        model: db.PostMeta,
-        attributes: ['key', 'value'],
-        where: db.Sequelize.or(
-            {'key': 'itemLink'}, 
-            {'key': 'itemAddTag'}, 
-            {'key': 'itemPrice'},
-            {'key': 'isInstagram'}
-        ),
-        required: false
     }];// include closure
 
     var order = [ 
@@ -86,6 +91,75 @@ module.exports = function profileJSON(req, thenRender, isSelf) {
             return thenRender('redirect');
         }
     }
+
+
+    // 2) In requesting for other users, we first retrieve "isPrivate".
+    db.User.find({
+        where: { userName: req.params.user.toLowerCase() },
+        attributes: ['userId', 'isPrivate']
+    }).then(function(user) {
+        //user don't exist
+        if(!user) {
+            return thenRender('userNotFound');
+        } 
+        console.log(user.isPrivate);
+        // 3) If profile is not public... check authentication and 2 sub-conditions
+        if(user.isPrivate) {
+            if(isAuth) {
+                // a) Requestor is authenticated
+                if(req.user.userId === user.userId) {
+                    //i) The profile is her/his own, redirect to "/me"
+                    //return getProfile(user.userId, true);
+                    return res.redirect('/me');
+                } else {
+
+
+                    //ii) Check if "user being requested" is following the requestor.
+                    var targetUser = user;
+                    req.user.hasFollower(user.userId)
+                        .then(function(isOkay) {
+                            if(isOkay) {
+                                //passed all conditions
+                                return getProfile(targetUser.userId, false);
+                            }
+                            //user is private and not following requestor.
+                            return thenRender('userIsPrivate');
+                        })
+                        .catch(function(error) {
+                            return throwErr(error);
+                        });
+
+
+                } // req.user.userId === user.userId if/else chain
+            }
+
+            //request is not authenticated.
+            return thenRender('reqNotAuthUserIsPrivate');
+
+
+        } //closure for user.isPrivate
+
+        //user exist and is public. Get the full monty.
+        // 2a) We check if user is authenticated, for the purposes to retrieving following/follower
+        //   relationship.
+        if(isAuth) {
+            var isOwnProfile = false;
+            if(req.user.userId === user.userId) { isOwnProfile = true; }
+            return getProfile(user.userId, isOwnProfile);
+        } else {
+            //2b) If not authenticated, just retrieve the profile.
+            //the arguments in getProfile are: 1) userid, 2) Is Own Profile, 3) is public view
+            return getProfile(user.userId, false, true);
+        }
+
+
+    }).catch(function(err) {
+        throwErr(err);
+    });
+
+
+    /* get profile function */
+    var PRODUCTCOUNT;
     function getProfile(userId, ownProfile, isPublicView) {
         return db.User.find().then(function() {
 
@@ -97,11 +171,25 @@ module.exports = function profileJSON(req, thenRender, isSelf) {
                 }),
 
                 db.Post.findAll({
-                    where: db.Sequelize.or(
-                        {User_userId: userId},
-                        db.Sequelize.and(
-                            {User_userId_attributed: userId},
-                            {isAttributionApproved: true}
+                    where: db.Sequelize.and(
+
+
+                        db.Sequelize.or(
+                            //either it's user's own post
+                            {User_userId: userId}, 
+
+                            //or it's attributed to him by someone else
+                            db.Sequelize.and(
+                                {User_userId_attributed: userId},
+                                {isAttributionApproved: true}
+                            )
+                        ),
+
+                        //and is not a product
+                        //sequelize has not provide NOT comparator
+                        db.Sequelize.or(
+                            {isProduct: {ne: true}},
+                            {isProduct: null}
                         )
                     ),
                     include: include,
@@ -131,8 +219,23 @@ module.exports = function profileJSON(req, thenRender, isSelf) {
                     idArray.push(following[i].userId);
                 }
             }
-            return user;
-        }).then(function(user) {
+            return [
+                user,
+
+                (function() {
+                    if(user.hasShop) {
+                        return db.Post.count({
+                            where: {
+                                User_userId: user.userId,
+                                isProduct: true
+                            }
+                        });
+                    }
+                })()
+            ];
+        }).spread(function(user, productCount) {
+
+            if(productCount > 0) { PRODUCTCOUNT = productCount; }
 
             /** #TODO #BUG: user argument is null in here for some reason */
 
@@ -232,6 +335,7 @@ module.exports = function profileJSON(req, thenRender, isSelf) {
 
             returnedUser.followingCount = followingCount.count;
             returnedUser.followerCount = followerCount.count;
+            if(PRODUCTCOUNT) { returnedUser.productCount = PRODUCTCOUNT; }
 
             //so many booleans because of damned Dust template!
 
@@ -260,67 +364,4 @@ module.exports = function profileJSON(req, thenRender, isSelf) {
         });
     }
 
-    // 2) In requesting for other users, we first retrieve "isPrivate".
-    db.User.find({
-        where: { userName: req.params.user.toLowerCase() },
-        attributes: ['userId', 'isPrivate']
-    }).then(function(user) {
-        //user don't exist
-        if(!user) {
-            return thenRender('userNotFound');
-        } 
-        console.log(user.isPrivate);
-        // 3) If profile is not public... check authentication and 2 sub-conditions
-        if(user.isPrivate) {
-            if(isAuth) {
-                // a) Requestor is authenticated
-                if(req.user.userId === user.userId) {
-                    //i) The profile is her/his own, redirect to "/me"
-                    //return getProfile(user.userId, true);
-                    return res.redirect('/me');
-                } else {
-
-
-                    //ii) Check if "user being requested" is following the requestor.
-                    var targetUser = user;
-                    req.user.hasFollower(user.userId)
-                        .then(function(isOkay) {
-                            if(isOkay) {
-                                //passed all conditions
-                                return getProfile(targetUser.userId, false);
-                            }
-                            //user is private and not following requestor.
-                            return thenRender('userIsPrivate');
-                        })
-                        .catch(function(error) {
-                            return throwErr(error);
-                        });
-
-
-                } // req.user.userId === user.userId if/else chain
-            }
-
-            //request is not authenticated.
-            return thenRender('reqNotAuthUserIsPrivate');
-
-
-        } //closure for user.isPrivate
-
-        //user exist and is public. Get the full monty.
-        // 2a) We check if user is authenticated, for the purposes to retrieving following/follower
-        //   relationship.
-        if(isAuth) {
-            var isOwnProfile = false;
-            if(req.user.userId === user.userId) { isOwnProfile = true; }
-            return getProfile(user.userId, isOwnProfile);
-        } else {
-            //2b) If not authenticated, just retrieve the profile.
-            //the arguments in getProfile are: 1) userid, 2) Is Own Profile, 3) is public view
-            return getProfile(user.userId, false, true);
-        }
-
-
-    }).catch(function(err) {
-        throwErr(err);
-    });
 }

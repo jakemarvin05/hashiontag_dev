@@ -1,0 +1,436 @@
+{>blockHeader/}
+
+<script>
+var renderJSON11 = {
+    "results": [{
+        "postId": 279,
+        "name": "Aztec Oversized Cardi",
+        "desc": "aztec-printed oversized cardigan with ribbed detailing around the neckline.",
+        "img1": "cart1.jpg",
+        "status": "instock",
+        "price": "29.00",
+        "currency": "SGD",
+        "shipping": [
+            {"Europe": "8.00"},
+            {"Asia", "2.00"}
+        ],
+        "stock": [
+            {"s": "5"},
+            {"m": "5"}
+        ]
+    }];
+</script>
+
+<link href="{p.css}/index.css" rel="stylesheet"> 
+<style>
+
+
+    .starApprove article {
+        width: 100%;
+    }
+    .starApprove .blockImgHolder {
+        width: 50%;
+        float: left;
+    }
+    .starApprove .blockPad {
+        width: 50%;
+        float: left;
+    }
+    .starApprove .blockMainInfo {
+        border: 0px !important;
+    }
+    .starApprove .blockMoreInfo {
+        position: absolute;
+    }
+
+.starApprove article {
+    position: relative;
+}
+.starApprove .postInteractions, .starApprove .likeButton {
+    display: none;
+}
+.starApprove .approvedGlyph {
+    color: #fff;
+    font-size: 40px;
+    position: absolute;
+    top: 10px;
+    left: 7px;
+    padding: 6px;
+    background: #565757;
+}
+</style>
+{>blockHeaderAfterHook/}
+
+
+    <section id="main">
+        <div class="mainColBlock starApprove">
+
+            <div class="mainColBlock starApprove">
+                        
+            <span>&nbsp;Label filters:</span>
+                <div style="
+                display: inline-block;
+                background: #ef4946;
+                color: #fff;
+                padding: 2px 10px;
+                border: 1px solid #d91639;
+                margin-right: 0px;
+                margin-top: 5px;
+                margin-bottom: 6px;
+            ">tops</div>   
+
+                <div style="
+                display: inline-block;
+                background: #ef4946; color: #fff;
+                /* background: #ccc; */
+                padding: 2px 10px;
+                border: 1px solid #d91639;
+                margin-right: 0px;
+                margin-top: 5px;
+                margin-bottom: 6px;
+            ">new in</div>   
+
+                <div style="
+                display: inline-block;
+                background: #ccc;
+                padding: 2px 10px;
+                border: 1px solid;
+                margin-right: 0px;
+                margin-top: 5px;
+                margin-bottom: 6px;
+            ">dresses</div>          
+                        
+
+
+                    <article class="streamLayout" id="9999" data-uid="11" data-pid="279"><div style="
+                position: absolute;
+                right: 10px;
+                top: 5px;
+            "><button class="darkButton" style="
+                /* position: absolute; */
+                /* right: 10px; */
+              
+                display: block;
+                width: 87px;
+                margin-bottom: 4px;
+                font-size: 10px;
+                /* height: 30px; */
+            ">Edit</button><button class="darkButton" style="
+                font-size: 10px;
+            ">Renew Stock</button>
+            </div>
+
+                <div class="blockImgHolder" style="height: auto;"><div style="
+                margin: 5%;
+                border: 1px solid #ccc;
+            "><img class="postImage img527c60c0ba400000" alt="*Calvin" src="/test/cart1.jpg" data-imgid="img527c60c0ba400000" style="opacity: 1; display: block; touch-action: pan-y; -webkit-user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></div>
+            <div style="
+                margin: 5%;
+                border: 1px solid #ccc;
+            ">
+             
+            <img class="postImage img527c60c0ba400000" alt="*Calvin" src="/test/cart2.jpg" data-imgid="img527c60c0ba4000001" style="opacity: 1; display: block; touch-action: pan-y; -webkit-user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">        
+              </div>
+            <div style="
+                text-align: center;
+                margin: 5%;
+            "><button class="darkButton" style="
+                width: 40%;
+                font-size: 30px;
+                padding: 0px;
+            ">+</button></div>
+
+            </div>
+                <div class="blockPad">
+                    <header class="blockMainInfo">
+                        <div class="blockTop">
+                            <div class="blockProfileThumb" style="
+                display: none;
+            "><a href="/bellywellyjelly"><img src="/uploads/img52438189a5000000-thumb.jpg"></a></div>
+
+                            <div class="blockUserHolder" style="
+                display: none;
+            ">
+                                <div class="blockUsername"><a href="/bellywellyjelly">bellywellyjelly</a></div>
+                                <div class="blockVia"></div>
+                                <div class="blockTimelapse">19 days ago</div>
+                            </div>
+
+                            <div class="blockInteract" style="
+                display: none;
+            ">
+                                
+                                <div class="blockInteractButtons likeButton clickable" data-action="unlike" data-uid="11" data-pid="279">
+                                    <div class="icon-heart"></div>
+                                    <span class="blockInteractText">like</span>
+                                </div>
+                                
+                                <div class="blockInteractButtons moreInfo clickable" style="display: none;">
+                                    <div class="icon-tag"></div>
+                                    <span class="blockInteractText">info</span>
+                                </div>
+
+                                <div class="blockInteractButtons settings clickable">
+                                    <span class="glyphicon glyphicon-align-justify settingsButton"></span>
+                                    <div class="blockInteractSettingsWrap" style="display: none;">
+                                        <div class="settingsMark blockInteractSettingsOptions" data-uid="11" data-pid="279">
+                                            Mark as inappropriate
+                                        </div>
+                                        
+                                        
+                                        <div class="settingsOpen blockInteractSettingsOptions" data-uid="11" data-pid="279"><a href="/p/279" target="_blank">
+                                            Open page
+                                        </a></div>
+                                    <div class="starApprove blockInteractSettingsOptions" data-uid="11" data-pid="279">Approve</div><div class="starReject blockInteractSettingsOptions" data-uid="11" data-pid="279">Reject</div></div>
+                                </div>
+
+                            </div>
+
+                            <div class="blockMoreInfo" data-shown="no" style="display:none;"></div>
+
+                            <div class="blockLikeText" style="
+                display: none;
+            "><span class="postAndLikes"><span class="postLikesCount" data-likescount="1">1</span> person likes this.</span></div>
+
+                            <div class="blockTextHolder" style="
+                padding: 0px;
+            ">
+                                <div class="description convert-emoji" data-raw="*Calvin"><span style="
+                font-weight: bold;
+              
+                /* width: 10px; */
+            ">Aztec Oversized <br>Cardi</span><br>
+            $42.00 SGD<br><br><span>aztec-printed oversized cardigan with ribbed detailing around the neckline. 
+            </span>
+            <br>
+              <b>Shipping:</b><br>
+            US - $10.00<br>
+            Europe - $8.00<br>
+            Africa - $7.00<br>
+            Asia - $5.00<br>
+            Australia - $6.00<br>
+            <br>
+              <table><thead><tr><th>Sizes</th><th>Stock</th><th>Default</th></tr></thead>
+
+                <tbody><tr><td>S</td><td>5</td><td>5</td></tr>
+
+            <tr><td>M</td><td>4</td><td>5</td></tr>
+
+            <tr><td>L</td><td>4</td><td>5</td></tr>
+
+              </tbody></table>
+
+              <br><b>SKU/ref: 171309RA</b>
+            <br>
+              <div style="
+                display: inline-block;
+                background: #ccc;
+                padding: 2px 10px;
+                border: 1px solid;
+                margin-right: 0px;
+                margin-top: 5px;
+                margin-bottom: 6px;
+            ">knit</div>
+
+            <div style="
+                display: inline-block;
+                background: #ccc;
+                padding: 2px 10px;
+                border: 1px solid;
+                margin-right: 3px;
+                margin-top: 5px;
+                margin-bottom: 6px;
+            ">tops</div><div style="
+                display: inline-block; background: #ccc; padding: 2px 10px; border: 1px solid;
+            ">new in</div>
+            <br>
+            </div>
+                                <div class="editDescButtons" style="display:none;">
+                                    
+                                    <button class="editDescCancel darkerButton">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="blockLoadMoreCommentsCont" style="display:none;">
+                            <div class="blockLoadMoreCommentsBut">
+                                load&nbsp;
+                                <div class="blockLoadMoreCommentsWrap">
+                                    <div class="blockLoadMoreCommentsCount"></div>
+                                    <div class="blockLoadMoreCommentsLogo"><img src="/images/comments_icon.png"></div>
+                                </div>
+                                &nbsp;more
+                            </div>
+                        </div>
+                    </header>
+                    
+                    <div class="postCommentCont convert-emoji" style="
+                display: none;
+            "><div class="postCommentWrap" data-cid="commentId116"><a href="/calvin"><img class="profileThumb" src="/uploads/img524e1812dd000000-thumb.jpg"></a><div class="postComment"><a href="/calvin">calvin</a>&nbsp;<span class="commentTimeStamp" data-ts="2014-12-08T17:30:52.636Z">(8 days ago)</span>&nbsp;lllll</div></div></div>
+                    
+                    <div class="postInteractions">
+                        <textarea class="postCommentInput" placeholder="Add a comment..." style="overflow: hidden; word-wrap: break-word; resize: horizontal; height: 53px;"></textarea>
+                        <button class="sendComment darkerButton" data-id="" data-uid="11" data-pid="279">Send</button>
+                    </div>
+                    
+                </div>
+            </article>
+
+
+
+            {?renderJSONraw.posts}
+            {:else}
+            <h2 style="margin-top:30px; color:#ccc; text-align:center;">No star tagged post for you to approve.</h2>
+            {/renderJSONraw.posts}
+            {>"layouts/streamLayout"/}
+
+        </div>
+        <!-- end your stream -->
+
+        {?renderJSONraw.lastPostId}
+        <div class="streamLoadMore">
+            <button data-lastpostid="false" type="button" id="streamLoadMorePosts" class="darkButton">Load More</button>
+        </div>
+
+        <script>
+        /* TO DO: Modularise this */
+        $('#streamLoadMorePosts').click(function(e) {
+            var self = this;
+            e.preventDefault();
+            var flasher = Object.create(VV.utils.Flasher);
+            flasher.run($(this), 'button');
+
+            var buttonLastPostId = $(this).attr('data-lastpostid');
+            if(buttonLastPostId === "false") {
+                var lastPostId = renderJSON.lastPostId;
+            } else {
+                var lastPostId = buttonLastPostId;
+            }
+
+            var loadMoreAjax = $.post(printHead.p.absPath + '/api/getstream/startag/' + lastPostId);
+
+            loadMoreAjax.done(function(res) {
+                flasher.kill();
+                if(!res) { return false; }
+
+
+                streamFactory.init(res.posts, {
+                    pinchZoom: true
+                });
+
+                if(!res.lastPostId) {
+                    return $('.streamLoadMore').html('No more posts....');
+                }
+                return $(self).attr('data-lastpostid', res.lastPostId);
+            });
+
+            loadMoreAjax.fail(function(err) {
+                flasher.kill();
+                console.log(err);
+            })
+        });
+        </script>
+        {/renderJSONraw.lastPostId}
+
+        <!-- start your posts -->
+
+    </section><!-- main -->
+
+{>blockFooter/}
+
+{?renderJSON}
+    <script src="{p.js}/streamFactory.js"></script>
+    <script>
+    var starFactory = Object.create(streamFactory);
+
+    starFactory.getLayoutHTML = function() {
+        var approveDiv  = '<div class="starApprove blockInteractSettingsOptions">';
+            approveDiv += 'Approve';
+            approveDiv += '</div>';
+
+        var rejectDiv  = '<div class="starReject blockInteractSettingsOptions">';
+            rejectDiv += 'Reject';
+            rejectDiv += '</div>';
+
+        $layout = $('.' + this.layoutClass);
+        $layout.find('.blockInteractSettingsWrap').append(approveDiv).append(rejectDiv);
+        $layout.wrap('<div></div>');
+        this.layoutHTML = $layout.parent('div').html();
+        $layout.unwrap();
+        $layout.remove();
+    }
+    
+    starFactory.init(renderJSON, {
+        burst:5,
+        pinchZoom: true
+    });
+
+    function starApprove() {
+
+        $('.blockInteractSettingsWrap .starReject').unbind('click.vv').bind('click.vv', function() {
+            var postId = $(this).attr('data-pid'),
+                postOwnerId = $(this).attr('data-uid'),
+                $thisBlock = $(this).closest('article');
+
+            $thisBlock.velocity('transition.slideUpOut', 600);
+
+            var reject = $.post( "{p.absPath}/api/post/starreject", {postId: postId, postOwnerId: postOwnerId});
+
+            //done
+            reject.done(function(data) {
+                if(!data.success) {
+                    $thisBlock.velocity('fadeIn');
+                    aF.protoAlert('Something went wrong. Please check your internet connection. If fault persists, please contact us at info@vogueverve.com and we will help you!');
+                }  
+            });
+            //fail
+            reject.fail(function() {
+                $thisBlock.velocity('fadeIn');
+                aF.protoAlert('Something went wrong. Please check your internet connection.');
+            });
+
+        });
+
+        $('.blockInteractSettingsWrap .starApprove').unbind('click.vv').bind('click.vv', function() {
+            var postId = $(this).attr('data-pid'),
+                postOwnerId = $(this).attr('data-uid'),
+                $thisBlock = $(this).closest('article');
+
+            var $settingsButtons = $(this).closest('.settings');
+
+            $settingsButtons.hide();
+
+            $thisBlock.append('<span style="opacity:0;" class="glyphicon glyphicon-ok-circle approvedGlyph"></span>');
+
+            var $approvedGlyph = $thisBlock.find('.approvedGlyph');
+
+            $approvedGlyph.velocity({opacity: 0.7}, 100, function(el) {
+                $(el).velocity('callout.pulse');
+            });
+   
+            // AJAX post
+            var approve = $.post( "{p.absPath}/api/post/starapprove", { postId: postId, postOwnerId: postOwnerId });
+
+
+            //done
+            approve.done(function(data) {
+                if(!data.success) {
+                    $settingsButtons.show();
+                    $approvedGlyph.remove()
+                    aF.protoAlert('Oops.. something went wrong. Please check your internet connection. If fault persists, please contact us at info@vogueverve.com and we will help you!');
+                }
+            });
+            //fail
+            approve.fail(function() {
+                $settingsButtons.show();
+                $approvedGlyph.remove()
+                aF.protoAlert('Oops.. something went wrong. Please check your internet connection');
+            });
+        });
+    }
+
+
+    </script>
+{/renderJSON}
+</body>
+</html>

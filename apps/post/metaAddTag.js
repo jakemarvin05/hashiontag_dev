@@ -1,4 +1,4 @@
-var fname = 'metaAddTag';
+var fname = 'metaAddTag ';
 var db = global.db;
 
 module.exports = function metaAddTag(addtag) {
@@ -12,7 +12,10 @@ module.exports = function metaAddTag(addtag) {
         return db.User.find({
             where: { userName: match[0].toLowerCase() },
             attributes: ['userNameDisp']
-        }, {raw: true});
+        }, {raw: true}).catch(function(err) {
+            console.log(fname + 'error in catch handler. Error: ' + err);
+            return false;
+        });
     }
     return false;
 }

@@ -110,6 +110,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.BOOLEAN,
             allowNull: true,
             defaultValue: false
+        },
+        dataMeta: {
+            type: DataTypes.JSON,
+            allowNull: true
         }
     }, {
         timestamps: true,

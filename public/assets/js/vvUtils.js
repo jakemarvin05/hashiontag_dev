@@ -274,6 +274,7 @@ VV.utils.loadImageAndNeighbours = function($img) {
     }
 
 }
+/* tooLong is deprecated and subsumed into inputsRestrict */
 VV.utils.tooLong = function($el, opts) {
     var msg = 'Your input is too long...';
     var limit = 2000;
@@ -335,4 +336,127 @@ VV.utils.getDOMHTML = function($dom) {
     var html = d.parent().html();
     d.unwrap();
     return html;
+}
+
+/* inputsRestrict */
+VV.utils.inputsRestrict = function($el, opts) {
+    if (!($el instanceof $)) { var $el = $(el); }
+    return this[opts.type]($el, opts);
+}
+    /* jquerify my methods for $ chaining. */
+    $.fn.extend({
+        inputsRestrict: function(opts) {
+            if (VV.utils.inputsRestrict[opts.type]) { 
+                VV.utils.inputsRestrict[opts.type]($(this), opts); 
+                if (typeof opts.limit !== "undefined" && opts.type !== "inputLength") {
+                    VV.utils.inputsRestrict.inputLength($(this), opts);
+                }
+                return true;
+            }
+            return console.log('utils.inputsRestrict: check inputs restrict method type. not defined.')
+        }
+    });
+
+VV.utils.inputsRestrict.price = function($el, opts) {
+    $el.on("keypress keyup blur", function (event) {
+        $(this).val($(this).val().replace(/[^0-9\.]/g,''));
+        if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
+            event.preventDefault();
+        }
+
+        if ($(this).val().length === 0 && event.which == 48 ){
+            event.preventDefault();
+        }
+
+        if ($(this).val()[0] === '0' || $(this).val()[0] === 0) { 
+           $(this).val( $(this).val().substring(1) );
+        }
+    });
+
+    //default price to limit of 10
+    if (opts.noLimit) { return $el; }
+    if (typeof opts.limit === "undefined") { opts.limit = 10; }
+    return this.inputLength($el, opts);
+}
+
+VV.utils.inputsRestrict.numbers = function($el, opts) {
+    $el.on("keypress keyup blur", function (event) {    
+        $(this).val($(this).val().replace(/[^\d].+/, ""));
+        if ((event.which < 48 || event.which > 57)) {
+            event.preventDefault();
+        }
+
+    });
+    return $el;
+}
+VV.utils.inputsRestrict.alphaNumeric = function($el, opts) {
+    var regex = new RegExp("^[a-zA-Z0-9\-]+$");
+    if (typeof opts.regex !== "undefined") { regex = opts.regex; }
+    $el.on("keypress keyup blur", function (event) {   
+        var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+        if (!regex.test(key)) {
+           event.preventDefault();
+           return false;
+        }
+    });
+    return $el;
+}
+VV.utils.inputsRestrict.inputLength = function($el, opts) {
+
+    //defaults
+    var msg = 'Your input is too long...';
+    var limit = 2000;
+    var alert = true;
+
+    if (typeof opts.msg !== "undefined") { msg = opts.msg; }
+    if (typeof opts.limit !== "undefined") { limit = opts.limit; }
+    if (typeof opts.alert !== "undefined") { alert = opts.alert; }
+
+    $el.on('keyup', function(e) {
+        var $t = $(this), len = $t.val().length;
+
+        if(len > limit) {
+            e.preventDefault();
+            if (alert || alert === "true") { aF.protoAlert(msg); }
+            var cut = $t.val().substring(0,limit);
+            $t.val(cut);
+        }
+
+    });
+
+    return $el;
+}
+
+VV.utils.inputsAutosize = function($el, minsize) {
+    function resizeInput() {
+        var len = $(this).val().length;
+
+        if (minsize) {
+            if (len < minsize) { 
+                $(this).attr('size', minsize);
+                return $(this); 
+            }
+        } 
+        $(this).attr('size', len);
+    }
+
+    if (!($el instanceof $)) { var $el = $($el); }
+    $el.keyup(resizeInput).each(resizeInput);
+    return $el;
+}
+
+    /* jquerify my methods for $ chaining. */
+    $.fn.extend({
+        inputsAutosize: function(minsize) { return VV.utils.inputsAutosize($(this), minsize); }
+    });
+
+VV.utils.imgToBin = function(data) {
+    var blobBin = atob( data.split(',')[1] );
+    var array = [];
+    for(var i = 0; i < blobBin.length; i++) {
+        array.push(blobBin.charCodeAt(i));
+    }
+    var file = new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
+
+    return file;
 }

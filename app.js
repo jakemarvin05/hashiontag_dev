@@ -134,17 +134,21 @@ server.listen(3001, function() {
     console.log('Congrats, nothing broke!! Listening on port %d', server.address().port);
 });
 
+/*
+
 //instagram
 var igg = require('./apps/instagram-grabber/iggMain.js');
-//igg(5); //duration in minutes. use "no rerun" if running single instance.
+igg(5); //duration in minutes. use "no rerun" if running single instance.
 //igg("no rerun");
 
 //STREAM UPDATE
 //TODO, shift this and instagram grabber into another app.
 var streamUpdate = require('./apps/streamUpdate.js');
-//var updateStreamEvery = 5; //5 minutes.
-//streamUpdate();//initial run
-// //interval
-// setInterval(function() {
-//     streamUpdate();
-// }, updateStreamEvery*60*1000);
+var updateStreamEvery = 5; //5 minutes.
+streamUpdate();//initial run
+//interval
+setInterval(function() {
+    streamUpdate();
+}, updateStreamEvery*60*1000); 
+
+*/

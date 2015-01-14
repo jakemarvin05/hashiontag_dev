@@ -80,11 +80,13 @@ module.exports = function allUserStreamUpdate(req, res) {
                         attributes: ['userId'],
                         include: [{
                             model: db.Post,
-                            where: {
-                                createdAt: {
-                                    gte: lastStreamUpdate
-                                }
-                            },
+                            where: db.Sequelize.and(
+                                {createdAt: { gte: lastStreamUpdate } },
+                                db.Sequelize.or(
+                                    {isProduct: {ne: true} },
+                                    {isProduct: null}
+                                )
+                            ),
                             attributes: ['postId', 'createdAt']//,
                             //order: [['createdAt', 'DESC']],
                         }]
@@ -92,20 +94,11 @@ module.exports = function allUserStreamUpdate(req, res) {
                     order: [['affinity', 'DESC']]
                 }),
 
-                // //rc2 syntax. Requires the 'where' property. TODO: change to this after sequelize update
-                // db.User.update({
-                //     lastStreamUpdate: moment().format()
-                // }, {
-                //     where: { userId: results[i].userId }
-                // }).catch(function(err){
-                //     console.log(fname + 'user lastStreamUpdate Error: ' + err);
-                // });
-
-                //dev12 syntax
+                //rc2 syntax. Requires the 'where' property. TODO: change to this after sequelize update
                 db.User.update({
-                    lastStreamUpdate: timeStamp
+                    lastStreamUpdate: moment().format()
                 }, {
-                    userId: userId 
+                    where: { userId: userId }
                 }).catch(function(err){
                     console.log(fname + 'user lastStreamUpdate Error: ' + err);
                 })

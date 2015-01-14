@@ -23,7 +23,11 @@ var streamFactory = {
     imageType: "full"
 }
 streamFactory.getLayoutHTML = function() {
-    var $layout = $('.' + this.layoutClass);
+    if (this.streamContClass.indexOf('#') === 0) {
+        var $layout = $(this.streamContClass + ' .' + this.layoutClass);
+    } else {
+        var $layout = $('.' + this.streamContClass + ' .' + this.layoutClass);
+    }
     this.layoutHTML = $layout[0].outerHTML;
     $layout.remove();
 }
@@ -31,6 +35,14 @@ streamFactory.noObj = function() {
     //console.log('streamFactory.noObj');
 }
 streamFactory.init = function(renderJSON, options) {
+    /* callback and function call arrays */
+    if (!this.append.hasOwnProperty('callbacks')) {
+        this.append.callbacks = [];
+    }
+    if (!this.append.hasOwnProperty('custom')) {
+        this.append.custom = [];
+    }
+
     if(!this.layoutHTML) { this.getLayoutHTML(); }
     if(!renderJSON) { return false; }
     var posts = renderJSON.posts || renderJSON.results;
@@ -55,7 +67,11 @@ streamFactory.init = function(renderJSON, options) {
     var postCount = VV.utils.objCount(this.posts);
     this.postCount = postCount;
 
-    this.$cont = $('.' + this.streamContClass);
+    if (this.streamContClass.indexOf('#') === 0 ) {
+        this.$cont = $(this.streamContClass);
+    } else {
+        this.$cont = $('.' + this.streamContClass);
+    }
     if(postCount < 1) { return this.noObj(); }
     this.buildBlocks(postCount);
 }
@@ -87,7 +103,6 @@ streamFactory.buildBlocks = function(postCount) {
 }
 
 streamFactory.append = {}
-streamFactory.append.callbacks = [];
 
 streamFactory.append.init = function($stream, i) {
     var post = this.parent.posts[i];
@@ -163,7 +178,10 @@ streamFactory.append.init = function($stream, i) {
 
     this.moreInfoBlock($stream, post);
 
-
+    /* any other custom appending functions */
+    for(var i = 0; i < this.custom.length; i++) {
+        this.custom[i]($stream, post);
+    }
 }
 
 /* not enabled yet */
@@ -449,12 +467,8 @@ streamFactory.append.commentBlock = function($stream, post) {
 }
 streamFactory.append.commentList = {}
 streamFactory.append.commentBlockMoreButton = function($cont) {
-    if(!$cont) {
-        var contClass = this.parent.streamContClass;
-        var $buts = $('.' + contClass).find('.blockLoadMoreCommentsBut');
-    } else {
-        var $buts = $cont.find('.blockLoadMoreCommentsBut');
-    }
+
+    var $buts = this.parent.$cont.find('.blockLoadMoreCommentsBut');
 
     var n = 2, //base
         commentList = this.commentList;
@@ -660,7 +674,7 @@ streamFactory.append.moreInfoBindButton = function($custButton) {
     if($custButton) { 
         $buttons = $custButton
     } else {
-        $buttons = $('.' + this.parent.streamContClass).find('.moreInfo');
+        $buttons = this.parent.$cont.find('.moreInfo');
     }
     $buttons.on('click.vv', function() {
         VV.utils.hideSettingsTab();

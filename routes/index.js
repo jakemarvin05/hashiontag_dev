@@ -13,6 +13,103 @@ var globalJSON = require('../apps/globalJSON.js');
 //instagram
 //var ig = require('instagram-node').instagram();
 
+router.get('/seeddatameta', function(req, res) {
+
+    var D = require('dottie');
+
+    db.Post.findAll({
+        include: [
+            { model: db.PostMeta }
+        ]
+    }).then(function(posts) {
+        for(var i=0; i<posts.length; i++ ) {
+
+            var post = posts[i];
+
+            if (post.postMeta.length > 0) {
+                var metas = post.postMeta;
+
+                for(var j=0; j<metas.length; j++) {
+                    var meta = metas[j];
+                    var newMeta = {};
+                    if (meta.key !== 'isInstagram') {
+                        if (typeof newMeta.itemMeta === "undefined") { newMeta.itemMeta = {}; }
+                        newMeta.itemMeta[meta.key] = meta.value;
+                    } else {
+                        newMeta.isInstagram = meta.value;
+                    }
+                    post.dataMeta = {};
+                    post.dataMeta = newMeta;
+                }
+
+            } else {
+                post.dataMeta = null;
+            }
+
+
+            post.save({fields: (post.changed() || []).concat(['dataMeta'])});
+        
+        }
+
+        res.send('done');
+    });
+});
+
+router.get('/json', function(req, res) {
+    db.Post.find({
+        where: db.sequelize.json("\"dataMeta\"#>>'{itemMeta,itemLink}'",'xxhk')
+    }).then(function(results) {
+        return res.json(results);
+    });
+});
+
+router.get('/inventory', function(req, res) {
+
+    if (!req.isAuthenticated()) { res.redirect('/'); }
+    
+    var gJSON = globalJSON(req);
+
+    function thenRender(renderJSON) {
+        res.render('inventory', {
+            /* generics */
+            title: meta(),
+            gJSON: gJSON,
+            p: gJSON.pathsJSON.paths,
+            f: gJSON.pathsJSON.files,
+            printHead: JSON.stringify(gJSON.printHead),
+            renderJSON: JSON.stringify(renderJSON),
+            renderJSONraw: renderJSON,
+            page: "inventory",
+
+        });
+    }
+    require('../apps/stream/streamJSON.js')(req, thenRender, {showType: "startag"});
+
+
+});
+
+router.get('/inventory/addproduct', function(req, res) {
+
+    var gJSON = globalJSON(req);
+
+    //override
+    //currently we are experimenting pure clientside render.
+    CSRender = 30;
+
+    return res.render('addProduct', {
+        title: meta(),
+        isLoggedIn: req.isAuthenticated(),
+        gJSON: gJSON,
+        p: gJSON.pathsJSON.paths,
+        f: gJSON.pathsJSON.files,
+        printHead: JSON.stringify(gJSON.printHead),
+        page: 'addproduct',
+
+        timestamp: Date.now()
+    });
+
+});
+
 module.exports = router;
 
 /* Every page has a generic set of res.render variables:
@@ -119,7 +216,7 @@ router.get('/latest', function(req, res) {
             /* generics */
             title: meta(),
             gJSON: gJSON,
-        p: gJSON.pathsJSON.paths,
+            p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
             printHead: JSON.stringify(gJSON.printHead),
             renderJSON: JSON.stringify(renderJSON),
@@ -139,7 +236,7 @@ router.get('/latest', function(req, res) {
 router.get('/startag', function(req, res) {
 
     if (!req.isAuthenticated()) { res.redirect('/'); }
-    
+
     var gJSON = globalJSON(req);
 
     function thenRender(renderJSON) {

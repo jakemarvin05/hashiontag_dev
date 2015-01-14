@@ -174,7 +174,20 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
 
 
         <div class="profileRelationship" data-vel="normalDisplay">
-            <div class="profileFollowBlock{@if cond="{renderJSONraw.followerCount} > 0"} hasFollowNumbers{/if}" data-action="findFollowers">
+
+            <div class="postBlock profileFollowBlock profileFollowBlockClickable followBlockActive" data-action="posts" data-bindto="postsBlock">
+                <div class="vaDiv"></div>
+                <div class="profileFollowWrap">
+                    <div class="profileFollowHdr">
+                        Posts
+                    </div>
+                    <div class="profileFollowCount" id="profileFollowersCount">
+                        {renderJSONraw.followerCount}
+                    </div>
+                </div>
+            </div>
+
+            <div class="profileFollowBlock{@if cond="{renderJSONraw.followerCount} > 0"}  profileFollowBlockClickable{/if}" data-action="findFollowers" data-bindto="followerList">
                 <div class="vaDiv"></div>
                 <div class="profileFollowWrap">
                     <div class="profileFollowHdr">
@@ -186,7 +199,7 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
                 </div>
             </div>
 
-            <div class="profileFollowBlock{@if cond="{renderJSONraw.followingCount} > 0"} hasFollowNumbers{/if}" data-action="findFollowings">
+            <div class="profileFollowBlock{@if cond="{renderJSONraw.followingCount} > 0"}  profileFollowBlockClickable{/if}" data-action="findFollowings" data-bindto="followingList">
                 <div class="vaDiv"></div>
                 <div class="profileFollowWrap">
                     <div class="profileFollowHdr">
@@ -197,47 +210,72 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
                     </div>
                 </div>
             </div>
-            {?renderJSONraw.isFollowable}
-                <div class="profileFollowButtonCont profileFollowBlock">
-                    <div class="vaDiv"></div>
-                    <div class="profileFollowWrap">
-                        {?renderJSONraw.targetFollowedViewer}
-                            <div class="profileFollowText">
-                                @{renderJSONraw.userNameDisp} is following you.
-                            </div>
-                        {/renderJSONraw.targetFollowedViewer}
-                        <div class="profileFollowButtonDiv">
-                            {?renderJSONraw.viewerFollowedTarget}
-                                <button class="darkButton" id="profileFollowButton" data-action="unfollow" data-uid="{renderJSONraw.userId}" {?renderJSONraw.targetFollowedViewer}data-follow="follow back"{/renderJSONraw.targetFollowedViewer}>unfollow</button>
-                                {:else}
-                                <button class="darkButton" id="profileFollowButton" data-action="follow" data-uid="{renderJSONraw.userId}"  {?renderJSONraw.targetFollowedViewer}data-follow="follow back"{/renderJSONraw.targetFollowedViewer}>
-                                    {?renderJSONraw.targetFollowedViewer}
-                                        follow back
-                                    {:else}
-                                        follow
-                                    {/renderJSONraw.targetFollowedViewer}
-                                </button>
-                            {/renderJSONraw.viewerFollowedTarget}
-                        </div>
+
+            {?renderJSONraw.productCount}
+            <div class="profileFollowBlock profileFollowBlockClickable" data-action="shop" data-bindto="shopBlock">
+                <div class="vaDiv"></div>
+                <div class="profileFollowWrap">
+                    <div class="profileFollowHdr">
+                        Shop
+                    </div>
+                    <div class="profileFollowCount" id="productCount">
+                        {renderJSONraw.productCount}
                     </div>
                 </div>
+            </div>
+            {/renderJSONraw.productCount}
+
+            {?renderJSONraw.isFollowable}
+            <div class="profileFollowButtonCont profileFollowBlock">
+                <div class="vaDiv"></div>
+                <div class="profileFollowWrap">
+                    {?renderJSONraw.targetFollowedViewer}
+                        <div class="profileFollowText">
+                            @{renderJSONraw.userNameDisp} is following you.
+                        </div>
+                    {/renderJSONraw.targetFollowedViewer}
+                    <div class="profileFollowButtonDiv">
+                        {?renderJSONraw.viewerFollowedTarget}
+                            <button class="darkButton" id="profileFollowButton" data-action="unfollow" data-uid="{renderJSONraw.userId}" {?renderJSONraw.targetFollowedViewer}data-follow="follow back"{/renderJSONraw.targetFollowedViewer}>unfollow</button>
+                            {:else}
+                            <button class="darkButton" id="profileFollowButton" data-action="follow" data-uid="{renderJSONraw.userId}"  {?renderJSONraw.targetFollowedViewer}data-follow="follow back"{/renderJSONraw.targetFollowedViewer}>
+                                {?renderJSONraw.targetFollowedViewer}
+                                    follow back
+                                {:else}
+                                    follow
+                                {/renderJSONraw.targetFollowedViewer}
+                            </button>
+                        {/renderJSONraw.viewerFollowedTarget}
+                    </div>
+                </div>
+            </div>
             {/renderJSONraw.isFollowable}
         </div>
-        <div class="loading"></div>
+        <div style="height: 0px; position: relative; top: -3px;" class="loading"></div>
     </header>
-    <div class="profilePostLower">
+    <div class="profilePostLower" data-vel="normalDisplay">
 
-        <div class="profilePostsBlock clearfix" data-vel="normalDisplay">
+        <div id="postsBlock" class="profileContentBlock profilePostsBlock clearfix">
             {>"layouts/profilePostsLayout"/}
         </div>
 
         {! Following/Followers display !}
         
-        <div id="searchList" class="profileFollowUsersBlock" data-vel="searchDisplay" style="display:none;">
-            <div class="miniLink" id="backToPosts">
-                <span class="glyphicon glyphicon-chevron-left"></span>Back to posts
-            </div> 
+        <div id="followerList" class="profileContentBlock profileFollowUsersBlock" style="display:none;">
             {>"layouts/searchLayout"/}
+        </div>
+
+        <div id="followingList" class="profileContentBlock profileFollowUsersBlock" style="display:none;">
+            {>"layouts/searchLayout"/}
+        </div>
+
+
+        {! Shop Display !}
+        <div id="shopBlock" class="profileContentBlock profilePostsBlock" style="display:none;">
+            <input type="text" class="search" name="search" placeholder="Type to search...">
+            <div class="shopBlockCont">
+                {>"layouts/profilePostsLayout"/}
+            </div>
         </div>
     </div>
 
@@ -249,777 +287,14 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
 </div>
 {>blockFooter/}
 
-<script>
-var profilePostFactory = Object.create(streamFactory);
-profilePostFactory.append = Object.create(streamFactory.append);
-
-profilePostFactory.streamContClass = 'profilePostsBlock';
-
-profilePostFactory.append.identifier = function($el, post) {
-    return $el.attr('data-uid', post.User_userId).attr('data-pid', post.postId);
-}
-
-profilePostFactory.append.effect = function($el) {
-    return $el.velocity('fadeIn', {
-        duration: 300,
-        display: 'block'
-    });
-}
-
-profilePostFactory.append.imageLink = function($stream, img) {
-    var id = $stream.attr('id');
-    var pid = $stream.attr('data-pid');
-    var strId = '#' + id;
-    var self = this;
-    img.onclick = function() {
-
-        //get the stream's html and put it into the "fancybox cont"
-        $('#fancyboxCont article')
-            .html($(strId).html())
-            .attr('data-articleid', id);
-
-        //load high quality
-        VV.utils.loadImageAndNeighbours($(img));
-
-        //iOS bug. may displace the background scroll as
-        //it could not be fixed. Temp solution is to
-        //store the scrollTop and restore scroll position
-        //later.
-        VVGLOBAL.scrollTop = $(window).scrollTop();
-
-        if(!$.fancybox.isOpen) {
-            //then make fancybox open it.
-            $.fancybox.open([{
-                href : '#fancyboxCont',
-                title : ''
-            }], {
-                padding : 10,
-                enableNav: true,
-                maxWidth: 640,
-                afterClose: function() {
-                    $('html').velocity("scroll", { duration: 500, offset: VVGLOBAL.scrollTop })  ;
-                    try { 
-                        window.history.pushState(null, null, window.location.href.substring(0, window.location.href.lastIndexOf('?')));
-                    } catch(err) {}
-                }
-            });
-        }
-
-
-        try { 
-            window.history.pushState(null, null, window.location.href.substring(0, window.location.href.lastIndexOf('?')) + '?show=' + pid);
-        } catch(err) {}
-
-        //bind back all the buttons
-        //comment, like, settings
-        buttonsInitStack();
-
-        //load more button
-        self.commentBlockMoreButton($('#fancyboxCont article'));
-        //moreInfo
-        $('#fancyboxCont .blockMoreInfoTop').remove();
-        self.__proto__.moreInfoBindButton($('#fancyboxCont .moreInfo'));
-
-        var el = $('.fancyArticle .blockImgHolder')[0];
-
-        var hammer = new Hammer(el);
-        hammer.get('pan').set({ threshold: 150 });
-        hammer.on('panleft', function() {
-            $.fancybox.next();
-        });
-        hammer.on('panright', function() {
-            $.fancybox.prev();
-        });
-    }
-
-}
-profilePostFactory.append.imageOnLoad = function($stream, img) {
-    var $imgHolder = $stream.find('.imgLoaderHolder');
-    var $blockHolder = $stream.find('.blockImgHolder');
-    //get the container to hold the height cause we are gonna switch out.
-    $blockHolder.css('height', $imgHolder.height() + 'px');
-    $imgHolder.remove();
-    $blockHolder.prepend(img);
-    //reset the height attr.
-    $blockHolder.css('height', 'auto');
-    this.effect($(img));
-}
-profilePostFactory.append.moreInfoBindButton = function($custBut) {
-    var $buttons = $('.' + this.parent.streamContClass).find('.moreInfo');
-    if($custBut) { $buttons = $custBut; }
-    $buttons.click(function() {
-        //find its parent the find the button. more resistant to layout changes.
-        var $moreInfo = $(this).closest('article').find('.blockMoreInfoTop');
-
-        //button is depressed, and moreInfo yet to be hidden
-        if($(this).hasClass('blockInteractActive') && $moreInfo.attr('data-shown') === 'yes') {
-            //remove the class first.
-            $(this).removeClass('blockInteractActive');
-            $moreInfo.velocity({opacity:0}, 200, function(el) {
-                //now toggle to hide.
-                $(el).css('display', 'none').attr('data-shown', 'no');
-
-            });
-        }
-
-        //button is not depressed, and moreInfo not shown
-        if(!$(this).hasClass('blockInteractActive') && $moreInfo.attr('data-shown') === 'no') {
-            //add the class first.
-            $(this).addClass('blockInteractActive');
-            $moreInfo
-                .css('display', 'block')
-                .velocity({opacity:0.9}, 200, function(el) {
-                    //now toggle to hide.
-                    $(el).attr('data-shown', 'yes');
-                });
-        }
-
-        //intermediate cases where button is depressed/undepressed, but animation is not complete.
-        //will fall through.
-        return false;
-    });
-}
-profilePostFactory.append.settingsButton = function($stream, post) {
-
-    var $settingsButtonsWrap = $stream.find('.blockInteractSettingsWrap');
-    var $settingsButtons = $settingsButtonsWrap.find('.blockInteractSettingsOptions');
-
-
-    if(post.User_userId !== printHead.userHeaders.userId) {
-        //not the owner
-
-        //check if user has been attributed
-        if(post.User_userId_attributed === printHead.userHeaders.userId) {
-
-            //attributed posts can't be edited
-            $settingsButtonsWrap.find('.settingsEdit').remove();
-            $stream.find('.editDesc').remove();
-            $stream.find('.editDescTextArea').remove();
-            $settingsButtonsWrap.find('.settingsMark').remove();
-
-        } else {
-            //not the owner and post not attributed. disallow all functions less marking.
-            $settingsButtonsWrap.find('.settingsDelete').remove();
-            $settingsButtonsWrap.find('.settingsEdit').remove();
-            $stream.find('.editDesc').remove();
-            $stream.find('.editDescTextArea').remove();      
-        }
-  
-
-
-    } else {
-        //is own post.
-
-        //but if viewing it in other's account, don't allow authoring
-        if(this.parent.uid !== printHead.userHeaders.userId) {
-            $settingsButtonsWrap.find('.settingsDelete').remove();
-            $settingsButtonsWrap.find('.settingsEdit').remove();
-            $stream.find('.editDesc').remove();
-            $stream.find('.editDescTextArea').remove();    
-        } else {
-
-            //viewing post in your own page. allow authoring.
-            $settingsButtonsWrap.find('.settingsMark').remove();
-            $settingsButtonsWrap.find('.settingsDelete').attr('data-isprofile', post.isProfilePicture);
-        }
-
-    }
-    
-    var $openPage = $settingsButtonsWrap.find('.settingsOpen');
-    $openPage.wrapInner('<a href="/p/' + post.postId + '" target="_blank"></a>');
-
-    this.identifier($settingsButtons, post);
-    this.identifier($stream.find('.editDesc'), post);
-}
-
-profilePostFactory.init(renderJSON, {
-    burst: 0, 
-    imageType: 'half'
-});
-
-</script>
-<!-- Follow Button -->
-<script>
-var followButton = {
-    main: function($el) {
-
-        var targetUserId = $el.attr('data-uid'),
-            action = $el.attr('data-action'),
-            $followButton = $el,
-            $followersCount = $('#profileFollowersCount'),
-            followersCount = parseFloat($followersCount.html()),
-            followText = $followButton.attr('data-follow'); //this is to capture the "follow back" if it exist.
-
-        //disallow action if user is trying to follow her/himself:
-        if(printHead.userHeaders.userId === parseFloat(targetUserId)) { return false; }
-
-        //disable the button
-        $followButton.attr('disabled','disabled');
-        setTimeout(function() {
-            $followButton.removeAttr('disabled');
-        }, 1000);
-
-        //change the state
-        function changeState() {
-            if(action === 'follow') {
-                $followButton.velocity('callout.pulse', 200);
-                $followButton.attr('data-action','unfollow');
-                $followButton.html('unfollow');
-                $followersCount.html(followersCount+1);
-            } else {
-                $followButton.attr('data-action','follow');
-                $followersCount.html(followersCount-1);
-                if(followText) {
-                    $followButton.html(followText);
-                } else {
-                    $followButton.html('follow');
-                }
-            }
-        }
-        changeState();
-
-
-        // Send the data using post
-        var posting = $.post( "{p.absPath}/api/follow", { 
-            userId: targetUserId, 
-            action: action 
-        });
-        
-        //done
-        posting.done(function(data) {
-            if(data.success) {
-                console.log('success');
-            } else {
-                console.log('error');
-                changeState();
-                alertFactory.protoAlert('Please either login or check your internet connection.');
-            }
-        });
-
-        //fail
-        posting.fail(function() {
-            changeState();
-            alertFactory.protoAlert('Please either login or check your internet connection.');
-        });
-    },
-    init: function($el) {
-        var self = this;
-        $el.click(function(e) {
-            e.preventDefault();
-            return self.main($el);
-        });
-    }
-}
-followButton.init($('#profileFollowButton'));
-</script>
+<script src='{p.js}/pagescripts/me-core.js'></script>
 
 {?renderJSONraw.isOwnProfile}
-<script>
-function editProfile() {
-    var $header = $('.profileHeader'),
-        $editBtn = $('#editProfileButton'),
-        $updateBtn = $('#updateProfileButton'),
-        $cancelBtn = $('#cancelButton'),
-        $normalD = $('div[data-vel="normalDisplay"]'),
-        $editD = $('div[data-vel="editDisplay"]'),
-        $searchD = $('div[data-vel="searchDisplay"]'),
-        $profilePic = $('.profilePictureCont'),
-        $profileEditPicButtons = $('.profileEditPicButtons'),
-        $profileEditPicOk = $('#profileEditPicOk'),
-        $profileEditPicCancel = $('#profileEditPicCancel'),
-        $profileEditPicText = $('#profileEditPicText'),
-        hasNoPosts = false;
-        hasAppendedThumb = false; //reset this when the user load more post!
 
-    $editBtn.click(function () {
-        //set height temporarily to prevent container from collapsing.
-        $header.css('height', $header.height());
-
-        $searchD.velocity('transition.slideLeftOut', 200, function() {
-            //this is the flag for the userView.
-            //if the user is looking at "following"/"followers"
-            //we slide the view out and down the flag.
-            userViewFlag = false;
-        });
-        $normalD.velocity('transition.slideLeftOut', {
-            duration: 200,
-            complete: function() {
-
-                $editD.velocity('transition.slideRightIn', 200, function() {
-                    $header.css('height', 'auto');
-                });
-                
-            }
-        });
-        if(!hasAppendedThumb) { thumbNailer(); }
-        //bind the profile picture with the editing, provided user has posts
-        if(hasNoPosts) { 
-            profilePicBinder.noPost();
-        } else {
-            profilePicBinder.bind();
-        }
-
-    });
-    $updateBtn.click(function() {
-        //if the profilePicture is still enlarged, skrink it.
-        if($profilePic.attr('data-enlarged')) {
-            $profilePic.velocity({width: $profilePic.attr('data-width')}, 200);
-            keepThumnailer();
-        }
-    });
-
-    $cancelBtn.click(function(e) {
-        e.preventDefault();
-
-        document.removeEventListener('backbutton.edit');
-
-        $('#profileInputs input').each(function(i, elem) {
-            var o = $(elem).attr('data-orgin');
-            $(elem).val(o);
-        });
-        $('#profileInputs select').each(function(i, elem) {
-            var o = $(elem).attr('data-orgin');
-            if(o) {
-                $(elem).val(o);                
-            } else {
-                $(elem).val('');
-            }
-
-
-
-        });
-        $('#profileInputs textarea').each(function(i, elem) {
-            var o = $(elem).attr('data-orgin');
-            $(elem).val(o);
-        });
-
-        //change back and reduce back the picture size.
-        var imgid = renderJSON.profilePicture;
-        $('.profilePictureCont img').attr('src', printHead.p.mediaDir + '/' + imgid + '.jpg');
-        var width = $profilePic.attr('data-width');
-
-        //if the profilePicture is still enlarged, skrink it.
-        if($profilePic.attr('data-enlarged')) {
-            $profilePic.velocity({width: $profilePic.attr('data-width')}, 200);
-            keepThumnailer();
-        }
-
-        //transit back
-        $header.css('height', $header.height());
-        $editD.velocity('transition.slideLeftOut', {
-            duration: 200, 
-            complete: function() {
-                $normalD.velocity('transition.slideRightIn', 200, function() {
-                    $header.css('height', 'auto');
-                });
-            }
-        });
-
-        keepThumnailer();
-        profilePicBinder.unbind();
-    });
-
-    var profilePictureCacheWidth = function(pic) {
-        if(typeof $(pic).attr('data-width') === 'undefined') { 
-            var width = $(pic).css('width') || $(pic).width() + 'px';
-            $(pic).attr('data-width', width);
-        }
-    }
-    var keepThumnailer = function() {
-        $('#thumbnailScrollerWrap').velocity('transition.slideUpOut', 200);
-    }
-
-    var profileEditPic = {
-        flag: false,
-        ok: function() {
-            var self = this;
-            $profileEditPicOk.bind('click.picOk', function() {
-                //return so that it can't be doubletapped.
-                if(self.flag) { return false; }
-                
-                self.flag = true;
-                setTimeout(function() {
-                    self.flag = false;
-                }, 200)
-
-                //change out
-                $profileEditPicButtons.velocity('fadeOut', 200, function() {
-                    $profileEditPicText.velocity('fadeIn', 200);
-                });
-
-                //reduce back the picture size.
-                var width = $profilePic.attr('data-width');
-                $profilePic.velocity({width: width}, 200);
-
-                //change out the imgId
-                $('.profilePictureCont img').attr('data-imgid', $('.profilePictureCont img').attr('data-temp'));
-
-                keepThumnailer();
-                profilePicBinder.bind();
-
-            });
-        },
-        cancel: function() {
-            var self = this;
-            $profileEditPicCancel.bind('click.picCan', function() {
-                //return so that it can't be doubletapped.
-                if(self.flag) { return false; }
-                
-                self.flag = true;
-                setTimeout(function() {
-                    self.flag = false;
-                }, 200)
-
-                //change out
-                $profileEditPicButtons.velocity('fadeOut', 200, function() {
-                    $profileEditPicText.velocity('fadeIn', 200);
-                });
-
-                //if picture is still enlarged, skrink and keep thumbnailer.
-                if($profilePic.attr('data-enlarged')) {
-                    $profilePic.velocity({width: $profilePic.attr('data-width')}, 200);
-                    keepThumnailer();
-                }
-
-                //if already selected a picture, put the original picture back.
-                var imgid = $('.profilePictureCont img').attr('data-imgid');
-                $('.profilePictureCont img').attr('src', printHead.p.mediaDir + '/' + imgid + '.jpg');
-
-                profilePicBinder.bind();
-            });
-        },
-        init: function() {
-            this.ok();
-            this.cancel();
-        }
-    }
-    profileEditPic.init();
-
-    var profilePicBinder = {
-        noPost: function() {
-
-            console.log('nopost');
-            var div = document.createElement('div');
-            div.id = "noPostsAlert";
-            div.style.display = "none";
-            div.style.textAlign = "center";
-            div.innerHTML  = '<p>You do not have any post to set as profile picture. Do you want to create a new post?</p>';
-            div.innerHTML += '<a href="' + printHead.p.absPath + '/post">Yes, bring me there.</a> | ';
-            div.innerHTML += '<a href="javascript:$.fancybox.close();"> No Thanks</a>';
-            if($('#noPostsAlert').length === 0) { console.log('append');$('body').append(div); }
-
-            $profilePic
-                .css('cursor', 'pointer')
-                .on('click.edit', function() {
-                    $.fancybox.open([{
-                        href : '#noPostsAlert',
-                        title : ''
-                    }], {
-                        padding : 10
-                    });
-                });
-        },
-        bind: function() {
-            var self = this;
-            //bind the profile picture with the editing.
-            $profilePic
-                .css('cursor', 'pointer')
-                .on('click.edit', function() {
-                    //unbind yourself
-                    self.unbind();
-
-                    //cache the width and make it larger
-                    profilePictureCacheWidth(this);
-                    $(this).attr('data-enlarged','true').velocity({width:"320px"}, 200);
-
-                    //slide the thumbnailer out
-                    $('#thumbnailScrollerWrap').velocity('transition.slideDownIn', 200);
-
-                    //change out the text below
-                    $profileEditPicText.velocity('fadeOut', 200, function() {
-                        $profileEditPicButtons.velocity('fadeIn', 200);
-                    });
-
-                });
-
-        },
-        unbind: function() {
-            $profilePic.css('cursor', 'default').unbind('click.edit');
-        }
-    }
-    $profileEditPicText.on('click.edit', function() {
-        if(hasNoPosts) { return profilePicBinder.noPost(); }
-        profilePicBinder.unbind();
-
-        //cache the width and make it larger
-        profilePictureCacheWidth($profilePic);
-        $profilePic.attr('data-enlarged','true').velocity({width:"320px"}, 200);
-
-        //slide the thumbnailer out
-        $('#thumbnailScrollerWrap').velocity('transition.slideDownIn', 200);
-
-        //change out yourself
-        $(this).velocity('fadeOut', 200, function() {
-            $profileEditPicButtons.velocity('fadeIn', 200);
-        });
-    });
-
-
-    var thumbNailer = function() {
-        //prepare the thumbnails
-        var thumbCount = 0,
-            thumbWidth = false,
-            $profileImg = $('.profilePictureCont img')
-            profileImgId = $profileImg.attr('data-imgid'),
-            profileImgSrc = $profileImg.attr('src');
-
-        //append the first image with the current profile image.
-        //provided its not the empty one.
-        if(profileImgId) {
-            var img = new Image();
-             img.src = profileImgSrc; 
-            //IE10 has no support for .dataset.
-            //img.dataset.imgid = profileImgId;
-            $('#thumbnailScroller').append(img);
-            $(img).attr('data-imgid', profileImgId);
-        }
-
-        //then append the rest
-        var $posts = $('article .blockImgHolder img');
-        if($posts.length === 0) { return hasNoPosts = true; }
-        $posts.each(function(i, elem) {
-            var imgid = $(elem).attr('data-imgid');
-            var uid = parseFloat($(elem).closest('article').attr('data-uid'));
-            if(imgid) {
-
-                //don't append if this is the profile picture, cause its in the first position alr.
-                var isNotProfileImg = (imgid !== profileImgId);
-                //and don't append if it is attributed post.
-                var isNotAttr = (uid === printHead.userHeaders.userId);
-                //don't append if it is error img.
-                var isNotErr = (elem.className !== "errorImg" && elem.src.indexOf('image404') === -1);
-
-                if(isNotProfileImg && isNotAttr && isNotErr) {
-
-                    //else continue.
-                    var img = new Image();
-                    img.src = $(elem).attr('src');
-                    img.dataset.imgid = $(elem).attr('data-imgid');
-                    $('#thumbnailScroller').append(img);
-
-                    //cached the thumbWidth on the first one.
-                    if(!thumbWidth) { thumbWidth = parseFloat($(img).css('width')); }
-
-                }
-            thumbCount++;
-            }     
-        });
-
-        //bind all thumbnails to change the profile picture.
-        $('#thumbnailScroller img').click(function() {
-            var imgid = $(this).attr('data-imgid');
-            $('.profilePictureCont img')
-                .attr('src', printHead.p.mediaDir + '/' + imgid + '.jpg')
-                .attr('data-temp', imgid);
-        });
-
-        //determine the thumbscroll width so that it can be scrolled.
-        var offset = 0;
-        var scrollerWidth = (thumbWidth*thumbCount)+offset;
-        $('#thumbnailScroller').css('width', scrollerWidth +'px');
-
-        hasAppendedThumb = true;
-    }
-}
-editProfile();
-</script>
 <script src="{p.js}/jquery.validate.min.js"></script>
-<script>
-var profileAjax;
-$('#profileInputs').validate({
-    rules: {
-        email: {
-            required: true,
-            email: true
-        }
-    },
-    messages: {
-        email: {
-            required: ''
-        }
-    },
-    errorPlacement: function(error, element) {
-        element.velocity('callout.shakeShort');
-    },
-    submitHandler: function() {
-
-        var $buttons = $('#profileInputs').find('button');
-        $buttons.attr('disabled','disabled');
-
-        var flasher = Object.create(VV.utils.Flasher);
-        flasher.run($('#profileInputs button[type="submit"]'), 'button');
- 
-        // Get some values from elements on the page:
-        var $form = $('#profileInputs');
-        var data = $form.serialize();
-
-        //check if profile image has changed. If not, don't add to data.
-        var imgid = $('.profilePictureCont img').attr('data-imgid');
-        if(imgid !== printHead.userHeaders.profilePicture) {
-            data += '&picture=' + $('.profilePictureCont img').attr('data-imgid');
-        }
-
-
-        url = printHead.p.absPath + '/api/updateprofile',
-        submitButton = $form.find('button[id="submit"]');
-
-        // Send the data using post
-        profileAjax = $.post(url, data);
-        //done
-        profileAjax.done(function(data) {
-            console.log(data);
-            if(data.success) {
-                window.location.href = printHead.p.absPath + "/me";
-            } else {
-                alertFactory.protoAlert('Oops! An unknown error has occured! Please refresh and try again.');
-                flasher.kill();
-                $buttons.removeAttr('disabled');
-            }
-        });
-        //fail
-        profileAjax.fail(function(err) {
-            if(err.statusText === 'abort') { return false; }
-            alertFactory.protoAlert('Please either login or check your internet connection.');
-            flasher.kill();
-            $buttons.removeAttr('disabled');
-        });
-    }
-});
-</script>
+<script src="{p.js}/pagescripts/me-editprofile.js"></script>
 {/renderJSONraw.isOwnProfile}
 
-{!Following/Follower page !}
-<script>
-var followingCache,
-    followerCache,
-    resetHTML,
-    userViewFlag;
-
-var loader = Object.create(VV.utils.loaderEffect);
-var $profileBlock = $('.profilePostsBlock');
-var $followBlock = $('.profileFollowUsersBlock');
-var $buttons = $('.profileFollowBlock');
-loader.init($('.loading'));
-
-$buttons.click(function() {
-    if(!$(this).hasClass('hasFollowNumbers')) { return false; }
-    if($(this).attr('data-active') === "true") { return false; }
-
-    $buttons.removeAttr('data-active');
-    $(this).attr('data-active','true');
-
-    var a = $(this).attr('data-action')
-    if(a === 'findFollowers') {
-        //if we already have the complete HTML, just show it.
-        if(followerCache) {
-            //clear the container
-            $('.mainColBlock').html('');
-            $('.mainColBlock').html(followerCache);
-            return transitIn();
-        }
-        //fresh entry, go get it.
-        loader.run();
-        followAjax("followers");
-    }
-
-    if(a === 'findFollowings') {
-
-        if(followingCache) {
-            //clear the container
-            $('.mainColBlock').html('');
-            $('.mainColBlock').html(followingCache);
-            return transitIn();
-        }
-        loader.run();
-        followAjax("following");
-    }
-});
-$('#backToPosts').click(function() {
-   $followBlock.velocity('transition.slideRightOut', 200, function() {
-        $profileBlock.velocity('transition.slideLeftIn', 200, function() {
-            $buttons.removeAttr('data-active');
-            userViewFlag = false;
-        });
-   });
-});
-function transitIn($el1, $el2) {
-    if(userViewFlag) {
-        //no transitions
-        loader.kill();
-        return initList();
-    }
-    if(!$el1 || !$el2) {
-        var $el1 = $profileBlock;
-        var $el2 = $followBlock;
-    }
-    $el1.velocity('transition.slideLeftOut', 200, function() {
-        loader.kill();
-        initList();
-        $el2.velocity('transition.slideRightIn', 200, function() {
-            userViewFlag = true;
-        });
-    });
-}
-function initList() {
-    var options = { valueNames: [ 'vector' ] }
-    var userList = new List('searchList', options);
-}
-function followAjax(type) {
-    var ajaxFollowers = $.post(printHead.p.absPath + '/api/' + type, {userId: renderJSON.userId});
-
-    ajaxFollowers.done(function(data) {
-        console.log(data);
-        if(!data.success) {
-            loader.kill();
-            alertFactory.protoAlert('Please either login or check your internet connection.');
-        }
-        //clear the container
-        $('.mainColBlock').html('');
-        userFactory.init(data, {streamType: "user"});
-        //after userFactory is complete, cache the HTML
-        if(type === "followers") { followerCache = $('.mainColBlock').html() };
-        if(type === "following") { followingCache = $('.mainColBlock').html() };
-        transitIn();
-    });
-    ajaxFollowers.fail(function() {
-        loader.kill();
-        alertFactory.protoAlert('Please either login or check your internet connection.');
-        console.log('error has occured');
-    })
-}
-</script>
-<!-- Auto open -->
-<script>
-$(window).load(function() {
-    var qs = VV.utils.QueryString()
-    if(qs.show) {
-        var postId = qs.show;
-        $('article[data-pid="' + postId + '"]').find('.postImage').click();
-    }
-});
-window.onpopstate = function(e){
-
-    //TODO: Not ideal implementation of back/foward button.
-    var qs = VV.utils.QueryString()
-    if(qs.show) {
-        var postId = qs.show;
-        $('article[data-pid="' + postId + '"]').find('.postImage').click();
-    } else { 
-        $.fancybox.close();
-    }
-
-};
-</script>
 <!-- list.js library -->
 <script src="{p.js}/list.js"></script>
 </body>

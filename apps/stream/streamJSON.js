@@ -199,6 +199,7 @@ module.exports = function streamJSON(req, render, opts) {
         req.user.getFollows({attributes: ['userId']}).then(function(users) {
 
             //push it into the array for use later
+            //var i in array loop can be used for arrays without iterating over nested values.
             for(var i in users) { idArray.push(users[i].userId); }
 
 
@@ -266,6 +267,10 @@ module.exports = function streamJSON(req, render, opts) {
         /* DEAL WITH LOAD MORE */
 
         db.Post.findAll({
+            where: db.Sequelize.or(
+                {isProduct: {ne: true}},
+                {isProduct: null}
+            ),
             include: include, 
             order: order,
             limit: 20

@@ -1,3 +1,5 @@
+'use strict';
+
 /* This file requires alertFactory 'aF' */
 if(typeof VV === 'undefined') { var VV = {} }
 
@@ -56,7 +58,7 @@ VV.img.TEMP_IMG = new Image();
 * Methods *
 *******************/
 
-VV.img.upload = function(attrs, callback) {
+VV.img.upload = function(attrs, url, callback) {
 
     /* 
      attrs = {
@@ -79,19 +81,52 @@ VV.img.upload = function(attrs, callback) {
     if(!attrs) { return false; }
 
     var data = new FormData();
-    data.append("action", attrs.action);
-    data.append("processData", JSON.stringify(attrs.processData) );
-    data.append("imgData", attrs.imgData);
-    data.append("desc", attrs.desc);
-    data.append("itemMeta", JSON.stringify(attrs.itemMeta));
+    var keys = Object.keys(attrs);
+
+    for(var i=0; i<keys.length; i++) {
+        var key = keys[i];
+        var branch = attrs[key];
+
+        //image case
+        if (key === "imgData") {
+            if (Array.isArray(branch)) {
+                //imgData is an array
+                //for loop is in reverse order because FormData.append actually "prepends"
+                for(var j=branch.length-1; j>=0; j--) {
+                    data.append('imgData[' + j + ']', branch[j]);
+                }
+            } else {
+                //imgData is not array. Just 1 image
+                data.append('imgData', branch);
+            }
+        }
+
+        
+        if (typeof branch === "object") {
+            //if contain nested values
+            data.append(key, JSON.stringify(branch));
+        } else {
+            //does not contain nested values
+            //assume that if is not "object", then it is just string
+            data.append(key, branch);
+        }
+
+    }
+    // data.append("action", attrs.action);
+    // data.append("processData", JSON.stringify(attrs.processData) );
+    // data.append("imgData", attrs.imgData);
+    // data.append("desc", attrs.desc);
+    // data.append("itemMeta", JSON.stringify(attrs.itemMeta));
 
     var sioId = '';
     if(socketId) {
         sioId = socketId;
     }
 
+    console.log(data);
+
     var posting = $.ajax({
-        url: '/api/post',
+        url: url,
         data: data,
         cache: false,
         mimeType: "multipart/form-data",
@@ -133,7 +168,7 @@ VV.img.upload = function(attrs, callback) {
 
     //fail
     posting.fail(function(err) {
-        //console.log(err);
+        console.log(err);
         return aF.protoAlert({
             text:'Oops... something has gone wrong. Please refresh and try again.', 
             title:'Oops...'
@@ -238,7 +273,7 @@ VV.img.canvasResize = function(canvas, scaledPx, img, exif, callback) {
     //if we have exif, we will rotate, and canvasRotate will draw
     if(exif) { 
         //rotation will also call drawImage()
-        console.log('exif, rotate');
+        //console.log('exif, rotate');
         var canvas = VV.img.canvasRotate(canvas, img, exif); 
     } else if(img) {
         //if exif is not true, but img is true, we just need to draw
@@ -250,7 +285,7 @@ VV.img.canvasResize = function(canvas, scaledPx, img, exif, callback) {
     //this means if one of the parameter is already at desired px.
     //canvasResize cannot be used to dictate which dimension is to be scaled.
     if(canvas.height === scaledPx || canvas.height === scaledPx) { 
-        console.log('hermite not required');
+        //console.log('hermite not required');
         if(callback) { return callback(canvas); }
         return canvas;
     }
@@ -292,7 +327,7 @@ VV.img.canvasResize = function(canvas, scaledPx, img, exif, callback) {
         my_worker.onmessage = function(event){
 
             img2 = event.data.data;    
-            console.log("hermite resize completed in "+(Math.round(Date.now() - time1)/1000)+" s");   
+            //console.log("hermite resize completed in "+(Math.round(Date.now() - time1)/1000)+" s");   
             canvas.getContext("2d").clearRect(0, 0, W, H);
             canvas.height = H2;
             canvas.width = W2;
@@ -309,11 +344,11 @@ VV.img.getEXIF = function(file, callback) {
 
     if( typeof EXIF.readFromBinaryFile === 'function' && typeof BinaryFile === 'function') {
 
-        fr = new FileReader();
+        var fr = new FileReader();
         fr.onloadend = function (e) {
             var exif = EXIF.readFromBinaryFile(new BinaryFile(e.target.result));
             if(exif) {
-                console.log(exif);
+                //console.log(exif);
                 VV.img.STOCK_IMG_EXIF = exif;
                 return callback(exif);
             } else {
@@ -324,7 +359,7 @@ VV.img.getEXIF = function(file, callback) {
         fr.readAsBinaryString(file);
 
     } else {
-        console.log('Warning: EXIF and BinaryFile error...')
+        //console.log('Warning: EXIF and BinaryFile error...')
         return false;
     }
 }
@@ -442,7 +477,7 @@ VV.img.canvasCrop = function(type, file, m, scale, callback) {
         ctx.clearRect(0,0,cropCanvas.width,cropCanvas.height);
         ctx.putImageData(data,x,y);
     } else {
-        console.log('canvasCrop type invalid');
+        //console.log('canvasCrop type invalid');
         return aF.protoAlert({
             text: 'Something has gone wrong... Please refresh window and try again.',
             title: 'Oops..'
@@ -456,8 +491,8 @@ VV.img.canvasCrop = function(type, file, m, scale, callback) {
 }
 
 VV.img.dispTmp = function(type, data) {
-    console.log('dispTmp fired');
-    console.log(Date.now());
+    //console.log('dispTmp fired');
+    //console.log(Date.now());
     var el_cont = document.getElementById('cropPort');
     var el_layer1 = document.getElementById('cropPortBg');
 
@@ -529,15 +564,15 @@ VV.img.dispTmp = function(type, data) {
         $('#img_preview').velocity('fadeIn', {
             duration: 200,
             complete: function(el) {
-                console.log('complete');
-                console.log(Date.now());
+                //console.log('complete');
+                //console.log(Date.now());
                 $('#scaleCont').velocity("transition.slideRightIn", 200);
             }
         });
     }
 }
 VV.img.blankImgChecker = function(imgdata) {
-    console.log(imgdata.length);
+    //console.log(imgdata.length);
     var size = imgdata.length,
         threshold = 100000; //blank images on iOS typically returns 51038
 

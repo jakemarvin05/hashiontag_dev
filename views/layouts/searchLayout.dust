@@ -1,5 +1,5 @@
     <p class="searchNote">(to search hashtags, use '#'.)</p>
-    <input type="text" id="search" class="search" name="search" placeholder="Type to search...">
+    <input type="text" class="search" name="search" placeholder="Type to search...">
     <div class="searchLoaderCont">
         <div class="searchLoaderWrap"></div>
         <div class="searchQueryMessage" style="display:none;"></div>
@@ -41,7 +41,7 @@
         }//for loop
 
         //transition the blocks in.
-        $('.' + this.streamContClass).velocity('transition.slideRightIn', 200);
+        this.$cont.velocity('transition.slideRightIn', 200);
     }
 
     userFactory.append.fullName = function(user) {
@@ -90,5 +90,5 @@
         }
 
     }
-    $(function() { userFactory.init(); });
+    // $(function() { userFactory.init(); });
     </script>

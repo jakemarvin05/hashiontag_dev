@@ -1,13 +1,3 @@
-{! Not much different between this and streamLayout.dust 
-
-Except for inline-block styling on article.
-
-And the blank image.
-
-Explore if it is possible to just share the 2
-
-!}
-
 <article class="streamLayout clearfix" id="layoutId" style="display:inline-block;">
     <div class="blockImgHolder">
         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIW2NkAAIAAAoAAggA9GkAAAAASUVORK5CYII=" class="imgLoaderHolder">
@@ -28,7 +18,8 @@ Explore if it is possible to just share the 2
                 </div>
 
                 <div class="blockInteract">
-                     {?isPreview}{:else}
+                    <div class="blockInteractButtons buyButton clickable" style="display:none;">BUY</div>
+                    {?isPreview}{:else}
                     <div class="blockInteractButtons likeButton clickable" data-action="like">
                         <div class="icon-heart"></div>
                         <span class="blockInteractText">like</span>
@@ -64,7 +55,12 @@ Explore if it is possible to just share the 2
                 <div class="blockLikeText"></div>
 
                 <div class="blockTextHolder">
+                    <div class="blockProductName"></div>
+                    <div class="blockBelowProductName">
+                        <span class="spanPrice"></span><span class="spanLikes">&nbsp;&nbsp;|&nbsp;&nbsp;<span class="spanLikesCount"></span></span>
+                    </div>
                     <div class="description convert-emoji"></div>
+                    <div class="blockProductInfo"></div>
                     <div class="editDescButtons" style="display:none;">
                         <button class="editDesc darkerButton" data-id="">Done</button>
                         <button class="editDescCancel darkerButton">Cancel</button>

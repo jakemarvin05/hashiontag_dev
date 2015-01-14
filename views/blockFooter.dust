@@ -97,7 +97,7 @@ function sendComment() {
                 console.log('error');
                 $submittedComment.remove();
                 alertFactory.commentError();
-            }  
+            }
         });
         //fail
         posting.fail(function() {
@@ -299,12 +299,11 @@ var likeButton = {
         });
         
         //done
-        posting.done(function( data ) {
-            console.log(data);
-        });
+        posting.done(function( data ) {});
 
         //fail
-        posting.fail(function() {
+        posting.fail(function(err) {
+            //console.log(err);
             changeState();
             alertFactory.protoAlert('Please either login or check your internet connection.');
         });

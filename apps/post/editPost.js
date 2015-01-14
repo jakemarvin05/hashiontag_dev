@@ -5,6 +5,7 @@ var metaAddTag = require('./metaAddTag.js');
 var tagsHandler = require('./tagsHandler.js');
 var S = require('string');
 var addHashTags = require('./addHashTags.js');
+var itemMetaHandler = require('./itemMetaHandler.js');
 
 module.exports = function editPost(req, res) {
 
@@ -65,28 +66,7 @@ module.exports = function editPost(req, res) {
     //while searching for post, perform some other task.
     var itemMeta = JSON.parse(req.body.itemMeta);
     
-    //check for nullity first before invoking HTML tags stripping.
-    //by default null should occur very frequently, so don't incur strip tags overheads unneccessarily
-    itemMeta.itemLink = VVutils.nullIfEmpty(itemMeta.itemLink);
-    if(itemMeta.itemLink) { 
-        itemMeta.itemLink = S(itemMeta.itemLink).stripTags().s; // strip HTML tags
-        itemMeta.itemLink = S(itemMeta.itemLink).strip('\'','"').s;
-    }
-
-    itemMeta.itemAddTag = VVutils.nullIfEmpty(itemMeta.itemAddTag);
-    if(itemMeta.itemAddTag) { 
-        itemMeta.itemAddTag = S(itemMeta.itemAddTag).stripTags().s;
-        //strip away the '@'
-        if(itemMeta.itemAddTag.indexOf('@') === 0) {
-            itemMeta.itemAddTag = itemMeta.itemAddTag.substring(1);
-        }
-    }
-
-    itemMeta.itemPrice = VVutils.nullIfEmpty(itemMeta.itemPrice);
-    if(itemMeta.itemPrice) { 
-        itemMeta.itemPrice = S(itemMeta.itemPrice).stripTags().s; 
-        itemMeta.itemPrice = S(itemMeta.itemPrice).strip('\'','"').s; 
-    }
+    itemMeta = itemMetaHandler(itemMeta);
 
 
     var TASKS = 2;

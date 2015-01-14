@@ -9,7 +9,7 @@ var eventEmitter = new events.EventEmitter();
 var baseURI = '';
 var S = require('string');
 
-module.exports = function tagsHandler(desc, CALLBACK, callback) {
+module.exports = function tagsHandler(desc, postType, CALLBACK, callback) {
 
     /*
     1) Take out the emails first.
@@ -67,16 +67,25 @@ module.exports = function tagsHandler(desc, CALLBACK, callback) {
 
     //extract the tags
     hash.raw = desc.match(/#([a-zA-Z0-9]+)/g);
-    add.raw = desc.match(/@([a-zA-Z0-9_]+)/g);
-    star.raw = desc.match(/\*([a-zA-Z0-9]+)/); //only match for 1 startag.
+    if (hash.raw === null) { hash.raw = [] }
+        
+    if (postType === "post") {
+        //only post will match for addtags and startags
+        add.raw = desc.match(/@([a-zA-Z0-9_]+)/g);
+        star.raw = desc.match(/\*([a-zA-Z0-9]+)/); //only match for 1 startag.
+
+        //set add.raw and hash.raw back to [] if null
+        if (add.raw === null) { add.raw = [] };
+        if (star.raw === null) { star.raw =[] };
+    }
 
     //after calling match, if there are no match {tag}.raw will default to null.
 
     //now replace away all these tags.
-    if(add.raw) { 
+    if(add.raw.length > 0) { 
         desc = desc.replace(/@([a-zA-Z0-9_]+)/g, '{{{addtag}}}'); 
     }
-    if(star.raw) { 
+    if(star.raw.length > 0) { 
         desc = desc.replace(/\*([a-zA-Z0-9]+)/, '{{{startag}}}'); 
     }
     //keep the one that has hashtags.
@@ -84,7 +93,7 @@ module.exports = function tagsHandler(desc, CALLBACK, callback) {
     descJSON.desc = desc;
 
     //then do a replacement.
-    if(hash.raw) { desc = desc.replace(/#([a-zA-Z0-9]+)/g, '{{{hashtag}}}'); }
+    if(hash.raw.length > 0) { desc = desc.replace(/#([a-zA-Z0-9]+)/g, '{{{hashtag}}}'); }
 
     descJSON.descHTML = S(desc).escapeHTML().s; //escape the HTML that came with the desc
 
@@ -102,7 +111,7 @@ module.exports = function tagsHandler(desc, CALLBACK, callback) {
 
 
     //addtags need to be checked against the DB.
-    if(add.raw) {
+    if (add.raw.length > 0) {
 
         var i = 0;
         while(add.raw[i]) {
@@ -158,7 +167,7 @@ module.exports = function tagsHandler(desc, CALLBACK, callback) {
     }
 
 
-    if(hash.raw) {
+    if(hash.raw.length > 0) {
 
         var i = 0;
         while(hash.raw[i]) {
@@ -178,8 +187,8 @@ module.exports = function tagsHandler(desc, CALLBACK, callback) {
         hash.unique = uniqueBy(hash.lowercase, JSON.stringify); 
     }
 
-    //addtags need to be checked against the DB.
-    if(star.raw) {
+    //star tag needs to be checked against the DB.
+    if(star.raw.length > 0) {
 
         star.raw[0] = star.raw[0].substring(1);
         var s = star.raw[0];
@@ -310,7 +319,7 @@ module.exports = function tagsHandler(desc, CALLBACK, callback) {
             }
         }
         //deal with hashtags
-        if(hash.raw) {
+        if(hash.raw.length > 0) {
             
             var hh = 0;
             while(hash.raw[hh]) {
@@ -319,7 +328,7 @@ module.exports = function tagsHandler(desc, CALLBACK, callback) {
             }
         }
         //addtag
-        if(add.raw) {
+        if(add.raw.length > 0) {
             var rr = 0;
             while(add.raw[rr]) {
                 d = d.replace('{{{addtag}}}', '@' + add.raw[rr]);
@@ -336,7 +345,7 @@ module.exports = function tagsHandler(desc, CALLBACK, callback) {
 
         }
         //startag
-        if(star.raw) {
+        if(star.raw.length > 0) {
             d = d.replace('{{{startag}}}', '*' + star.raw[0]);
 
             //if there is valid link
