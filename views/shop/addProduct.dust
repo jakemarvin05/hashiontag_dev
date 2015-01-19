@@ -778,21 +778,78 @@ socket.on('uploadProgress', function(data){
             </div>
 
             <script>
-            var dataAppend = Object.create(VV.utils.dataAppend);
+            var dataAppend = {
 
-            dataAppend.images = function(file) {
+                run: function($e) {
+                    if ($e.hasClass('inputSingle')) { return this.simple($e); }
+                    if ($e.hasClass('inputSpecial')) { return this.complex($e); }
+                },
+
+                simple: function($e) {
+                
+                    //all inputSingle fields are appended with key = name attribute, value = val()
+                    return this.attrs[$e.attr('name')] = $e.val();
+                },
+
+                complex: function($e) {
+
+                    var self = this;
+
+                    var name = $e.attr('name');
+                    var val = $e.val();
+
+                    if (!val) { return false; } //don't accept empty values.
+
+                    //branches management
+                    var branches = $e.attr('data-branch');
+
+                    //key value pair management
+                    var isKey = ($e.attr('data-type') === "key");
+                    var isValue = ($e.attr('data-type') === "value");
+
+                    //key value type.
+                    if(isKey || isValue) {
+
+                        if(isKey) {
+                            return false; //don't need to create anything for key
+                        }
+                        if(isValue) {
+                            //get the key
+                            var groupClass = $e.attr('data-groupedcont');
+                            var key = $(groupClass).find('input[data-type="key"]').val();
+
+                            // don't set value if this value is empty or if key is empty.
+                            if (!key || !val) {
+                                //key or val is undefined or empty
+                                return false;
+                            }
+                            var setVal = val;
+                        }
+
+                        var chain = branches + '.' + key;
+                        D.set(self.attrs, chain, setVal);
+
+                    } else {
+                        //simple branch type
+                        var chain = branches;
+                        D.set(self.attrs, chain, val)
+                    }
+                    
+                },
+
+                images: function(file) {
                     this.attrs.imgData.push(file);
-            };
+                },
 
-            dataAppend.labels = function(labelText) {
-                var labels = this.attrs.dataProduct.labels;
-                if (labels === null) {
-                    this.attrs.dataProduct.labels = [ labelText ];
-                } else {
-                    labels.push(labelText);
+                labels: function(labelText) {
+                    var labels = this.attrs.dataProduct.labels;
+                    if (labels === null) {
+                        this.attrs.dataProduct.labels = [ labelText ];
+                    } else {
+                        labels.push(labelText);
+                    }
                 }
             };
-
 
             $('#publishButton').click(function() {
                 dataAppend.attrs = {
@@ -850,12 +907,12 @@ socket.on('uploadProgress', function(data){
 
                         if ( $e.val().length === 0 ) {
                             $e.css('background', '#ffe7e7')
-                              .off('keyup.vali')
-                              .on('keyup.vali', function() {
+                              .off('keypress.vali')
+                              .on('keypress.vali', function() {
                                 if ($(this).val().length > 0) {
                                     $(this)
                                         .css('background', '')
-                                        .off('keyup.vali');
+                                        .off('keypress.vali');
                                 }
                               });
 

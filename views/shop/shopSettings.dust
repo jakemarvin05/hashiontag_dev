@@ -1,0 +1,746 @@
+{>blockHeader/}
+<link href="{p.css}/me.css" rel="stylesheet">
+<style>
+.settingsCont {
+    padding: 20px;
+    border-bottom: 1px solid #ccc;
+}
+    .shopShippingTbl { 
+        text-align: left;
+        vertical-align: center;
+        height: 45px;
+        width: 350px;
+    }
+.regionCheckbox {
+    margin-right: 5px;
+}
+    
+
+</style>
+{>blockHeaderAfterHook/}
+
+<section id="main">
+    <header>
+        <div class="noticePad">
+            <h1>Shop Settings</h1>
+        </div>
+    </header>
+    <div class="settingsWrap">
+        <div class="settingsCont">
+            <h2>Currency</h2>
+            <select name="shopCurrency" class="inputSpecial" data-branch="dataShop.currency">
+                <option>USD (default)</option>
+                <option>SGD</option>
+                <option>GBP</option>
+            </select>
+            <p>
+                *NOTE: All prices that you have entered will not be converted upon changing currency.
+            </p>
+
+            <button id="saveShopCurreny" type="button" class="darkButton">Save Currency</button>
+        </div>
+
+        <div class="settingsCont">
+            <h2>Shipping</h2>
+            <h3>I can ship to:</h3>
+            <form id="shippingForm">
+
+                <table id="canShipTo">
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="regionCheckbox" data-for="shippingCostUSC" 
+                            {?dataShop.shipping.light.usc}
+                                checked
+                            {/dataShop.shipping.light.usc}
+                            >
+                        </td>
+                        <td>
+                            <label for="pdi_shipping_usc_cost">US & Cananda</label>
+                        </td>
+                        <td>
+                            <input type="text" class="shippingCost shippingCostUSC inputSpecial" id="pdi_shipping_usc_day" name="shipping_usc_day" placeholder="est delivery in days"  data-branch="dataShop.shipping.light.usc.day" 
+                            {?dataShop.shipping.light.usc}
+                                value="{dataShop.shipping.light.usc.day}" required
+                            {:else}
+                                style="display:none;"
+                            {/dataShop.shipping.light.usc}
+                            >
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="regionCheckbox" data-for="shippingCostSEA" 
+                            {?dataShop.shipping.light.sea}
+                                checked
+                            {/dataShop.shipping.light.sea}
+                            >
+                        </td>
+                        <td>
+                            <label for="pdi_shipping_sea_cost">Southeast Asia</label>
+                        </td>
+                        <td>
+                            <input type="text" class="shippingCost shippingCostSEA inputSpecial" id="pdi_shipping_sea_day" name="shipping_sea_day" placeholder="est delivery in days"  data-branch="dataShop.shipping.light.sea.day" 
+                            {?dataShop.shipping.light.sea}
+                                value="{dataShop.shipping.light.sea.day}" required
+                            {:else}
+                                style="display:none;"
+                            {/dataShop.shipping.light.sea}
+                            >
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="regionCheckbox" data-for="shippingCostASIAEU" 
+                            {?dataShop.shipping.light.asiaeu}
+                                checked
+                            {/dataShop.shipping.light.asiaeu}
+                            >
+                        </td>
+                        <td>
+                            <label for="pdi_shipping_asiaeu_cost">Rest of Asia & Europe</label>
+                        </td>
+                        <td>
+                            <input type="text" class="shippingCost shippingCostASIAEU inputSpecial" id="pdi_shipping_asiaeu_day" name="shipping_asiaeu_day" placeholder="est delivery in days"  data-branch="dataShop.shipping.light.asiaeu.day" 
+                            {?dataShop.shipping.light.asiaeu}
+                                value="{dataShop.shipping.light.asiaeu.day}" required
+                            {:else}
+                                style="display:none;"
+                            {/dataShop.shipping.light.asiaeu}
+                            >
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="regionCheckbox" data-for="shippingCostAUSTNZ" 
+                            {?dataShop.shipping.light.austnz}
+                                checked
+                            {/dataShop.shipping.light.austnz}
+                            >
+                        </td>
+                        <td>
+                            <label for="pdi_shipping_austnz_cost">Australia & NZ</label>
+                        </td>
+                        <td>
+                            <input type="text" class="shippingCost shippingCostAUSTNZ inputSpecial" id="pdi_shipping_austnz_day" name="shipping_austnz_day" placeholder="est delivery in days"  data-branch="dataShop.shipping.light.austnz.day" 
+                            {?dataShop.shipping.light.austnz}
+                                value="{dataShop.shipping.light.austnz.day}" required
+                            {:else}
+                                style="display:none;"
+                            {/dataShop.shipping.light.austnz}
+                            >
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="regionCheckbox" data-for="shippingCostROW" 
+                            {?dataShop.shipping.light.row}
+                                checked
+                            {/dataShop.shipping.light.row}
+                            >
+                        </td>
+                        <td>
+                            <label for="pdi_shipping_row_cost">Rest of the World</label>
+                        </td>
+                        <td>
+                            <input type="text" class="shippingCost shippingCostROW inputSpecial" id="pdi_shipping_row_day" name="shipping_row_day" placeholder="est delivery in days"  data-branch="dataShop.shipping.light.row.day" 
+                            {?dataShop.shipping.light.row}
+                                value="{dataShop.shipping.light.row.day}" required
+                            {:else}
+                                style="display:none;"
+                            {/dataShop.shipping.light.row}
+                            >
+                        </td>
+                    </tr>
+                </table>
+
+                <script>
+                    //apply input restriction
+                    $('input[type="text"]').inputsRestrict({
+                        type: 'numbers',
+                        limit: 3,
+                        alert: false
+                    });
+
+                    $('input.regionCheckbox')
+                        .on('change', function(){
+                            var checked = $(this).is(':checked'),
+                                $inputClass = $('.' + $(this).attr('data-for')),
+                                transition;
+
+                            if (checked) {
+                                transition = 'slideRightIn';
+                                $inputClass.attr('required', true);
+
+                            } else {
+                                $inputClass.attr('required', false);
+                                transition = 'slideRightOut';
+                            }
+
+                            var allNotChecked = (function() {
+                                var allNotChecked = false;
+                                $('input.regionCheckbox').each(function() {
+                                    if ($(this).is(':checked')) {
+                                        allNotChecked = false;
+                                        return false;
+                                    } else {
+                                        allNotChecked = true;
+                                    }
+                                });
+                                return allNotChecked;
+                            })();
+
+                            if (allNotChecked) {
+                                $('#shippingRegionNotSelected').show();
+                            } else {
+                                $('#shippingRegionNotSelected').hide();
+                            }
+
+                            $inputClass.each(function() {
+                                var $t = $(this);
+                                var $itsParent = $(this).closest('table');
+                                var parentId = $itsParent.attr('id');
+
+                                if (parentId === "canShipTo") {
+                                    $t.velocity('transition.' + transition, 200);
+                                } else if(parentId === "lightShippingCost") {
+                                    $t.closest('tr').velocity('transition.' + transition, 200);
+                                }
+                                
+                            });
+
+                        });
+                </script>
+                <h2>&nbsp;</h2>
+                <h2>Shipping charges (for LIGHT items):</h2>
+                <p>
+                    (<a href="javascript:shippingMsg();">How does VogueVerve determine shipping charges?</a>)
+                    <script>
+                    function shippingMsg() {
+                        return aF.protoAlert({
+                            text: 'The 2 categories of shipping are <b>LIGHT</b> and <b>HEAVY</b>.<br><br>For <b>LIGHT</b> items, you would specify the default shipping charges here in this form. Also, you will need to input the <b>"step quantity"</b>, which will determine how additional shipping charges are applied.<br><br>For example, if the "step quantity" is <b>5</b> and shipping charge is <b>$10</b>, he/she would be charged $10 if he buys 5 pieces, and $20 if he buy 6 pieces.<br><br>For <b>HEAVY</b> items, you would specify the shipping charges when you add the product itself.', 
+                            title: 'How we calculate shipping?'
+                        });
+                    }
+                    </script>
+                </p>
+
+                <table id="lightShippingCost">
+                    <tr id="shippingRegionNotSelected" 
+                    {?dataShop.shipping.light}
+                        style="display:none;"
+                    {:else}
+                    {/dataShop.shipping.light}
+                    >
+                        <td>
+                            <h3>You have not selected any shipping regions.</h3>
+                        </td>
+                    </tr>
+
+                    <tr 
+                    {?dataShop.shipping.light.usc}
+                    {:else}
+                        style="display:none;"
+                    {/dataShop.shipping.light.usc}
+                    >
+                        <td>
+                            <label for="pdi_shipping_usc_cost">US & Cananda</label>
+                        </td>
+                        </td>
+                        <td>
+                            <input type="text" class="shippingCost shippingCostUSC inputSpecial" id="pdi_shipping_usc_cost" name="shipping_usc_cost" placeholder="enter cost"  data-branch="dataShop.shipping.light.usc.cost" 
+                            {?dataShop.shipping.light.usc}
+                                value="{dataShop.shipping.light.usc.cost}" required
+                            {/dataShop.shipping.light.usc}
+                            >
+                        </td>
+                    </tr>
+
+                    <tr
+                    {?dataShop.shipping.light.sea}
+                    {:else}
+                        style="display:none;"
+                    {/dataShop.shipping.light.sea}
+                    >
+                        <td>
+                            <label for="pdi_shipping_sea_cost">Southeast Asia</label>
+                        </td>
+                        <td>
+                            <input type="text" class="shippingCost shippingCostSEA inputSpecial" id="pdi_shipping_sea_cost" name="shipping_sea_cost" placeholder="enter cost"  data-branch="dataShop.shipping.light.sea.cost"
+                            {?dataShop.shipping.light.sea}
+                                value="{dataShop.shipping.light.sea.cost}" required
+                            {/dataShop.shipping.light.sea}
+                            >
+                        </td>
+                    </tr>
+
+                    <tr
+                    {?dataShop.shipping.light.asiaeu}
+                    {:else}
+                        style="display:none;"
+                    {/dataShop.shipping.light.asiaeu}
+                    >
+                        <td>
+                            <label for="pdi_shipping_asiaeu_cost">Rest of Asia & Europe</label>
+                        </td>
+                        </td>
+                        <td>
+                            <input type="text" class="shippingCost shippingCostASIAEU inputSpecial" id="pdi_shipping_asiaeu_cost" name="shipping_asiaeu_cost" placeholder="enter cost"  data-branch="dataShop.shipping.light.asiaeu.cost"
+                            {?dataShop.shipping.light.asiaeu}
+                                value="{dataShop.shipping.light.asiaeu.cost}" required
+                            {/dataShop.shipping.light.asiaeu}
+                            >
+                        </td>
+                    </tr>
+
+                    <tr
+                    {?dataShop.shipping.light.austnz}
+                    {:else}
+                        style="display:none;"
+                    {/dataShop.shipping.light.austnz}
+                    >
+                        <td>
+                            <label for="pdi_shipping_austnz_cost">Australia & NZ</label>
+                        </td>
+                        </td>
+                        <td>
+                            <input type="text" class="shippingCost shippingCostAUSTNZ inputSpecial" id="pdi_shipping_austnz_cost" name="shipping_austnz_cost" placeholder="enter cost"  data-branch="dataShop.shipping.light.austnz.cost"
+                            {?dataShop.shipping.light.austnz}
+                                value="{dataShop.shipping.light.austnz.cost}" required
+                            {/dataShop.shipping.light.austnz}
+                            >
+                        </td>
+                    </tr>
+
+                    <tr
+                    {?dataShop.shipping.light.row}
+                    {:else}
+                        style="display:none;"
+                    {/dataShop.shipping.light.row}
+                    >
+                        <td>
+                            <label for="pdi_shipping_row_cost">Rest of the World</label>
+                        </td>
+                        </td>
+                        <td>
+                            <input type="text" class="shippingCost shippingCostROW inputSpecial" id="pdi_shipping_row_cost" name="shipping_row_cost" placeholder="enter cost"  data-branch="dataShop.shipping.light.row.cost"
+                            {?dataShop.shipping.light.row}
+                                value="{dataShop.shipping.light.row.cost}" required
+                            {/dataShop.shipping.light.row}
+                            >
+                        </td>
+                    </tr>
+                </table>
+                <button id="saveShipping" type="submit" class="darkButton">Save Shipping Settings</button>
+                <script>
+                $('#saveShipping').click(function(e) {
+                    e.preventDefault();
+                    var proceed = true;
+                    var scrollTo = 99999;
+
+                    var $form = $('#shippingForm');
+
+                    var shippingData = Object.create(VV.utils.dataAppend);
+
+                    var $inputs = $form.find('input');
+
+                    $inputs.each(function() {
+                        var $t = $(this);
+                        if (!$t.prop('required')) { return; }
+                        if ($t.val().length === 0) { 
+                            $t.css('background', '#ffe7e7')
+                              .off('keyup.vali')
+                              .on('keyup.vali', function() {
+                                if ($(this).val().length > 0) {
+                                    $(this)
+                                        .css('background', '')
+                                        .off('keyup.vali');
+                                }
+                              });
+
+                            if ($t.offset().top < scrollTo) {
+                                scrollTo = $t.offset().top;
+                            }
+                            proceed = false;
+                        }
+
+                        shippingData.run($t);
+                    });
+
+                    if (!shippingData.attrs || Object.keys(shippingData.attrs).length === 0) {
+                         console.log(1);
+                        return false;
+                    }
+
+                    if (!proceed) { 
+                        return $('html, body').animate({
+                            scrollTop: scrollTo - parseFloat($('#opacBar').height()) - 50 //offset with navbar and some more buffer
+                        }, 200);
+                    }
+
+                    var shippingAjax = $.post('/api/shop/settings/shipping', {
+                        userId: printHead.userHeaders.userId,
+                        data: shippingData.attrs
+                    });
+
+                    var flasher = Object.create(VV.utils.Flasher);
+
+                    flasher.run($(this), 'button');
+
+                    shippingAjax.done(function() {
+                        flasher.kill();
+                        aF.protoAlert({
+                            text: '<span style="color:green; font-size: 18px;" class="glyphicon glyphicon-ok-circle"></span> Shipping settings has been successfully changed!',
+                            title: 'Shipping settings changed'
+                        });
+                    });
+
+                    shippingAjax.fail(function(err) {
+                        flasher.kill();
+                    });
+
+                });
+                </script>
+            </form>
+        </div>
+
+
+    </div><!-- settingsWrap -->
+
+</section><!-- main -->
+
+{>blockFooter/}
+<script src="{p.js}/jquery.validate.min.js"></script>
+
+<!-- start change password -->
+<script>
+$('#showPassword').click(function(e) {
+    e.preventDefault();
+    $('#changePassword input').each(function(i, el) {
+        var type = $(el).attr('type');
+        if(type === "password") {
+            $(el).attr('type', 'text');
+        } else {
+            $(el).attr('type', 'password');
+        }
+    });
+});
+$('#changePassword').validate({
+    rules: {
+        currPwd: {
+            required: true
+        },
+        newPwd: {
+            required: true,
+            minlength: 6,
+            notEqual: '#currPwd'
+        },
+        newPwdR: {
+            required: true,
+            equalTo: '#newPwd'
+        }
+    },
+    messages: {
+        currPwd: {
+            required: '',
+        },
+        newPwd: {
+            minlength: 'Please use a password with at least 6 characters.',
+            required: '',
+            notEqual: 'Please select a different new password.'
+        },
+        newPwdR: {
+            equalTo: 'Your passwords do not match. Please re-enter.',
+            required: ''
+        }
+    },
+    errorPlacement: function(error, element) {
+        element.velocity('callout.shakeShort');
+        $('#changePassword').find('.errHolder').append(error).show();
+    },
+    submitHandler: function() {
+        var $form = $('#changePassword');
+        var submitFlasher = Object.create(VV.utils.Flasher);
+        var $button = $form.find('button[type="submit"]');
+
+        //start flasher
+        submitFlasher.run($button, 'button');
+        
+        //reset any errors
+        //var $eHW = $('#signupForm').find('.errHolder');
+        //$eHW.velocity('transition.slideUpOut', 200);
+
+        
+        // Get some values from elements on the page:
+        var data = $form.serialize();
+
+        var uri = printHead.p.absPath + '/api/password/changepassword';
+
+        // Send the data using post
+        var posting = $.post(uri, data);
+        //done
+        posting.done(function(data) {
+            if(data.success) { 
+                var text = '<span style="color:green; font-size: 18px;" class="glyphicon glyphicon-ok-circle"></span> ';
+                    text += 'Your password change is successful. Returning you back to profile page.';
+                aF.protoAlert({
+                    title: "Password changed",
+                    text: text
+                });
+                return setTimeout(function() {
+                    window.location.href = printHead.p.absPath + '/me';
+                }, 2000);
+            }
+
+            if(data.error) {
+                if(data.error === "password") {
+                    aF.protoAlert('Your password is incorrect.');
+                }
+                aF.protoAlert('Something went wrong. Please refresh and try again. If this persist, please contact us and we will help you!');
+                $button.velocity('callout.shakeShort');
+                submitFlasher.kill();
+            }
+        });
+
+        //fail
+        posting.fail(function() {
+                submitFlasher.kill();
+                aF.protoAlert('Something went wrong, please check your connection and try again later.');
+        });
+
+    }
+});
+</script>
+
+
+<!-- instagram link -->
+<script>
+var instaAjax;
+$('#instagramLink').validate({
+    rules: {
+        instaScreenName: {
+            required: true,
+            minlength: 5,
+            regex: '^[a-zA-Z0-9_@.]*$'
+        }
+    },
+    messages: {
+        instaScreenName: {
+            required: '',
+            minlength: 'Please provide a valid Instagram username',
+            regex: 'Please provide a valid Instagram username'
+        }
+    },
+    errorPlacement: function(error, element) {
+        element.velocity('callout.shakeShort');
+        error.insertAfter(element);
+    },
+    submitHandler: function() {
+
+        var $form = $('#instagramLink'),
+            $findProfile = $('#instagramFindProfile'),
+            $searchAgain = $('#instagramSearchAgain'),
+            $confirmDiv = $('.instagramConfirm');
+
+        var searched = ($form.attr('data-searched') === "true") ? true : false;
+
+        var flasher = Object.create(VV.utils.Flasher);
+        var flasher2 = Object.create(VV.utils.Flasher);
+        
+        if(!searched) { 
+            flasher.run($findProfile, 'button'); 
+        } else {
+            flasher2.run($searchAgain, 'button');
+            $('.instagramResultBlock').velocity('fadeOut');
+        }
+        
+        // Get some values from elements on the page:
+        var screenName = $('input[name="instaScreenName"]').val();
+
+        url = printHead.p.absPath + '/api/instagram/getuser';
+
+        // Send the data using post
+        instaAjax = $.post(url, {screenName: screenName});
+        
+        //done
+        instaAjax.done(function(data) {
+            if(data.success) {
+                if(!data.user) {
+                    alertFactory.protoAlert('<h2>No user found :(</h2>');
+                    try { flasher.kill(); } catch(err) {}
+                    try { flasher2.kill(); } catch(err) {}
+                    return false;
+                }
+                instaBuilder.build(data.user)
+                if(!searched) {
+                    $form.attr('data-searched', 'true');
+                    flasher.kill(function($el) {
+                        $el.velocity('transition.slideLeftOut', 200, function() {
+                            $confirmDiv.velocity('transition.slideRightIn');
+                        });
+                    });
+                } else {
+                    flasher2.kill();
+                    $confirmDiv.find('button').removeAttr('disabled', 'disabled');
+                }
+            } else {
+                alertFactory.protoAlert('Oops! An unknown error has occured! Please refresh and try again.');
+                flasher.kill();
+                flasher2.kill();
+            }
+        });
+        //fail
+        instaAjax.fail(function(err) {
+            if(err.statusText === 'abort') { return false; }
+            alertFactory.protoAlert('Please either login or check your internet connection.');
+            flasher.kill();
+            flasher2.kill();
+        });
+    }
+});
+
+$('#instagramSearchAgain').click(function(e) {
+    e.preventDefault();
+    var $buttons = $('#instagramLink button');
+    $buttons.attr('disabled', 'disabled');
+    $('#instagramLink').submit();
+});
+
+$('#instagramConfirm').click(function(e) {
+    e.preventDefault();
+    var flasher = Object.create(VV.utils.Flasher);
+    flasher.run($(this), 'button');
+    var $originSName = $('#instagramLinkedName');
+    var data = instaBuilder.get();
+    var newScreenName = data.screenName.toLowerCase();
+
+
+    var originSName = $originSName.html().toLowerCase();
+    if(newScreenName === originSName) { 
+        return $('#instagramCancel').click(); 
+    }
+    
+    
+
+    instaConfirmAjax = $.post(printHead.p.absPath + '/api/instagram/link', data);
+    instaConfirmAjax.done(function(data) {
+        flasher.kill();
+
+        if(data.success) {
+            var text = '<span style="color:green; font-size: 18px;" class="glyphicon glyphicon-ok-circle"></span> ';
+                text += 'Your instagram is now linked!';
+            aF.protoAlert(text);
+            $('#instagramCancel').click(); 
+            setTimeout(function() {
+                $.fancybox.close();
+            }, 1000);
+            $('.instagramActiveP').show();
+            $('#instagramUnlink').show();
+
+            return $originSName.html(newScreenName);
+        }
+
+        aF.protoAlert('Something went wrong, please try again...');
+    });
+
+    instaConfirmAjax.fail(function() {
+        flasher.kill()
+        aF.protoAlert('Something went wrong, please try again...');
+    });
+
+});
+
+$('#instagramCancel').click(function(e) {
+    e.preventDefault();
+    var $findProfile = $('#instagramFindProfile'),
+        $confirmDiv = $('.instagramConfirm'),
+        $screenNameInput = $('input[name="instaScreenName"]');
+
+    $screenNameInput.val('');
+
+    $('#instagramLink').removeAttr('data-searched');
+
+    $confirmDiv.velocity('transition.slideRightOut', 200, function() {
+        $findProfile.velocity('transition.slideLeftIn', 200);
+        instaBuilder.clear();
+    });
+
+});
+
+$('#instagramUnlink').click(function(e) {
+    e.preventDefault();
+
+    e.preventDefault();
+    var flasher = Object.create(VV.utils.Flasher);
+    flasher.run($(this), 'button');
+
+    instaUnlinkAjax = $.post(printHead.p.absPath + '/api/instagram/unlink', {});
+    instaUnlinkAjax.done(function(data) {
+        flasher.kill(function($el) { 
+            $el.hide();
+        });
+        if(data.success) {
+            var text = '<span style="color:green; font-size: 18px;" class="glyphicon glyphicon-ok-circle"></span> ';
+                text += 'Your instagram is now unlinked!';
+            aF.protoAlert(text);
+
+            setTimeout(function() {
+                $.fancybox.close();
+            }, 1000);
+            $('.instagramActiveP').hide();
+            return $('#instagramLinkedName').html('');
+        }
+
+        aF.protoAlert('Something went wrong, please try again...');
+    });
+
+    instaUnlinkAjax.fail(function() {
+        flasher.kill()
+        aF.protoAlert('Something went wrong, please try again...');
+    });
+
+})
+
+
+var instaBuilder = {
+
+    //prepare selectors for instagramBlock
+    $instaBlock: $('.instagramResultBlock'),
+    $instaPP: $('.instagramPP'),
+    $instaSName: $('.instagramSName'),
+    $instaFName: $('.instagramFullName'),
+
+    build: function(user) {
+        var img = new Image();
+        img.src = user.profile_picture;
+
+        this.$instaPP.html(img);
+        this.$instaSName.html(user.username);
+        this.$instaFName.html(user.full_name);
+        this.$instaBlock.attr('data-instaid', user.id);
+        this.$instaBlock.velocity('fadeIn');
+
+        if(typeof convertEmoji === "function") { convertEmoji(); }
+    },
+    clear: function() {
+        var self = this;
+        this.$instaBlock.velocity('fadeOut', 200, function() {
+            self.$instaPP.html('');
+            self.$instaSName.html('');
+            self.$instaFName.html('');
+        }); 
+    },
+    get: function() {
+        return data = {
+            screenName: this.$instaSName.html(),
+            instaId: this.$instaBlock.attr('data-instaid')
+        }
+    }
+}
+</script>
+<!-- end instagram link -->
+</body>
+</html>

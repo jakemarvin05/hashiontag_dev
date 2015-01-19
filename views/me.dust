@@ -211,7 +211,7 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
                 </div>
             </div>
 
-            {?renderJSONraw.productCount}
+            {?renderJSONraw.hasShop}
             <div class="profileFollowBlock profileFollowBlockClickable" data-action="shop" data-bindto="shopBlock">
                 <div class="vaDiv"></div>
                 <div class="profileFollowWrap">
@@ -219,11 +219,15 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
                         Shop
                     </div>
                     <div class="profileFollowCount" id="productCount">
-                        {renderJSONraw.productCount}
+                        {?renderJSONraw.productCount}
+                            {renderJSONraw.productCount}
+                        {:else}
+                            0
+                        {/renderJSONraw.productCount}
                     </div>
                 </div>
             </div>
-            {/renderJSONraw.productCount}
+            {/renderJSONraw.hasShop}
 
             {?renderJSONraw.isFollowable}
             <div class="profileFollowButtonCont profileFollowBlock">
@@ -271,12 +275,26 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
 
 
         {! Shop Display !}
+
+        {?renderJSONraw.hasShop}
         <div id="shopBlock" class="profileContentBlock profilePostsBlock" style="display:none;">
+        {?renderJSONraw.isOwnProfile}
+            <a href="{p.shopSettings}">
+                <button type="button" class="darkButton shopButtons">Shop settings</button>
+            </a>
+            <a href="{p.addProduct}" target="_blank">
+                <button type="button" class="darkButton shopButtons" name="addProduct">Add product</button>
+            </a>
+            
+            <button type="button" class="darkButton shopButtons">Manage inventory</button>
+            <button type="button" class="darkButton shopButtons">Manage sales orders</button>
+        {/renderJSONraw.isOwnProfile}
             <input type="text" class="search" name="search" placeholder="Type to search...">
             <div class="shopBlockCont">
                 {>"layouts/profilePostsLayout"/}
             </div>
         </div>
+        {/renderJSONraw.hasShop}
     </div>
 
 </section><!-- main -->

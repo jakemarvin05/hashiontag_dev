@@ -87,14 +87,12 @@ module.exports = function allUserStreamUpdate(req, res) {
                                     {isProduct: null}
                                 )
                             ),
-                            attributes: ['postId', 'createdAt']//,
-                            //order: [['createdAt', 'DESC']],
+                            attributes: ['postId', 'createdAt']
                         }]
                     }],
                     order: [['affinity', 'DESC']]
                 }),
 
-                //rc2 syntax. Requires the 'where' property. TODO: change to this after sequelize update
                 db.User.update({
                     lastStreamUpdate: moment().format()
                 }, {

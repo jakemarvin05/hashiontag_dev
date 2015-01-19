@@ -87,8 +87,9 @@ router.get('/inventory', function(req, res) {
 
 
 });
+/* to be moved to shop.js routing */
 
-router.get('/inventory/addproduct', function(req, res) {
+router.get('/shop/addproduct', function(req, res) {
 
     var gJSON = globalJSON(req);
 
@@ -96,7 +97,7 @@ router.get('/inventory/addproduct', function(req, res) {
     //currently we are experimenting pure clientside render.
     CSRender = 30;
 
-    return res.render('addProduct', {
+    return res.render('shop/addProduct', {
         title: meta(),
         isLoggedIn: req.isAuthenticated(),
         gJSON: gJSON,
@@ -107,6 +108,42 @@ router.get('/inventory/addproduct', function(req, res) {
 
         timestamp: Date.now()
     });
+
+});
+
+router.get('/shop/settings', function(req, res) {
+
+    if (!req.isAuthenticated()) { return res.redirect('/'); }
+
+    var gJSON = globalJSON(req);
+
+    db.User.find({
+        where: {
+            userId: req.user.userId
+        },
+        attributes: ['dataMeta']
+    }).then(function(user) {
+        console.log(user.dataMeta.dataShop);
+
+        if (!user) { res.statusCode = 404; return res.send(); }
+
+        return res.render('shop/shopSettings', {
+            title: meta(),
+            isLoggedIn: req.isAuthenticated(),
+            gJSON: gJSON,
+            p: gJSON.pathsJSON.paths,
+            f: gJSON.pathsJSON.files,
+            printHead: JSON.stringify(gJSON.printHead),
+            page: 'shopSettings',
+
+            dataShop: user.dataMeta.dataShop
+        });
+
+    }).catch(function() {
+        res.statusCode = 500;
+        res.send();
+    });
+
 
 });
 

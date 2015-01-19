@@ -504,6 +504,7 @@ var disallowedUsernames = [
 "search",
 "setting",
 "settings",
+"shop",
 "support",
 "signup",
 "upload",

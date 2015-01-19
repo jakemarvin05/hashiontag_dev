@@ -6,6 +6,10 @@ var passport = require('passport');
 require('../apps/passport/passport_cfg.js')(passport);
 var isLoggedIn = require('../apps/passport/isLoggedIn.js');
 
+var fname = 'api.js ';
+
+var D = require('dottie');
+
 
 
 router.get('/', function(req, res) {
@@ -309,6 +313,56 @@ router.post('/getstream/:showtype/:lastpostid?', function(req, res) {
 
 router.post('/getrecommend', function(req, res) {
     require('../apps/stream/getRecommend.js')(req, res);
+});
+
+router.post('/shop/settings/shipping', function(req, res) {
+
+    //don't allow user to send in empty stuff.
+    if (!D.get(req, 'body.data.dataShop.shipping')) {
+        res.statusCode = 403;
+        return res.send();
+    }
+
+    if (!req.isAuthenticated()) { 
+        res.statusCode = 403;
+        return res.json({ error: 'not authenticated'}); 
+    }
+
+    if(!req.user.hasShop) { 
+        res.statusCode = 403;
+        return res.json({ error: 'does not have a shop'});
+    }
+
+    if(req.user.userId !== parseFloat(req.body.userId)) {
+        //a possible situation where user is logged into another account
+        //but trying to modify an outdated form.
+        res.statusCode = 403;
+        return res.json({ error: 'possibly unauthorised modification of form.'});
+    }
+
+    db.User.find({
+        where: { userId: req.user.userId },
+        attributes: [ 'userId', 'hasShop', 'dataMeta']
+    }).then(function(user) {
+        if (!user) { 
+            res.statusCode = 404;
+            return res.json({ error: 'user not found'});
+        }
+        if (!user.dataMeta) { user.dataMeta = {}; }
+
+        D.set(user, 'dataMeta.dataShop.shipping', req.body.data.dataShop.shipping);
+
+        return user.save({fields: ['dataMeta']});
+
+    }).then(function(user) {
+        console.log('success');
+        return res.json({success: true});
+    }).catch(function(err) {
+        console.log(fname + 'catch handler error: ' + err);
+        res.statusCode = 500;
+        return res.send();
+    });
+
 });
 
 

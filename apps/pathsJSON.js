@@ -1,32 +1,28 @@
+var D = require('dottie');
+
 function pathsJSON() {
     var pathsJSON = {
         paths: {},
         files: {}
     }
+    //define the absolute path here. leave out the trailing slash.
     pathsJSON.paths = {
-        absPath: '', //leave it as '[empty]' for dev. Eventually will be full domain path.
-
-        //top level paths
-        home: '',
-        login: '',
-        logout: '',
-        signup: '',
-        img: '',
-
-        //assets paths that uses assetPath() to initialize its values
-        assets: '',
-        js: '',
-        css: '',
-        fonts: ''
+        absPath: '' //leave it as '[empty]' for dev. Eventually will be full domain path.
     }
+
     //topLevel Paths
+    //add the paths here.
     function tLPath() {
 
-        //set other assets path relative to the main assets folder:
         var paths = {
             home: '/',
             login: '/login',
             logout: '/logout',
+            shop: '/shop',
+                //nested paths
+                addProduct: '/shop/addproduct',
+                shopSettings: '/shop/settings',
+
             signup: '/signup',
             img: '/images',
             post: '/post',
@@ -35,7 +31,7 @@ function pathsJSON() {
             search: '/search',
             following: '/following',
             followers: '/followers',
-            mediaDir: '/uploads'
+            mediaDir: '/uploads',
         }
 
         //let the forloop do its job
@@ -44,7 +40,8 @@ function pathsJSON() {
                 pathsJSON.paths[key] = pathsJSON.paths.absPath + paths[key];
             }
         }
-    }tLPath();
+    }
+    tLPath();
 
     function assetsPath() {
         var assetsPath = pathsJSON.paths.absPath + '/assets';
@@ -65,7 +62,7 @@ function pathsJSON() {
         }
     }assetsPath();
 
-
+    //commonlly used files.
     var files = {
         errProfilePic: pathsJSON.paths['img'] + '/noprofilepicture.jpg',
         imgLoaderHolder: pathsJSON.paths['img'] + '/imgLoaderHolder.png'

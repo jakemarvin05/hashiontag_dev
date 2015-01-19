@@ -1,6 +1,29 @@
+/*
+Flasher: ObjectQueryString: function () {
+alertFactory: ObjectcheckNested: function (obj) {
+dataAppend: ObjectdeletePostAjax: function (pid, uid, isProfilePicture) {
+ensureLink: function ($link) {
+errorReceiver: function (hash) {
+getDOMHTML: function ($dom) {
+getRandom: function (arr, size) {
+hideSettingsTab: function () {
+htmlEntities: function (str) {
+imageGetter: function (imgUUID, type, opts) {
+imgToBin: function (data) {
+inputsAutosize: function ($el, minsize) {
+inputsRestrict: function ($el, opts) {
+loadImageAndNeighbours: function ($img) {
+loaderEffect: ObjectobjCount: function (obj) {
+resetFormElement: function ($el) {
+stripHTML: function (html) {
+tooLong: function ($el, opts) {
+trim: function (string, length, dontStrip) {
+*/
+
+
 if((typeof VV) === 'undefined') { var VV = {} }
 
-VV.utils = {}
+VV.utils = {};
 
 VV.utils.Flasher = {
     state: false,
@@ -460,3 +483,65 @@ VV.utils.imgToBin = function(data) {
 
     return file;
 }
+
+VV.utils.dataAppend = {
+
+    run: function($e) {
+        if (typeof this.attrs === "undefined") { this.attrs = {}; }
+        if ($e.hasClass('inputSingle')) { return this.simple($e); }
+        if ($e.hasClass('inputSpecial')) { return this.complex($e); }
+    },
+
+    simple: function($e) {
+    
+        //all inputSingle fields are appended with key = name attribute, value = val()
+        return this.attrs[$e.attr('name')] = $e.val();
+    },
+
+    //pass in acceptEmpty `true` to allow dataAppend to build empty value to JSON key.
+    complex: function($e, acceptEmpty) {
+
+        var self = this;
+
+        var name = $e.attr('name');
+        var val = $e.val();
+
+        if (!val && !acceptEmpty) { return false; } //don't accept empty values.
+
+        //branches management
+        var branches = $e.attr('data-branch');
+
+        //key value pair management
+        var isKey = ($e.attr('data-type') === "key");
+        var isValue = ($e.attr('data-type') === "value");
+
+        //key value type.
+        if(isKey || isValue) {
+
+            if(isKey) {
+                return false; //don't need to create anything for key
+            }
+            if(isValue) {
+                //get the key
+                var groupClass = $e.attr('data-groupedcont');
+                var key = $(groupClass).find('input[data-type="key"]').val();
+
+                // don't set value if this value is empty or if key is empty.
+                if (!key || !val) {
+                    //key or val is undefined or empty
+                    return false;
+                }
+                var setVal = val;
+            }
+
+            var chain = branches + '.' + key;
+            D.set(self.attrs, chain, setVal);
+
+        } else {
+            //simple branch type
+            var chain = branches;
+            D.set(self.attrs, chain, val)
+        }
+        
+    }
+};
