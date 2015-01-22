@@ -38,7 +38,7 @@ module.exports = function gJSON(req, options) {
         userHeaders.userId = req.user.userId;
         userHeaders.userNameDisp = req.user.userNameDisp;
         userHeaders.profilePicture = req.user.profilePicture;
-        userHeaders.hasShop = req.user.hasShop;
+        userHeaders.shopStatus = req.user.shopStatus;
     }
     
     globalJSON.userHeaders = userHeaders;

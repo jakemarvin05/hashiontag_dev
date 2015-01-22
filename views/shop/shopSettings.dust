@@ -5,17 +5,34 @@
     padding: 20px;
     border-bottom: 1px solid #ccc;
 }
-    .shopShippingTbl { 
-        text-align: left;
-        vertical-align: center;
-        height: 45px;
-        width: 350px;
-    }
-.regionCheckbox {
-    margin-right: 5px;
+#canShipTo {
+    table-layout: fixed;
+    width: 100%;
+    max-width: 340px;
 }
-    
+#canShipTo td, #lightShippingCost td {
+    height: 40px;
+    padding: 0px 5px;
+}
+    #canShipTo tr>td:nth-child(1) {
+        width: 20px;
+    }
 
+    #canShipTo tr>td:nth-child(3) {
+        width: 140px;
+    }
+
+    #canShipTo input {
+        width: 140px;
+    }
+
+    .regionCheckbox {
+        margin-right: 5px;
+    }
+
+    #lightShippingCost input {
+        width: 100px;
+    }
 </style>
 {>blockHeaderAfterHook/}
 
@@ -28,16 +45,88 @@
     <div class="settingsWrap">
         <div class="settingsCont">
             <h2>Currency</h2>
-            <select name="shopCurrency" class="inputSpecial" data-branch="dataShop.currency">
-                <option>USD (default)</option>
-                <option>SGD</option>
-                <option>GBP</option>
-            </select>
-            <p>
-                *NOTE: All prices that you have entered will not be converted upon changing currency.
-            </p>
+            <form id="currencyForm">
+                <select name="shopCurrency" class="inputSpecial" data-branch="dataShop.currency" {?dataShop.currency}data-curr="{dataShop.currency}"{/dataShop.currency}>
+                    <option value="null">--Please select--</option>
+                    <option value="usd">USD</option>
+                    <option value="sgd">SGD</option>
+                    <option value="gbp">GBP</option>
+                </select>
+                <script>
+                (function() { var $select = $('select[name="shopCurrency"]'); var curr= $select.attr('data-curr'); if (curr) { $select.val(curr) } })();
+                </script>
+                <p>
+                    *NOTE: All prices that you have entered will not be converted upon changing currency.
+                </p>
 
-            <button id="saveShopCurreny" type="button" class="darkButton">Save Currency</button>
+                <button id="saveShopCurrency" type="button" class="darkButton">Save Currency</button>
+            </form>
+
+            <script>
+            $('#saveShopCurrency').click(function(e) {
+                e.preventDefault();
+                var self = this;
+                var proceed = true;
+                var scrollTo = 99999;
+
+                var $form = $('#currencyForm');
+
+                var currencyData = Object.create(VV.utils.dataAppend);
+
+                var $curr = $form.find('select[name="shopCurrency"]');
+
+                if ($curr.val() === "null") {
+                    return aF.protoAlert('You have not selected a currency. No changes were made.');
+                } else {
+
+                    currencyData.run($curr);
+
+                    var html = '<h1 style="color:#ccc;text-align:center;">Are you sure you want to change your currency';
+
+                    if ($curr.attr('data-curr')) {
+                        html += ' from <span style="color:#000; text-transform: uppercase">' + $curr.attr('data-curr') + '</span>';
+                    }
+                        html += ' to <span style="color:#000; text-transform: uppercase">' + $curr.val() + '</span>?';
+
+                        html += '</h1><h2 style="text-align:center;"><span class="clickable" id="changeCurrency" onclick="javascript:runCurrencyAjax();">Yes</span>&nbsp;|&nbsp;<span class="clickable" onclick="$.fancybox.close()"> No</span></h2></div>';
+
+                    aF.protoAlert({
+                        text: html,
+                        title: 'Confirm currency change?'
+                    });
+
+                    //really ugly way to assign this function to global.
+                    window.runCurrencyAjax = function () {
+                        var currencyAjax = $.post('/api/shop/settings/currency', {
+                            userId: printHead.userHeaders.userId,
+                            data: currencyData.attrs
+                        });
+
+                        var flasher = Object.create(VV.utils.Flasher);
+
+                        flasher.run($(self), 'button');
+
+                        currencyAjax.done(function() {
+                            flasher.kill();
+                            aF.protoAlert({
+                                text: '<span style="color:green; font-size: 18px;" class="glyphicon glyphicon-ok-circle"></span> Currency has been successfully changed!',
+                                title: 'Currency changed'
+                            });
+                        });
+
+                        currencyAjax.fail(function(err) {
+                            flasher.kill();
+                            aF.protoAlert({
+                                text: '<span style="color:red; font-size: 18px;" class="glyphicon glyphicon-remove-circle"></span> An error has occured. Please refresh and try again.',
+                                title: 'Error occured'
+                            });
+                        });
+                    }
+
+                    
+                }
+            });
+            </script>
         </div>
 
         <div class="settingsCont">
@@ -195,8 +284,10 @@
 
                             if (allNotChecked) {
                                 $('#shippingRegionNotSelected').show();
+                                $('#shippingStepQuantityBlock').hide();
                             } else {
                                 $('#shippingRegionNotSelected').hide();
+                                $('#shippingStepQuantityBlock').show();
                             }
 
                             $inputClass.each(function() {
@@ -215,7 +306,7 @@
                         });
                 </script>
                 <h2>&nbsp;</h2>
-                <h2>Shipping charges (for LIGHT items):</h2>
+                <h2>Shipping charges {?dataShop.currency} in <span style="text-transform:uppercase;">{dataShop.currency}</span>{/dataShop.currency} (for LIGHT items):</h2>
                 <p>
                     (<a href="javascript:shippingMsg();">How does VogueVerve determine shipping charges?</a>)
                     <script>
@@ -334,77 +425,127 @@
                         </td>
                     </tr>
                 </table>
-                <button id="saveShipping" type="submit" class="darkButton">Save Shipping Settings</button>
-                <script>
-                $('#saveShipping').click(function(e) {
-                    e.preventDefault();
-                    var proceed = true;
-                    var scrollTo = 99999;
+                <div id="shippingStepQuantityBlock">
+                    <h3>How many pieces can someone buy before you charge additional shipping?</h3>
+                    <select class="shippingCost inputSpecial" id="pdi_shipping_step_qty" name="shipping_step_qty" data-branch="dataShop.shipping.stepQty" {?dataShop.shipping.stepQty}data-curr="{dataShop.shipping.stepQty}"{/dataShop.shipping.stepQty}>
+                        <option value="null">--Please select--</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                    </select>
+                    <script>
+                    (function() { var $select = $('select[name="shipping_step_qty"]'); var curr= $select.attr('data-curr'); if (curr) { $select.val(curr) } })();
+                    </script>
 
-                    var $form = $('#shippingForm');
-
-                    var shippingData = Object.create(VV.utils.dataAppend);
-
-                    var $inputs = $form.find('input');
-
-                    $inputs.each(function() {
-                        var $t = $(this);
-                        if (!$t.prop('required')) { return; }
-                        if ($t.val().length === 0) { 
-                            $t.css('background', '#ffe7e7')
-                              .off('keyup.vali')
-                              .on('keyup.vali', function() {
-                                if ($(this).val().length > 0) {
-                                    $(this)
-                                        .css('background', '')
-                                        .off('keyup.vali');
-                                }
-                              });
-
-                            if ($t.offset().top < scrollTo) {
-                                scrollTo = $t.offset().top;
-                            }
-                            proceed = false;
-                        }
-
-                        shippingData.run($t);
-                    });
-
-                    if (!shippingData.attrs || Object.keys(shippingData.attrs).length === 0) {
-                         console.log(1);
-                        return false;
-                    }
-
-                    if (!proceed) { 
-                        return $('html, body').animate({
-                            scrollTop: scrollTo - parseFloat($('#opacBar').height()) - 50 //offset with navbar and some more buffer
-                        }, 200);
-                    }
-
-                    var shippingAjax = $.post('/api/shop/settings/shipping', {
-                        userId: printHead.userHeaders.userId,
-                        data: shippingData.attrs
-                    });
-
-                    var flasher = Object.create(VV.utils.Flasher);
-
-                    flasher.run($(this), 'button');
-
-                    shippingAjax.done(function() {
-                        flasher.kill();
-                        aF.protoAlert({
-                            text: '<span style="color:green; font-size: 18px;" class="glyphicon glyphicon-ok-circle"></span> Shipping settings has been successfully changed!',
-                            title: 'Shipping settings changed'
-                        });
-                    });
-
-                    shippingAjax.fail(function(err) {
-                        flasher.kill();
-                    });
-
-                });
-                </script>
+                    <br><br>
+                    <button id="saveShipping" type="submit" class="darkButton">Save Shipping Settings</button>
+                </div>
             </form>
+            
+            <script>
+            $('#saveShipping').click(function(e) {
+                e.preventDefault();
+                var proceed = true;
+                var scrollTo = 99999;
+
+                var $form = $('#shippingForm');
+
+                var shippingData = Object.create(VV.utils.dataAppend);
+
+                var $inputs = $form.find('input');
+
+                $inputs.each(function() {
+                    var $t = $(this);
+                    if (!$t.prop('required')) { return; }
+                    if ($t.val().length === 0) { 
+                        $t.css('background', '#ffe7e7')
+                          .off('keyup.vali')
+                          .on('keyup.vali', function() {
+                            if ($(this).val().length > 0) {
+                                $(this)
+                                    .css('background', '')
+                                    .off('keyup.vali');
+                            }
+                          });
+
+                        if ($t.offset().top < scrollTo) {
+                            scrollTo = $t.offset().top;
+                        }
+                        proceed = false;
+                    }
+
+                    shippingData.run($t);
+                });
+
+                var $select = $('select[name="shipping_step_qty"]');
+                if ($select.val() === "null") {
+                    proceed = false;
+
+                    $select.css('background', '#ffe7e7')
+                      .off('change.vali')
+                      .on('change.vali', function() {
+                        if ($select.val() !== "null") {
+                            $select
+                                .css('background', '')
+                                .off('change.vali');
+                        }
+                      });
+
+                    if ($select.offset().top < scrollTo) {
+                        scrollTo = $select.offset().top;
+                    }
+
+                } else {
+                    shippingData.run($select);
+                }
+
+                if (!shippingData.attrs || Object.keys(shippingData.attrs).length === 0) {
+                    return false;
+                }
+
+                if (!proceed) { 
+                    return $('html, body').animate({
+                        scrollTop: scrollTo - parseFloat($('#opacBar').height()) - 50 //offset with navbar and some more buffer
+                    }, 200);
+                }
+
+                console.log(shippingData.attrs);
+
+                var shippingAjax = $.post('/api/shop/settings/shipping', {
+                    userId: printHead.userHeaders.userId,
+                    data: shippingData.attrs
+                });
+
+                var flasher = Object.create(VV.utils.Flasher);
+
+                flasher.run($(this), 'button');
+
+                shippingAjax.done(function() {
+                    flasher.kill();
+                    aF.protoAlert({
+                        text: '<span style="color:green; font-size: 18px;" class="glyphicon glyphicon-ok-circle"></span> Shipping settings has been successfully changed!',
+                        title: 'Shipping settings changed'
+                    });
+                });
+
+                shippingAjax.fail(function(err) {
+                    flasher.kill();
+                });
+
+            });
+            </script>
         </div>
 
 
@@ -414,333 +555,5 @@
 
 {>blockFooter/}
 <script src="{p.js}/jquery.validate.min.js"></script>
-
-<!-- start change password -->
-<script>
-$('#showPassword').click(function(e) {
-    e.preventDefault();
-    $('#changePassword input').each(function(i, el) {
-        var type = $(el).attr('type');
-        if(type === "password") {
-            $(el).attr('type', 'text');
-        } else {
-            $(el).attr('type', 'password');
-        }
-    });
-});
-$('#changePassword').validate({
-    rules: {
-        currPwd: {
-            required: true
-        },
-        newPwd: {
-            required: true,
-            minlength: 6,
-            notEqual: '#currPwd'
-        },
-        newPwdR: {
-            required: true,
-            equalTo: '#newPwd'
-        }
-    },
-    messages: {
-        currPwd: {
-            required: '',
-        },
-        newPwd: {
-            minlength: 'Please use a password with at least 6 characters.',
-            required: '',
-            notEqual: 'Please select a different new password.'
-        },
-        newPwdR: {
-            equalTo: 'Your passwords do not match. Please re-enter.',
-            required: ''
-        }
-    },
-    errorPlacement: function(error, element) {
-        element.velocity('callout.shakeShort');
-        $('#changePassword').find('.errHolder').append(error).show();
-    },
-    submitHandler: function() {
-        var $form = $('#changePassword');
-        var submitFlasher = Object.create(VV.utils.Flasher);
-        var $button = $form.find('button[type="submit"]');
-
-        //start flasher
-        submitFlasher.run($button, 'button');
-        
-        //reset any errors
-        //var $eHW = $('#signupForm').find('.errHolder');
-        //$eHW.velocity('transition.slideUpOut', 200);
-
-        
-        // Get some values from elements on the page:
-        var data = $form.serialize();
-
-        var uri = printHead.p.absPath + '/api/password/changepassword';
-
-        // Send the data using post
-        var posting = $.post(uri, data);
-        //done
-        posting.done(function(data) {
-            if(data.success) { 
-                var text = '<span style="color:green; font-size: 18px;" class="glyphicon glyphicon-ok-circle"></span> ';
-                    text += 'Your password change is successful. Returning you back to profile page.';
-                aF.protoAlert({
-                    title: "Password changed",
-                    text: text
-                });
-                return setTimeout(function() {
-                    window.location.href = printHead.p.absPath + '/me';
-                }, 2000);
-            }
-
-            if(data.error) {
-                if(data.error === "password") {
-                    aF.protoAlert('Your password is incorrect.');
-                }
-                aF.protoAlert('Something went wrong. Please refresh and try again. If this persist, please contact us and we will help you!');
-                $button.velocity('callout.shakeShort');
-                submitFlasher.kill();
-            }
-        });
-
-        //fail
-        posting.fail(function() {
-                submitFlasher.kill();
-                aF.protoAlert('Something went wrong, please check your connection and try again later.');
-        });
-
-    }
-});
-</script>
-
-
-<!-- instagram link -->
-<script>
-var instaAjax;
-$('#instagramLink').validate({
-    rules: {
-        instaScreenName: {
-            required: true,
-            minlength: 5,
-            regex: '^[a-zA-Z0-9_@.]*$'
-        }
-    },
-    messages: {
-        instaScreenName: {
-            required: '',
-            minlength: 'Please provide a valid Instagram username',
-            regex: 'Please provide a valid Instagram username'
-        }
-    },
-    errorPlacement: function(error, element) {
-        element.velocity('callout.shakeShort');
-        error.insertAfter(element);
-    },
-    submitHandler: function() {
-
-        var $form = $('#instagramLink'),
-            $findProfile = $('#instagramFindProfile'),
-            $searchAgain = $('#instagramSearchAgain'),
-            $confirmDiv = $('.instagramConfirm');
-
-        var searched = ($form.attr('data-searched') === "true") ? true : false;
-
-        var flasher = Object.create(VV.utils.Flasher);
-        var flasher2 = Object.create(VV.utils.Flasher);
-        
-        if(!searched) { 
-            flasher.run($findProfile, 'button'); 
-        } else {
-            flasher2.run($searchAgain, 'button');
-            $('.instagramResultBlock').velocity('fadeOut');
-        }
-        
-        // Get some values from elements on the page:
-        var screenName = $('input[name="instaScreenName"]').val();
-
-        url = printHead.p.absPath + '/api/instagram/getuser';
-
-        // Send the data using post
-        instaAjax = $.post(url, {screenName: screenName});
-        
-        //done
-        instaAjax.done(function(data) {
-            if(data.success) {
-                if(!data.user) {
-                    alertFactory.protoAlert('<h2>No user found :(</h2>');
-                    try { flasher.kill(); } catch(err) {}
-                    try { flasher2.kill(); } catch(err) {}
-                    return false;
-                }
-                instaBuilder.build(data.user)
-                if(!searched) {
-                    $form.attr('data-searched', 'true');
-                    flasher.kill(function($el) {
-                        $el.velocity('transition.slideLeftOut', 200, function() {
-                            $confirmDiv.velocity('transition.slideRightIn');
-                        });
-                    });
-                } else {
-                    flasher2.kill();
-                    $confirmDiv.find('button').removeAttr('disabled', 'disabled');
-                }
-            } else {
-                alertFactory.protoAlert('Oops! An unknown error has occured! Please refresh and try again.');
-                flasher.kill();
-                flasher2.kill();
-            }
-        });
-        //fail
-        instaAjax.fail(function(err) {
-            if(err.statusText === 'abort') { return false; }
-            alertFactory.protoAlert('Please either login or check your internet connection.');
-            flasher.kill();
-            flasher2.kill();
-        });
-    }
-});
-
-$('#instagramSearchAgain').click(function(e) {
-    e.preventDefault();
-    var $buttons = $('#instagramLink button');
-    $buttons.attr('disabled', 'disabled');
-    $('#instagramLink').submit();
-});
-
-$('#instagramConfirm').click(function(e) {
-    e.preventDefault();
-    var flasher = Object.create(VV.utils.Flasher);
-    flasher.run($(this), 'button');
-    var $originSName = $('#instagramLinkedName');
-    var data = instaBuilder.get();
-    var newScreenName = data.screenName.toLowerCase();
-
-
-    var originSName = $originSName.html().toLowerCase();
-    if(newScreenName === originSName) { 
-        return $('#instagramCancel').click(); 
-    }
-    
-    
-
-    instaConfirmAjax = $.post(printHead.p.absPath + '/api/instagram/link', data);
-    instaConfirmAjax.done(function(data) {
-        flasher.kill();
-
-        if(data.success) {
-            var text = '<span style="color:green; font-size: 18px;" class="glyphicon glyphicon-ok-circle"></span> ';
-                text += 'Your instagram is now linked!';
-            aF.protoAlert(text);
-            $('#instagramCancel').click(); 
-            setTimeout(function() {
-                $.fancybox.close();
-            }, 1000);
-            $('.instagramActiveP').show();
-            $('#instagramUnlink').show();
-
-            return $originSName.html(newScreenName);
-        }
-
-        aF.protoAlert('Something went wrong, please try again...');
-    });
-
-    instaConfirmAjax.fail(function() {
-        flasher.kill()
-        aF.protoAlert('Something went wrong, please try again...');
-    });
-
-});
-
-$('#instagramCancel').click(function(e) {
-    e.preventDefault();
-    var $findProfile = $('#instagramFindProfile'),
-        $confirmDiv = $('.instagramConfirm'),
-        $screenNameInput = $('input[name="instaScreenName"]');
-
-    $screenNameInput.val('');
-
-    $('#instagramLink').removeAttr('data-searched');
-
-    $confirmDiv.velocity('transition.slideRightOut', 200, function() {
-        $findProfile.velocity('transition.slideLeftIn', 200);
-        instaBuilder.clear();
-    });
-
-});
-
-$('#instagramUnlink').click(function(e) {
-    e.preventDefault();
-
-    e.preventDefault();
-    var flasher = Object.create(VV.utils.Flasher);
-    flasher.run($(this), 'button');
-
-    instaUnlinkAjax = $.post(printHead.p.absPath + '/api/instagram/unlink', {});
-    instaUnlinkAjax.done(function(data) {
-        flasher.kill(function($el) { 
-            $el.hide();
-        });
-        if(data.success) {
-            var text = '<span style="color:green; font-size: 18px;" class="glyphicon glyphicon-ok-circle"></span> ';
-                text += 'Your instagram is now unlinked!';
-            aF.protoAlert(text);
-
-            setTimeout(function() {
-                $.fancybox.close();
-            }, 1000);
-            $('.instagramActiveP').hide();
-            return $('#instagramLinkedName').html('');
-        }
-
-        aF.protoAlert('Something went wrong, please try again...');
-    });
-
-    instaUnlinkAjax.fail(function() {
-        flasher.kill()
-        aF.protoAlert('Something went wrong, please try again...');
-    });
-
-})
-
-
-var instaBuilder = {
-
-    //prepare selectors for instagramBlock
-    $instaBlock: $('.instagramResultBlock'),
-    $instaPP: $('.instagramPP'),
-    $instaSName: $('.instagramSName'),
-    $instaFName: $('.instagramFullName'),
-
-    build: function(user) {
-        var img = new Image();
-        img.src = user.profile_picture;
-
-        this.$instaPP.html(img);
-        this.$instaSName.html(user.username);
-        this.$instaFName.html(user.full_name);
-        this.$instaBlock.attr('data-instaid', user.id);
-        this.$instaBlock.velocity('fadeIn');
-
-        if(typeof convertEmoji === "function") { convertEmoji(); }
-    },
-    clear: function() {
-        var self = this;
-        this.$instaBlock.velocity('fadeOut', 200, function() {
-            self.$instaPP.html('');
-            self.$instaSName.html('');
-            self.$instaFName.html('');
-        }); 
-    },
-    get: function() {
-        return data = {
-            screenName: this.$instaSName.html(),
-            instaId: this.$instaBlock.attr('data-instaid')
-        }
-    }
-}
-</script>
-<!-- end instagram link -->
 </body>
 </html>

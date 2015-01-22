@@ -20,16 +20,19 @@ var streamFactory = {
     posts: false,
     count: false,
     pinchZoom: false,
-    imageType: "full"
-}
+    imageType: "full",
+    renderJSON: false
+};
 streamFactory.getLayoutHTML = function() {
     if (this.streamContClass.indexOf('#') === 0) {
         var $layout = $(this.streamContClass + ' .' + this.layoutClass);
     } else {
         var $layout = $('.' + this.streamContClass + ' .' + this.layoutClass);
     }
-    this.layoutHTML = $layout[0].outerHTML;
-    $layout.remove();
+    if ($layout[0]) {
+        this.layoutHTML = $layout[0].outerHTML;
+        $layout.remove();
+    }
 }
 streamFactory.noObj = function() {
     //console.log('streamFactory.noObj');
@@ -64,6 +67,7 @@ streamFactory.init = function(renderJSON, options) {
     this.append.parent = this;
 
     this.posts = posts;
+    this.renderJSON = renderJSON;
     var postCount = VV.utils.objCount(this.posts);
     this.postCount = postCount;
 
@@ -180,7 +184,7 @@ streamFactory.append.init = function($stream, i) {
 
     /* any other custom appending functions */
     for(var i = 0; i < this.custom.length; i++) {
-        this.custom[i]($stream, post);
+        this.custom[i].call(this, $stream, post);
     }
 }
 

@@ -63,8 +63,6 @@ module.exports = function productJSON(req, render, opts) {
     var idArray = [];
     var postCount = false;
 
-    /* Here goes... */
-
     if (showType === "productstream") {
 
         console.log('productJSON: showType stream.. finding posts...');
@@ -101,16 +99,28 @@ module.exports = function productJSON(req, render, opts) {
 
             console.log('productJSON: got the follows...getting posts');
 
-            return db.Post.findAll({
-                where: where, 
-                include: include, 
-                order: [
-                    ['updatedAt', 'DESC'], 
-                    [db.Comment, 'createdAt', 'ASC'] 
-                ],
-                limit: streamLimit + 1
-            });
-        }).then(function(streams) {
+            return [
+
+                db.Post.findAll({
+                    where: where, 
+                    include: include, 
+                    order: [
+                        ['updatedAt', 'DESC'], 
+                        [db.Comment, 'createdAt', 'ASC'] 
+                    ],
+                    limit: streamLimit + 1
+                }),
+
+                db.User.find({
+                    where: {
+                        userId: req.body.userId
+                    },
+                    attributes: ['dataMeta', 'shopStatus']
+                })
+            ]
+        }).spread(function(streams, seller) {
+
+            if (seller.shopStatus !== "active") { return render(false); }
 
             //unDAO the streams.
             //it is giving problems adding attributes.
@@ -130,6 +140,7 @@ module.exports = function productJSON(req, render, opts) {
             renderJSON.posts = streams;
             renderJSON.lastPostId = lastPostId;
             renderJSON.success = true;
+            renderJSON.dataShop = seller.dataMeta.dataShop;
 
             return render(renderJSON);
 

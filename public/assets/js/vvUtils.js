@@ -110,21 +110,49 @@ VV.utils.stripHTML = function(html) {
    tmp.innerHTML = html;
    return tmp.textContent || tmp.innerText || "";
 }
-VV.utils.trim = function(string, length, dontStrip) {
-    var string = string;
+VV.utils.trim = function(string, length, opts, dontStrip) {
+    if (typeof length === "undefined" || typeof string === "undefined") { return string; }
+
+    //default opts.
+    var defaults = {
+        trimLastWord: true //suppose the truncation cuts off the middle of the last word, trim it. 
+    }
+
+    if (typeof opts !== "object") {
+        var opts = Object.create(defaults);
+    } else {
+        opts.__proto__ = defaults;
+    }
+
+
     if(!dontStrip) { 
         var string = this.stripHTML(string);
     }
-    string = string.substring(0,length);
-    var i = length - 1;
-    var run = true;
-    while(run) {
-        if(string[i] == " ") {
-            run = false;
+
+    if (string.length <= length) { return string; }
+
+    var newString = string.substring(0,length+1);
+
+    //check if the last word is cut-off
+    if (opts.trimLastWord && string[length+2]) { 
+
+        if (string[length+2].match(/[a-z]/i)) {
+            //the character succeeding the end of the truncation is a character
+            //means that a word has been cut off. trim it.
+            var i = length - 1;
+            var run = true;
+            while(run && i > -1) {
+                if(!newString[i].match(/[a-z]/i)) {
+                    run = false;
+                }
+                i--;
+            }
+            newString = newString.substring(0, i+1);
         }
-        i--;
     }
-    return string.substring(0, i+1) + "...";
+
+
+    return newString + "...";
 }
 
 VV.utils.htmlEntities = function(str) {
@@ -156,14 +184,16 @@ VV.utils.alertFactory = {
         }
         var uid = new Date().getTime();
         $('body').append('<div id="error' + uid + '" style="display:none;">' + text + '</div>');
-        //console.log(msg.text);
+
+        var defaults = {
+            padding : 40,
+            maxWidth: 400  
+        };
+        
         $.fancybox.open([{
             href : '#error' + uid,
             title : title
-        }], {
-            padding : 40,
-            maxWidth: 400  
-        });     
+        }], defaults);     
     },
     commentError: function() {
         var msg = {

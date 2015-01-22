@@ -32,7 +32,7 @@ module.exports = function profileJSON(req, thenRender, isSelf) {
         'country', 
         'profilePicture', 
         'isPrivate', 
-        'hasShop', 
+        'shopStatus', 
         'dataMeta' 
     ];
 
@@ -223,7 +223,7 @@ module.exports = function profileJSON(req, thenRender, isSelf) {
                 user,
 
                 (function() {
-                    if(user.hasShop) {
+                    if(user.shopStatus === "active") {
                         return db.Post.count({
                             where: {
                                 User_userId: user.userId,

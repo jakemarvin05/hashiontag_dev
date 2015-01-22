@@ -315,20 +315,14 @@ router.post('/getrecommend', function(req, res) {
     require('../apps/stream/getRecommend.js')(req, res);
 });
 
-router.post('/shop/settings/shipping', function(req, res) {
-
-    //don't allow user to send in empty stuff.
-    if (!D.get(req, 'body.data.dataShop.shipping')) {
-        res.statusCode = 403;
-        return res.send();
-    }
+router.post('/shop/settings/currency', function(req, res) {
 
     if (!req.isAuthenticated()) { 
         res.statusCode = 403;
         return res.json({ error: 'not authenticated'}); 
     }
 
-    if(!req.user.hasShop) { 
+    if(req.user.shopStatus === null || req.user.shopStatus === "false") { 
         res.statusCode = 403;
         return res.json({ error: 'does not have a shop'});
     }
@@ -340,19 +334,90 @@ router.post('/shop/settings/shipping', function(req, res) {
         return res.json({ error: 'possibly unauthorised modification of form.'});
     }
 
+    //don't allow user to send in empty stuff.
+    if (!D.get(req, 'body.data.dataShop.currency')) {
+        res.statusCode = 403;
+        return res.send();
+    }
+
     db.User.find({
         where: { userId: req.user.userId },
-        attributes: [ 'userId', 'hasShop', 'dataMeta']
+        attributes: [ 'userId', 'shopStatus', 'dataMeta']
     }).then(function(user) {
         if (!user) { 
             res.statusCode = 404;
             return res.json({ error: 'user not found'});
         }
-        if (!user.dataMeta) { user.dataMeta = {}; }
 
-        D.set(user, 'dataMeta.dataShop.shipping', req.body.data.dataShop.shipping);
+        var temp = user.get({plain:true});
 
-        return user.save({fields: ['dataMeta']});
+        //dataMeta can be null. set it to {} for dottie to work on it.
+        if (!temp.dataMeta) { temp.dataMeta = {}; }
+
+        D.set(temp, 'dataMeta.dataShop.currency', req.body.data.dataShop.currency);
+
+        //pass the data into a module to append the flag to indicated complete shipping information
+        //for them to start selling.
+        user.shopStatus = require('../apps/shipping/isShippingDataComplete.js')(temp);
+
+        return user.save({fields: (user.changed() || []).concat(['dataMeta'])});
+
+    }).then(function(user) {
+        console.log('success');
+        return res.json({success: true});
+    }).catch(function(err) {
+        console.log(fname + 'catch handler error: ' + err);
+        res.statusCode = 500;
+        return res.send();
+    });
+
+});
+
+router.post('/shop/settings/shipping', function(req, res) {
+
+    if (!req.isAuthenticated()) { 
+        res.statusCode = 403;
+        return res.json({ error: 'not authenticated'}); 
+    }
+
+    if(req.user.shopStatus === null || req.user.shopStatus === "false") { 
+        res.statusCode = 403;
+        return res.json({ error: 'does not have a shop'});
+    }
+
+    if(req.user.userId !== parseFloat(req.body.userId)) {
+        //a possible situation where user is logged into another account
+        //but trying to modify an outdated form.
+        res.statusCode = 403;
+        return res.json({ error: 'possibly unauthorised modification of form.'});
+    }
+
+    //don't allow user to send in empty stuff.
+    if (!D.get(req, 'body.data.dataShop.shipping')) {
+        res.statusCode = 403;
+        return res.send();
+    }
+
+    db.User.find({
+        where: { userId: req.user.userId },
+        attributes: [ 'userId', 'shopStatus', 'dataMeta']
+    }).then(function(user) {
+        if (!user) { 
+            res.statusCode = 404;
+            return res.json({ error: 'user not found'});
+        }
+
+        var temp = user.get({plain:true});
+
+        if (!temp.dataMeta) { temp.dataMeta = {}; }
+
+        D.set(temp, 'dataMeta.dataShop.shipping', req.body.data.dataShop.shipping);
+
+        //pass the data into a module to append the flag to indicated complete shipping information
+        //for them to start selling.
+        user.shopStatus = require('../apps/shipping/isShippingDataComplete.js')(temp);
+
+        return user.save({fields: (user.changed() || []).concat(['dataMeta'])});
 
     }).then(function(user) {
         console.log('success');

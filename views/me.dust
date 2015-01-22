@@ -175,6 +175,7 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
 
         <div class="profileRelationship" data-vel="normalDisplay">
 
+            <!-- Post count -->
             <div class="postBlock profileFollowBlock profileFollowBlockClickable followBlockActive" data-action="posts" data-bindto="postsBlock">
                 <div class="vaDiv"></div>
                 <div class="profileFollowWrap">
@@ -182,6 +183,7 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
                         Posts
                     </div>
                     <div class="profileFollowCount" id="profileFollowersCount">
+                        {! TODO!! change this to post count. !}
                         {renderJSONraw.followerCount}
                     </div>
                 </div>
@@ -211,7 +213,7 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
                 </div>
             </div>
 
-            {?renderJSONraw.hasShop}
+            {?hasShop}
             <div class="profileFollowBlock profileFollowBlockClickable" data-action="shop" data-bindto="shopBlock">
                 <div class="vaDiv"></div>
                 <div class="profileFollowWrap">
@@ -227,7 +229,7 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
                     </div>
                 </div>
             </div>
-            {/renderJSONraw.hasShop}
+            {/hasShop}
 
             {?renderJSONraw.isFollowable}
             <div class="profileFollowButtonCont profileFollowBlock">
@@ -276,7 +278,7 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
 
         {! Shop Display !}
 
-        {?renderJSONraw.hasShop}
+        {?hasShop}
         <div id="shopBlock" class="profileContentBlock profilePostsBlock" style="display:none;">
         {?renderJSONraw.isOwnProfile}
             <a href="{p.shopSettings}">
@@ -294,7 +296,7 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
                 {>"layouts/profilePostsLayout"/}
             </div>
         </div>
-        {/renderJSONraw.hasShop}
+        {/hasShop}
     </div>
 
 </section><!-- main -->

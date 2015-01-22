@@ -106,9 +106,9 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: true, // no need to allow null if you have a default value.
             defaultValue: true
         },
-        hasShop: {
-            type: DataTypes.BOOLEAN,
-            allowNull: true,
+        shopStatus: {
+            type: DataTypes.STRING,
+            allow: true,
             defaultValue: false
         },
         dataMeta: {

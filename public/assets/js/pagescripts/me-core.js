@@ -32,8 +32,7 @@ profilePostFactory.append.imageLink = function($stream, img) {
         //load high quality
         VV.utils.loadImageAndNeighbours($(img));
 
-        //iOS bug. may displace the background scroll as
-        //it could not be fixed. Temp solution is to
+        //iOS FancyBox bug. may displace the background.
         //store the scrollTop and restore scroll position
         //later.
         VVGLOBAL.scrollTop = $(window).scrollTop();
@@ -198,7 +197,7 @@ shopPostFactory.layoutClass = "streamLayout";
 shopPostFactory.streamPrefix = "productStream_";
 //clear the layout inherited from profilePost
 shopPostFactory.layoutHTML = '';
-shopPostFactory.init.call(shopPostFactory);
+shopPostFactory.init();
 
 //setting up search vectors
 shopPostFactory.append.vector = function($stream, post) {
@@ -219,11 +218,16 @@ var shopPostList = function() {
 shopPostFactory.append.callbacks.push(shopPostList);
 
 shopPostFactory.append.productName = function($stream, post) {
+    var $nameFull = $stream.find('.blockProductNameFull');
     var $name = $stream.find('.blockProductName');
     var data = post.dataProduct;
     if (data.name) {
-        $name.html(data.name);
+        $nameFull.html(data.name);
+        var trimmed = VV.utils.trim(data.name, 23, { trimLastWord: false});
+        $name.html(trimmed);
     } else {
+        var str = 'No Product Name';
+        $nameFull.html('No Product Name');
         $name.html('No Product Name');
     }
 };
@@ -231,8 +235,8 @@ shopPostFactory.append.custom.push(shopPostFactory.append.productName);
 
 shopPostFactory.append.productPrice = function($stream, post) {
     var $price = $stream.find('.spanPrice');
-    var curr = ""; //get currency from user details;
-    $price.html(curr + post.dataProduct.price);
+    var curr = '<span class="priceUpperCase">' + this.parent.renderJSON.dataShop.currency + '</span>'; //get currency from user details;
+    $price.html(curr + ' ' + post.dataProduct.price);
 };
 shopPostFactory.append.custom.push(shopPostFactory.append.productPrice);
 
@@ -254,8 +258,6 @@ shopPostFactory.append.productLikes = function($stream, post) {
 
 };
 shopPostFactory.append.custom.push(shopPostFactory.append.productLikes);
-
-
 
 
 /* Follow Button */

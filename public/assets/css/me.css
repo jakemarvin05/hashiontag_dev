@@ -443,3 +443,7 @@ header.profileHeader>div {
         #shopBlock .spanPrice {
             font-weight: bold;
         }
+
+    #shopBlock .blockProductNameFull {
+        display: none;
+    }

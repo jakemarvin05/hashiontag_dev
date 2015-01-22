@@ -123,7 +123,6 @@ router.get('/shop/settings', function(req, res) {
         },
         attributes: ['dataMeta']
     }).then(function(user) {
-        console.log(user.dataMeta.dataShop);
 
         if (!user) { res.statusCode = 404; return res.send(); }
 
@@ -352,6 +351,10 @@ router.get('/me', function(req, res) {
 
         if(renderJSON === 'userNotFound') { return res.send(404); }
 
+        if (renderJSON.shopStatus === "active") {
+            var hasShop = true;
+        }
+
         res.render('me', {
             title: meta(renderJSON, 'profile'),
             isLoggedIn: isLoggedIn(req),
@@ -361,7 +364,9 @@ router.get('/me', function(req, res) {
             printHead: JSON.stringify(gJSON.printHead),
             renderJSON: JSON.stringify(renderJSON),
             renderJSONraw: renderJSON,
-            page: 'me'
+            page: 'me',
+
+            hasShop: hasShop
         });
 
     }
@@ -614,6 +619,10 @@ router.get('/:user', function(req, res) {
 
         if(!req.isAuthenticated()) { var showNav = "login";}
 
+        if (renderJSON.shopStatus === "active") {
+            var hasShop = true;
+        }
+
         res.render('me', {
             /*generic */
             title: meta(renderJSON, 'profile'),
@@ -631,7 +640,9 @@ router.get('/:user', function(req, res) {
             //isPreview is used to block like buttons and comment box from
             //being generated in the view.
             isPreview: !req.isAuthenticated(),
-            showNav: showNav
+            showNav: showNav,
+
+            hasShop: hasShop
         });
 
     }

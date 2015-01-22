@@ -55,6 +55,7 @@
                 <div class="blockLikeText"></div>
 
                 <div class="blockTextHolder">
+                    <div class="blockProductNameFull"></div>
                     <div class="blockProductName"></div>
                     <div class="blockBelowProductName">
                         <span class="spanPrice"></span><span class="spanLikes">&nbsp;&nbsp;|&nbsp;&nbsp;<span class="spanLikesCount"></span></span>
