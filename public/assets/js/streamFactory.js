@@ -46,19 +46,19 @@ streamFactory.init = function(renderJSON, options) {
         this.append.custom = [];
     }
 
-    if(!this.layoutHTML) { this.getLayoutHTML(); }
-    if(!renderJSON) { return false; }
+    if (!this.layoutHTML) { this.getLayoutHTML(); }
+    if (!renderJSON) { return false; }
     var posts = renderJSON.posts || renderJSON.results;
-    if(!posts) { return false; }
+    if (!posts) { return false; }
 
     this.uid = renderJSON.userId || printHead.userHeaders.userId;
 
-    if(options) {
-        if(options.burst !== 'undefined') { this.burst = options.burst; }
-        if(options.streamContClass) { this.streamContClass = options.streamContClass; }
-        if(options.streamType) { this.streamType = options.streamType; }
-        if(options.pinchZoom) { this.pinchZoom = true; }
-        if(options.imageType) { this.imageType = options.imageType; }
+    if (options) {
+        if (options.burst !== 'undefined') { this.burst = options.burst; }
+        if (options.streamContClass) { this.streamContClass = options.streamContClass; }
+        if (options.streamType) { this.streamType = options.streamType; }
+        if (options.pinchZoom) { this.pinchZoom = true; }
+        if (options.imageType) { this.imageType = options.imageType; }
     }
 
     //running streamFactory.init after instantiating the whole factory function
