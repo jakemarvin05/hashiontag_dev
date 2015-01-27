@@ -197,6 +197,14 @@ shopPostFactory.layoutClass = "streamLayout";
 shopPostFactory.streamPrefix = "productStream_";
 //clear the layout inherited from profilePost
 shopPostFactory.layoutHTML = '';
+shopPostFactory.noObj = function() {
+    var html  = '<div class="' + this.layoutClass + '">';
+        html += '<h2>No products to show :(</h2>';
+        html += '<h3>Upload to start selling!</h3>';
+        html += '</div>';
+
+    this.$cont.append(html);
+}
 shopPostFactory.init();
 
 //setting up search vectors
@@ -398,7 +406,7 @@ var followBlockToggle = {
 
         //if there isn't any just assume index 0.
         if ($current) { 
-            var currentIndex = $current.index(); 
+            var currentIndex = $current.index('.' + this.buttonClass); 
             if (currentIndex < 0) {
                 currentIndex = 0;
             }
@@ -407,7 +415,7 @@ var followBlockToggle = {
         }
 
         //compare index to determine slide motion
-        var thisIndex = $clicked.index();
+        var thisIndex = $clicked.index('.' + this.buttonClass);
         var currentDisplaySlide, newDisplaySlide;
         if (thisIndex > currentIndex) {
             //this means the button is on the right of current active one.
@@ -426,7 +434,7 @@ var followBlockToggle = {
     animateAbstract: function($current, $clicked, slideDirection) {
 
         var bindTo = $clicked.attr('data-bindto');
-        var $clickedContentBlock = this.blocks[$clicked.index()];
+        var $clickedContentBlock = this.blocks[$clicked.index('.' + this.buttonClass)];
         var self = this;
 
         //if $current is undefined
@@ -445,7 +453,7 @@ var followBlockToggle = {
         this.toggleClasses($current, $clicked);
 
         //if current is defined
-        var $currentContentBlock = this.blocks[$current.index()];
+        var $currentContentBlock = this.blocks[$current.index('.' + this.buttonClass)];
 
         return this.animate($currentContentBlock, $clickedContentBlock, slideDirection);
 
