@@ -1,5 +1,6 @@
 var db = global.db;
 var likesSplicer = require('./likesSplicer');
+var D = require('dottie');
 
 module.exports = function productJSON(req, render, opts) {
 
@@ -120,7 +121,7 @@ module.exports = function productJSON(req, render, opts) {
             ]
         }).spread(function(streams, seller) {
 
-            if (seller.shopStatus !== "active") { return render(false); }
+            if (seller.shopStatus.indexOf('active') === -1 ) { return render(false); }
 
             //unDAO the streams.
             //it is giving problems adding attributes.
@@ -140,7 +141,7 @@ module.exports = function productJSON(req, render, opts) {
             renderJSON.posts = streams;
             renderJSON.lastPostId = lastPostId;
             renderJSON.success = true;
-            renderJSON.dataShop = seller.dataMeta.dataShop;
+            renderJSON.dataShop = D.get(seller, 'dataMeta.dataShop');
 
             return render(renderJSON);
 

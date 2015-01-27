@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var meta = require('../apps/meta.js');
+var D = require('dottie');
 
 //passport
 var passport = require('passport');
@@ -91,6 +92,11 @@ router.get('/inventory', function(req, res) {
 
 router.get('/shop/addproduct', function(req, res) {
 
+    if (!req.isAuthenticated() || req.user.shopStatus === null || req.user.shopStatus === "false") { 
+        res.statusCode = 404;
+        return res.send(); 
+    }
+
     var gJSON = globalJSON(req);
 
     //override
@@ -106,14 +112,18 @@ router.get('/shop/addproduct', function(req, res) {
         printHead: JSON.stringify(gJSON.printHead),
         page: 'addproduct',
 
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        isShopSettingsComplete: (function() { if (req.user.shopStatus) { return true; } })()
     });
 
 });
 
 router.get('/shop/settings', function(req, res) {
 
-    if (!req.isAuthenticated()) { return res.redirect('/'); }
+    if (!req.isAuthenticated() || req.user.shopStatus === null || req.user.shopStatus === "false") { 
+        res.statusCode = 404;
+        return res.send(); 
+    }
 
     var gJSON = globalJSON(req);
 
@@ -121,7 +131,7 @@ router.get('/shop/settings', function(req, res) {
         where: {
             userId: req.user.userId
         },
-        attributes: ['dataMeta']
+        attributes: ['dataMeta', 'shopStatus']
     }).then(function(user) {
 
         if (!user) { res.statusCode = 404; return res.send(); }
@@ -135,10 +145,12 @@ router.get('/shop/settings', function(req, res) {
             printHead: JSON.stringify(gJSON.printHead),
             page: 'shopSettings',
 
-            dataShop: user.dataMeta.dataShop
+            shopStatus: user.shopStatus,
+            dataShop: D.get(user, 'dataMeta.dataShop')
         });
 
-    }).catch(function() {
+    }).catch(function(err) {
+        console.log(err);
         res.statusCode = 500;
         res.send();
     });
@@ -351,7 +363,7 @@ router.get('/me', function(req, res) {
 
         if(renderJSON === 'userNotFound') { return res.send(404); }
 
-        if (renderJSON.shopStatus === "active") {
+        if (renderJSON.shopStatus === "active" || renderJSON.shopStatus === "active-incomplete") {
             var hasShop = true;
         }
 
@@ -619,9 +631,14 @@ router.get('/:user', function(req, res) {
 
         if(!req.isAuthenticated()) { var showNav = "login";}
 
-        if (renderJSON.shopStatus === "active") {
+        console.log(renderJSON.isOwnProfile);
+        console.log(renderJSON.shopStatus.indexOf('active'));
+        if (renderJSON.isOwnProfile && renderJSON.shopStatus.indexOf('active') > -1) {
             var hasShop = true;
         }
+
+        console.log('&&&&');
+        console.log(hasShop);
 
         res.render('me', {
             /*generic */

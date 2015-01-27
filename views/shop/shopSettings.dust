@@ -40,6 +40,11 @@
     <header>
         <div class="noticePad">
             <h1>Shop Settings</h1>
+            {@select key=shopStatus}
+                {@eq value="active-incomplete"}
+                    <h2 style="color:#ef4549;">You cannot start selling until you have completed your settings!</h2>
+                {/eq}
+            {/select}
         </div>
     </header>
     <div class="settingsWrap">

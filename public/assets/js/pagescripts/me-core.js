@@ -5,6 +5,7 @@ var profilePostFactory = Object.create(streamFactory);
 profilePostFactory.append = Object.create(streamFactory.append);
 
 profilePostFactory.streamContClass = '#postsBlock';
+profilePostFactory.noObjMsg = true;
 
 profilePostFactory.append.identifier = function($el, post) {
     return $el.attr('data-uid', post.User_userId).attr('data-pid', post.postId);
@@ -197,6 +198,7 @@ shopPostFactory.layoutClass = "streamLayout";
 shopPostFactory.streamPrefix = "productStream_";
 //clear the layout inherited from profilePost
 shopPostFactory.layoutHTML = '';
+
 shopPostFactory.noObj = function() {
     var html  = '<div class="' + this.layoutClass + '">';
         html += '<h2>No products to show :(</h2>';

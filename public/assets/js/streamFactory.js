@@ -34,8 +34,20 @@ streamFactory.getLayoutHTML = function() {
         $layout.remove();
     }
 }
+streamFactory.noObjMsg = false;
 streamFactory.noObj = function() {
-    //console.log('streamFactory.noObj');
+    if (!this.noObjMsg) { return; }
+    if (this.noObjMsg === true) {
+        var msg = 'No posts to show :(';
+    } else {
+        var msg = this.noObjMsg;
+    }
+
+    var html  = '<div class="' + this.layoutClass + '">';
+        html += '<h2>' + msg + '</h2>';
+        html += '</div>';
+
+    this.$cont.append(html);
 }
 streamFactory.init = function(renderJSON, options) {
     /* callback and function call arrays */
