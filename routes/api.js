@@ -40,6 +40,15 @@ router.post('/login', function(req, res) {
     })(req, res);
 });
 
+router.post('/login', function(req, res) {
+    try {
+        req.logout();
+    } catch(err) {
+        return res.json({success:false});
+    }
+    return res.json({success: true});
+});
+
 router.post('/signup', function(req, res, next) {
 
     passport.authenticate('local-signup', function(err, user, info) {
@@ -266,6 +275,7 @@ router.post('/remakeimg', function(req, res) {
 });
 
 router.get('/local/update', function(req, res) {
+    /* TODO: Need to protect this end point */
      require('../apps/streamUpdate.js')(req, res);
 });
 
