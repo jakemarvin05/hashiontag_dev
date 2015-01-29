@@ -117,7 +117,9 @@ module.exports = function addPost(req, res, uuid, path, fields, CALLBACK) {
                     profilePicture: uuid, 
                     Post_postId_profilePicture: post.postId
                 }, {
-                    userId: req.user.userId
+                    where: { 
+                        userId: req.user.userId
+                    }
                 }).catch(function(err) {
                     console.log(fname + 'Error in setting profile picture. Error: ' + err);
                 });

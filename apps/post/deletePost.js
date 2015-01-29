@@ -75,7 +75,9 @@ module.exports = function deletePost(req, res) {
                     Post_postId_profilePicture: null,
                     profilePicture: null
                 }, { 
-                    userId: req.user.userId
+                    where: {
+                        userId: req.user.userId
+                    }
                 }).then(function() {
                     //and then we refresh the user's page
                     return res.json({success:true});
@@ -90,7 +92,9 @@ module.exports = function deletePost(req, res) {
                 Post_postId_profilePicture: post.postId,
                 profilePicture: post.imgUUID
             }, { 
-                userId: req.user.userId
+                where: {
+                    userId: req.user.userId
+                }
             }).then(function() {
                 return db.Post.update({
                     isProfilePicture: true
