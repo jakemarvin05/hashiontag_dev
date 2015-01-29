@@ -256,7 +256,7 @@ shopPostFactory.append.productLikes = function($stream, post) {
 
     var like = 'like';
 
-    if (post.totalLikes < 1) { 
+    if (typeof post.totalLikes === "undefined" || post.totalLikes < 1) { 
         $productLikes.hide(); 
         $likesCount.html('0 ' + like);
         $likesCount.attr('data-count', 0);
@@ -311,7 +311,7 @@ var followButton = {
 
 
         // Send the data using post
-        var posting = $.post( "{p.absPath}/api/follow", { 
+        var posting = $.post( P.absPath + "api/follow", { 
             userId: targetUserId, 
             action: action 
         });
