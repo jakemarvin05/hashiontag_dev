@@ -188,6 +188,7 @@ router.post('/post/starapprove', function(req, res) {
 
 router.post('/search', function(req, res) {
     if(!req.isAuthenticated()) { return res.json({success: false}); }
+    console.log(req.body);
     if(typeof req.body.query === 'undefined' || req.body.query === '') { return res.json({success: false}); }
 
     require('../apps/search.js')(req, res);
@@ -322,20 +323,33 @@ router.post('/getstream/:showtype/:lastpostid?', function(req, res) {
 });
 
 //:user
-router.post('/getuser/:user', function(req, res) {
+router.post('/getuser/:user?', function(req, res) {
 
     var profileJSON = require('../apps/stream/profileJSON.js')(req, res, thenRender, false);
+
+    if (!req.params.user || req.params.user === "me") {
+        if (!req.isAuthenticated()) {
+            res.statusCode = 403;
+            return res.send();
+        }
+
+        return profileJSON(req, res, thenRender, true);
+    }
+
+    profileJSON(req, res, thenRender, false);
 
     function thenRender(renderJSON) {
 
         var reason = false;
 
         if(renderJSON === 'redirect') {
-            return res.redirect('/');
+            res.statusCode = 403;
+            return res.send();
         }
 
         if(renderJSON === 'userNotFound') {
-            return res.send(404);
+            res.statusCode(404);
+            return res.send();
         }
         if(renderJSON === 'reqNotAuthUserIsPrivate') {
             reason = renderJSON;

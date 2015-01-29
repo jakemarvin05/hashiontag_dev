@@ -136,7 +136,8 @@ VV.search.init = function() {
 
     var self = this;
 
-    $('#search').keyup(function(e) {
+    $('input[name="search"]').keyup(function(e) {
+        console.log(1);
         var charCode = e.which || e.keyCode;
 
         self.entered = false;

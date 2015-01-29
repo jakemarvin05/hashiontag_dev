@@ -110,7 +110,7 @@ module.exports = function profileJSON(req, res, thenRender, isSelf) {
                 if(req.user.userId === user.userId) {
                     //i) The profile is her/his own, redirect to "/me"
                     //return getProfile(user.userId, true);
-                    return res.redirect('/me');
+                    return getProfile(req.user.userId, true);
                 } else {
 
 

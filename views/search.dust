@@ -7,7 +7,7 @@
     {>"layouts/searchLayout"/}
     <!-- end your stream -->
 </section><!-- main -->
-
+<script> userFactory.init(); </script>
 <script src="{p.js}/VVsearch.js"></script>
 <script> VV.search.init(); </script>
 

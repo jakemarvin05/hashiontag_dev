@@ -39,7 +39,7 @@ module.exports = function search(req, res) {
     if(hasHash) {
         var searchParam = input.replace('#', '');
         /* TODO: WHEN UNPLURALISE THE TABLES, THIS NEEDS TO BE CHANGED!! */
-        searchParam = "\"Hashtag\".\"hashtagId\" LIKE '" + searchParam + "%'";
+        searchParam = "\"hashtag\".\"hashtagId\" LIKE '" + searchParam + "%'";
         return db.Hashtag.findAll({
             where: [searchParam],
         }).then(function(hashtags) {
