@@ -93,6 +93,7 @@ VV.search.searchAjax = function(query) {
     });
     //fail
     this.ajax.fail(function(err) {
+        console.log(err);
         if(err.statusText === 'abort') { return false; }
 
         //console.log('error');
@@ -137,7 +138,7 @@ VV.search.init = function() {
     var self = this;
 
     $('input[name="search"]').keyup(function(e) {
-        console.log(1);
+
         var charCode = e.which || e.keyCode;
 
         self.entered = false;
