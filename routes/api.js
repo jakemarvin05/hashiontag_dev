@@ -321,6 +321,37 @@ router.post('/getstream/:showtype/:lastpostid?', function(req, res) {
 
 });
 
+//:user
+router.post('/getuser/:user', function(req, res) {
+
+    var profileJSON = require('../apps/stream/profileJSON.js')(req, res, thenRender, false);
+
+    function thenRender(renderJSON) {
+
+        var reason = false;
+
+        if(renderJSON === 'redirect') {
+            return res.redirect('/');
+        }
+
+        if(renderJSON === 'userNotFound') {
+            return res.send(404);
+        }
+        if(renderJSON === 'reqNotAuthUserIsPrivate') {
+            reason = renderJSON;
+            renderJSON = false;
+        }
+
+        var shopStatus = renderJSON.shopStatus;
+        if ((renderJSON.isOwnProfile && shopStatus.indexOf('active') > -1) || shopStatus === "active") {
+            var hasShop = true;
+        }
+
+        return res.json(renderJSON);
+    }
+
+});
+
 router.post('/getrecommend', function(req, res) {
     require('../apps/stream/getRecommend.js')(req, res);
 });

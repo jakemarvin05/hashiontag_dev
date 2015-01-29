@@ -4,7 +4,7 @@ var likesSplicer = require('./likesSplicer');
 
 /* TODO !!! DEAL WITH PRIVATE CASES */
 
-module.exports = function profileJSON(req, thenRender, isSelf) {
+module.exports = function profileJSON(req, res, thenRender, isSelf) {
 
     //if first character is "@", cut it away before use.
     if(req.params.user) {
