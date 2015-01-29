@@ -40,7 +40,7 @@ router.post('/login', function(req, res) {
     })(req, res);
 });
 
-router.post('/login', function(req, res) {
+router.post('/logout', function(req, res) {
     try {
         req.logout();
     } catch(err) {
