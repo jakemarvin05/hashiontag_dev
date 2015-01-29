@@ -1,4 +1,4 @@
-var moment = require('moment');
+var moment = require('../apps/moment/moment.js');
 
 module.exports = function(sequelize, DataTypes) {
 
@@ -100,6 +100,9 @@ module.exports = function(sequelize, DataTypes) {
         getterMethods: {
             timeLapse: function() {
                 return moment(this.createdAt).fromNow();
+            },
+            timeLapseShort: function() {
+                return moment(this.createdAt).locale('en-shortened').fromNow();
             }
         }
     });

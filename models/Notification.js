@@ -26,9 +26,14 @@ module.exports = function(sequelize, DataTypes) {
                     Notification.belongsTo(models.Post, {foreignKey: 'Post_postId', onDelete: 'CASCADE', onUpdate: 'CASCADE'});
 
                 }
-
-
-
+            },
+            getterMethods: {
+                timeLapse: function() {
+                    return moment(this.createdAt).fromNow();
+                },
+                timeLapseShort: function() {
+                    return moment(this.createdAt).locale('en-shortened').fromNow();
+                }
             }
         }
     );
