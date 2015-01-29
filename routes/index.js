@@ -93,7 +93,7 @@ router.get('/inventory', function(req, res) {
 router.get('/shop/addproduct', function(req, res) {
 
     if (!req.isAuthenticated() || req.user.shopStatus === null || req.user.shopStatus === "false") { 
-        res.statusCode = 404;
+        res.statusCode = 403;
         return res.send(); 
     }
 
@@ -103,18 +103,41 @@ router.get('/shop/addproduct', function(req, res) {
     //currently we are experimenting pure clientside render.
     CSRender = 30;
 
-    return res.render('shop/addProduct', {
-        title: meta(),
-        isLoggedIn: req.isAuthenticated(),
-        gJSON: gJSON,
-        p: gJSON.pathsJSON.paths,
-        f: gJSON.pathsJSON.files,
-        printHead: JSON.stringify(gJSON.printHead),
-        page: 'addproduct',
+    if (req.user.shopStatus === "active") {
+        db.User.find({
+            where: {
+                userId: req.user.userId
+            },
+            attributes: ['shopStatus', 'dataMeta']
+        }).then(function(user) {
+            if (!user || user.shopStatus.indexOf('active') === -1) { res.statusCode = 403; res.send(); }
 
-        timestamp: Date.now(),
-        isShopSettingsComplete: (function() { if (req.user.shopStatus) { return true; } })()
-    });
+            return thenRender(user);
+
+        }).catch(function(err) {
+            console.log('Route: /shop/addproduct error: ' + err);
+            res.statusCode = 500;
+            res.send();
+        });
+    } else {
+        thenRender(false);
+    }
+
+    function thenRender(renderJSON) {
+        res.render('shop/addProduct', {
+            title: meta(),
+            isLoggedIn: req.isAuthenticated(),
+            gJSON: gJSON,
+            p: gJSON.pathsJSON.paths,
+            f: gJSON.pathsJSON.files,
+            printHead: JSON.stringify(gJSON.printHead),
+            page: 'addproduct',
+
+            timestamp: Date.now(),
+            dataShop: D.get(renderJSON, 'dataMeta.dataShop'),
+            isShopSettingsComplete: (function() { if (renderJSON.shopStatus === "active") { return true; } return false; })()
+        });
+    }
 
 });
 
@@ -207,7 +230,7 @@ router.get('/', function(req, res) {
 
     //do something about the "preview"
     if(req.isAuthenticated()) {
-        require('../apps/stream/streamJSON.js')(req, renderTheStream, null);
+        require('../apps/stream/streamJSON.js')(req, res, renderTheStream, null);
     } else {
         res.render('index', {
             title: meta(),
@@ -250,7 +273,7 @@ router.get('/preview', function(req, res) {
         });
     }
 
-    require('../apps/stream/streamJSON.js')(req, thenRender, {showType: "preview"});
+    require('../apps/stream/streamJSON.js')(req, res, thenRender, {showType: "preview"});
 });
 
 
@@ -277,7 +300,7 @@ router.get('/latest', function(req, res) {
         });
     }
 
-    require('../apps/stream/streamJSON.js')(req, thenRender, {showType: "preview"});
+    require('../apps/stream/streamJSON.js')(req, res, thenRender, {showType: "preview"});
 });
 
 
@@ -301,7 +324,7 @@ router.get('/startag', function(req, res) {
 
         });
     }
-    require('../apps/stream/streamJSON.js')(req, thenRender, {showType: "startag"});
+    require('../apps/stream/streamJSON.js')(req, res, thenRender, {showType: "startag"});
 });
 
 router.get('/login', function(req, res) {
@@ -355,7 +378,7 @@ router.get('/me', function(req, res) {
     if(!req.isAuthenticated()) { return res.redirect('/'); }
     var gJSON = globalJSON(req);
 
-    var profileJSON = require('../apps/stream/profileJSON.js')(req, thenRender, true);
+    var profileJSON = require('../apps/stream/profileJSON.js')(req, res, thenRender, true);
 
     function thenRender(renderJSON) {
 
@@ -494,7 +517,7 @@ router.get('/likes', function(req, res) {
 
     }
 
-    require('../apps/stream/streamJSON.js')(req, thenRender, {showType: 'likes'});
+    require('../apps/stream/streamJSON.js')(req, res, thenRender, {showType: 'likes'});
 });
 
 router.get('/search', function(req, res) {
@@ -557,7 +580,7 @@ router.get('/hashtag/:hashtag', function(req, res) {
 
     }
 
-    require('../apps/stream/streamJSON.js')(req, thenRender, {showType: 'hashtag'});
+    require('../apps/stream/streamJSON.js')(req, res, thenRender, {showType: 'hashtag'});
 
 });
 
@@ -611,7 +634,7 @@ router.get('/:user', function(req, res) {
     var gJSON = globalJSON(req);
 
     //now run callback dependents
-    var profileJSON = require('../apps/stream/profileJSON.js')(req, thenRender, false);
+    var profileJSON = require('../apps/stream/profileJSON.js')(req, res, thenRender, false);
 
     function thenRender(renderJSON) {
 
@@ -631,14 +654,14 @@ router.get('/:user', function(req, res) {
 
         if(!req.isAuthenticated()) { var showNav = "login";}
 
-        console.log(renderJSON.isOwnProfile);
-        console.log(renderJSON.shopStatus.indexOf('active'));
-        if (renderJSON.isOwnProfile && renderJSON.shopStatus.indexOf('active') > -1) {
+        /* 2 conditions where "shop" tab will show:
+         * 1) User is viewing her own profile. User has shop, and it may be active but incomplete.
+         * 2) User is viewing others' profile. Shop must be active and complete -> "active".
+         */
+        var shopStatus = renderJSON.shopStatus;
+        if ((renderJSON.isOwnProfile && shopStatus.indexOf('active') > -1) || shopStatus === "active") {
             var hasShop = true;
         }
-
-        console.log('&&&&');
-        console.log(hasShop);
 
         res.render('me', {
             /*generic */
