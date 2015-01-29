@@ -44,7 +44,8 @@ router.post('/logout', function(req, res) {
     try {
         req.logout();
     } catch(err) {
-        return res.json({success:false});
+        res.statusCode(500);
+        return res.send();
     }
     return res.json({success: true});
 });
