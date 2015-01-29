@@ -74,6 +74,11 @@ module.exports = function streamJSON(req, render, opts) {
 
     if(typeof showType === 'undefined' || showType === 'stream') {
 
+        if (!req.isAuthenticated()) { 
+            res.statusCode = 403;
+            return res.send();
+        }
+
         console.log('streamJSON: no showType.. finding posts...');
          
         //If there is a lastPostId = next streamLoad
