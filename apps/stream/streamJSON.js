@@ -1,7 +1,7 @@
 var db = global.db;
 var likesSplicer = require('./likesSplicer');
 
-module.exports = function streamJSON(req, render, opts) {
+module.exports = function streamJSON(req, res, render, opts) {
 
     /* OPTIONS */
     if(opts) {
