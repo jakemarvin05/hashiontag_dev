@@ -1,0 +1,21 @@
+{! 
+    This template extends profilePostsLayout.
+    Contains product purchase HTML elements.
+!}
+
+<div class="articlePurchaseOptions" style="display:none;">
+    <h1 class="productInfoHeading">Purchase:</h1>
+    <p>
+        <select class="articlePurchaseSize" name="size">
+            <option value="null">-- Select a size --</option>
+        </select>
+    </p>
+    <p>
+        <input class="articlePurchaseQty" type="text" name="qty" value="1" readonly/>
+        <button type="button" class="darkButton articlePurchaseAddMinus" data-task="purchaseAddQty">+</button>
+        <button type="button" class="darkButton articlePurchaseAddMinus" data-task="purchaseMinusQty">-</button>
+    </p>
+    <p>
+        <button type="button" class="darkButton" data-task="purchaseAddToCart">Add to cart</button>
+    </p>
+</div>

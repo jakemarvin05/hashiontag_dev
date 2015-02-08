@@ -1,8 +1,9 @@
 var db = global.db;
-var likesSplicer = require('./likesSplicer');
+var likesSplicer = require('../likesSplicer.js');
 var D = require('dottie');
+var stockFilter = require('./stockFilter.js');
 
-module.exports = function productJSON(req, render, opts) {
+module.exports = function productJSON(req, res, render, opts) {
 
     /* OPTIONS */
     if(opts) {
@@ -136,7 +137,8 @@ module.exports = function productJSON(req, render, opts) {
   
             console.log('productJSON: db retrieval complete, likes splicing...');
 
-            if (idArray.length > 0) { streams = likesSplicer(req, streams, idArray); }
+            streams = likesSplicer(req, streams, idArray);
+            streams = stockFilter(streams);
 
             renderJSON.posts = streams;
             renderJSON.lastPostId = lastPostId;

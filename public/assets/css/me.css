@@ -412,6 +412,9 @@ header.profileHeader>div {
 #shopBlock input[name="search"] {
     margin: 20px auto !important;
 }
+#shopBlock .blockPad {
+    height: 86px !important;
+}
     #shopBlock .blockInteract {
         float: none !important;
     }
@@ -450,12 +453,39 @@ header.profileHeader>div {
         display: none;
     }
 
-/* product fancybox posts */
+    #shopBlock .blockProductName {
+        max-height: 19px;
+        overflow: hidden;
+    }
+    #shopBlock .blockBelowProductName {
+        display: block !important;
+    }
 
-.fancybox-wrap .blockProductN {
-    display:none;
-}
+/* product fancybox posts */
 
 .fancybox-wrap .blockProductName {
     display:none;
 }
+    .productArticle .spanPrice {
+        font-weight: bold;
+    }
+
+    .productArticle .blockBelowProductName {
+        display: block !important;
+    }
+
+
+    .productArticle .description {
+        padding-top: 10px;
+    }
+
+    .productArticle .blockProductInfo {
+        display: block !important;
+    }
+
+    .productArticle .articlePurchaseOptions {
+        display: block !important;
+    }
+
+
+

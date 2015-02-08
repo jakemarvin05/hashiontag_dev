@@ -198,12 +198,21 @@ streamFactory.append.init = function($stream, i) {
     for(var i = 0; i < this.custom.length; i++) {
         this.custom[i].call(this, $stream, post);
     }
-}
 
-/* not enabled yet */
-streamFactory.append.loadAnimate = function($stream) {
-    var $blockImgH = $stream.find('.blockImgHolder');
-    return $blockImgH.children('img').velocity({opacity: 0.6}, { duration: 400, delay: 300, loop: true });
+    /* product post appending */
+    try {
+        if (Object.keys(post.dataProduct).length > 0) {
+            var prodAppends = ['productName', 'productPrice', 'productLikes'];
+
+            for(var i in prodAppends) {
+                this[prodAppends[i]]($stream, post);
+
+            }
+        }
+    } catch(err) {
+        //fail silently.
+        console.log();
+    }
 }
 
 streamFactory.append.profileThumb = function(user) {
@@ -374,8 +383,8 @@ streamFactory.append.likeText = function(post) {
                         //put commas after the first case, stop at last case.
                         likersDispHTML += ', ';
                     } else {
-                        //for last case put "and"
-                        likersDispHTML += ' and ';
+                        //for last case put "+"
+                        likersDispHTML += ' + ';
                     } 
                 } 
                 likersDispHTML += '<a href="' + printHead.p.absPath + '/' + name + '">' + name +'</a>';
@@ -398,24 +407,27 @@ streamFactory.append.likeText = function(post) {
             var offsetCount = post.totalLikes - offset;
 
             if(offsetCount > 0) {
-                andLikes  = ' and ';
+                andLikes  = ' + ';
                 andLikes += '<span class="postLikesCount" data-likescount="' + offsetCount + '">';
                 andLikes += offsetCount;
                 andLikes += '</span>';
-                if(offsetCount === 1) {
-                    andLikes += ' other'; 
+
+                if(offsetCount === 1 && post.totalLikes === 1) {
+                    andLikes += ' like'; 
                 } else {
-                    andLikes += ' others';   
+                    andLikes += ' likes';   
                 }
+            } else {
+                if(post.totalLikes > 0 ) {
+                    if(post.totalLikes === 1) {
+                        andLikes += ' like this.';
+                    } else {
+                        andLikes += ' likes this.';
+                    }
+                } 
             }
 
-            if(post.totalLikes > 0 ) {
-                if(post.totalLikes === 1) {
-                    andLikes += ' likes this.';
-                } else {
-                    andLikes += ' like this.';
-                }
-            } 
+
 
         } else if(post.totalLikes > 1) {
 
@@ -425,7 +437,7 @@ streamFactory.append.likeText = function(post) {
             andLikes  = '<span class="postLikesCount" data-likescount="' + offsetCount + '">';
             andLikes += offsetCount;
             andLikes += '</span>';
-            andLikes += ' people like this.';
+            andLikes += ' likes';
 
         } else if(post.totalLikes === 1) {
 
@@ -435,7 +447,7 @@ streamFactory.append.likeText = function(post) {
             andLikes  = '<span class="postLikesCount" data-likescount="' + offsetCount + '">';
             andLikes += offsetCount;
             andLikes += '</span>';
-            andLikes += ' person likes this.';
+            andLikes += ' like';
         }
 
         toPrepend = likersDispHTML + '<span class="postAndLikes">' + andLikes + '</span>';
@@ -590,21 +602,7 @@ streamFactory.append.settingsButton = function($stream, post) {
     this.identifier($settingsButtons, post);
     this.identifier($stream.find('.editDesc'), post);
 }
-streamFactory.append.digestPostMeta = function(post) {
-    var metas = post.postMeta,
-        len = metas.length;
-    //meta is an Array. Check it for length
-    if(len === 0) { return false; }
-    var postMeta = {}
-    for(var i=0; i<len; i++) {
-        var meta = metas[i],
-            key = meta.key,
-            value = meta.value;
 
-        postMeta[key] = value;
-    }
-    return postMeta;
-}
 streamFactory.append.moreInfoBlock = function($stream, post) { 
     /*
     <h2 class="itemName" itemprop="item"></h2>
@@ -629,7 +627,7 @@ streamFactory.append.moreInfoBlock = function($stream, post) {
         itemPriceDiv = '',
         itemAddTagImgDiv = '';
 
-    var data = {}
+    var data = {};
     var container = '';
 
     if(meta.itemAddTag) {
@@ -762,3 +760,43 @@ streamFactory.append.blockVia = function($stream, post) {
         return $stream.find('.blockVia').append(append);
     }
 }
+
+/* Product appends */
+
+streamFactory.append.productName = function($stream, post) {
+    var $nameFull = $stream.find('.blockProductNameFull');
+    var $name = $stream.find('.blockProductName');
+    var data = post.dataProduct;
+    if (data.name) {
+        $nameFull.html(data.name);
+        var trimmed = VV.utils.trim(data.name, 23, { trimLastWord: false});
+        $name.html(trimmed);
+    } else {
+        var str = 'No Product Name';
+        $nameFull.html('No Product Name');
+        $name.html('No Product Name');
+    }
+};
+
+streamFactory.append.productPrice = function($stream, post) {
+    var $price = $stream.find('.spanPrice');
+    var curr = '<span class="priceUpperCase">' + this.parent.renderJSON.dataShop.currency + '</span>'; //get currency from user details;
+    $price.html(curr + ' ' + post.dataProduct.price);
+};
+streamFactory.append.productLikes = function($stream, post) {
+    var $productLikes = $stream.find('.spanLikes'),
+        $likesCount = $productLikes.find('.spanLikesCount');
+
+    var like = 'like';
+
+    if (typeof post.totalLikes === "undefined" || post.totalLikes < 1) { 
+        $productLikes.hide(); 
+        $likesCount.html('0 ' + like);
+        $likesCount.attr('data-count', 0);
+    } else {
+        if (post.totalLikes > 1) { like += 's'; }
+        $likesCount.html(post.totalLikes + ' ' + like);
+        $likesCount.attr('data-count', post.totalLikes);
+    }
+
+};

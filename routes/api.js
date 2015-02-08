@@ -316,7 +316,7 @@ router.post('/getstream/:showtype/:lastpostid?', function(req, res) {
     }
 
     if (params.showType.indexOf('product') > -1) {
-        return require('../apps/stream/productJSON.js')(req, res, render, params);
+        return require('../apps/stream/product/productJSON.js')(req, res, render, params);
     }
     
     require('../apps/stream/streamJSON.js')(req, res, render, params);

@@ -1,5 +1,5 @@
 // Digital Ocean Local URL
-//var databaseUrl = 'postgresql://username:password@localhost:5432/database?native=false'
+//var databaseUrl = 'postgresql://postgres:password@localhost:5432/postgres2?native=false'
 // Digital Ocean Development URL
 var databaseUrl = 'postgresql://postgres:mondayblues@128.199.242.236:5432/postgres_dev';
 // Digital Ocean Production? URL
@@ -16,7 +16,7 @@ var fs        = require('fs'),
     // }),
     db        = {}
 
-
+//call db.[Model].sync() to sync only one model.
 //db.User.sync();
 //sequelize.sync()
 

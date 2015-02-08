@@ -208,7 +208,7 @@
                             >
                         </td>
                         <td>
-                            <label for="pdi_shipping_asiaeu_cost">Rest of Asia & Europe</label>
+                            <label for="pdi_shipping_asiaeu_cost">North Asia & Europe</label>
                         </td>
                         <td>
                             <input type="text" class="shippingCost shippingCostASIAEU inputSpecial" id="pdi_shipping_asiaeu_day" name="shipping_asiaeu_day" placeholder="est delivery in days"  data-branch="dataShop.shipping.light.asiaeu.day" 

@@ -6,10 +6,7 @@
     <div class="blockPad">
         <header class="blockMainInfo">
             <div class="blockTop">
-                <div class="blockProfileThumb">
-                    <!--<button class="likeButton" data-id="" data-action="like" style="display:none;">Like</button>
-                    <button class="likeButton" data-id="" data-action="unlike" style="display:none;">Unlike</button>-->
-                </div>
+                <div class="blockProfileThumb"></div>
 
                 <div class="blockUserHolder">
                     <div class="blockUsername"></div>
@@ -57,11 +54,14 @@
                 <div class="blockTextHolder">
                     <div class="blockProductNameFull"></div>
                     <div class="blockProductName"></div>
-                    <div class="blockBelowProductName">
+                    <div class="blockBelowProductName" style="display: none;">
                         <span class="spanPrice"></span><span class="spanLikes">&nbsp;&nbsp;|&nbsp;&nbsp;<span class="spanLikesCount"></span></span>
                     </div>
                     <div class="description convert-emoji"></div>
-                    <div class="blockProductInfo"></div>
+                    <div class="blockProductInfo" style="display: none;"></div>
+
+                    {>"layouts/extend/profilePostsLayout_purchaseOptions.dust"/}
+                    
                     <div class="editDescButtons" style="display:none;">
                         <button class="editDesc darkerButton" data-id="">Done</button>
                         <button class="editDescCancel darkerButton">Cancel</button>

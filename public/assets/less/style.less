@@ -572,7 +572,7 @@ textarea {
         line-height: 130%;
     }
         .blockTextHolder .description {
-            white-space: pre;
+            white-space: pre-wrap;
         }
 
         .editDescButtons {
@@ -671,6 +671,36 @@ textarea {
     text-align:center;
 }
 
+/*-------------------------------------------------
+A. Product Articles
+-------------------------------------------------*/
+
+.productInfoHeading {
+    margin: 10px 0px 0px 0px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+    .productInfoDelivery, .productInfoSS {
+        line-height: 100%;
+        margin: 0px;
+    }
+        .productInfoDeliveryCost:before {
+            content: " - ";
+        }
+        .productInfoDeliveryCost {
+            font-weight: bold;
+        }
+        .productInfoDeliveryDay {
+            color: #ccc;
+        }
+
+    .articlePurchaseQty {
+        width: 60px;
+    }
+    .articlePurchaseAddMinus {
+        width: 34px;
+    }
 
 /*-------------------------------------------------
 II. Form styling
@@ -693,6 +723,7 @@ input[type="text"], input[type="password"], button, textarea {
 }
 input, button {
     text-align:center;
+    line-height: 100%;
 }
 button {
     text-transform: uppercase;
@@ -722,3 +753,4 @@ button.darkerButton {
 button.darkerButton:hover {
     background: @mainRed;
 }
+

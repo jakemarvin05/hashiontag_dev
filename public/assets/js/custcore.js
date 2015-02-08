@@ -4,8 +4,6 @@ dragShifting
 scaleSlider
 */
 
-
-
 pinchZoom = {
    cachedScale: 1,
    startScale: '',
@@ -479,4 +477,28 @@ scaleSlider.pinch.init = function(el) {
         VV.img.scaler(scale, $('#img_preview'), $('#cropPortBg img'));
         oScale = newScale;  
     });
-}
+};
+
+/* 
+ ***VV.buttonListener is the new way to bind buttons.
+
+ * All clicks are binded to the buttonListener, which checks if a click landed on a button.
+ * Retrospectively added buttons will be caught by this listener, without the need to
+ * initialize the buttons.
+
+ * Specify the task for the button by appending to VV.buttonTasks
+ */
+VV.extend('buttonListener', function() {
+    var self = this;
+    $(window).on('click.buttonListener', function(e) {
+        var $t = $(e.target);
+        if($t.is('button')) {
+            var task = $t.attr('data-task');
+            if (!task) { return; }
+            if (!self.buttonTasks[task]) { return; }
+
+            return self.buttonTasks[task]($t);
+        }
+    });
+});
+VV.buttonListener();

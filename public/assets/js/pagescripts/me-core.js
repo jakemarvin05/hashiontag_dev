@@ -26,9 +26,15 @@ profilePostFactory.append.imageLink = function($stream, img) {
     img.onclick = function() {
 
         //get the stream's html and put it into the "fancybox cont"
-        $('#fancyboxCont article')
+        var $fancyArticle = $('#fancyboxCont article');
+        $fancyArticle
             .html($(strId).html())
             .attr('data-articleid', id);
+
+        //imageLinkHooks to toggle on/off .productArticle
+        if (self.imageLinkHooks) {
+            self.imageLinkHooks($fancyArticle);
+        }
 
         //load high quality
         VV.utils.loadImageAndNeighbours($(img));
@@ -83,6 +89,9 @@ profilePostFactory.append.imageLink = function($stream, img) {
         });
     }
 
+}
+profilePostFactory.append.imageLinkHooks = function($article) {
+    $article.removeClass('productArticle');
 }
 profilePostFactory.append.imageOnLoad = function($stream, img) {
     var $imgHolder = $stream.find('.imgLoaderHolder');
@@ -196,6 +205,7 @@ shopPostFactory.append = Object.create(profilePostFactory.append);
 shopPostFactory.streamContClass = "shopBlockCont";
 shopPostFactory.layoutClass = "streamLayout";
 shopPostFactory.streamPrefix = "productStream_";
+
 //clear the layout inherited from profilePost
 shopPostFactory.layoutHTML = '';
 
@@ -219,6 +229,177 @@ shopPostFactory.append.vector = function($stream, post) {
 };
 shopPostFactory.append.custom.push(shopPostFactory.append.vector);
 
+shopPostFactory.append.productInfo = function($stream, post) {
+
+    this.productInfoShipping.call(this, $stream, post);
+    this.productInfoSize.call(this, $stream, post);
+
+};
+shopPostFactory.append.custom.push(shopPostFactory.append.productInfo);
+
+shopPostFactory.append.productInfoShipping = function($stream, post) {
+
+    var self = this;
+    var currency = D.get(self.parent.renderJSON, 'dataShop.currency');
+    var currencyHTML = '<span style="text-transform: uppercase">' + currency + '</span>';
+
+    if (!D.get(self.parent.renderJSON, 'dataShop.isShippingDataComplete')) { return false; }
+
+    var $info = $stream.find('.blockProductInfo');
+    var html = '';
+
+    html += '<h1 class="productInfoHeading">Delivery Info:</h1>';
+
+    if (D.get(post, 'dataProduct.shipping.shippingType') === "light") {
+
+        var shipping = D.get(self.parent, 'renderJSON.dataShop.shipping.light');
+        var shippingDay = shipping;
+
+        var keys = this.productTryGetKeys(shipping);
+        if (!keys) { return false; }
+
+        for(var i in keys) {
+            var key = keys[i],
+               cost = D.get(shipping, key + '.cost'),
+               day = D.get(shippingDay, key + '.day');
+
+            if (cost && day) {
+               html += _formatHTML({key: key, cost: cost, day: day});
+            }
+        }
+
+    } else {
+        //HEAVY SHIPPING
+        var shipping = D.get(post, 'dataProduct.shipping.list');
+        //estimated number of shipping days is in dataShop shipping details.
+        //gotcha: although it is accessing .light, its the same for heavy.
+        var shippingDay = D.get(self.parent, 'renderJSON.dataShop.shipping.light');
+
+        var keys = this.productTryGetKeys(shipping);
+        if (!keys) { return false; }
+
+        for(var i in keys) {
+            var key = keys[i],
+                cost = D.get(shipping, key),
+                day = D.get(shippingDay, key + '.day');
+
+            if (cost && day) {
+                html += _formatHTML({key: key, cost: cost, day: day});
+            }
+        }
+    }
+
+    $info.append(html);
+
+
+    /* ===== private functions */
+    function _regionName(code) {
+        if (!code) { return ''; }
+
+        var name = VV.g.regionNames;
+
+        if (name[code]) {
+            return name[code];
+        }
+        return code;
+    }
+
+    function _formatHTML(values) {
+        if (!values) { return values; }
+        var key = values.key,
+            cost = values.cost,
+            day = values.day,
+            _html = '';
+
+        _html += '<p class="productInfoDelivery">';
+        _html += '<span class="productInfoDeliveryRegion">' + _regionName(key) + "</span>";
+        _html += '<span class="productInfoDeliveryCost" data-value="' + cost + '" data-currency="' + currency + '">' + currencyHTML + cost + "</span> &nbsp;";
+        _html += '<span class="productInfoDeliveryDay" data-value="' + day + '">(ships in ' + day + " days)</span>";
+        _html += '</p>';
+
+        return _html;
+    }
+
+};
+
+shopPostFactory.append.productInfoSize = function($stream, post) {
+    var size = D.get(post, 'dataProduct.size');
+    if (!size) { return false; }
+    var $info = $stream.find('.blockProductInfo');
+    var html = '';
+
+    if (D.get(size, 'sizeType') === "hassize") {
+
+        var keys = this.productTryGetKeys(size.sizes);
+        if (!keys) { return false; }
+
+        var productHasStock = false; //product flag to toggle removal of add to cart.
+        for(var i in keys) {
+            var sizeKey = keys[i],
+                stock = size.sizes[sizeKey];
+
+            if (stock === "hasStock") {
+                stock = 'In stock';
+                productHasStock = true;
+
+                _populateSelect($stream, sizeKey);
+
+            } else {
+                stock = '<span style="color: #ef4549;">Out of stock</span>';
+            }
+
+            html += '<p class="productInfoSS">';
+            html += '<span class="productInfoSSSize">' + sizeKey + '</span>';
+            html += ' - <span class="productInfoSSStock"><em>' + stock + '</em></span>';
+            html += '</p>';
+        }
+
+    } else {
+        html += 'This item is a freesize';
+
+        //stock
+        var stock = D.get(size, 'noSizeQty');
+        if (stock === "hasStock") {
+            stock = 'In stock';
+            productHasStock = true;
+
+            //remove the select since there is no size selection.
+            $stream.find('.articlePurchaseSize').remove();
+        } else {
+            stock = '<span style="color: #ef4549;">Out of stock</span>';
+        }
+        html += '<br />';
+        html += 'Status: ';
+        html += '<em>' + stock + '</em>';
+        html = '<p class="productInfoSS">' + html + '</p>';
+
+    }
+    html = '<h1 class="productInfoHeading">Size and Stock Info:</h1>' + html;
+    $info.append(html);
+
+    //remove the purchase options if product has no stock at all.
+    if (!productHasStock) {
+        $stream.find('.articlePurchaseOptions').remove();
+    }
+
+    /* ===== private functions */
+    function _populateSelect($stream, size) {
+        $select = $stream.find('.articlePurchaseSize');
+        $select.append('<option value="' + size + '">' + size + '</option>');
+    }
+
+};
+shopPostFactory.append.productTryGetKeys = function(keys) {
+    try {
+        var keys = Object.keys(keys);
+        return keys;
+    } catch(err) {
+        console.log(err);
+        return false;
+    }
+};
+
+
 var shopPostList = function() {
     initList('shopBlock', {
         valueNames: [ 'vector' ],
@@ -227,47 +408,51 @@ var shopPostList = function() {
 }
 shopPostFactory.append.callbacks.push(shopPostList);
 
-shopPostFactory.append.productName = function($stream, post) {
-    var $nameFull = $stream.find('.blockProductNameFull');
-    var $name = $stream.find('.blockProductName');
-    var data = post.dataProduct;
-    if (data.name) {
-        $nameFull.html(data.name);
-        var trimmed = VV.utils.trim(data.name, 23, { trimLastWord: false});
-        $name.html(trimmed);
-    } else {
-        var str = 'No Product Name';
-        $nameFull.html('No Product Name');
-        $name.html('No Product Name');
+shopPostFactory.append.imageLinkHooks = function($article) {
+    $article.addClass('productArticle');
+}
+//specify the actions for the article buttons
+VV.extend('buttonTasks', {
+    purchaseAddQty: function($el) {
+        var self = this;
+        if (typeof this.$value === "undefined") {
+            this.$value = $el.closest('div').find('.articlePurchaseQty');
+        }
+        this.$value.val(parseInt(self.$value.val()) + 1); 
+    },
+    purchaseMinusQty: function($el) {
+        if (typeof this.$value === "undefined") {
+            this.$value = $el.closest('div').find('.articlePurchaseQty');
+        }
+        var qty = parseInt(this.$value.val());
+
+        if (qty > 1) {
+            this.$value.val(qty - 1); 
+        }
+    },
+    purchaseAddToCart: function($el) {
+        if (typeof this.$form === "undefined") {
+            this.$form = $el.closest('div').find('select, input');
+        }
+        var proceed = true;
+        var data = {};
+        this.$form.each(function() {
+            var $t = $(this);
+
+            //is validation is false, set proceed flag to false;
+            if (!VV.utils.inputsVali($t)) { 
+                proceed = false; 
+                return;
+            }
+
+            data[$t.attr('name')] = $t.val();
+
+        });
+
+        console.log(data);
+        console.log(proceed);
     }
-};
-shopPostFactory.append.custom.push(shopPostFactory.append.productName);
-
-shopPostFactory.append.productPrice = function($stream, post) {
-    var $price = $stream.find('.spanPrice');
-    var curr = '<span class="priceUpperCase">' + this.parent.renderJSON.dataShop.currency + '</span>'; //get currency from user details;
-    $price.html(curr + ' ' + post.dataProduct.price);
-};
-shopPostFactory.append.custom.push(shopPostFactory.append.productPrice);
-
-shopPostFactory.append.productLikes = function($stream, post) {
-    var $productLikes = $stream.find('.spanLikes'),
-        $likesCount = $productLikes.find('.spanLikesCount');
-
-    var like = 'like';
-
-    if (typeof post.totalLikes === "undefined" || post.totalLikes < 1) { 
-        $productLikes.hide(); 
-        $likesCount.html('0 ' + like);
-        $likesCount.attr('data-count', 0);
-    } else {
-        if (post.totalLikes > 1) { like += 's'; }
-        $likesCount.html(post.totalLikes + ' ' + like);
-        $likesCount.attr('data-count', post.totalLikes);
-    }
-
-};
-shopPostFactory.append.custom.push(shopPostFactory.append.productLikes);
+});
 
 
 /* Follow Button */

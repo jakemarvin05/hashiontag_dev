@@ -94,7 +94,7 @@ router.get('/shop/addproduct', function(req, res) {
 
     if (!req.isAuthenticated() || req.user.shopStatus === null || req.user.shopStatus === "false") { 
         res.statusCode = 403;
-        return res.send(); 
+        return res.redirect('/'); 
     }
 
     var gJSON = globalJSON(req);

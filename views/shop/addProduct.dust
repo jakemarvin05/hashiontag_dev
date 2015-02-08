@@ -24,7 +24,9 @@ socket.on('uploadProgress', function(data){
 </script>
 
 <script src="{p.js}/vvImg.js"></script>
-
+<script>
+printHead.dataShop = VV.utils.unSanitise("{dataShop|js}");
+</script>
 <style>
     /* stylings shared with post.dust */
     #main {
@@ -391,7 +393,11 @@ socket.on('uploadProgress', function(data){
                         <input type="text" class="inputSpecial" placeholder="Name" id="pdi_name" name="name" data-branch="dataProduct.name" required>
                     </p>
                     <p>
-                        <label for="pdi_price">Price (SGD):</label>
+                        <label for="pdi_price">Price 
+                            {?dataShop}
+                                (<span style="text-transform: uppercase;">{dataShop.currency}</span>)
+                            {/dataShop}:
+                        </label>
                         <br>
                         <input type="text" class="inputSpecial" placeholder="Price" id="pdi_price" name="price" data-branch="dataProduct.price" required>
                     </p>
@@ -418,7 +424,11 @@ socket.on('uploadProgress', function(data){
                     </p>
                     <table class="inventoryTbl" id="shippingCostHdr">
                         <tr>
-                            <th>Shipping (SGD):</th>
+                            <th>Shipping 
+                                {?dataShop}
+                                    (<span style="text-transform: uppercase;">{dataShop.currency}</span>)
+                                {/dataShop}
+                            :</th>
                         </tr>
                         <tr>
                             <td>
@@ -434,51 +444,48 @@ socket.on('uploadProgress', function(data){
                         </tr>
                     </table>
                     <table class="inventoryTbl" id="shippingCost">
-                        <tr class="shippingCostNoHide">
+                        <tr id="shippingCostHeavyTemplate">
                             <td>
-                                <label for="pdi_shipping_usc_cost">US & Cananda</label>
+                                <label for="pdi_shipping_(((replace)))_cost">(((replaceName)))</label>
                             </td>
                             </td>
                             <td>
-                                <input type="text" class="shippingHeavyCost inputSpecial" id="pdi_shipping_usc_cost" name="shipping_usc_cost" placeholder="enter cost"  data-branch="dataProduct.shipping.list.usc">
+                                <input type="text" class="shippingHeavyCost inputSpecial" id="pdi_shipping_(((replace)))_cost" name="shipping_(((replace)))_cost" placeholder="enter cost"  data-branch="dataProduct.shipping.list.(((replace)))">
                             </td>
                         </tr>
+                        <script>
+                        (function() {
+                            var $template = $('#shippingCostHeavyTemplate');
+                            $template.removeAttr('id');
+                            var template = $template[0].outerHTML;
+                            var replaces = template.match(/(((replace)))/).length;
+                            $template.remove();
+                            $heavyTable = $('#shippingCost');
 
-                        <tr>
-                            <td>
-                                <label for="pdi_shipping_sea_cost">Southeast Asia</label>
-                            </td>
-                            <td>
-                                <input type="text" class="shippingHeavyCost inputSpecial" name="shipping_sea_cost" placeholder="enter cost" data-branch="dataProduct.shipping.list.sea">
-                            </td>
-                        </tr>
+                            var regionNames = VV.g.regionNames;
 
-                        <tr>
-                            <td>
-                                <label for="pdi_shipping_asiaeu_cost">Rest of Asia & Europe</label>
-                            </td>
-                            <td>
-                                <input type="text" class="shippingHeavyCost inputSpecial" name="shipping_asiaeu_cost" placeholder="enter cost" data-branch="dataProduct.shipping.list.asiaeu">
-                            </td>
-                        </tr>
+                            try {
+                                var shippingRegions = Object.keys(printHead.dataShop.shipping.light);
+                            } catch(err) {
+                                return aF.protoAlert('An error has occurred. Please check your shop settings.');
+                            }
 
-                        <tr>
-                            <td>
-                                <label for="pdi_shipping_austnz_cost">Australia & NZ</label>
-                            </td>
-                            <td>
-                                <input type="text" class="shippingHeavyCost inputSpecial" name="shipping_austnz_cost" placeholder="enter cost" data-branch="dataProduct.shipping.list.austnz">
-                            </td>
-                        </tr>
+                            for(var i=0; i<shippingRegions.length; i++) {
+                                var regionSC = shippingRegions[i],
+                                    append = template;
 
-                        <tr>
-                            <td>
-                                <label for="pdi_shipping_row_cost">Rest of the World</label>
-                            </td>
-                            <td>
-                                <input type="text" class="shippingHeavyCost inputSpecial" name="shipping_row_cost" placeholder="enter cost" data-branch="dataProduct.shipping.list.row">
-                            </td>
-                        </tr>
+                                for(var j=0; j<replaces; j++) {
+                                    append = append.replace('(((replace)))', regionSC);
+                                }
+
+                                append = append.replace('(((replaceName)))', regionNames[regionSC]);
+
+                                document.write(append);
+                            }
+
+                        })();
+                        </script>
+                        
                     </table>
                     <script>
                     (function() {
@@ -779,76 +786,17 @@ socket.on('uploadProgress', function(data){
                 </div>
 
                 <script>
-                var dataAppend = {
+                var dataAppend = Object.create(VV.utils.dataAppend);
+                dataAppend.images = function(file) {
+                    this.attrs.imgData.push(file);
+                };
 
-                    run: function($e) {
-                        if ($e.hasClass('inputSingle')) { return this.simple($e); }
-                        if ($e.hasClass('inputSpecial')) { return this.complex($e); }
-                    },
-
-                    simple: function($e) {
-                    
-                        //all inputSingle fields are appended with key = name attribute, value = val()
-                        return this.attrs[$e.attr('name')] = $e.val();
-                    },
-
-                    complex: function($e) {
-
-                        var self = this;
-
-                        var name = $e.attr('name');
-                        var val = $e.val();
-
-                        if (!val) { return false; } //don't accept empty values.
-
-                        //branches management
-                        var branches = $e.attr('data-branch');
-
-                        //key value pair management
-                        var isKey = ($e.attr('data-type') === "key");
-                        var isValue = ($e.attr('data-type') === "value");
-
-                        //key value type.
-                        if(isKey || isValue) {
-
-                            if(isKey) {
-                                return false; //don't need to create anything for key
-                            }
-                            if(isValue) {
-                                //get the key
-                                var groupClass = $e.attr('data-groupedcont');
-                                var key = $(groupClass).find('input[data-type="key"]').val();
-
-                                // don't set value if this value is empty or if key is empty.
-                                if (!key || !val) {
-                                    //key or val is undefined or empty
-                                    return false;
-                                }
-                                var setVal = val;
-                            }
-
-                            var chain = branches + '.' + key;
-                            D.set(self.attrs, chain, setVal);
-
-                        } else {
-                            //simple branch type
-                            var chain = branches;
-                            D.set(self.attrs, chain, val)
-                        }
-                        
-                    },
-
-                    images: function(file) {
-                        this.attrs.imgData.push(file);
-                    },
-
-                    labels: function(labelText) {
-                        var labels = this.attrs.dataProduct.labels;
-                        if (labels === null) {
-                            this.attrs.dataProduct.labels = [ labelText ];
-                        } else {
-                            labels.push(labelText);
-                        }
+                dataAppend.labels = function(labelText) {
+                    var labels = this.attrs.dataProduct.labels;
+                    if (labels === null) {
+                        this.attrs.dataProduct.labels = [ labelText ];
+                    } else {
+                        labels.push(labelText);
                     }
                 };
 
@@ -876,7 +824,6 @@ socket.on('uploadProgress', function(data){
                         var $e = $(el);
 
                         if ($e.prop('required')) {
-
                             //validate selects
                             if($e.is('select')) {
                                 
@@ -1075,7 +1022,7 @@ socket.on('uploadProgress', function(data){
             // Turn it on - assign the function that returns the string
             window.onbeforeunload = confirmOnPageExit;
             </script>
-            
+
             {:else}
             <h3 style="color:#ef4549;">You may not add a product until your shop settings are complete.</h3>
             <a href="{p.shopSettings}">

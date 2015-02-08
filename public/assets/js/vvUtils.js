@@ -488,7 +488,52 @@ VV.utils.inputsRestrict.inputLength = function($el, opts) {
     });
 
     return $el;
-}
+};
+
+VV.utils.inputsVali = function($e, failCriteria) {
+
+    if (typeof failCriteria === "undefined") {
+        var theTest = function($e) {
+            return $e.val().length === 0 || $e.val() === "null";
+        }
+    } else if (typeof failCriteria === "string") {
+        var theTest = function($e, failCriteria) {
+            return $e.val() === failCriteria;
+        }
+    } else if (typeof failCriteria === "function") {
+        var theTest = failCriteria;
+    } else {
+        return false;
+    }
+
+    if (theTest($e, failCriteria)) {
+        $e.css('background', '#ffe7e7');
+        if($e.is('select')) {
+            $e.off('change.vali').on('change.vali', function() {
+              if (!theTest($(this))) {
+                  $(this)
+                      .css('background', '')
+                      .off('change.vali');
+              }
+            });
+        } else {
+
+            $e.off('keypress.vali').on('keypress.vali', function() {
+                if (theTest($(this))) {
+                    $(this)
+                        .css('background', '')
+                        .off('keypress.vali');
+                }
+            });
+        }
+
+        return false;
+
+    } else {
+        $e.css('background', '');
+        return true;
+    }
+};
 
 VV.utils.inputsAutosize = function($el, minsize) {
     function resizeInput() {
@@ -585,3 +630,10 @@ VV.utils.dataAppend = {
         
     }
 };
+
+VV.utils.unSanitise = function(str) {
+    while(str.indexOf('&quot;') > -1) {
+        str = str.replace('&quot;', '\"');
+    }
+    return JSON.parse(str);
+}

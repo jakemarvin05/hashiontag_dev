@@ -19,12 +19,13 @@
 <script src="//cdn.jsdelivr.net/emojione/1.2.4/lib/js/emojione.min.js"></script>
 <script>
 function convertEmoji() {
-   $(".convert-emoji").each(function() {
+    if (typeof emojione !== "function") { return false; }
+    $(".convert-emoji").each(function() {
        var original = $(this).html();
        // use .shortnameToImage if only converting shortnames (for slightly better performance)
        var converted = emojione.toImage(original);
        $(this).html(converted);
-   }); 
+    }); 
 }
 $(function() { convertEmoji(); });
 $(window).load(function() { convertEmoji(); });
