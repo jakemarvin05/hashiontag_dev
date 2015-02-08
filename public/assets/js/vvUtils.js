@@ -554,7 +554,7 @@ VV.utils.dataAppend = {
             if(isValue) {
                 //get the key
                 var groupClass = $e.attr('data-groupedcont');
-                var key = $(groupClass).find('input[data-type="key"]').val();
+                var key = $e.closest(groupClass).find('input[data-type="key"]').val();
 
                 // don't set value if this value is empty or if key is empty.
                 if (!key || !val) {
