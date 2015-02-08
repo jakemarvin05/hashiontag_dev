@@ -58,18 +58,28 @@ VV.utils.Flasher = {
         if(this.elType === 'button') { return this.$el.removeAttr('disabled'); }
     }
 }
-
+/* loaderEffect */
+/* HOW TO USE IT?
+ * 1. Create an empty container
+ * 2. Call #init() and pass in the container jquery object.
+ * 3. Call #run() and #kill() as you like.
+ * 4. (Optional) You can define your own parameters. Do Object.create() before doing so.
+*/
 VV.utils.loaderEffect = {
     $sl: '',
     $studs: '',
     color: '#ef4549',
+    speed: 200,
     html: '<div class="searchLoader" style="display:none;"><div class="searchLoaderStud"></div><div class="searchLoaderStud"></div><div class="searchLoaderStud"></div><div class="vaDiv"></div></div><div class="searchQueryMessage" style="display:none;"></div>',
     run: function() {
-        var speed = 200,
-            self = this;
-        this.$sl.velocity('stop').velocity('fadeIn', speed);
+        var self = this;
+        this.$sl.velocity('stop').velocity('fadeIn', this.speed);
         this.$studs.each(function(i, el) {
-            $(el).delay(i*speed).velocity({'backgroundColor': self.color}, {duration: speed, delay: speed, loop: true})
+            $(el).delay(i*self.speed)
+                .velocity(
+                    {'backgroundColor': self.color}, 
+                    {duration: self.speed, delay: self.speed, loop: true}
+                );
         });
     },
     kill: function(callback) {
