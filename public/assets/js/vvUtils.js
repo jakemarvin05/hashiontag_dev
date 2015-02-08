@@ -490,36 +490,42 @@ VV.utils.inputsRestrict.inputLength = function($el, opts) {
     return $el;
 };
 
+/* inputsVali([jQuery DOM element], [criteria (optional: string or function)])
+ *
+ * Default failCriteria checks for empty value or "null"
+ * Use:
+ *  #inputsVali(  $theFormElement,  function($el) { return $el.val() === "no selection"; }  );
+ */
 VV.utils.inputsVali = function($e, failCriteria) {
 
+    //failTest should return "true" if failed.
     if (typeof failCriteria === "undefined") {
-        var theTest = function($e) {
+        var failTest = function($e) {
             return $e.val().length === 0 || $e.val() === "null";
         }
     } else if (typeof failCriteria === "string") {
-        var theTest = function($e, failCriteria) {
+        var failTest = function($e, failCriteria) {
             return $e.val() === failCriteria;
         }
     } else if (typeof failCriteria === "function") {
-        var theTest = failCriteria;
+        var failTest = failCriteria;
     } else {
         return false;
     }
 
-    if (theTest($e, failCriteria)) {
+    if (failTest($e, failCriteria)) {
         $e.css('background', '#ffe7e7');
         if($e.is('select')) {
             $e.off('change.vali').on('change.vali', function() {
-              if (!theTest($(this))) {
+              if (!failTest($(this))) {
                   $(this)
                       .css('background', '')
                       .off('change.vali');
               }
             });
         } else {
-
             $e.off('keypress.vali').on('keypress.vali', function() {
-                if (theTest($(this))) {
+                if (failTest($(this))) {
                     $(this)
                         .css('background', '')
                         .off('keypress.vali');

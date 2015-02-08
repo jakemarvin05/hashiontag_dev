@@ -829,51 +829,25 @@ printHead.dataShop = VV.utils.unSanitise("{dataShop|js}");
                                 
                                 //shipping select
                                 if ($e.attr('id') === 'pdi_shipping_type') {
-                                    if ($e.val() === "none") {
-                                        proceed = false;
-                                        $e.css('background', '#ffe7e7')
-                                            .off('change.vali')
-                                            .on('change.vali', function() {
-                                              if ($(this).val() !== 'none') {
-                                                  $(this)
-                                                      .css('background', '')
-                                                      .off('change.vali');
-                                              }
-                                            });
+
+                                    if (!VV.utils.inputsVali($e, "none")) { 
+                                        proceed = false; 
 
                                         if ($e.offset().top < scrollTo) {
                                             scrollTo = $e.offset().top;
                                         }
-
-                                    } else {
-                                        $e.css('background', '');
                                     }
+
                                 }
                                 
-                            }
-                            
-
-                            if ( $e.val().length === 0 ) {
-                                $e.css('background', '#ffe7e7')
-                                  .off('keypress.vali')
-                                  .on('keypress.vali', function() {
-                                    if ($(this).val().length > 0) {
-                                        $(this)
-                                            .css('background', '')
-                                            .off('keypress.vali');
-                                    }
-                                  });
-
-                                if ($e.offset().top < scrollTo) {
-                                    scrollTo = $e.offset().top;
-                                }
-
-                                proceed = false;
-
                             } else {
-                                $e.css('background', '');
+                                if (!VV.utils.inputsVali($e)) {
+                                    proceed = false; 
+                                    if ($e.offset().top < scrollTo) {
+                                        scrollTo = $e.offset().top;
+                                    }
+                                }
                             }
-
                             //appending data
                             dataAppend.run($e);
                         } 
