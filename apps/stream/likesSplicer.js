@@ -1,8 +1,8 @@
 /* Likes Splicer */
 module.exports = function likesSplicer(req, posts, idArray) {
-    var spliced = []
+    var spliced = [];
     var count1 = posts.length;
-    if(count1 === 0) { return posts; }
+    if (count1 === 0) { return posts; }
 
     for(var j=0; j<count1 ;j++) {
 
@@ -16,6 +16,11 @@ module.exports = function likesSplicer(req, posts, idArray) {
 
         post.hasLiked = false;
         post.totalLikes = count2;
+
+        if (!req.isAuthenticated()) { 
+            spliced.push(post); 
+            continue;
+        }
 
         var l = 0;
         //console.time('while');
