@@ -18,14 +18,7 @@ module.exports = function(sequelize, DataTypes) {
     }, {
         timestamps: true,
         updatedAt: false,
-        tableName: 'Following', //PascalCase
-        classMethods: {
-            associate: function(models) {
-                //following belongs to user
-                Following.belongsTo(models.User, {foreignKey: 'FollowId'});
-
-            }
-        }
+        tableName: 'Following' //PascalCase
     });
 return Following;
 };

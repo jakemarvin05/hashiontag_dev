@@ -147,15 +147,14 @@ module.exports = function(sequelize, DataTypes) {
                 User.belongsTo(models.Post, {as: 'ProfilePicture', foreignKey: 'Post_postId_profilePicture', constraints: false});
 
                 //FOLLOWING
-                User.hasMany(models.User, {as: 'Follows', foreignKey: 'FollowerId', through: models.Following });
-
                 /*
                 Explanation: User has many other users as "Followers". In the "Following" table, this user
                              record is identified using the foreign key "FollowId"
+                GOTCHA: Still using 2x hasMany. Sequelize ignores declaration of "foreignKey" in belongsToMany.
+                TODO: Fix this to use belongsToMany.
                 */
-                User.belongsToMany(models.User, {as: 'Followers', foreignKey: 'FollowId', through: models.Following });
-
-                User.hasMany(models.Following, {foreignKey: 'FollowerId'});
+                User.hasMany(models.User, {as: 'Follows', foreignKey: 'FollowerId', through: models.Following });
+                User.hasMany(models.User, {as: 'Followers', foreignKey: 'FollowId', through: models.Following });
 
                 //COMMENT
                 User.hasMany(models.Comment, {foreignKey: 'User_userId'});
