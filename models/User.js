@@ -153,7 +153,7 @@ module.exports = function(sequelize, DataTypes) {
                 Explanation: User has many other users as "Followers". In the "Following" table, this user
                              record is identified using the foreign key "FollowId"
                 */
-                User.hasMany(models.User, {as: 'Followers', foreignKey: 'FollowId', through: models.Following });
+                User.belongsToMany(models.User, {as: 'Followers', foreignKey: 'FollowId', through: models.Following });
 
                 User.hasMany(models.Following, {foreignKey: 'FollowerId'});
 
@@ -185,7 +185,6 @@ module.exports = function(sequelize, DataTypes) {
                 //STAR TAG
                 User.hasMany(models.StarTag, {foreignKey: 'User_userId'});
                 User.hasMany(models.Post, {as: 'attributedUser', foreignKey: 'User_userId_attributed'})
-
 
                 //Cart and purchase
                 User.hasMany(models.Purchase, {foreignKey: 'Post_postId'});

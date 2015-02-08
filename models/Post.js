@@ -77,7 +77,6 @@ module.exports = function(sequelize, DataTypes) {
                 Post.hasMany(models.Comment, {foreignKey: 'Post_postId'});
 
                 //likes
-                //Post.hasMany(models.User, {as: 'Likers', foreignKey: 'User_userId', through: 'Liking', foreignKeyConstraint: false});
                 Post.hasMany(models.Like, {foreignKey: 'Post_postId'})
 
                 //notification
