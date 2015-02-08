@@ -95,6 +95,8 @@ module.exports = function(sequelize, DataTypes) {
                 //Star Tag Attribution
                 Post.belongsTo(models.User, {as: 'attributedPost', foreignKey: 'User_userId_attributed'});
 
+                //Cart and purchase
+                Post.hasMany(models.Purchase, {foreignKey: 'Post_postId'});
             }
         },
         getterMethods: {
