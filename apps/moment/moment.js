@@ -12,8 +12,8 @@ moment.locale('en-shortened', {
         hh : "%dh",
         d : "%dd",
         dd : "%dd",
-        M : "%dmth",
-        MM : "%dmth",
+        M : "%dM",
+        MM : "%dM",
         y : "%dy",
         yy : "%dy"
     },
