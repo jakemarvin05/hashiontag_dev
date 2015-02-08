@@ -70,17 +70,32 @@
             <script>
             $('#saveShopCurrency').click(function(e) {
                 e.preventDefault();
+
+                var $form = $('#currencyForm'),
+                    $curr = $form.find('select[name="shopCurrency"]'),
+                    presentCurrency = $curr.attr('data-curr'),
+                    newCurrency = $curr.val();
+
+                if (!newCurrency || newCurrency === '') { return false; }
+
+                //check the currencies only if:
+                //1) There is a currency now - if for some reason its empty, let the user change.
+                //2) 
+
+                if (presentCurrency) {
+                    if (presentCurrency === newCurrency) {
+                        return false;
+                    }
+                }
+
+
                 var self = this;
                 var proceed = true;
                 var scrollTo = 99999;
 
-                var $form = $('#currencyForm');
-
                 var currencyData = Object.create(VV.utils.dataAppend);
 
-                var $curr = $form.find('select[name="shopCurrency"]');
-
-                if ($curr.val() === "null") {
+                if (newCurrency === "null") {
                     return aF.protoAlert('You have not selected a currency. No changes were made.');
                 } else {
 
@@ -88,10 +103,10 @@
 
                     var html = '<h1 style="color:#ccc;text-align:center;">Are you sure you want to change your currency';
 
-                    if ($curr.attr('data-curr')) {
-                        html += ' from <span style="color:#000; text-transform: uppercase">' + $curr.attr('data-curr') + '</span>';
+                    if (presentCurrency) {
+                        html += ' from <span style="color:#000; text-transform: uppercase">' + presentCurrency + '</span>';
                     }
-                        html += ' to <span style="color:#000; text-transform: uppercase">' + $curr.val() + '</span>?';
+                        html += ' to <span style="color:#000; text-transform: uppercase">' + newCurrency + '</span>?';
 
                         html += '</h1><h2 style="text-align:center;"><span class="clickable" id="changeCurrency" onclick="javascript:runCurrencyAjax();">Yes</span>&nbsp;|&nbsp;<span class="clickable" onclick="$.fancybox.close()"> No</span></h2></div>';
 
@@ -317,7 +332,7 @@
                     <script>
                     function shippingMsg() {
                         return aF.protoAlert({
-                            text: 'The 2 categories of shipping are <b>LIGHT</b> and <b>HEAVY</b>.<br><br>For <b>LIGHT</b> items, you would specify the default shipping charges here in this form. Also, you will need to input the <b>"step quantity"</b>, which will determine how additional shipping charges are applied.<br><br>For example, if the "step quantity" is <b>5</b> and shipping charge is <b>$10</b>, he/she would be charged $10 if he buys 5 pieces, and $20 if he buy 6 pieces.<br><br>For <b>HEAVY</b> items, you would specify the shipping charges when you add the product itself.', 
+                            text: 'The 2 categories of shipping are <b>LIGHT</b> and <b>HEAVY</b>.<br><br>For <b>LIGHT</b> items, you would specify the default shipping charges here in this form. Also, you will need to input the <b>"step quantity"</b>, which will determine how additional shipping charges are applied.<br><br>EXAMPLE: If the "step quantity" is <b>5</b> and shipping charge is <b>$10</b>, the customer would be charged $10 if he buys 5 pieces, and $20 if he buy 6 pieces.<br><br>For <b>HEAVY</b> items, you would specify the shipping charges when you add the product itself.', 
                             title: 'How we calculate shipping?'
                         });
                     }
@@ -431,7 +446,7 @@
                     </tr>
                 </table>
                 <div id="shippingStepQuantityBlock">
-                    <h3>How many pieces can someone buy before you charge additional shipping?</h3>
+                    <h3>How many pieces can someone buy before you charge additional shipping? (step quantity)</h3>
                     <select class="shippingCost inputSpecial" id="pdi_shipping_step_qty" name="shipping_step_qty" data-branch="dataShop.shipping.stepQty" {?dataShop.shipping.stepQty}data-curr="{dataShop.shipping.stepQty}"{/dataShop.shipping.stepQty}>
                         <option value="null">--Please select--</option>
                         <option value="1">1</option>
