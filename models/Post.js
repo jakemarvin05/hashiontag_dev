@@ -100,10 +100,10 @@ module.exports = function(sequelize, DataTypes) {
         },
         getterMethods: {
             timeLapse: function() {
-                return moment(this.createdAt).fromNow();
+                if (this.createdAt) { return moment(this.createdAt).fromNow(); }   
             },
             timeLapseShort: function() {
-                return moment(this.createdAt).locale('en-shortened').fromNow();
+                if (this.createdAt) { return moment(this.createdAt).locale('en-shortened').fromNow(); }
             }
         }
     });
