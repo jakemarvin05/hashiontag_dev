@@ -186,7 +186,10 @@ module.exports = function(sequelize, DataTypes) {
                 User.hasMany(models.Post, {as: 'attributedUser', foreignKey: 'User_userId_attributed'})
 
                 //Cart and purchase
-                User.hasMany(models.Purchase, {foreignKey: 'Post_postId'});
+                User.hasMany(models.Purchase, {foreignKey: 'User_userId'});
+
+                //Seller
+                User.hasMany(models.Purchase, {as: 'Sale', foreignKey: 'User_userId_seller'});
             },
             getSearchVector: function() {
                 return 'userNameVector';

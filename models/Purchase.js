@@ -13,12 +13,21 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false,
             isIn: [[
                 'cart',
-                'purchased',
+                'reserved',
+                'paid',
                 'delivery',
                 'delivered',
                 'not received',
                 'refunded'
             ]]
+        },
+        qty: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        size: {
+            type: DataTypes.STRING,
+            allowNull: false
         },
         dataMeta: {
             type: DataTypes.JSON,
@@ -31,6 +40,12 @@ module.exports = function(sequelize, DataTypes) {
             associate: function(models) {
                 Purchase.belongsTo(models.Post, {foreignKey: 'Post_postId', onDelete: 'RESTRICT', onUpdate: 'CASCADE'});
                 Purchase.belongsTo(models.User, {foreignKey: 'User_userId'});
+
+                //Seller
+                Purchase.belongsTo(models.User, {as: 'Seller', foreignKey: 'User_userId_seller'});
+
+                //Transaction
+                Purchase.belongsTo(models.Transaction, {foreignKey: 'Transaction_transactionId', onDelete: 'RESTRICT', onUpdate: 'CASCADE'});
             }
 
         }

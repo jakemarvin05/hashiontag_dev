@@ -19,9 +19,7 @@ VV.extend = function(extension, props) {
             obj[prop] = props[prop];
         }
     }
-}
-
-VV.globals = {};
+};
 
 VV.extend('globals', {
     regionNames: {

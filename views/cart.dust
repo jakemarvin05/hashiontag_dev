@@ -1,0 +1,36 @@
+{>blockHeader/}
+{>blockHeaderAfterHook/}
+
+<section id="main">
+    <div class="mainColBlock">
+        {>layouts/cartLayout.dust/}
+    </div>
+
+    <div class="oosBlockWrap" style="display:none;">
+        <section class="ossMainBlock">
+            <div class="ossHeader">
+                <h1>This items have gone out-of-stock.</h1>
+                <h2>You may remove them or wait for them to re-stock.</h2>
+            </div>
+            <article class="ossBlock" id="layoutId3">
+                <div class="oosLeftCol"></div>
+                <div class="oosCenterCol">
+                    <div class="cartNameSize">
+                        <span class="cartName"></span>
+                        <span class="cartSize"></span>
+                    </div>
+                    <div class="cartActions">
+                        <div class="cartRemove">
+                            <span class="glyphicon glyphicon-circle-remove"></span>&nbsp;Remove
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </section>
+    </div>
+    <!-- end your stream -->
+</section><!-- main -->
+
+{>blockFooter/}
+</body>
+</html>

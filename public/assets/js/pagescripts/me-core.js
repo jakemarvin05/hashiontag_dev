@@ -248,9 +248,11 @@ shopPostFactory.append.productInfoShipping = function($stream, post) {
     var $info = $stream.find('.blockProductInfo');
     var html = '';
 
-    html += '<h1 class="productInfoHeading">Delivery Info:</h1>';
+    html += '<h1 class="productInfoHeading">Delivery Info ';
 
     if (D.get(post, 'dataProduct.shipping.shippingType') === "light") {
+
+        html += '(up to ' + D.get(self.parent, 'renderJSON.dataShop.shipping.stepQty') + ' items/order):</h1>';
 
         var shipping = D.get(self.parent, 'renderJSON.dataShop.shipping.light');
         var shippingDay = shipping;
@@ -270,6 +272,8 @@ shopPostFactory.append.productInfoShipping = function($stream, post) {
 
     } else {
         //HEAVY SHIPPING
+        html += '(PER ITEM):</h1>';
+
         var shipping = D.get(post, 'dataProduct.shipping.list');
         //estimated number of shipping days is in dataShop shipping details.
         //gotcha: although it is accessing .light, its the same for heavy.
@@ -380,6 +384,8 @@ shopPostFactory.append.productInfoSize = function($stream, post) {
     //remove the purchase options if product has no stock at all.
     if (!productHasStock) {
         $stream.find('.articlePurchaseOptions').remove();
+    } else {
+        this.productAddToCart($stream, post);
     }
 
     /* ===== private functions */
@@ -389,6 +395,10 @@ shopPostFactory.append.productInfoSize = function($stream, post) {
     }
 
 };
+
+shopPostFactory.append.productAddToCart = function($stream, post) {
+    this.identifier($stream.find('.articleAddToCart'), post);
+}
 shopPostFactory.append.productTryGetKeys = function(keys) {
     try {
         var keys = Object.keys(keys);
@@ -415,28 +425,26 @@ shopPostFactory.append.imageLinkHooks = function($article) {
 VV.extend('buttonTasks', {
     purchaseAddQty: function($el) {
         var self = this;
-        if (typeof this.$value === "undefined") {
-            this.$value = $el.closest('div').find('.articlePurchaseQty');
-        }
-        this.$value.val(parseInt(self.$value.val()) + 1); 
+        $value = $el.closest('div').find('.articlePurchaseQty');
+        var qty = parseInt($value.val());
+        if (qty > 98) { return $value.val(99); }
+        $value.val(parseInt($value.val()) + 1); 
     },
     purchaseMinusQty: function($el) {
-        if (typeof this.$value === "undefined") {
-            this.$value = $el.closest('div').find('.articlePurchaseQty');
-        }
-        var qty = parseInt(this.$value.val());
+        $value = $el.closest('div').find('.articlePurchaseQty');
+
+        var qty = parseInt($value.val());
 
         if (qty > 1) {
-            this.$value.val(qty - 1); 
+            $value.val(qty - 1); 
         }
     },
     purchaseAddToCart: function($el) {
-        if (typeof this.$form === "undefined") {
-            this.$form = $el.closest('div').find('select, input');
-        }
+        $form = $el.closest('div').find('select, input');
+
         var proceed = true;
         var data = {};
-        this.$form.each(function() {
+        $form.each(function() {
             var $t = $(this);
 
             //is validation is false, set proceed flag to false;
@@ -451,6 +459,57 @@ VV.extend('buttonTasks', {
 
         console.log(data);
         console.log(proceed);
+
+        if (proceed) {
+            data.postId = $el.attr('data-pid');
+            _addToCartAjax(data, $el);
+        }
+
+        /* === private functions */
+        function _addToCartAjax(data, $el) {
+            var flasher = Object.create(VV.utils.Flasher);
+            flasher.run($el, 'button');
+
+            var ajax = $.post('/api/cart/add', data);
+
+            ajax.done(function(result) {
+                console.log(result);
+                if (result.success) {
+                    var $blockTextHolder = $el.closest('.blockTextHolder');
+                    $el.closest('.articleAddToCart').remove();
+                    
+                    return _completionBlock($blockTextHolder, data, result);
+                }
+            });
+
+            ajax.fail(function(err) {
+                console.log(err);
+            });
+
+            ajax.always(function() {
+                flasher.kill();
+            });
+        }
+
+        function _completionBlock($cont, data, result) {
+            var html = '';
+            if (result.newAddition) {
+                html += 'Item added to cart! ';
+                if (result.brimmed) { 
+                    html += 'Stock available was not enough. Only <b>' + result.updatedQty + '</b> placed in cart.' 
+                }
+            } else {
+                html += 'Item was already in cart. ';
+                if (result.brimmed) { 
+                    html += 'Stock available was not enough. Only <b>' + result.updatedQty + '</b> placed in cart.' 
+                } else {
+                   html +=  'Updated quantity to <b>' + result.updatedQty + '</b>.'; 
+                }
+            }
+            html = '<div>' + html + '</div>';
+            $cont.append(html);
+
+        }
     }
 });
 

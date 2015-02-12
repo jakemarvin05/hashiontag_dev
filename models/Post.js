@@ -56,6 +56,11 @@ module.exports = function(sequelize, DataTypes) {
         dataMeta: {
             type: DataTypes.JSON,
             allowNull: true
+        },
+        softDeleted: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false
         }
     }, {
         timestamps: true,

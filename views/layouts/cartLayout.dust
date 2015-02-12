@@ -1,0 +1,39 @@
+
+<section class="cartLayout" id="layoutId">
+    <div class="cartBlockTop">
+        <div class="cartBlockUsername"></div>
+    </div>
+
+    <div class="cartBlocksWrap">
+        <article class="cartMainBlock" id="layoutId2">
+            <div class="cartLeftCol"></div>
+            <div class="cartCenterCol">
+                <div class="cartNameSize">
+                    <span class="cartName"></span>
+                    <span class="cartSize"></span>
+                </div>
+                <div class="cartActions">
+                    <div class="cartRemove">
+                        <span class="glyphicon glyphicon-circle-remove"></span>&nbsp;Remove
+                    </div>
+                    <div class="cartQuantity">
+                        Qty:&nbsp;<input type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="cartRightCol">
+                <div class="cartPrice"></div>
+                <div class="cartShipping"></div>
+            </div>
+        </article>
+    </div>
+
+    <div class="cartBlockBottom">
+        <div class="cartShipping">
+            <span class="cartSubTotalWrap">
+                <span class="cartSubTotalText">Subtotal:</span>
+                <span class="cartSubTotalPrice"><span>
+            </span>
+        </div>
+    </div>
+</section>

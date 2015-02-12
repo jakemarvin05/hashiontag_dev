@@ -10,8 +10,6 @@ var fname = 'api.js ';
 
 var D = require('dottie');
 
-
-
 router.get('/', function(req, res) {
   res.send('Nothing here...');
 });
@@ -486,6 +484,32 @@ router.post('/shop/settings/shipping', function(req, res) {
 
 });
 
+
+router.post('/cart', function(req, res) {
+    require('../apps/purchase/cartJSON.js')(req, res, null, render);
+    function render(results, error) {
+        if (!results) {
+            return res.status(500).send(error? error : '');
+        }
+        return res.json(results);
+    }
+});
+
+router.post('/cart/add', function(req, res) {
+    require('../apps/purchase/addToCart.js')(req, res);
+});
+
+router.post('/cart/checkstock', function(req, res) {
+    if (!req || ! res) { return res.status(400).send(); }
+
+    require('../apps/purchase/checkSizesAndStock.js')({
+        req: req,
+        res: res,
+        sizeData: null,
+        showStock: false
+    });
+
+});
 
 router.post('/errorreceiver', function(req, res) {
 

@@ -25,7 +25,6 @@ module.exports = function stockFilter(streams) {
 
             try {
                 var sizeKeys = Object.keys(sizes);
-                console.log(sizeKeys);
                 if (sizeKeys.length === 0) { continue; }
             } catch(err) {
                 continue;

@@ -5,7 +5,7 @@
 
 <div class="articlePurchaseOptions" style="display:none;">
     <h1 class="productInfoHeading">Purchase:</h1>
-    <p>
+    <p style="margin-top: 0px;">
         <select class="articlePurchaseSize" name="size">
             <option value="null">-- Select a size --</option>
         </select>
@@ -16,6 +16,6 @@
         <button type="button" class="darkButton articlePurchaseAddMinus" data-task="purchaseMinusQty">-</button>
     </p>
     <p>
-        <button type="button" class="darkButton" data-task="purchaseAddToCart">Add to cart</button>
+        <button type="button" class="darkButton articleAddToCart" data-task="purchaseAddToCart">Add to cart</button>
     </p>
 </div>

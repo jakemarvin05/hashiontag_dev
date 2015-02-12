@@ -1,16 +1,11 @@
 var express = require('express');
 
-/* routes */
-var routes = require('./routes/index');
-var api = require('./routes/api');
-
-
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var cons = require('consolidate');
+var path = require('path'),
+    favicon = require('serve-favicon'),
+    logger = require('morgan'),
+    cookieParser = require('cookie-parser'),
+    bodyParser = require('body-parser'),
+    cons = require('consolidate');
 
 /* sequelize */
 var db = require('./models');
@@ -19,15 +14,12 @@ global.db = db;
 var Promise = require('bluebird');
 global.Promise = Promise;
 
-/* passport and its friends */
+/* passport and session */
 var passport = require('passport');
-//flash messages is deprecated.
-//var flash = require('connect-flash');
 var session = require('express-session');
 
 // Postgres Session Store
-var pgSession = require('connect-pg-simple')(session)
-
+var pgSession = require('connect-pg-simple')(session);
 
 var instaNode = require('instagram-node').instagram();
 // //calvintwr
@@ -43,6 +35,9 @@ instaNode.use({
 global.instaNode = instaNode;
 
 var app = express();
+
+
+/* Middleware stack */
 
 app.use(favicon(__dirname + '/public/assets/favicon/favicon-160x160.png'));
 
@@ -70,15 +65,17 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 
+//routing
+app.use( '/', require('./routes/index') );
+app.use('/shop', require('./routes/shop') );
+
+//enable CORS for '/api'
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
-
-//routing
-app.use('/', routes);
-app.use('/api', api);
+app.use( '/api', require('./routes/api') );
 
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -111,11 +108,8 @@ app.use(function(err, req, res, next) {
     });
 });
 
-var moment = require('moment');
 //console.log time very 5 minutes
-setInterval(function() {
-    console.log(moment().format());
-}, 300000);
+setInterval(function() { console.log(require('moment')().format()); }, 300000);
 
 //start the server
 var server = require('http').Server(app);
@@ -124,7 +118,6 @@ var io = require('socket.io')(server);
 var ioSockets = {};
 
 io.on('connection', function(socket) {
-
     ioSockets[socket.id] = socket;
     socket.emit('welcome', {message: socket.id});
     socket.on('disconnect', function(socket) {

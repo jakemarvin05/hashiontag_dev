@@ -212,6 +212,18 @@ VV.utils.alertFactory = {
         }
         
         this.protoAlert(msg);
+    },
+    connectionErr: function(err) {
+        var msg = {
+            text: 'Error: Please either login or check your internet connection',
+            title: 'Error'
+        }
+
+        if (err) {
+            msg.text = msg.text + '<br /><br /><span style="color:#ccc;">' + err + '</span>';
+        }
+        
+        this.protoAlert(msg);
     }
 }
 var aF = VV.utils.alertFactory;
@@ -577,8 +589,31 @@ VV.utils.imgToBin = function(data) {
 
 VV.utils.dataAppend = {
 
-    run: function($e) {
+    options: {
+        keyValueCasing: false
+    },
+
+    init: function() {
+        var opts = this.options;
+
+        //initialize keyValueCasing
+        if (opts.keyValueCasing === "upper") {
+            opts.keyValueCasing = function(key) {
+                return key.toUpperCase();
+            };
+        } else if (opts.keyValueCasing === "lower") {
+            opts.keyValueCasing = function(key) {
+                return key.toLowerCase();
+            };
+        } else {
+            opts.keyValueCasing = function(key) { return key; };
+        }
+    },
+
+    run: function($e, opts) {
         if (typeof this.attrs === "undefined") { this.attrs = {}; }
+        if (typeof opts === "object") { this.options = opts; }
+        this.init();
         if ($e.hasClass('inputSingle')) { return this.simple($e); }
         if ($e.hasClass('inputSpecial')) { return this.complex($e); }
     },
@@ -616,6 +651,8 @@ VV.utils.dataAppend = {
                 //get the key
                 var groupClass = $e.attr('data-groupedcont');
                 var key = $e.closest(groupClass).find('input[data-type="key"]').val();
+                
+                key = this.options.keyValueCasing(key);
 
                 // don't set value if this value is empty or if key is empty.
                 if (!key || !val) {

@@ -16,10 +16,6 @@ var fs        = require('fs'),
     // }),
     db        = {}
 
-//call db.[Model].sync() to sync only one model.
-//db.User.sync();
-//sequelize.sync()
-
 fs.readdirSync(__dirname).filter(function(file) {
 
     return (file.indexOf('.') !== 0) && (file !== 'index.js')
@@ -37,6 +33,10 @@ Object.keys(db).forEach(function(modelName) {
         db[modelName].associate(db)
     }
 });
+
+//call db.[Model].sync() to sync only one model.
+//db.Transaction.sync();
+//sequelize.sync()
 
 
 module.exports = lodash.extend({
