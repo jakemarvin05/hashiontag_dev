@@ -229,7 +229,8 @@ module.exports = function posting(req, res, socket) {
         return res.json({
             success: true,
             actionCompleted: 'stored',
-            postId: self.post.postId
+            postId: self.post.postId,
+            post: self.post
         });
 
     }
