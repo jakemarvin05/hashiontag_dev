@@ -1,0 +1,99 @@
+#main {
+    overflow: hidden;
+}
+#cropPortCont {
+    width: 100%;
+    position: relative;
+}
+    #cropPortBg {
+        max-height: 0px;
+        position: relative;
+        top: 20px;
+        width: 280px;
+        margin: auto;
+    }
+     #cropPortBg img {
+        display: block;
+        margin: auto;
+        position: relative;
+        opacity: 0.4;
+        filter: alpha(opacity=40);
+     }
+    #cropPort {
+        height:280px; 
+        width:280px; 
+        box-sizing:border-box; 
+        outline:2px dotted #e44447;
+        margin: 20px auto;
+        overflow: hidden;
+    }
+img[id^=img_preview], canvas[id^=img_preview] {
+    position:relative;
+}
+#img_field {
+    opacity: 0;
+    filter: alpha(opacity=0);
+    position: absolute;
+    max-height: 0px;
+    max-width: 0px;
+}
+#browseCont, #scaleCont, #postCont {
+    text-align:center;
+}
+#scaleSliderCont {
+    width:280px;
+    height: 50px;
+    padding-top: 20px;
+    margin:auto;
+}
+    #scaleSlider {
+        width: 100%;
+        height: 2px;
+        background-color: #ccc;
+    }   
+    #scaleSliderBut {
+        background-color: #e74447;
+        margin-top: -14px;
+        margin-left: 10px;
+        width: 50px;
+        height: 25px;
+        cursor: move;
+    }
+
+#postCont textarea {
+    width: 290px;
+    height: 90px;
+}
+
+#progressBarCont {
+    height: 20px;
+    width: 280px;
+    background-color: #ccc;
+    margin: auto;
+}
+    #progressBar {
+        height: 100%;
+        width: 0%;
+        background-color: #d91639;
+        -webkit-transition: width 0.5s;
+        transition: width 0.5s;
+    }
+
+#postWhereText {
+    margin: 20px auto;
+    width: 200px;
+}
+    #postWhereText p {
+        margin: 0px;
+    }
+
+/* loader studs styling */
+#loaderStuds {
+    position: absolute;
+    top: 49%;
+    width: 100%;
+}
+.searchLoader {
+    margin: auto;
+    width: 30px;
+}
