@@ -2,6 +2,7 @@
 pinchZoom
 dragShifting
 scaleSlider
+vv button listener
 */
 
 pinchZoom = {
@@ -492,13 +493,13 @@ VV.extend('buttonListener', function() {
     var self = this;
     $(window).on('click.buttonListener', function(e) {
         var $t = $(e.target);
-        if($t.is('button')) {
-            var task = $t.attr('data-task');
-            if (!task) { return; }
-            if (!self.buttonTasks[task]) { return; }
 
-            return self.buttonTasks[task]($t);
-        }
+        var task = $t.attr('data-task');
+        if (!task) { return; }
+        if (!self.buttonTasks[task]) { return; }
+
+        return self.buttonTasks[task]($t);
+        
     });
 });
 VV.buttonListener();
