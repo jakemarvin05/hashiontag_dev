@@ -57,6 +57,9 @@ module.exports = function editProfile(req,res) {
         return [false, getUser()];
     }).spread(function(post, user) {
 
+        /* Fix country "validating empty entry" */
+        if (req.body.country === "") { req.body.country = null; }
+
         var updateHash = {
             name: req.body.name,
             gender: req.body.gender,

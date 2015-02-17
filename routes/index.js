@@ -586,6 +586,7 @@ router.get('/:user', function(req, res) {
             var hasShop = true;
         }
 
+
         res.render('me', {
             /*generic */
             title: meta(renderJSON, 'profile'),

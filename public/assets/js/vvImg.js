@@ -58,7 +58,7 @@ VV.img.TEMP_IMG = new Image();
 * Methods *
 *******************/
 
-VV.img.upload = function(attrs, url, callback) {
+VV.img.upload = function(attrs, url, callback, errCallback) {
 
     /* 
      attrs = {
@@ -141,26 +141,13 @@ VV.img.upload = function(attrs, url, callback) {
     posting.done(function(data) {
 
         if(!data.success) {
+            if (typeof errCallback === "function") { errCallback(data); }
             return aF.protoAlert({
                 text:'Oops... something has gone wrong. Please refresh and try again.', 
                 title:'Oops...'
             });
         } else {
-            if(data.actionCompleted === 'rawReturned') {
-                return callback(data);
-            }
-
-            if(data.actionCompleted === 'stored') {
-                return callback(data);
-            }
-
-            //fell through all cases
-            return aF.protoAlert({
-                text:'Oops... something has gone wrong. Please refresh and try again.', 
-                title:'Oops...'
-            });
-
-
+            return callback(data);
         }
 
     }); //posting.done
@@ -168,7 +155,7 @@ VV.img.upload = function(attrs, url, callback) {
 
     //fail
     posting.fail(function(err) {
-        console.log(err);
+        if (typeof errCallback === "function") { errCallback(data); }
         return aF.protoAlert({
             text:'Oops... something has gone wrong. Please refresh and try again.', 
             title:'Oops...'

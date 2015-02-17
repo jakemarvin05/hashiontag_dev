@@ -237,8 +237,6 @@ module.exports = function profileJSON(req, res, thenRender, isSelf) {
 
             if(productCount > 0) { PRODUCTCOUNT = productCount; }
 
-            /** #TODO #BUG: user argument is null in here for some reason */
-
             //// GET relationships
 
             /* the returns [] correspond to:
