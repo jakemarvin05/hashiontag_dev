@@ -90,11 +90,15 @@ module.exports = function gJSON(req, options) {
         absPath: pathsJSON.paths.absPath,
         img: pathsJSON.paths.img,
         mediaDir: pathsJSON.paths.mediaDir
-    }
+    };
+    var files = {
+        imgLoaderHolder: pathsJSON.files.imgLoaderHolder
+    };
 
     //pathsJSON
     globalJSON.pathsJSON = pathsJSON;
     globalJSON.printHead.p = paths;
+    globalJSON.printHead.f = files;
 
 
     return globalJSON;
