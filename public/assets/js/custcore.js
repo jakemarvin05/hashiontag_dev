@@ -498,7 +498,7 @@ VV.extend('buttonListener', function() {
         if (!task) { return; }
         if (!self.buttonTasks[task]) { return; }
 
-        return self.buttonTasks[task]($t);
+        return self.buttonTasks[task]($t, e);
         
     });
 });
