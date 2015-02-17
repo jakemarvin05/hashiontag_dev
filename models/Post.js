@@ -88,7 +88,7 @@ module.exports = function(sequelize, DataTypes) {
                 Post.hasMany(models.Notification, {foreignKey: 'Post_postId'});
 
                 //Hashtags
-                Post.hasMany(models.Hashtag, {foreignKey: 'Post_postId', through: 'Post_Hashtag'});
+                Post.belongsToMany(models.Hashtag, {foreignKey: 'Post_postId', through: models.Post_Hashtag });
 
                 //Stream
                 Post.hasMany(models.Stream, {foreignKey: 'Post_postId'});

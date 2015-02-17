@@ -5,7 +5,7 @@ module.exports = function search(req, res) {
     var throwErr = function(error) {
         console.log(error);
         return res.json({success: false});
-    }//end throwErr
+    };//end throwErr
 
     var parseUsers = function(users){
         console.log('search: db retrieval complete');
@@ -20,7 +20,7 @@ module.exports = function search(req, res) {
 
         return res.json(results);
 
-    }//end parseUsers
+    };//end parseUsers
 
     console.log('search: .. finding users...');
 
@@ -29,14 +29,14 @@ module.exports = function search(req, res) {
         hasAdd = input.indexOf('@') === 0,
         hasHash = input.indexOf('#') === 0;
 
-    if(hasAdd) {
+    if (hasAdd) {
         //username trying to key a @screenname, trim it
         var searchParam = input.replace('@', '');
         return db.User.search(searchParam)
             .then(parseUsers)
             .catch(throwErr);
     }
-    if(hasHash) {
+    if (hasHash) {
         var query = input.replace('#', '');
         var searchParam = [ "\"hashtag\".\"hashtagId\" LIKE ?", query + '%' ];
         return db.Hashtag.findAll({
