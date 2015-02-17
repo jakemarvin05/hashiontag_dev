@@ -225,8 +225,9 @@ module.exports = function(sequelize, DataTypes) {
                 var queryLike = query + '%';
                 var query = sequelize.getQueryInterface().escape(query);
 
-                return sequelize.query('SELECT "userId", "userNameDisp", "profilePicture", "name", "about" FROM "' + User.tableName + '" WHERE "' + User.getSearchVector() + '" @@ plainto_tsquery(\'english\', ' + query + ') OR "userName" LIKE \'' + queryLike + '\'');
-                //return sequelize.query('SELECT "userId", "userNameDisp", "profilePicture", "name", "about" FROM "' + User.tableName + '" WHERE "' + User.getSearchVector() + '" @@ plainto_tsquery(\'english\', ' + query + ')' );
+                return sequelize.query('SELECT "userId", "userNameDisp", "profilePicture", "name", "about" FROM "' + User.tableName + '" WHERE "' + User.getSearchVector() + '" @@ plainto_tsquery(\'english\', ' + query + ') OR "userName" LIKE \'' + queryLike + '\'', {
+                    type: sequelize.QueryTypes.SELECT
+                });
             }
         }
     });

@@ -7,23 +7,7 @@ module.exports = function search(req, res) {
         return res.json({success: false});
     };//end throwErr
 
-    var parseUsers = function(users){
-        console.log('search: db retrieval complete');
-
-        results = {
-            success: true,
-            results: users,
-            resultType: 'user'
-        }
-    
-        console.log('returning the array...');
-
-        return res.json(results);
-
-    };//end parseUsers
-
     console.log('search: .. finding users...');
-
 
     var input = req.body.query,
         hasAdd = input.indexOf('@') === 0,
@@ -33,8 +17,9 @@ module.exports = function search(req, res) {
         //username trying to key a @screenname, trim it
         var searchParam = input.replace('@', '');
         return db.User.search(searchParam)
-            .then(parseUsers)
-            .catch(throwErr);
+            .then(function(users) {
+                return parseUsers(users, res);
+            }).catch(throwErr);
     }
     if (hasHash) {
         var query = input.replace('#', '');
@@ -51,6 +36,22 @@ module.exports = function search(req, res) {
         }).catch(throwErr);
     }
     return db.User.search(input)
-        .then(parseUsers)
-        .catch(throwErr);
-}
+        .then(function(users) {
+            return parseUsers(users, res);
+        }).catch(throwErr);
+};
+
+var parseUsers = function(users, res){
+    console.log('search: db retrieval complete');
+
+    results = {
+        success: true,
+        results: users,
+        resultType: 'user'
+    };
+
+    console.log('returning the array...');
+    console.log(results);
+    return res.json(results);
+
+};//end parseUsers
