@@ -7,28 +7,17 @@ VV.search = {
     ajaxedQuery: false,
     enterBlock: false,
     ajax: '',
-    $sqm: '',
-    getSQM: function() {
-        return this.$sqm = $('.searchQueryMessage');
-    },
-    // $sl: '',
-    // getSL: function() {
-    //     return this.$sl = $('.searchLoader');
-    // },
-    // $studs: '',
-    // getStuds: function() {
-    //     return this.$studs = $('.searchLoader .searchLoaderStud');
-    // },
-    $resultCont: '',
-    getResultCont: function() {
-        return this.$resultCont = $('.mainColBlock');
-    }
+    uri: '',
+    $searchInput: undefined,
+    $loaderWrap: undefined,
+    $sqm: undefined,
+    $resultCont: undefined,
 }
-VV.search.cachedQuery = {}
+VV.search.cachedQuery = {};
 VV.search.cacheManager = function(query) {
-    var query = query.toLowerCase()
-    if(this.ajaxedQuery) {
-        if(query === this.ajaxedQuery) { 
+    var query = query.toLowerCase();
+    if (this.ajaxedQuery) {
+        if (query === this.ajaxedQuery) { 
             //console.log('same query, returning');
 
             //check if the results is hidden. if yes, show it.
@@ -53,14 +42,14 @@ VV.search.cacheManager = function(query) {
             }
         }
     }
-}
+};
 VV.search.searchAjax = function(query) {
     //just to be safe, we abort ajax and clear all timeouts.
-    if(typeof this.ajax.abort === "function") { this.ajax.abort();}
+    if (typeof this.ajax.abort === "function") { this.ajax.abort(); }
     for(var i in this.timeout) {
         clearTimeout(this.timeout[i]);
     }
-
+    console.log('****');
     //then empty the container
     this.$resultCont.html('');
 
@@ -69,7 +58,7 @@ VV.search.searchAjax = function(query) {
     //console.log('ajax fired');
     var self = this;
     // AJAX post
-    this.ajax = $.post( printHead.p.absPath + "/api/search", {query: query});
+    this.ajax = $.post( printHead.p.absPath + this.uri, {query: query});
 
     //done
     this.ajax.done(function(data) {   
@@ -77,13 +66,13 @@ VV.search.searchAjax = function(query) {
         if(data.success) {
             //console.log('append results');
             self.ajaxedQuery = query;
-            if(data.resultType === 'hashtag') { userFactory.init(data, {streamType: "hashtag"}); }
-            if(data.resultType === 'user') { userFactory.init(data, {streamType: "user"}); }
             //cache the query... for the fickled minded...
-            if(self.ajaxedQuery) { self.cachedQuery[self.ajaxedQuery.toLowerCase()] = self.$resultCont.html(); }
+            self.ajaxCallback(data);
+            if (self.ajaxedQuery) { self.cachedQuery[self.ajaxedQuery.toLowerCase()] = self.$resultCont.html(); }
         } else {
             //console.log('error');
             return self.loaderEffect.kill(function() {
+                if (!self.$sqm) { return false; }
                 self.$sqm
                     .html('An error has occured. Please refresh and try again.')
                     .velocity('fadeIn', 200);
@@ -98,6 +87,7 @@ VV.search.searchAjax = function(query) {
 
         //console.log('error');
         self.loaderEffect.kill(function() {
+            if (!self.$sqm) { return false; }
             self.$sqm
                 .html('An error has occured. Please refresh and try again.')
                 .velocity('fadeIn', 200);
@@ -105,45 +95,37 @@ VV.search.searchAjax = function(query) {
 
     });
 
-}
+};
+VV.search.ajaxCallback = function(data) {
+    this.$resultCont.html(data);
+};
 VV.search.queryTooShort = function() {
+    if (!self.$sqm) { return false; }
     this.$sqm
         .html('Your search query is too short...')
         .velocity('stop').velocity('fadeIn', 200);
-}
+};
 
 VV.search.loaderEffect = Object.create(VV.utils.loaderEffect);
 VV.search.reset = function() {
-    //console.log('resetting');
     //console.log(this.timeout);
     for(var i in this.timeout) {
         clearTimeout(this.timeout[i]);
     }
     this.timeout = [];
-    if(this.ajaxFired) { this.ajax.abort(); }
-    this.$sqm.velocity('stop').hide();
+    if (this.ajaxFired) { this.ajax.abort(); }
+    this.$sqm ? this.$sqm.velocity('stop').hide() : null;
     this.loaderEffect.kill();
     //hide the results. but don't clear it yet.
     this.$resultCont.velocity('stop').hide();  
 }
-VV.search.init = function() {
-    this.getSQM();
-    // this.getSL();
-    // this.getStuds();
-    this.getResultCont();
-    this.loaderEffect.init($('.searchLoaderWrap'));
-    this.loaderEffect.parent = this;
-    
-
+VV.search.bindInput = function() {
     var self = this;
-
-    $('input[name="search"]').keyup(function(e) {
-
+    this.$searchInput.keyup(function(e) {
         var charCode = e.which || e.keyCode;
-
         self.entered = false;
 
-        if(charCode != '13') {
+        if (charCode != '13') {
             self.enterBlock = false;
             self.entered = false;
             //console.log('enter is unblocked');
@@ -159,7 +141,7 @@ VV.search.init = function() {
 
         //setting up a new enter block if is enter key
         //block future enter entries for a duration
-        if(self.entered) {
+        if (self.entered) {
             self.enterBlock = true;
             //console.log('enter is blocked');
             setTimeout(function() {
@@ -179,7 +161,7 @@ VV.search.init = function() {
         var query = $(this).val(),
             qLength = query.length;
 
-        if(qLength === 0) { return false; }
+        if (qLength === 0) { return false; }
 
         var offset = 0;
         if(query.indexOf('@') === 0) { offset = 4 };
@@ -224,4 +206,36 @@ VV.search.init = function() {
         return self.timeout.push(timeout);
 
     });
+};
+VV.search.init = function(opts) {
+    var optionKeys = ['uri', '$searchInput', '$loaderWrap', '$resultCont', '$sqm', 'ajaxCallback'];
+    for(var i in optionKeys) {
+        var key = optionKeys[i];
+        if (typeof opts[key] !== 'undefined') { this[key] = opts[key]; }
+    }
+
+    /* build my elements if it is not passed in */
+    if (!this.$loaderWrap) {
+        var div = document.createElement('div');
+            div.className = 'searchLoaderWrap';
+        this.$loaderWrap = $(div);
+        this.$searchInput.after(div);
+    }
+    //initialize the loader effect
+    this.loaderEffect.init(this.$loaderWrap);
+
+    //caller can pass in $sqm: false to disable messages.
+    if (!this.$sqm && this.$sqm !== false) {
+        var div = document.createElement('div');
+            div.className = 'searchQueryMessage';
+        this.$sqm = $(div);
+        this.$loaderWrap.append(div);
+    }
+    if (!this.$resultCont) {
+        var div = document.createElement('div');
+            div.className = 'resultCont';
+        this.$resultCont = $(div);
+        this.$sqm ? this.$sqm.after(div) : this.$loaderWrap.after(div);    
+    }
+    return this.bindInput();
 }
