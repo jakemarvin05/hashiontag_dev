@@ -9,9 +9,9 @@ input[name="search"] {
     display: block;
     margin: 0px auto;
 }
-.searchLoaderCont {
+.searchLoaderWrap {
     width: 100%;
-    height: 20px;
+    height: 20px !important;
 }
     .searchLoader {
         width: 100%;

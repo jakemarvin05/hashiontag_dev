@@ -1,15 +1,8 @@
     <p class="searchNote">(to search hashtags, use '#'.)</p>
     <input type="text" class="search" name="search" placeholder="Type to search...">
-    <div class="searchLoaderCont">
-        <div class="searchLoaderWrap"></div>
-        <div class="searchQueryMessage" style="display:none;"></div>
-    </div>
-
     <ul class="mainColBlock list">
         {>"layouts/userSLayout"/}
     </ul>
-    {! TO DO: Monitor object cloning fix !}
-    <!--<script src="{p.js}/streamFactoryCopy.js"></script>-->
     <script>
     userFactory = Object.create(streamFactory);
     userFactory.append = Object.create(streamFactory.append);
@@ -89,6 +82,5 @@
             $stream.find('.blockTop').html('<h2 class="htext"><a href="/hashtag/' + hashtag.hashtagId + '">#' + hashtag.hashtagId + '</a></h2>');
         }
 
-    }
-    // $(function() { userFactory.init(); });
+    };
     </script>
