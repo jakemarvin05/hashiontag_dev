@@ -9,7 +9,17 @@
 </section><!-- main -->
 <script> userFactory.init(); </script>
 <script src="{p.js}/VVsearch.js"></script>
-<script> VV.search.init(); </script>
+<script>
+VV.search.init({
+    uri: '/api/search',
+    $searchInput: $('input[name="search"]'),
+    $resultCont: $('.mainColBlock'),
+    ajaxCallback: function(data) {
+        if(data.resultType === 'hashtag') { userFactory.init(data, {streamType: "hashtag"}); }
+        if(data.resultType === 'user') { userFactory.init(data, {streamType: "user"}); }
+    }
+}); 
+</script>
 
 {>blockFooter/}
 </body>

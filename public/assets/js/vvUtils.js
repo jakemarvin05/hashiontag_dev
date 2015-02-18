@@ -70,7 +70,7 @@ VV.utils.loaderEffect = {
     $studs: '',
     color: '#ef4549',
     speed: 200,
-    html: '<div class="searchLoader" style="display:none;"><div class="searchLoaderStud"></div><div class="searchLoaderStud"></div><div class="searchLoaderStud"></div><div class="vaDiv"></div></div><div class="searchQueryMessage" style="display:none;"></div>',
+    html: '<div class="searchLoader" style="display:none; height: 0px;"><div class="searchLoaderStud"></div><div class="searchLoaderStud"></div><div class="searchLoaderStud"></div><div class="vaDiv"></div></div>',
     run: function() {
         var self = this;
         this.$sl.velocity('stop').velocity('fadeIn', this.speed);
