@@ -28,29 +28,37 @@ VV.search.cacheManager = function(query) {
     if (this.ajaxedQuery) {
         if (query === this.ajaxedQuery) { 
             //console.log('same query, returning');
-
             //check if the results is hidden. if yes, show it.
             if(this.$resultCont.css('display') === 'none') {
                 this.$resultCont.velocity('stop').velocity('transition.slideRightIn', 200);
                 return true;
             }
         } else {
+            var $newCont = this.cachedQuery[query];
             //query is not the same, but check if it has been cached.
-            if(this.cachedQuery[query]) {
+            if($newCont) {
                 //console.log('cached query, returning the cache');
                 this.ajaxedQuery = query;
                 if(this.$resultCont.css('display') === 'none') {
-                    this.$resultCont.html(this.cachedQuery[query]);
-                    this.$resultCont.velocity('stop').velocity('transition.slideRightIn', 200);
+                    //append the new resultCont and remove the present one.
+                    this.$resultCont
+                        .before($newCont)
+                        .remove();
+                    //set the new resultCont reference. transit it in.
+                    this.$resultCont = $newCont.velocity('stop').velocity('transition.slideRightIn', 200);
                     return true;
                 } else {
-                    this.$resultCont.velocity('stop').hide();
-                    this.$resultCont.html(this.cachedQuery[query]).velocity('transition.slideRightIn', 200);
+                    this.$resultCont
+                        .velocity('stop')
+                        .hide()
+                        .before($newCont)
+                        .remove();
+                    this.$resultCont = $newCont.velocity('transition.slideRightIn', 200);
                     return true;
                 }
             }
         }
-    }
+    };
 };
 VV.search.searchAjax = function(query) {
     //just to be safe, we abort ajax and clear all timeouts.
@@ -58,7 +66,6 @@ VV.search.searchAjax = function(query) {
     for(var i in this.timeout) {
         clearTimeout(this.timeout[i]);
     }
-    console.log('****');
     //then empty the container
     this.$resultCont.html('');
 
@@ -71,13 +78,13 @@ VV.search.searchAjax = function(query) {
 
     //done
     this.ajax.done(function(data) {   
-        //console.log(data);
         if(data.success) {
-            //console.log('append results');
             self.ajaxedQuery = query;
+            //pass _cacheCallback into ajaxCallback so that it can be called again if
+            //it is async
+            self.ajaxCallback(data, _cacheCallback);
             //cache the query... for the fickled minded...
-            self.ajaxCallback(data);
-            if (self.ajaxedQuery) { self.cachedQuery[self.ajaxedQuery.toLowerCase()] = self.$resultCont.html(); }
+            _cacheCallback();
         } else {
             //console.log('error');
             return self.loaderEffect.kill(function() {
@@ -86,7 +93,8 @@ VV.search.searchAjax = function(query) {
                     .html('An error has occured. Please refresh and try again.')
                     .velocity('fadeIn', 200);
             });
-        }  
+        } 
+
         return self.loaderEffect.kill();
     });
     //fail
@@ -104,12 +112,16 @@ VV.search.searchAjax = function(query) {
 
     });
 
+    function _cacheCallback() {
+        if (query) { self.cachedQuery[query.toLowerCase()] = self.$resultCont.clone(); }
+    } 
+
 };
 VV.search.ajaxCallback = function(data) {
-    this.$resultCont.html(data);
+    this.$resultCont.html(JSON.stringify(data)).velocity('transition.slideRightIn', 200);
 };
 VV.search.queryTooShort = function() {
-    if (!self.$sqm) { return false; }
+    if (!this.$sqm) { return false; }
     this.$sqm
         .html('Your search query is too short...')
         .velocity('stop').velocity('fadeIn', 200);
@@ -123,7 +135,7 @@ VV.search.reset = function() {
     }
     this.timeout = [];
     if (this.ajaxFired) { this.ajax.abort(); }
-    this.$sqm ? this.$sqm.velocity('stop').hide() : null;
+    if (this.$sqm) { this.$sqm.velocity('stop').hide(); }
     this.loaderEffect.kill();
     //hide the results. but don't clear it yet.
     this.$resultCont.velocity('stop').hide();  
@@ -162,11 +174,6 @@ VV.search.bindInput = function() {
 
         //enter was not blocked, or key is something else.
         //now we want to start the function...
-
-        //resetting actions
-        // 1) clear the previous timeout function, 2) abort the ajax if fired.
-
-        self.reset();
 
         var query = $(this).val(),
             qLength = query.length;
@@ -250,7 +257,21 @@ VV.search.init = function(opts) {
         var div = document.createElement('div');
             div.className = 'resultCont';
         this.$resultCont = $(div);
-        this.$sqm ? this.$sqm.after(div) : this.$loaderWrap.after(div);    
+        if (this.$sqm) { this.$sqm.after(div) }
+        else { this.$loaderWrap.after(div); }    
     }
+
+    /* any nested value holders needs to be recreated */
+    var nested = ['cachedQuery', 'timeout'];
+    for(var i in nested) {
+        if (!this.hasOwnProperty(nested[i])) {
+            var temp = this[nested[i]].constructor();
+            this[nested[i]] = temp;
+        }
+    }
+
+    //set the auto-complete to off to prevent double firing
+    this.$searchInput.attr('autocomplete', 'off');
+
     return this.bindInput();
 }
