@@ -15,7 +15,16 @@ VV.search = {
 }
 VV.search.cachedQuery = {};
 VV.search.cacheManager = function(query) {
+    /* GOTCHA: to address keyup double firing bug */
     var query = query.toLowerCase();
+    if (typeof this.QUERY === 'undefined') {
+        this.QUERY = query;
+    } else {
+        if (this.QUERY === query) { return true; }
+        else {this.QUERY = query }
+    }
+    /* end GOTCHA */
+
     if (this.ajaxedQuery) {
         if (query === this.ajaxedQuery) { 
             //console.log('same query, returning');
@@ -121,6 +130,7 @@ VV.search.reset = function() {
 }
 VV.search.bindInput = function() {
     var self = this;
+    var QUERY = ''; //keyup firing twice bug. cache the query.
     this.$searchInput.keyup(function(e) {
         var charCode = e.which || e.keyCode;
         self.entered = false;
@@ -160,6 +170,11 @@ VV.search.bindInput = function() {
 
         var query = $(this).val(),
             qLength = query.length;
+
+        //resetting actions
+        //GOTCHA: keyup can fire twice. check if current query is the same as the previous before resetting.
+        // 1) clear the previous timeout function, 2) abort the ajax if fired.
+        if (query !== QUERY) { self.reset(); QUERY = query; }
 
         if (qLength === 0) { return false; }
 
