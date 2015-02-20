@@ -87,6 +87,18 @@ VV.utils.loaderEffect = {
         this.$studs
             .velocity('stop')
             .css('background-color', '#ccc');
+
+        var self = this;
+
+        //sometimes kill() is called very soon after run().
+        //the .delay() in run() will success kill().
+        //this setTimeout is set to fired off again much later to fix this.
+        setTimeout(function() {
+            self.$studs
+                .velocity('stop')
+                .css('background-color', '#ccc');
+        }, 2000);
+
         if(callback) return callback();
     },
     init: function($cont) {
@@ -679,4 +691,14 @@ VV.utils.unSanitise = function(str) {
         str = str.replace('&quot;', '\"');
     }
     return JSON.parse(str);
-}
+};
+
+VV.utils.hasScrollBar = function($el) {
+    if (!$el.get(0)) { return false; }
+    return $el.get(0).scrollHeight > $el.height();
+};
+    $.fn.extend({
+        hasScrollBar: function() {
+            return VV.utils.hasScrollBar($(this));
+        }
+    });
