@@ -6,17 +6,7 @@
 5) moment
 6) polyfill for Object.create()
 7) dottie
-
-
-
-
-
-
-
-/* fb */
-
-
-
+8) c.l shorthand for console.log
 
 /*HAMMER JS */
 (function(window, document, exportName, undefined) {
@@ -3561,6 +3551,5 @@ var D; //expose dottie
     D = Dottie;
 })();
 
-
-
-
+var c = console;
+c.l = c.log;

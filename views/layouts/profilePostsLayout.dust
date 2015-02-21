@@ -15,7 +15,7 @@
                 </div>
 
                 <div class="blockInteract">
-                    <div class="blockInteractButtons buyButton clickable" style="display:none;">BUY</div>
+                    <div class="blockInteractButtons buyButton clickable" style="display:none;" data-task="profileProductBuy">BUY</div>
                     {?isPreview}{:else}
                     <div class="blockInteractButtons likeButton clickable" data-action="like">
                         <div class="icon-heart"></div>
@@ -50,6 +50,8 @@
                 <div class="blockMoreInfo blockMoreInfoLower" data-shown="no" style="display:none;"></div>
 
                 <div class="blockLikeText"></div>
+
+                <div class="blockThumbHolder"></div>
 
                 <div class="blockTextHolder">
                     <div class="blockProductNameFull"></div>

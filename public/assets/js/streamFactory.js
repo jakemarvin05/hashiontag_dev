@@ -24,12 +24,10 @@ var streamFactory = {
     renderJSON: false
 };
 streamFactory.getLayoutHTML = function() {
-    if (this.streamContClass.indexOf('#') === 0) {
-        var $layout = $(this.streamContClass + ' .' + this.layoutClass);
-    } else {
-        var $layout = $('.' + this.streamContClass + ' .' + this.layoutClass);
-    }
-    if ($layout[0]) {
+    var selector = this.streamContClass + ' .' + this.layoutClass;
+    if (this.streamContClass.indexOf('#') === 0) { var $layout = $(selector); }
+    else { var $layout = $('.' + selector); }
+    if ($layout.length > 0) {
         this.layoutHTML = $layout[0].outerHTML;
         $layout.remove();
     }
@@ -51,15 +49,12 @@ streamFactory.noObj = function() {
 }
 streamFactory.init = function(renderJSON, options) {
     /* callback and function call arrays */
-    if (!this.append.hasOwnProperty('callbacks')) {
-        this.append.callbacks = [];
-    }
-    if (!this.append.hasOwnProperty('custom')) {
-        this.append.custom = [];
-    }
+    if (!this.append.hasOwnProperty('callbacks')) { this.append.callbacks = []; }
+    if (!this.append.hasOwnProperty('custom')) { this.append.custom = []; }
 
     if (!this.layoutHTML) { this.getLayoutHTML(); }
     if (!renderJSON) { return false; }
+    
     var posts = renderJSON.posts || renderJSON.results;
     if (!posts) { return false; }
 
@@ -83,13 +78,16 @@ streamFactory.init = function(renderJSON, options) {
     var postCount = VV.utils.objCount(this.posts);
     this.postCount = postCount;
 
-    if (this.streamContClass.indexOf('#') === 0 ) {
-        this.$cont = $(this.streamContClass);
-    } else {
-        this.$cont = $('.' + this.streamContClass);
+    //allow streamContClass to use id `#` selector
+    if (this.streamContClass.indexOf('#') === 0 ) { this.$cont = $(this.streamContClass); }
+    else { this.$cont = $('.' + this.streamContClass); }
+
+    if(postCount < 1) { 
+        this.noObj();
+        return this.$cont;
     }
-    if(postCount < 1) { return this.noObj(); }
     this.buildBlocks(postCount);
+    return this.$cont;
 }
 streamFactory.buildBlocks = function(postCount) {
     //cache the burst count to the append method

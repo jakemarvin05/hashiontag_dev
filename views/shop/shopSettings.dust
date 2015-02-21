@@ -101,7 +101,7 @@
 
                     currencyData.run($curr);
 
-                    var html = '<h1 style="color:#ccc;text-align:center;">Are you sure you want to change your currency';
+                    var html = '<h1 style="color:#ccc;text-align:center;">Your current product prices will not be converted! Are you sure you want to change your currency';
 
                     if (presentCurrency) {
                         html += ' from <span style="color:#000; text-transform: uppercase">' + presentCurrency + '</span>';
