@@ -1,5 +1,5 @@
 var moment = require('moment');
-var crypto = require('crypto'); //TODO:DEPRECATE ONCE WE HAVE THE ENCRYPTER
+var crypto = require('crypto');
 var encrypter = require('../apps/passport/encrypter');
 var forgotPasswordMailer = require('../apps/mailer/forgotPassword');
 
@@ -109,7 +109,10 @@ module.exports = function(sequelize, DataTypes) {
         shopStatus: {
             type: DataTypes.STRING,
             allow: true,
-            defaultValue: false
+            defaultValue: false,
+            validate: {
+                isIn: [['false', 'active-incomplete', 'active', 'suspended']]
+            }
         },
         dataMeta: {
             type: DataTypes.JSON,
@@ -218,14 +221,58 @@ module.exports = function(sequelize, DataTypes) {
                     }).error(console.log);
 
             },
-            search: function(query) {
+            search: function(query, opts) {
+                opts = opts || {};
 
                 var User = this;
 
                 var queryLike = query + '%';
                 var query = sequelize.getQueryInterface().escape(query);
 
-                return sequelize.query('SELECT "userId", "userNameDisp", "profilePicture", "name", "about" FROM "' + User.tableName + '" WHERE "' + User.getSearchVector() + '" @@ plainto_tsquery(\'english\', ' + query + ') OR "userName" LIKE \'' + queryLike + '\'', {
+                function _attrs() {
+                    return '"userId", "userNameDisp", "profilePicture", "name", "about"';
+                }
+
+                if (opts.attributes) {
+                    try {
+                        var attrs = JSON.stringify(opts.attributes);
+                        attrs = attrs.substring(1, attrs.length-1);
+                    } catch (err) {
+                        console.log('Error in JSON.stringify attrs. Check `attrs` passed into User.search.');
+                        var attrs = _attrs();
+                    }
+                } else {
+                    var attrs = _attrs();
+                }
+
+                var sql  = ' SELECT ' + attrs;
+                    sql += ' FROM "' + User.tableName + '"';
+                    sql += ' WHERE'
+                        sql += ' ("' + User.getSearchVector() + '" @@ plainto_tsquery(\'english\', ' + query + ')';
+                        sql += ' OR "userName" LIKE \'' + queryLike + '\')';
+
+                    if (opts.where) {
+                        try {
+                            var keys = Object.keys(opts.where);
+                            console.log(keys.length);
+                            if (keys.length > 0) {
+                                
+                                for(var i in keys) {
+                                    console.log('****');
+                                    var key = keys[i];
+                                    console.log(key, opts.where[key]);
+                                    sql += ' AND ';
+                                    sql += ' "' + key + '" = \'' + opts.where[key] + '\'';
+                                }
+
+                            }
+                        } catch(err) {
+                            console.log(err);
+                            console.log('where criteria passed in is invalid');
+                        }
+                    }
+                return sequelize.query(sql, {
+                //return sequelize.query('SELECT "userId", "userNameDisp", "profilePicture", "name", "about" FROM "' + User.tableName + '" WHERE "' + User.getSearchVector() + '" @@ plainto_tsquery(\'english\', ' + query + ') OR "userName" LIKE \'' + queryLike + '\'', {
                     type: sequelize.QueryTypes.SELECT
                 });
             }
@@ -244,7 +291,6 @@ Remember to map the old country values over to the new on when you change it her
 else the user will hit errors when updating their profile */
 
 var listOfCountries = [
-"",
 "Afghanistan",
 "Albania",
 "Algeria",
@@ -476,7 +522,7 @@ var listOfCountries = [
 "Uzbekistan",
 "Vanuatu",
 "Venezuela",
-"Viet Nam",
+"Vietnam",
 "Virgin Islands, British",
 "Virgin Islands, U.S.",
 "Wallis and Futuna",
