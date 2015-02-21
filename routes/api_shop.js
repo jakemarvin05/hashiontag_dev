@@ -11,95 +11,6 @@ var isLoggedIn = require('../apps/passport/isLoggedIn.js');
 // globalJSON
 var globalJSON = require('../apps/globalJSON.js');
 
-router.get('/addproduct', function(req, res) {
-
-    if (!req.isAuthenticated() || req.user.shopStatus === null || req.user.shopStatus === "false") { 
-        res.statusCode = 403;
-        return res.redirect('/'); 
-    }
-
-    var gJSON = globalJSON(req);
-
-    //override
-    //currently we are experimenting pure clientside render.
-    CSRender = 30;
-
-    if (req.user.shopStatus === "active") {
-        db.User.find({
-            where: {
-                userId: req.user.userId
-            },
-            attributes: ['shopStatus', 'dataMeta']
-        }).then(function(user) {
-            if (!user || user.shopStatus.indexOf('active') === -1) { res.statusCode = 403; res.send(); }
-
-            return thenRender(user);
-
-        }).catch(function(err) {
-            console.log('Route: /shop/addproduct error: ' + err);
-            res.statusCode = 500;
-            res.send();
-        });
-    } else {
-        thenRender(false);
-    }
-
-    function thenRender(renderJSON) {
-        res.render('shop/addProduct', {
-            title: meta(),
-            isLoggedIn: req.isAuthenticated(),
-            gJSON: gJSON,
-            p: gJSON.pathsJSON.paths,
-            f: gJSON.pathsJSON.files,
-            printHead: JSON.stringify(gJSON.printHead),
-            page: 'addproduct',
-
-            timestamp: Date.now(),
-            dataShop: D.get(renderJSON, 'dataMeta.dataShop'),
-            isShopSettingsComplete: (function() { if (renderJSON.shopStatus === "active") { return true; } return false; })()
-        });
-    }
-
-});
-
-router.get('/settings', function(req, res) {
-
-    if (!req.isAuthenticated() || req.user.shopStatus === null || req.user.shopStatus === "false") { 
-        res.statusCode = 404;
-        return res.send(); 
-    }
-
-    var gJSON = globalJSON(req);
-
-    db.User.find({
-        where: {
-            userId: req.user.userId
-        },
-        attributes: ['dataMeta', 'shopStatus']
-    }).then(function(user) {
-
-        if (!user) { res.statusCode = 404; return res.send(); }
-
-        return res.render('shop/shopSettings', {
-            title: meta(),
-            isLoggedIn: req.isAuthenticated(),
-            gJSON: gJSON,
-            p: gJSON.pathsJSON.paths,
-            f: gJSON.pathsJSON.files,
-            printHead: JSON.stringify(gJSON.printHead),
-            page: 'shopSettings',
-
-            shopStatus: user.shopStatus,
-            dataShop: D.get(user, 'dataMeta.dataShop')
-        });
-
-    }).catch(function(err) {
-        console.log(err);
-        res.statusCode = 500;
-        res.send();
-    });
-});
-
 router.post('/settings/currency', function(req, res) {
 
     if (!req.isAuthenticated()) { 
@@ -217,29 +128,60 @@ router.post('/settings/shipping', function(req, res) {
 
 router.post('/search/merchant', function(req, res) {
     if (!req.isAuthenticated()) return res.status(403).send();
-    if (!req.body.merchant) return res.status(400).send();
+    if (!req.body.query) return res.status(400).send();
+
+    var where = {
+        shopStatus: 'active'
+    };
+
+    //if shopStatus is false
+    if (!req.body.shopStatus) {
+        where = {};
+    }
 
     //process the merchant string
-    var merchant = req.body.merchant.toLowerCase();
+    var merchant = req.body.query.toLowerCase();
     //there is a '@' infront, remove it.
     if ( merchant.indexOf('@') > - 1 ) merchant = merchant.substring(1);
 
     db.User.search(merchant, {
-        attributes: ['userId', 'userNameDisp', 'profilePicture'],
-        where: {
-            shopStatus: 'active'
-        }
+        attributes: ['userId', 'userNameDisp', 'name', 'profilePicture', 'dataMeta'],
+        where: where
+    }).then(function(merchants) {
+        res.json({
+            success: true,
+            results: merchants
+        });
     });
+});
 
-    // find({
-    //     where: {
-    //         userName: merchant,
-    //         shopStatus: 'active'
-    //     },
-    //     attributes: 
-    // }).then(function(user) {
-    //     if (!user) return res.json(user);
-    // });
+router.post('/get/product', function(req, res) {
+    if (!req.isAuthenticated()) return res.status(403).send();
+    if (!req.body.userId) return res.status(400).send();
+
+    var userId = req.body.userId;
+    var stockFilter = require('../apps/stream/product/stockFilter');
+
+    /* TODO: ONCE https://github.com/sequelize/sequelize/issues/2923 is sorted out
+        will be able to accept more `where` parameters */
+    db.Post.findAll({
+        where: db.Sequelize.and(
+            { User_userId: userId },
+            { isProduct: true },
+            db.Sequelize.or(
+                { softDeleted: { ne: true } },
+                { softDeleted: null }
+            )
+        ),
+        attributes: ['postId', 'imgUUID', 'dataProduct', 'desc', 'descHTML'],
+        order: [ ['updatedAt', 'DESC'] ]
+    }).then(function(products) {
+        var products = stockFilter(products);
+        res.json({
+            success: true,
+            results: products
+        });
+    });
 });
 
 module.exports = router;
