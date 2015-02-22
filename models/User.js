@@ -254,13 +254,10 @@ module.exports = function(sequelize, DataTypes) {
                     if (opts.where) {
                         try {
                             var keys = Object.keys(opts.where);
-                            console.log(keys.length);
                             if (keys.length > 0) {
                                 
                                 for(var i in keys) {
-                                    console.log('****');
                                     var key = keys[i];
-                                    console.log(key, opts.where[key]);
                                     sql += ' AND ';
                                     sql += ' "' + key + '" = \'' + opts.where[key] + '\'';
                                 }
