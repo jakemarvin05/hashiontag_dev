@@ -757,7 +757,9 @@ function initList(listId, opts) {
             valueNames: [ 'vector' ] 
         };
     }
+    opts.plugins = [ ListFuzzySearch() ];
     var userList = new List(listId, opts);
+    return userList;
 }
 function followAjax(type) {
     if (type === "followers" || type === "followings") { 

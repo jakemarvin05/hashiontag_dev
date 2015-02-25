@@ -189,6 +189,25 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
                 </div>
             </div>
 
+            
+            {?hasShop}
+            <div class="profileFollowBlock profileFollowBlockClickable" data-action="shop" data-bindto="shopBlock">
+                <div class="vaDiv"></div>
+                <div class="profileFollowWrap">
+                    <div class="profileFollowHdr">
+                        Shop
+                    </div>
+                    <div class="profileFollowCount" id="productCount">
+                        {?renderJSONraw.productCount}
+                            {renderJSONraw.productCount}
+                        {:else}
+                            0
+                        {/renderJSONraw.productCount}
+                    </div>
+                </div>
+            </div>
+            {/hasShop}
+
             <div class="profileFollowBlock{@if cond="{renderJSONraw.followerCount} > 0"}  profileFollowBlockClickable{/if}" data-action="findFollowers" data-bindto="followerList">
                 <div class="vaDiv"></div>
                 <div class="profileFollowWrap">
@@ -212,24 +231,6 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
                     </div>
                 </div>
             </div>
-
-            {?hasShop}
-            <div class="profileFollowBlock profileFollowBlockClickable" data-action="shop" data-bindto="shopBlock">
-                <div class="vaDiv"></div>
-                <div class="profileFollowWrap">
-                    <div class="profileFollowHdr">
-                        Shop
-                    </div>
-                    <div class="profileFollowCount" id="productCount">
-                        {?renderJSONraw.productCount}
-                            {renderJSONraw.productCount}
-                        {:else}
-                            0
-                        {/renderJSONraw.productCount}
-                    </div>
-                </div>
-            </div>
-            {/hasShop}
 
             {?renderJSONraw.isFollowable}
             <div class="profileFollowButtonCont profileFollowBlock">
@@ -291,7 +292,7 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
             <button type="button" class="darkButton shopButtons">Manage inventory</button>
             <button type="button" class="darkButton shopButtons">Manage sales orders</button>
         {/renderJSONraw.isOwnProfile}
-            <input type="text" class="search" name="search" placeholder="Type to search...">
+            <input type="text" class="search fuzzy-search" name="search" placeholder="Type to search...">
             <div class="shopBlockCont">
                 {>"layouts/profilePostsLayout"/}
             </div>
