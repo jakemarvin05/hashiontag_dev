@@ -2,7 +2,7 @@
 var db = require('../models');
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
-var noUpdates=0;
+var noUpdates = 0;
 var startTime;
 var moment = require('moment');
 var fname = "streamUpdate.js ";
@@ -20,21 +20,15 @@ module.exports = function allUserStreamUpdate(req, res) {
     var allUserInstance;
     startTime = Date.now();
     db.User.findAll({
-        //sequelize 2.0dev doesn't allow instance manipulation if its not a full select
-        //TODO: re-enable smaller dataset select once sequelize is updated.
-        //attributes: ['userId', 'lastStreamUpdate']
+        attributes: ['userId', 'lastStreamUpdate']
     }).then(function(results){
-
         var len = results.length;
         noUpdates = len; //noUpdates is a global variable. TODO: use sore thumb case NO_UPDATES
         console.log('Number of Users: ' + len);
 
         for (var i=0; i<len; i++){
-
-            updateStream(results[i].userId, results[i].lastStreamUpdate);
-
+            updateStream(results[i], results[i].lastStreamUpdate);
         }
-
     }).catch(function(err){
         if(res) { res.send('Error occured. '+Date.now()); }
         console.log(err);
@@ -58,7 +52,8 @@ module.exports = function allUserStreamUpdate(req, res) {
 
 
 
-    function updateStream(userId, lastStreamUpdate){
+    function updateStream(user, lastStreamUpdate){
+        var userId = user.userId;
         var maxStore = 5; // this is a very important number
 
         if(!lastStreamUpdate) { var lastStreamUpdate = moment(0).format(); }
@@ -92,7 +87,7 @@ module.exports = function allUserStreamUpdate(req, res) {
                     }],
                     order: [['affinity', 'DESC']]
                 }),
-
+                
                 db.User.update({
                     lastStreamUpdate: moment().format()
                 }, {
@@ -104,6 +99,7 @@ module.exports = function allUserStreamUpdate(req, res) {
             ]
 
         }).spread(function(result, update){
+            //var result = user.
             //console.log('------------------------------------');
             //console.log(JSON.stringify(result));
             // console.log(Date());
