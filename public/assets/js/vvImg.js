@@ -122,9 +122,7 @@ VV.img.upload = function(attrs, url, callback, errCallback) {
     if(socketId) {
         sioId = socketId;
     }
-
-    console.log(data);
-
+    
     var posting = $.ajax({
         url: url,
         data: data,
@@ -155,6 +153,7 @@ VV.img.upload = function(attrs, url, callback, errCallback) {
 
     //fail
     posting.fail(function(err) {
+        console.log(err);
         if (typeof errCallback === "function") { errCallback(data); }
         return aF.protoAlert({
             text:'Oops... something has gone wrong. Please refresh and try again.', 

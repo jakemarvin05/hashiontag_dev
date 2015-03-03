@@ -488,18 +488,131 @@ scaleSlider.pinch.init = function(el) {
  * initialize the buttons.
 
  * Specify the task for the button by appending to VV.buttonTasks
+ * GOTCHA:  buttonListener cannot directly fire off when nested elements
+ *          are clicked. It will traverse up its parents to find 'data-task'.
+ *          It will behave as if the parent element is clicked.
  */
 VV.extend('buttonListener', function() {
     var self = this;
+    var noOfParentsToTraverse = 3;
     $(window).on('click.buttonListener', function(e) {
         var $t = $(e.target);
+        var traverseResults = _traverseParents($t);
+        if (!traverseResults[0]) return;
+        $t = traverseResults[0];
+        task = traverseResults[1];
 
-        var task = $t.attr('data-task');
-        if (!task) { return; }
-        if (!self.buttonTasks[task]) { return; }
-
+        if (!self.buttonTasks[task]) return;
         return self.buttonTasks[task]($t, e);
         
     });
+
+    function _traverseParents($el) {
+        var $foundParent = false;
+        var task = false;
+        var $cache = $el;
+        for(var i=0; i<noOfParentsToTraverse+1; i++) {
+            task = $cache.attr('data-task');
+            if (task) { $foundParent = $cache; break; }
+            $cache = $cache.parent();
+        }
+        return [ $foundParent, task ];
+    }
 });
 VV.buttonListener();
+
+//global buttons
+VV.extend('buttonTasks', {
+    
+    /* BUTTONS ON ARTICLES RELATED TO PRODUCTS */
+    productThumbnail: function($el) {
+        var self = this;
+        var $currentImg = $el.closest('article').find('.postImage');
+        $currentImg.attr('src', $el.attr('src'));
+    },
+    purchaseAddQty: function($el) {
+        var self = this;
+        $value = $el.closest('div').find('.articlePurchaseQty');
+        var qty = parseInt($value.val());
+        if (qty > 98) { return $value.val(99); }
+        $value.val(parseInt($value.val()) + 1); 
+    },
+    purchaseMinusQty: function($el) {
+        $value = $el.closest('div').find('.articlePurchaseQty');
+
+        var qty = parseInt($value.val());
+
+        if (qty > 1) {
+            $value.val(qty - 1); 
+        }
+    },
+    purchaseAddToCart: function($el) {
+        $form = $el.closest('div').find('select, input');
+
+        var proceed = true;
+        var data = {};
+        $form.each(function() {
+            var $t = $(this);
+
+            //is validation is false, set proceed flag to false;
+            if (!VV.utils.inputsVali($t)) { 
+                proceed = false; 
+                return;
+            }
+
+            data[$t.attr('name')] = $t.val();
+
+        });
+
+        if (proceed) {
+            data.postId = $el.attr('data-pid');
+            _addToCartAjax(data, $el);
+        }
+
+        /* === private functions */
+        function _addToCartAjax(data, $el) {
+            var flasher = Object.create(VV.utils.Flasher);
+            flasher.run($el, 'button');
+
+            var ajax = $.post('/api/cart/add', data);
+
+            ajax.done(function(result) {
+                console.log(result);
+                if (result.success) {
+                    var $blockTextHolder = $el.closest('.blockTextHolder');
+                    $el.closest('.articleAddToCart').remove();
+                    
+                    return _completionBlock($blockTextHolder, data, result);
+                }
+            });
+
+            ajax.fail(function(err) {
+                console.log(err);
+            });
+
+            ajax.always(function() {
+                flasher.kill();
+            });
+        }
+
+        function _completionBlock($cont, data, result) {
+            var html = '';
+            if (result.newAddition) {
+                html += 'Item added to cart! ';
+                if (result.brimmed) { 
+                    html += 'Stock available was not enough. Only <b>' + result.updatedQty + '</b> placed in cart.' 
+                }
+            } else {
+                html += 'Item was already in cart. ';
+                if (result.brimmed) { 
+                    html += 'Stock available was not enough. Only <b>' + result.updatedQty + '</b> placed in cart.' 
+                } else {
+                   html +=  'Updated quantity to <b>' + result.updatedQty + '</b>.'; 
+                }
+            }
+            html = '<div>' + html + '</div>';
+            $cont.append(html);
+
+        }
+    }
+});

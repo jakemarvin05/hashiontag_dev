@@ -24,11 +24,13 @@ socket.on('uploadProgress', function(data){
 
         {?isLoggedIn}
 
+        <!-- !! cropping port and loading studs -->
         <div id="cropPortCont">
             <div id="cropPortBg"></div>
             <div id="cropPort"></div>
             <div id="loaderStuds"></div>
         </div>
+        <!-- script to initialize the cropping port size and the studs -->
         <script>
         //initialize the loader
         var loaderStuds = Object.create(VV.utils.loaderEffect);
@@ -47,11 +49,18 @@ socket.on('uploadProgress', function(data){
             scaleSlider.pinch.init(document.getElementById('cropPort'));
         });
         </script>
+        <!-- !! END cropping port -->
+
+
+        <!-- !! Browse container. Holds the browse button and file input form (hidden) -->
         <div id="browseCont">
             <button type="button" id="browseButton" data-task="postBrowse">Browse</button>
             <input id="img_field" type="file" name="img" accept="image/jpeg,image/gif,image/png" required></input>
         </div>
+        <!-- !! END browse container -->
 
+
+        <!-- !! Scale Container -->
         <div id="scaleCont" style="display:none">
             <div id="scaleSliderCont">
                 <div id="scaleSlider"></div>
@@ -63,7 +72,11 @@ socket.on('uploadProgress', function(data){
             </div>
             <button type="button" id="backToBrowse" data-task="backToBrowse">Back</button>&nbsp;<button type="button" id="doneScaling" data-task="doneScaling">Done scaling</button>
         </div>
+        <!-- !! END Scale Container -->
+
+        <!-- !! Post Container -->
         <div id="postCont" style="display:none">
+            <!-- description -->
             <div class="postDesc">
                 <textarea name="desc" id="desc" placeholder="Write something about your photo..." required></textarea><br/>
             </div>
@@ -76,15 +89,90 @@ socket.on('uploadProgress', function(data){
             $(function() { $("#desc").hashtags('newpost'); });
             </script>
 
+            <!-- tag VV items -->
+            <div class="tagToVVItems">
+                <div id="merchantInputDiv">
+                    <p><span class="glyphicon glyphicon-chevron-down"></span>Tag to items on VogueVerve</p>
+
+                    <!-- This container holds selected items -->
+                    <div class="VVItemsCont"></div>
+
+                    <div id="merchantFieldWrap">
+                        <p><span class="glyphicon glyphicon-tag"></span><input type="text" name="merchant" placeholder="@shopname"></p>
+
+                        <div class="resultContWrapper merchantCont">
+                            <div class="resultCont" style="display:none;">
+                                {>"layouts/postMerchantLayout.dust"/}
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="addAnother addVV" style="display:none;"><button type="button" data-task="postProductAddAnother">+ Add</button></p>
+
+                    <div class="productContLoader"></div>
+                    <div id="productFieldWrap" style="display:none;">
+                        <p><span class="glyphicon glyphicon-shopping-cart"></span><input type="text" name="product" placeholder="name/desc/sku" class="productSearch fuzzy-search"></p>
+
+                        <div class="productPreviewDiv">
+                            <img src="{f.imgLoaderHolder}" data-restore="{f.imgLoaderHolder}">
+                        </div>
+
+                        <div class="resultContWrapper productCont">
+                            
+                            <div class="resultCont">
+                                {>"layouts/postProductLayout.dust"/}
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- end merchantInputDiv -->
+            </div>
+
             <div class="postWhereDidYou">
                 <div id="postWhereText">
-                    <p><span class="glyphicon glyphicon-chevron-right"></span>Share where I got it</p>
+                    <p><span class="glyphicon glyphicon-chevron-right"></span>Not on VV? Share via URL.</p>
+                </div>
+
+                <div class="URLItemsCont">
+                    <div class="URLLayout countThisItem" id="layoutId" style="display:none;">
+                        <div class="merchantThumb"><img src="{f.imgLoaderHolder}" style="opacity: 0;"></div>
+                        <div class="merchantTextHolder">
+                            <div class="merchantUsername"></div>
+                            <div class="merchantName"></div>
+                        </div>
+                        <div class="merchantSelect"><span data-task="URLRemove" class="glyphicon glyphicon-remove-circle"></span></div>
+                        <div class="clearfix"></div>
+
+                        <div class="productTextHolder">
+                            <div class="productName"><span class="glyphicon glyphicon-text-color"></span>&nbsp;</div>
+                            <div class="productURL"><span class="glyphicon glyphicon-link"></span>&nbsp;</div>
+                            <div class="productPrice"><span class="glyphicon glyphicon-usd"></span>&nbsp;</div>
+                        </div>
+
+                        <div class="clearfix"></div>
+                    </div>
                 </div>
 
                 <div id="postWhereFields" style="display:none;" data-show="false">
-                    <p><span class="glyphicon glyphicon-link"></span><input type="text" name="itemlink" id="itemlink" placeholder="http://"></p>
-                    <p><span class="glyphicon glyphicon-tag"></span><input  type="text" name="itemaddtag" id="itemaddtag" placeholder="@shopname"></p>
-                    <p><span class="glyphicon glyphicon-usd"></span><input  type="text" name="itemprice" id="itemprice" placeholder="price"></p>
+                    <div class="addURLForm">
+                        <p><span class="glyphicon glyphicon-text-color"></span><input type="text" name="itemname" id="itemname" placeholder="name"></p>
+                        <p><span class="glyphicon glyphicon-link"></span><input type="text" name="itemlink" id="itemlink" placeholder="http://"></p>
+                        <p><span class="glyphicon glyphicon-tag"></span><input  type="text" name="itemaddtag" id="itemaddtag" placeholder="@shopname (optional)"></p>
+                        <p><span class="glyphicon glyphicon-usd"></span><input  type="text" name="itemprice" id="itemprice" placeholder="price (optional)"></p>
+                        <p>
+                            <button type="button" data-task="postProductURLCancel">Cancel</button>&nbsp;
+                            <button type="button" data-task="postProductURLDone">Done</button>
+                        </p>
+                    </div>
+                    <script>
+                    $(function() {
+                        URLForm.init({
+                            $template: $('.URLLayout'),
+                            $form: $('.addURLForm')
+                        });
+                    });
+                    </script>
+
+                    <p class="addAnother addURL" style="display:none;"><button type="button" data-task="postProductAddAnotherURL">+ Add</button></p>
                 </div>
 
                 <script>
@@ -95,11 +183,12 @@ socket.on('uploadProgress', function(data){
                         .css('cursor','pointer')
                         .click(function() {
                             if(fields.attr('data-show') === "false") {
-                                $('.glyphicon-chevron-right').velocity({rotateZ: "90deg"}, 200);
+                                $(this).find('.glyphicon-chevron-right').velocity({rotateZ: "90deg"}, 200);
                                 fields.velocity('transition.slideDownIn', 200, function(el) {
                                     $(el).attr('data-show', "true");
                                 });
                             }
+                            $('.postButtonCont').hide();
                         });
                 })();
                 </script>
@@ -132,7 +221,11 @@ socket.on('uploadProgress', function(data){
 {>blockFooter/}
 
 <script src="{p.js}/exif.binaryjax.js"></script>
+<script src="{p.js}/VVsearch.js"></script>
+<script src="{p.js}/streamFactory.js"></script>
 <script src="{p.js}/pagescripts/post.js"></script>
-
+<script src="{p.js}/pagescripts/post-buttons.js"></script>
+<!-- list.js library -->
+<script src="{p.js}/list.js"></script>
 </body>
 </html>

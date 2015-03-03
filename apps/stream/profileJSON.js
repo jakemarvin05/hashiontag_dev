@@ -205,7 +205,6 @@ module.exports = function profileJSON(req, res, thenRender, isSelf) {
             ]
 
         }).spread(function(user, posts, following) {
-
             //remove the DAO and store the JSON
             returnedUser = JSON.parse(JSON.stringify(user));
             
@@ -219,11 +218,12 @@ module.exports = function profileJSON(req, res, thenRender, isSelf) {
                     idArray.push(following[i].userId);
                 }
             }
+            
             return [
                 user,
 
                 (function() {
-                    if(user.shopStatus === "active") {
+                    if(user.shopStatus.indexOf('active') > -1) {
                         return db.Post.count({
                             where: {
                                 User_userId: user.userId,
@@ -234,6 +234,7 @@ module.exports = function profileJSON(req, res, thenRender, isSelf) {
                 })()
             ];
         }).spread(function(user, productCount) {
+            console.log('######', productCount);
 
             if(productCount > 0) { PRODUCTCOUNT = productCount; }
 

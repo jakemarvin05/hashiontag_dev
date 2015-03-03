@@ -1,0 +1,11 @@
+
+<div class="productLayout productPreviewHover" id="layoutId">
+    <span class="vector" style="display:none;"></span>
+    <div class="productThumb"></div>
+    <div class="productTextHolder">
+        <div class="productName"></div>
+        <div class="productPrice"></div>
+    </div>
+    <div class="productSelect"><span data-task="productAdd" class="glyphicon glyphicon-ok-circle productAction"></span><span data-task="productRemove" class="glyphicon glyphicon-remove-circle productAction" style="display:none;"></span></div>
+    <div class="clearfix"></div>
+</div>

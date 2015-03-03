@@ -1,0 +1,10 @@
+
+<div class="merchantLayout" id="layoutId">
+    <div class="merchantThumb"></div>
+    <div class="merchantTextHolder">
+        <div class="merchantUsername"></div>
+        <div class="merchantName"></div>
+    </div>
+    <div class="merchantSelect"><span data-task="merchantAdd" class="glyphicon glyphicon-ok-circle merchantAction"></span><span data-task="merchantRemove" class="glyphicon glyphicon-remove-circle merchantAction" style="display:none;"></span></div>
+    <div class="clearfix"></div>
+</div>

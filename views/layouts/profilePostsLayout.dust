@@ -1,7 +1,27 @@
 <article class="streamLayout clearfix" id="layoutId" style="display:inline-block;">
     <div class="blockImgHolder">
         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQIW2NkAAIAAAoAAggA9GkAAAAASUVORK5CYII=" class="imgLoaderHolder">
-        <div class="blockMoreInfo blockMoreInfoTop" data-shown="no" style="opacity:0; display:none;"></div>
+        <div class="blockMoreInfo blockMoreInfoTop" data-shown="no" style="opacity:0; display:none;">
+            <table class="postItemProductBlock" itemscope itemtype="http://schema.org/Product">
+                <tr>
+                    <td class="postItemImg" style="display:none;">
+                        <a href="#" target="_blank"><img></a>
+                    </td>
+                    <td class="postHiddenItemProps" style="display: none;">
+                        <span class="postProductBrand" itemprop="brand" style="display:none;"></span>
+                        <span class="postProductSKU" itemprop="sku" style="display:none;"></span>
+                    </td>
+                    <td class="postItemTextCont">
+                        <div class="postItemName" itemprop="name"></div>
+                            <div class="postItemUserNameDiv"></div>
+                            <div class="postPrice" itemprop="price"></div>
+                            <span style="display: none;" class="postBuy">Buy</span>
+                            <span style="display: none;" class="postGoTo">Link</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
     <div class="blockPad">
         <header class="blockMainInfo">
@@ -22,7 +42,7 @@
                         <span class="blockInteractText">like</span>
                     </div>
                     {/isPreview}
-                    <div class="blockInteractButtons moreInfo clickable">
+                    <div class="blockInteractButtons moreInfo clickable" style="display:none;" data-task="moreInfo">
                         <div class="icon-tag"></div>
                         <span class="blockInteractText">info</span>
                     </div>
@@ -36,9 +56,10 @@
                             <div class="settingsDelete blockInteractSettingsOptions">
                                 Delete
                             </div>
-                            <div class="settingsEdit blockInteractSettingsOptions">
+                            {! TODO: Re-factor editing !}
+                            {!<div class="settingsEdit blockInteractSettingsOptions">
                                 Edit
-                            </div>
+                            </div>!}
                             <div class="settingsOpen blockInteractSettingsOptions">
                                 Open page
                             </div>

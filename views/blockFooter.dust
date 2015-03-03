@@ -445,13 +445,6 @@ function settingsButton() {
 
     });
 
-    //$openPage.unwrap('a').wrap('<a href="/p/' + $(this).attr('data-pid') + '" target="_blank"></a>');
-
-    // $openPage.unbind('click.vv').bind('click', function() {
-    //     var $article = $(this).closest('article') || $(this).attr('data-pid');
-    //     window.open('/p/' + $article.attr('data-pid'));
-    // });
-
     $(document).unbind('click.settings').on('click.settings', function(e) {
         var target = e.target;
         if ( !$(target).is('.settingsButton') && !$(target).parents().is('.settingsButton') && !$(target).is('.settingsMark') ) {

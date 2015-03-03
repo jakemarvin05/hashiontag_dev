@@ -128,21 +128,26 @@ router.post('/settings/shipping', function(req, res) {
 
 router.post('/search/merchant', function(req, res) {
     if (!req.isAuthenticated()) return res.status(403).send();
-    if (!req.body.query) return res.status(400).send();
+    if (!req.body.query && !req.body.username) return res.status(400).send();
 
     var where = {
         shopStatus: 'active'
     };
 
     //if shopStatus is false
-    if (!req.body.shopStatus) {
+    if (req.body.shopStatus === 'false') {
         where = {};
     }
 
     //process the merchant string
-    var merchant = req.body.query.toLowerCase();
+    var merchant = req.body.query || req.body.username; 
+    merchant = merchant.toLowerCase();
     //there is a '@' infront, remove it.
     if ( merchant.indexOf('@') > - 1 ) merchant = merchant.substring(1);
+
+    if (req.body.exactMatch === 'true') {
+        where.userName = merchant;
+    }
 
     db.User.search(merchant, {
         attributes: ['userId', 'userNameDisp', 'name', 'profilePicture', 'dataMeta'],

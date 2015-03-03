@@ -780,9 +780,13 @@ printHead.dataShop = VV.utils.unSanitise("{dataShop|js}");
 
                 </div><!-- productDetailsInputs -->
 
+                <div id="progressBarCont" style="display:none">
+                    <div id="progressBar"></div>
+                </div>
+
                 <div id="masterButtonsCont">
-                    <button id="saveButton">Save</button>
-                    <button id="publishButton" class="darkButton">Save and Publish</button>
+                    <button class="submitButton" data-isnotpublished="true">Save</button>
+                    <button class="submitButton" class="darkButton" data-isnotpublished="false">Save and Publish</button>
                 </div>
 
                 <script>
@@ -800,12 +804,18 @@ printHead.dataShop = VV.utils.unSanitise("{dataShop|js}");
                     }
                 };
 
-                $('#publishButton').click(function() {
+                $('.submitButton').click(function() {
+                    var flasher = Object.create(VV.utils.Flasher);
+                    flasher.run($(this), 'button');
+                    $('.submitButton').attr('disabled', 'disabled');
+
                     dataAppend.attrs = {
                         action: 'store',
                         imgData: [],
                         processData: false,
                         desc: '',
+                        /* GOTCHA: isNotPublished is text. Server will convert to bool */
+                        isNotPublished: $(this).attr('data-isnotpublished'),
                         dataProduct: {
                             name: '',
                             price: '',
@@ -920,14 +930,30 @@ printHead.dataShop = VV.utils.unSanitise("{dataShop|js}");
                         $('html, body').animate({
                             scrollTop: scrollTo - parseFloat($('#opacBar').height()) - 50 //offset with navbar and some more buffer
                         }, 200);
+                        flasher.kill();
 
                     } else { 
                         console.log(dataAppend.attrs);
-                        VV.img.upload(dataAppend.attrs, '/api/post', function(data) {});
+                        submitEffects.onSubmit();
+                        VV.img.upload(dataAppend.attrs, '/api/post', function(data) {
+                            window.onbeforeunload = function() {};
+                            window.location.href = printHead.p.absPath + '/p/' + data.postId;
+                        }, submitEffects.onErrored(flasher));
                     }
                 });
-                </script>
 
+                var submitEffects = {
+                    onSubmit: function($button) {
+                        $('#progressBarCont').velocity('transition.slideRightIn', 200);
+                    },
+                    onErrored: function(flasher) {
+                        $('#progressBarCont').velocity('transition.slideLeftOut', 200, function() {
+                            $('#progressBar').css('width', '0px');
+                        });
+                        flasher.kill();
+                    }
+                };
+                </script>
             </div><!-- productFormOuter -->
 
             <div id="addPicCont" style="display:none;">
@@ -975,10 +1001,6 @@ printHead.dataShop = VV.utils.unSanitise("{dataShop|js}");
                 </div>
             </div>
 
-            <div id="progressBarCont" style="display:none">
-                <h2>Uploading..</h2>
-                <div id="progressBar"></div>
-            </div>
 
             <!-- confirm leave page on navigation -->
             <script>

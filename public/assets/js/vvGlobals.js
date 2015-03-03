@@ -26,7 +26,8 @@ VV.extend('globals', {
         usc: 'US & Canada',
         sea: 'SE Asia',
         asiaeu: 'North Asia & Eur',
-        austnz: 'Aust & NZ',
+        oceania: 'Oceania',
+        me: 'Middle East',
         row: 'Rest of the World'
     }
 });

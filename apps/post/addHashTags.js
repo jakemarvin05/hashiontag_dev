@@ -10,6 +10,7 @@ module.exports = function addHashTags(hashTags, post) {
     //asynchronous hashtag adding. non-critical process so we don't really care.
     console.log(fname + ' creating hashTags...');
     if(hashTags) {
+        if (hashTags.length === 0) { return false; }
         var postId = post.postId;
         var splicedHashtags = hashTags.slice();
         

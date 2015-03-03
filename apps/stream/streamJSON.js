@@ -26,7 +26,7 @@ module.exports = function streamJSON(req, res, render, opts) {
     var where = {};
     var include = [{   
         model: db.User,
-        attributes: [ 'userNameDisp', 'userId', 'profilePicture' ]
+        attributes: [ 'userNameDisp', 'userId', 'profilePicture', 'dataMeta', 'shopStatus' ]
     }, { 
         model: db.Comment,
         attributes: ['commentId', 'comment', 'createdAt'],
@@ -41,19 +41,7 @@ module.exports = function streamJSON(req, res, render, opts) {
             model: db.User,
             attributes: [ 'userNameDisp' ]
         }]
-    }
-    // , {
-    //     model: db.PostMeta,
-    //     attributes: ['key', 'value'],
-    //     where: db.Sequelize.or(
-    //         {'key': 'itemLink'}, 
-    //         {'key': 'itemAddTag'}, 
-    //         {'key': 'itemPrice'},
-    //         {'key': 'isInstagram'}
-    //     ),
-    //     required: false
-    // }
-    ]
+    }]
     var order = [
         ['createdAt', 'DESC'], 
         [db.Comment, 'createdAt', 'ASC'] 
@@ -101,8 +89,7 @@ module.exports = function streamJSON(req, res, render, opts) {
         }
 
         //get the users that current user is following.
-        req.user.getFollows({attributes: ['userId']}).then(function(users) {
-
+        req.user.getFollows({attributes: ['userId']}, {raw: true}).then(function(users) {
             //push it into the array for use later
             for(var i in users) { idArray.push(users[i].userId); }
 

@@ -138,6 +138,7 @@ module.exports = function productJSON(req, res, render, opts) {
             console.log('productJSON: db retrieval complete, likes splicing...');
 
             streams = likesSplicer(req, streams, idArray);
+            console.log(streams);
             streams = stockFilter(streams);
 
             renderJSON.posts = streams;

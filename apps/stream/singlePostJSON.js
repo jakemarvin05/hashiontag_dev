@@ -1,5 +1,6 @@
 var db = global.db;
 var likesSplicer = require('./likesSplicer.js');
+var stockFilter = require('./product/stockFilter.js');
 
 module.exports = function singlePostJSON(req, thenRender) {
 
@@ -19,7 +20,7 @@ module.exports = function singlePostJSON(req, thenRender) {
                 }, 
                 include: [{   
                     model: db.User,
-                    attributes: [ 'userNameDisp', 'userId', 'profilePicture' ]
+                    attributes: [ 'userNameDisp', 'userId', 'profilePicture', 'dataMeta', 'shopStatus' ]
                 }, { 
                     model: db.Comment,
                     attributes: ['commentId', 'comment', 'createdAt'],
@@ -80,8 +81,8 @@ module.exports = function singlePostJSON(req, thenRender) {
         //we trick streamFactory into processing by giving it an array of posts with 1 post.
         //provide better solution when able.
         var renderJSON = {}
-        renderJSON.posts = []
-        renderJSON.posts.push(post);
+        renderJSON.posts = [post];
+        if (post.isProduct) renderJSON.posts = stockFilter(renderJSON.posts);
 
         if(isAuth) {
             renderJSON.posts = likesSplicer(req, renderJSON.posts, idArray);

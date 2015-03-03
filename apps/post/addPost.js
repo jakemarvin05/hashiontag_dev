@@ -21,12 +21,15 @@ module.exports = function addPost(req, res, uuid, path, fields, CALLBACK) {
 
     var desc = fields['desc'];
     var postType = fields['postType'];
+    var isNotPublished = (fields['isNotPublished'] === "true" || fields['isNotPublished'] === true) ? true : null;
 
     if (postType === "post") {
 
-        var itemMeta = JSON.parse(fields['itemMeta']);
+        var dataMeta = JSON.parse(fields['dataMeta']);
 
-        itemMeta = itemMetaHandler(itemMeta);
+        dataMeta.itemMeta.forEach(function(el, i, arr) {
+            arr[i] = itemMetaHandler(el);
+        });
 
         uuid = uuid[0];
 
@@ -58,19 +61,46 @@ module.exports = function addPost(req, res, uuid, path, fields, CALLBACK) {
 
     function finalCreate(descJSON, CALLBACK) {
         //create the post
-        db.User.find().then(function() {
+        Promise.resolve().then(function() {
 
             if (postType === "post") {
-                return metaAddTag(itemMeta.itemAddTag);
+                //is there a better way?
+                return [
+                    metaAddTag(dataMeta.itemMeta[0]),
+                    metaAddTag(dataMeta.itemMeta[1]),
+                    metaAddTag(dataMeta.itemMeta[2]),
+                    metaAddTag(dataMeta.itemMeta[4])
+                ]
             } else if (postType === "product") {
-                return false;
+                return [false, false, false, false];
             } else {
-                return false;
+                return [false, false, false, false];
             }
             
-        }).then(function(foundAddTag) {
+        }).spread(function(found1, found2, found3, found4) {
 
-            if (!foundAddTag && itemMeta) { delete itemMeta.itemAddTag; }
+            if (postType === 'post') {
+                //delete those that are not found
+                //else update them with the correct casing.
+                var founds = [found1, found2, found3, found4];
+                for(var i in founds) {
+                    var found = founds[i];
+                    var meta = dataMeta.itemMeta[i];
+
+                    //if found is false and the itemMeta exist, try to delete the name.
+                    if (!found && meta) { 
+                        //there can be the case where item meta exist but no name
+                        try { delete meta.userName; }
+                        catch (err) {}
+                    }
+                    //found true, update the itemMeta with proper cased userName.
+                    else if (meta) { 
+                        meta.userName = found.userNameDisp; 
+                        meta.userId = found.userId;
+                        meta.profilePicture = found.profilePicture;
+                    }
+                }
+            }
 
             var postHash = { 
                 desc: descJSON.desc,
@@ -78,14 +108,14 @@ module.exports = function addPost(req, res, uuid, path, fields, CALLBACK) {
                 tags: JSON.stringify(descJSON.descTags),
                 User_userId: req.user.userId,
                 imgUUID: uuid
-            }
+            };
 
             if (postType === "post") {
-                postHash.dataMeta = { itemMeta: itemMeta };
+                postHash.dataMeta = dataMeta;
 
                 //startag attribution is unique to posts only. not products
                 var attrUserId = descJSON.descTags.star.userId;
-                if(attrUserId.length > 0) {
+                if (attrUserId.length > 0) {
                     var id = attrUserId[0];
 
                     //user cannot self attribute
@@ -95,7 +125,7 @@ module.exports = function addPost(req, res, uuid, path, fields, CALLBACK) {
                 }
 
                 //if user has no profile picture, set this one as profile picture.
-                if(!req.user.profilePicture) {
+                if (!req.user.profilePicture) {
                     console.log(fname +' ' + 'user has no profile picture. This post will be set as profile picture.')
                     postHash.isProfilePicture = true;
                     setProfileFlag = true;
@@ -104,6 +134,7 @@ module.exports = function addPost(req, res, uuid, path, fields, CALLBACK) {
             } else if (postType === "product") {
                 postHash.dataProduct = dataProduct;
                 postHash.isProduct = true;
+                postHash.isNotPublished = isNotPublished;
             }
             console.log(postHash);
             return db.Post.create(postHash);

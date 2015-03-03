@@ -78,10 +78,6 @@
 
                 if (!newCurrency || newCurrency === '') { return false; }
 
-                //check the currencies only if:
-                //1) There is a currency now - if for some reason its empty, let the user change.
-                //2) 
-
                 if (presentCurrency) {
                     if (presentCurrency === newCurrency) {
                         return false;
@@ -175,7 +171,7 @@
                             {/dataShop.shipping.light.usc}
                             >
                         </td>
-                    </tr>
+                    </tr>                
 
                     <tr>
                         <td>
@@ -223,22 +219,44 @@
 
                     <tr>
                         <td>
-                            <input type="checkbox" class="regionCheckbox" data-for="shippingCostAUSTNZ" 
-                            {?dataShop.shipping.light.austnz}
+                            <input type="checkbox" class="regionCheckbox" data-for="shippingCostOCEANIA" 
+                            {?dataShop.shipping.light.oceania}
                                 checked
-                            {/dataShop.shipping.light.austnz}
+                            {/dataShop.shipping.light.oceania}
                             >
                         </td>
                         <td>
-                            <label for="pdi_shipping_austnz_cost">Australia & NZ</label>
+                            <label for="pdi_shipping_oceania_cost">Oceania</label>
                         </td>
                         <td>
-                            <input type="text" class="shippingCost shippingCostAUSTNZ inputSpecial" id="pdi_shipping_austnz_day" name="shipping_austnz_day" placeholder="est delivery in days"  data-branch="dataShop.shipping.light.austnz.day" 
-                            {?dataShop.shipping.light.austnz}
-                                value="{dataShop.shipping.light.austnz.day}" required
+                            <input type="text" class="shippingCost shippingCostOCEANIA inputSpecial" id="pdi_shipping_oceania_day" name="shipping_oceania_day" placeholder="est delivery in days"  data-branch="dataShop.shipping.light.oceania.day" 
+                            {?dataShop.shipping.light.oceania}
+                                value="{dataShop.shipping.light.oceania.day}" required
                             {:else}
                                 style="display:none;"
-                            {/dataShop.shipping.light.austnz}
+                            {/dataShop.shipping.light.oceania}
+                            >
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="regionCheckbox" data-for="shippingCostME" 
+                            {?dataShop.shipping.light.me}
+                                checked
+                            {/dataShop.shipping.light.me}
+                            >
+                        </td>
+                        <td>
+                            <label for="pdi_shipping_me_cost">Middle East</label>
+                        </td>
+                        <td>
+                            <input type="text" class="shippingCost shippingCostME inputSpecial" id="pdi_shipping_me_day" name="shipping_me_day" placeholder="est delivery in days"  data-branch="dataShop.shipping.light.me.day" 
+                            {?dataShop.shipping.light.me}
+                                value="{dataShop.shipping.light.me.day}" required
+                            {:else}
+                                style="display:none;"
+                            {/dataShop.shipping.light.me}
                             >
                         </td>
                     </tr>
@@ -408,20 +426,39 @@
                     </tr>
 
                     <tr
-                    {?dataShop.shipping.light.austnz}
+                    {?dataShop.shipping.light.oceania}
                     {:else}
                         style="display:none;"
-                    {/dataShop.shipping.light.austnz}
+                    {/dataShop.shipping.light.oceania}
                     >
                         <td>
-                            <label for="pdi_shipping_austnz_cost">Australia & NZ</label>
+                            <label for="pdi_shipping_oceania_cost">Oceania</label>
                         </td>
                         </td>
                         <td>
-                            <input type="text" class="shippingCost shippingCostAUSTNZ inputSpecial" id="pdi_shipping_austnz_cost" name="shipping_austnz_cost" placeholder="enter cost"  data-branch="dataShop.shipping.light.austnz.cost"
-                            {?dataShop.shipping.light.austnz}
-                                value="{dataShop.shipping.light.austnz.cost}" required
-                            {/dataShop.shipping.light.austnz}
+                            <input type="text" class="shippingCost shippingCostOCEANIA inputSpecial" id="pdi_shipping_oceania_cost" name="shipping_oceania_cost" placeholder="enter cost"  data-branch="dataShop.shipping.light.oceania.cost"
+                            {?dataShop.shipping.light.oceania}
+                                value="{dataShop.shipping.light.oceania.cost}" required
+                            {/dataShop.shipping.light.oceania}
+                            >
+                        </td>
+                    </tr>
+
+                    <tr
+                    {?dataShop.shipping.light.me}
+                    {:else}
+                        style="display:none;"
+                    {/dataShop.shipping.light.me}
+                    >
+                        <td>
+                            <label for="pdi_shipping_me_cost">Middle East</label>
+                        </td>
+                        </td>
+                        <td>
+                            <input type="text" class="shippingCost shippingCostME inputSpecial" id="pdi_shipping_me_cost" name="shipping_me_cost" placeholder="enter cost"  data-branch="dataShop.shipping.light.me.cost"
+                            {?dataShop.shipping.light.me}
+                                value="{dataShop.shipping.light.me.cost}" required
+                            {/dataShop.shipping.light.me}
                             >
                         </td>
                     </tr>
@@ -470,7 +507,7 @@
                     </script>
 
                     <br><br>
-                    <button id="saveShipping" type="submit" class="darkButton">Save Shipping Settings</button>
+                    <button id="saveShipping" type="submit" class="darkButton">Save Shipping Settings</button>&nbsp;<a href="/me"><button type="button">Go back to profile</button></a>
                 </div>
             </form>
             

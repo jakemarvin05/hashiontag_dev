@@ -97,3 +97,151 @@ img[id^=img_preview], canvas[id^=img_preview] {
     margin: auto;
     width: 30px;
 }
+
+.itemCont {
+    width: 290px;
+    margin: 0px auto 10px auto;
+    border: 1px solid #ef4549;
+}
+
+/* search overlays */
+.resultContWrapper {
+    position: relative;
+    width: 100%;
+}
+.resultCont {
+    width: 280px;
+    height: 120px;
+    max-height: 120px;
+    margin: auto;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-sizing: content-box;
+    -webkit-transition: height 0.25s;
+    -moz-transition: height 0.25s;
+    -o-transition: height 0.25s;
+    transition: height 0.25s;
+}
+.resultScroll {
+    max-height: 100%;
+    overflow: scroll;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    border-radius: 10px;
+}
+.merchantLayout, .productLayout {
+    padding: 9px;   
+}
+.merchantLayout:not(:first-child), .productLayout:not(:first-child) {
+    border-top: 1px solid #ccc;
+}
+    .merchantThumb, .productThumb {
+        float: left;
+    }
+        .merchantThumb img, .productThumb img {
+            display: block;
+            height: 40px;
+            width: 40px;
+        }
+        .merchantThumb img {
+            border-radius: 20px;
+        }
+    .merchantTextHolder, .productTextHolder {
+        float: left;
+        margin-left: 10px;
+        width: 164px;
+        overflow: hidden;
+        text-align: left;
+    }
+        .merchantUsername {
+            font-weight: bold;
+        }
+        .merchantUsername, .merchantName, .productName {
+            min-height: 19px;
+            max-width: 100%;
+            overflow: hidden;
+        }
+    .merchantSelect, .productSelect {
+        float: left;
+        padding: 3px;
+    }
+        .merchantSelect .glyphicon, .productSelect .glyphicon {
+            font-size: 30px;
+            color: #ccc;
+            cursor: pointer;
+        }
+    .scrollDown {
+        position: absolute;
+        left: 50%;
+        bottom: 5px;
+        width: 64px;
+        margin-left: -32px;
+        background: #ccc;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.7;
+    }
+        .scrollDown .glyphicon {
+            font-size: 12px;
+            top: 1px;
+            padding: 0px;
+        }
+
+#productFieldWrap {
+    position: relative;
+}
+.productPreviewDiv {
+    height: 200px;
+    width: 200px;
+    margin: auto;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    position: absolute;
+    top: -160px;
+    left: 50%;
+    margin-left: -100px;
+    background: #fff;
+    display: none;
+    overflow: hidden;
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
+    -o-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
+}
+    .productPreviewDiv img {
+        height: 100%;
+        width: 100%;
+        display: block;
+    }
+.productContLoader {
+    position: absolute;
+    left: 50%;
+    margin-left: -15px;
+}
+.productPreviewHover {
+    cursor: pointer;
+}
+
+.itemCont .merchantTextHolder, .itemCont .productTextHolder, .URLItemsCont .merchantTextHolder {
+    width: 176px;
+}
+
+.URLItemsCont {
+    width: 290px;
+    margin: auto;
+}
+
+.URLLayout {
+    margin-bottom: 20px;
+    border: 1px solid #ef4549;
+    padding: 10px;
+}
+    .URLLayout .productTextHolder {
+        margin: auto;
+        float: none;
+    }
+
+
+
+

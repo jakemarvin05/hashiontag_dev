@@ -582,9 +582,12 @@ router.get('/:user', function(req, res) {
          * 2) User is viewing others' profile. Shop must be active and complete -> "active".
          */
         var shopStatus = renderJSON.shopStatus;
-        if ((renderJSON.isOwnProfile && shopStatus.indexOf('active') > -1) || shopStatus === "active") {
-            var hasShop = true;
+        if (shopStatus) {
+            if ((renderJSON.isOwnProfile && shopStatus.indexOf('active') > -1) || shopStatus === "active") {
+                var hasShop = true;
+            }
         }
+
 
 
         res.render('me', {

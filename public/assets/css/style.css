@@ -736,22 +736,64 @@ textarea {
   text-align: center;
   padding: 5px;
   border: 1px solid #ccc;
+  position: relative;
 }
 .blockMoreInfo > div {
-  width: 200px;
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
   word-wrap: break-word;
 }
-.postItemAddTagImg {
-  text-align: center;
+.postItemProductBlock {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  table-layout: fixed;
 }
-.postItemAddTagImg img {
-  width: 60px;
+.postItemProductBlock:not(:first-child) {
+  margin-top: 5px;
 }
-.postItemAddTag {
+.postItemProductBlock td {
+  padding: 0px;
+  margin: 0px;
+  vertical-align: middle;
+}
+.postItemImg {
+  width: 70px;
+  height: 70px;
+}
+.postItemImg img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.postItemTextCont {
+  padding-left: 10px !important;
+}
+.postItemTextCont div {
+  padding: 2px;
+}
+.postItemName a {
+  color: #565757;
   font-weight: bold;
-  margin-bottom: 12px;
+}
+.postPrice {
+  display: inline-block;
+}
+.postBuy,
+.postGoTo {
+  border-radius: 5px;
+  padding: 4px;
+}
+.postBuy a,
+.postGoTo a {
+  color: #fff;
+}
+.postBuy {
+  background: #ef4549;
+}
+.postGoTo {
+  background: #ccc;
 }
 .blockLikeText {
   text-align: left;
@@ -842,7 +884,6 @@ textarea {
   margin-top: 20px;
   color: #ccc;
 }
-/* leftCol specifics */
 /*-------------------------------------------------
 5. footer
 -------------------------------------------------*/
@@ -876,6 +917,27 @@ A. Product Articles
 }
 .articlePurchaseAddMinus {
   width: 34px;
+}
+.blockThumbHolder:after {
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+  content: " ";
+  clear: both;
+  height: 0;
+}
+.productThumbs {
+  width: 25%;
+  height: 25%;
+  float: left;
+  position: relative;
+}
+.productThumbs img {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  display: block;
+  position: relative;
 }
 /*-------------------------------------------------
 II. Form styling

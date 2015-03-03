@@ -8,35 +8,44 @@ module.exports = function(itemMeta) {
 
     //check for nullity first before invoking HTML tags stripping.
     //by default null should occur very frequently, so don't incur strip tags overheads unneccessarily
-    var link = itemMeta.itemLink;
+    var name = itemMeta.name;
+    name = V.nullIfEmpty(name);
+    if(name) { 
+        name = S(name).stripTags().s; // strip HTML tags
+        itemMeta.name = S(name).strip('\'','"').s; //strip quotation marks.
+    } else {
+        delete itemMeta.name;
+    }
+
+    var link = itemMeta.link;
     link = V.nullIfEmpty(link);
     if(link) { 
         link = S(link).stripTags().s; // strip HTML tags
-        itemMeta.itemLink = S(link).strip('\'','"').s;
+        itemMeta.link = S(link).strip('\'','"').s;
     } else {
-        delete itemMeta.itemLink;
+        delete itemMeta.link;
     }
 
-    var add = itemMeta.itemAddTag
-    add = V.nullIfEmpty(itemMeta.itemAddTag);
+    var add = itemMeta.userName
+    add = V.nullIfEmpty(add);
     if(add) { 
         add = S(add).stripTags().s;
         //strip away the '@'
         if(add.indexOf('@') === 0) {
             add = add.substring(1);
         }
-        itemMeta.itemAddTag = add;
+        itemMeta.userName = add;
     } else {
-        delete itemMeta.itemAddTag;
+        delete itemMeta.userName;
     }
 
-    var price = itemMeta.itemPrice;
+    var price = itemMeta.price;
     price = V.nullIfEmpty(price);
     if(price) { 
         price = S(price).stripTags().s; 
-        itemMeta.itemPrice = S(price).strip('\'','"').s; 
+        itemMeta.price = S(price).strip('\'','"').s; 
     } else {
-        delete itemMeta.itemPrice;
+        delete itemMeta.price;
     }
 
     return itemMeta;   

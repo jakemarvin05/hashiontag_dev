@@ -5,10 +5,7 @@
     <div class="blockPad">
         <header class="blockMainInfo">
             <div class="blockTop">
-                <div class="blockProfileThumb">
-                    <!--<button class="likeButton" data-id="" data-action="like" style="display:none;">Like</button>
-                    <button class="likeButton" data-id="" data-action="unlike" style="display:none;">Unlike</button>-->
-                </div>
+                <div class="blockProfileThumb"></div>
 
                 <div class="blockUserHolder">
                     <div class="blockUsername"></div>
@@ -23,7 +20,7 @@
                         <span class="blockInteractText">like</span>
                     </div>
                     {/isPreview}
-                    <div class="blockInteractButtons moreInfo clickable">
+                    <div class="blockInteractButtons moreInfo clickable" style="display:none;" data-task="moreInfo">
                         <div class="icon-tag"></div>
                         <span class="blockInteractText">info</span>
                     </div>
@@ -37,9 +34,10 @@
                             <div class="settingsDelete blockInteractSettingsOptions">
                                 Delete
                             </div>
-                            <div class="settingsEdit blockInteractSettingsOptions">
+                            {! TODO: Re-factor editing !}
+                            {!<div class="settingsEdit blockInteractSettingsOptions">
                                 Edit
-                            </div>
+                            </div>!}
                             <div class="settingsOpen blockInteractSettingsOptions">
                                 Open page
                             </div>
@@ -48,12 +46,44 @@
 
                 </div>
 
-                <div class="blockMoreInfo" data-shown="no" style="display:none;"></div>
+                <div class="blockMoreInfo" data-shown="no" style="display:none;">
+                    <table class="postItemProductBlock" itemscope itemtype="http://schema.org/Product">
+                        <tr>
+                            <td class="postItemImg" style="display:none;">
+                                <a href="#" target="_blank"><img></a>
+                            </td>
+                            <td class="postHiddenItemProps" style="display: none;">
+                                <span class="postProductBrand" itemprop="brand" style="display:none;"></span>
+                                <span class="postProductSKU" itemprop="sku" style="display:none;"></span>
+                            </td>
+                            <td class="postItemTextCont">
+                                <div class="postItemName" itemprop="name"></div>
+                                    <div class="postItemUserNameDiv"></div>
+                                    <div class="postPrice" itemprop="price"></div>
+                                    <span style="display: none;" class="postBuy">Buy</span>
+                                    <span style="display: none;" class="postGoTo">Link</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
 
                 <div class="blockLikeText"></div>
 
                 <div class="blockTextHolder">
+
+                    <div class="blockProductNameFull"></div>
+                    <div class="blockProductName" style="display:none;"></div>
+                    <div class="blockBelowProductName" style="display: none;">
+                        <span class="spanPrice"></span>
+                    </div>
+
                     <div class="description convert-emoji"></div>
+
+                    <div class="blockProductInfo" style="display: none;"></div>
+
+                    {>"layouts/extend/profilePostsLayout_purchaseOptions.dust"/}
+                    
                     <div class="editDescButtons" style="display:none;">
                         <button class="editDesc darkerButton" data-id="">Done</button>
                         <button class="editDescCancel darkerButton">Cancel</button>

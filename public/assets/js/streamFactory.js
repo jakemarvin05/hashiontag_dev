@@ -1,12 +1,4 @@
 "use strict";
-/* 
-This is being extended by profile page 
-
-Profile page re-writes:
-
-(Fill in here....)
-
-*/
 var streamFactory = {
     streamContClass: 'mainColBlock',
     $cont: '',
@@ -191,25 +183,20 @@ streamFactory.append.init = function($stream, i) {
     this.blockVia($stream, post);
 
     this.moreInfoBlock($stream, post);
+    if(i===0) { this.callbacks.push(this.moreInfoButton) }
+
+    /* Product-type post */
+    if (post.isProduct) {
+        try {
+            if (Object.keys(post.dataProduct).length > 0) {
+                this.productAbstract($stream, post);
+            }
+        } catch(err) { console.log(err); }
+    }
 
     /* any other custom appending functions */
     for(var i = 0; i < this.custom.length; i++) {
         this.custom[i].call(this, $stream, post);
-    }
-
-    /* product post appending */
-    try {
-        if (Object.keys(post.dataProduct).length > 0) {
-            var prodAppends = ['productName', 'productPrice', 'productLikes'];
-
-            for(var i in prodAppends) {
-                this[prodAppends[i]]($stream, post);
-
-            }
-        }
-    } catch(err) {
-        //fail silently.
-        console.log();
     }
 }
 
@@ -266,6 +253,7 @@ streamFactory.append.imageBurst = function ($stream, i) {
         this.image($stream, i, true);
     } else {
         var literal = { $str: $stream, n: i }
+        if (!this.hasOwnProperty('imageDeferredArray')) { this.imageDeferredArray = []; }
         this.imageDeferredArray.push(literal);
     }
 }
@@ -396,9 +384,7 @@ streamFactory.append.likeText = function(post) {
 
         var andLikes = '';
         if(likersFollowedCount > 0) {
-
             //sally, mary, jane and 99 others like this.
-
             //Number of related likers shown is defined by "show".
             //So the offsetted number of likers is minimum of show or likersFollowed.
             var offset = Math.min(likersFollowedCount, show)
@@ -424,30 +410,22 @@ streamFactory.append.likeText = function(post) {
                     }
                 } 
             }
-
-
-
         } else if(post.totalLikes > 1) {
-
             // 2-99 people like this.
             var offsetCount = post.totalLikes;
-
             andLikes  = '<span class="postLikesCount" data-likescount="' + offsetCount + '">';
             andLikes += offsetCount;
             andLikes += '</span>';
             andLikes += ' likes';
 
         } else if(post.totalLikes === 1) {
-
             // 1 person likes this.
             var offsetCount = post.totalLikes;
-
             andLikes  = '<span class="postLikesCount" data-likescount="' + offsetCount + '">';
             andLikes += offsetCount;
             andLikes += '</span>';
             andLikes += ' like';
         }
-
         toPrepend = likersDispHTML + '<span class="postAndLikes">' + andLikes + '</span>';
 
     } else {
@@ -607,135 +585,201 @@ streamFactory.append.moreInfoBlock = function($stream, post) {
     <h2 class="shopName" itemprop="shop"></h2>
     <h3 class="price" itemprop="price"></h3>
     */
+    var itemMeta = D.get(post, 'dataMeta.itemMeta');
+    var productMeta = D.get(post, 'dataMeta.productMeta');
+    var $cont = $stream.find('.blockMoreInfo');
+    var $moreButton = $stream.find('.moreInfo');
 
-    //if there is nothing in itemMeta, return
-    if(D.get(post, 'dataMeta.itemMeta')) { 
-        if (Object.keys(post.dataMeta.itemMeta).length === 0) {
-            $stream.find('.moreInfo').hide(); return false;
+    //if both undefined
+    if (!itemMeta && !productMeta) { return false; }
+
+    var itemMetaLength = false;
+    var productMetaLength = false;
+
+    //try to get the length
+    try { itemMetaLength = itemMeta.length; } catch(err) {}
+    try { productMetaLength = productMeta.length; } catch(err) {}
+
+    //if both tries fails, or if both have nothing.
+    if (!itemMetaLength && !productMetaLength) { return false; }
+    if (itemMetaLength === 0 && productMetaLength === 0) { return false; }
+
+    var template = $cont.html();
+    $cont.html('');
+
+    for(var i in productMeta) {
+        var meta = productMeta[i];
+        var $newBlock = $(template);
+        _abstract($newBlock, meta, 'product');
+        $cont.append($newBlock.clone());
+    }
+
+    for(var i in itemMeta) {
+        var meta = itemMeta[i];
+        var $newBlock = $(template);
+        _abstract($newBlock, meta, 'item');
+        $cont.append($newBlock.clone());
+    }
+
+    function _abstract($template, meta, type) {
+
+        if (type === 'item') {
+            //profilePicture
+            if (meta.profilePicture) {
+                _picture($template, meta.profilePicture);
+            }
+
+            //name (is compulsory)
+            var $nameAndAnchor = _nameHTML($template, meta, type);
+
+            //userName 
+            if (meta.userName) {
+                _userNameHTML($template, meta);
+            } else {
+                //if there is no userName, append the link.
+                var $showLink = $nameAndAnchor[1].clone();
+                $showLink.html($showLink.attr('data-showlink'));
+                $template.find('.postItemUserNameSpan').html($showLink);
+            }
+
+            //price
+            if (meta.price) {
+                _priceHTML($template, meta.price, type);
+            }
+        } else if (type === 'product') {
+            _picture($template, meta.imgUUID); //picture
+            var $nameAndAnchor = _nameHTML($template, meta, type); //name 
+            $template.find('.postItemImg a').attr('href', $nameAndAnchor[1].attr('href'));
+            _userNameHTML($template, meta.merchant); //userName 
+            _priceHTML($template, meta.price, type); //price
         }
-    } else {
-        $stream.find('.moreInfo').hide(); return false;
+        return $template;
     }
 
-    var meta = post.dataMeta.itemMeta,
-        hasMoreInfo = false;
-
-    var itemAddTagDiv = '',
-        itemLinkDiv = '',
-        itemPriceDiv = '',
-        itemAddTagImgDiv = '';
-
-    var data = {};
-    var container = '';
-
-    if(meta.itemAddTag) {
-        hasMoreInfo = true;
-        data.hasAddTag = true;
-        data.addTag = meta.itemAddTag.toLowerCase();
-
-        //create a img div and just give it a class
-        itemAddTagImgDiv = '<div class="postItemAddTagImg"></div>';
-
-        //username
-        itemAddTagDiv  = '<div class="postItemAddTag" itemprop="shop" data-attr="' + data.addTag + '">';
-        itemAddTagDiv += '<a href="' + printHead.p.absPath + '/' + data.addTag + '">';
-        itemAddTagDiv += '@' + meta.itemAddTag + '</a></div>';
+    function _picture($template, imgUUID) {
+        var uniqueClass = 'proditem' + imgUUID;
+        $template.find('.postItemImg').addClass(uniqueClass);
+        var img = new Image();
+        img.onload = (function() {
+            return function() {
+                var $targetConts = $('.' + uniqueClass);
+                $targetConts.find('img').attr('src', img.src)
+                $targetConts.show();
+            }
+        })(uniqueClass, img);
+        img.src = VV.utils.imageGetter(imgUUID, 'thumb');
     }
-    if(meta.itemLink) {
-        hasMoreInfo = true;
-       
-        var itemLink = meta.itemLink;
-        var workingLink = '';
-        var showLink = '';
-        if(itemLink.indexOf('http') < 0 ) { 
-            //suspect it starts with "www", so add // so make it work
-            workingLink = '//' + itemLink;
-        } else {
-            workingLink = itemLink;
+
+    function _nameHTML($template, meta, type) {
+        if (!meta.name) { return false; }
+        var $nameDiv = $template.find('.postItemName');
+        $nameDiv.html(meta.name);
+        var $anchor = _linkHTML($template, meta, type);
+        if ($anchor) { $nameDiv.wrapInner($anchor); }
+        return [ $nameDiv, $anchor ];
+    }
+
+    function _linkHTML($template, meta, type) {
+        var anchor = document.createElement('a');
+        if (type === 'item') {
+            if (!meta.link) { return false; }
+            var itemLink = meta.link;
+            var workingLink = '';
+            var showLink = '';
+            if (itemLink.indexOf('http') < 0 ) { 
+                //suspect it starts with "www", so add // so make it work
+                workingLink = '//' + itemLink;
+            } else {
+                workingLink = itemLink;
+            }
+            var parsed = VV.utils.parseUri(itemLink)
+            showLink = (parsed.host.length > 10) ? parsed.host.substring(0,10) + '...' : parsed.host;
+            //no follow
+            anchor.rel = 'nofollow';
+        } else if (type === 'product') {
+            var workingLink = printHead.p.absPath + '/p/' + meta.postId;
         }
-        showLink = (itemLink.length > 25) ? itemLink.substring(0,25) + '...': itemLink;
-        itemLinkDiv  = '<div class="postItemLink" data-attr="' + meta.itemLink + '">';
-        itemLinkDiv += '<span class="glyphicon glyphicon-link"></span>';
-        itemLinkDiv += '<a rel="nofollow" href="' + workingLink + '" target="_blank">' + showLink + '</a>';
-        itemLinkDiv += '</div>'; 
+        anchor.href = workingLink;
+        anchor.target = '_blank';
+        //transform to jQuery object before adding 'data'. IE8 support
+        var $anchor = $(anchor);
+        if (showLink) { $anchor.attr('data-showlink', showLink); }
+
+        //link up the 2 buttons
+        var $postGoto = $template.find('.postGoTo'),
+            $postBuy = $template.find('.postBuy');
+
+        if (type === 'product') {
+            $postGoto.remove();
+            $postBuy.wrapInner($anchor).show();
+        } else if (type === 'item') {
+            $postBuy.remove();
+            $postGoto.wrapInner($anchor).show();
+        }
+
+        return $anchor;
     }
-    if(meta.itemPrice) {
-       
-        hasMoreInfo = true;
-        itemPriceDiv  = '<div class="postItemPrice" itemprop="price" data-attr="' + meta.itemPrice + '">';
-        itemPriceDiv += '<span class="glyphicon glyphicon-usd"></span>';
-        itemPriceDiv += meta.itemPrice + '</div>';
+    function _userNameHTML($template, meta, type) {
+        var userName = meta.userName;
+        if (!userName) { return false; }
+
+        //update the hidden itemprop brand
+        var name;
+        if (type === 'product') { name = meta.name; }
+        else if (type === 'item') { name = userName; }
+        if (name) { $template.find('.postProductBrand').html(name) }
+
+        var $userName = $template.find('.postItemUserNameDiv');
+        var html  = '<a href="' + printHead.p.absPath + '/' + userName + '">';
+            html += '@' + userName + '</a></div>';
+
+        $userName.html(html);
+        return $userName;
     }
-    
-    if(!hasMoreInfo) { $stream.find('.moreInfo').hide(); return false; }
-
-    $stream.find('.moreInfo').show();
-    data.html  = itemAddTagImgDiv;
-    data.html += itemAddTagDiv;
-    data.html += itemLinkDiv;
-    data.html += itemPriceDiv;
-
-
-    $stream.find('.blockMoreInfo').append(data.html);
-    this.moreInfoBindButton($stream.find('.moreInfo'));
-    if (data.hasAddTag) { this.moreInfoImg($stream, post, data); }
-
+    function _priceHTML($template, price, type) {
+        if (type === 'item') {
+            var signs = ['$','¥','£','€', '฿'], hasSign = false;
+            for(var i in signs) { 
+                if (price.indexOf(signs[i]) > -1) hasSign = true; break;
+            }
+            price = '$' + price;
+        }
+        return $template.find('.postPrice').html(price);
+    }
+    $moreButton.show();
 }
-streamFactory.append.moreInfoBindButton = function($custButton) {
-    var $buttons;
-    if($custButton) { 
-        $buttons = $custButton
-    } else {
-        $buttons = this.parent.$cont.find('.moreInfo');
-    }
-    $buttons.on('click.vv', function() {
-        VV.utils.hideSettingsTab();
-        //find its parent the find the button. more resistant to layout changes.
-        var $moreInfo = $(this).closest('article').find('.blockMoreInfo');
+streamFactory.append.moreInfoButton = function() {
+    VV.extend('buttonTasks', {
+        moreInfo: function($el, e) {
+            VV.utils.hideSettingsTab();
+            //find its parent the find the button. more resistant to layout changes.
+            var $moreInfo = $el.closest('article').find('.blockMoreInfo');
 
-        //button is depressed, and moreInfo yet to be hidden
-        if($(this).hasClass('blockInteractActive') && $moreInfo.attr('data-shown') === 'yes') {
-            //remove the class first.
-            $(this).removeClass('blockInteractActive');
-            $moreInfo.velocity('transition.slideUpOut', 200, function(el) {
-                //now toggle to hide.
-                $(el).attr('data-shown', 'no');
-            });
+            //button is depressed, and moreInfo yet to be hidden
+            if($el.hasClass('blockInteractActive') && $moreInfo.attr('data-shown') === 'yes') {
+                //remove the class first.
+                $el.removeClass('blockInteractActive');
+                $moreInfo.velocity('transition.slideUpOut', 200, function(el) {
+                    //now toggle to hide.
+                    $moreInfo.attr('data-shown', 'no');
+                });
+            }
+
+            //button is not depressed, and moreInfo not shown
+            if(!$el.hasClass('blockInteractActive') && $moreInfo.attr('data-shown') === 'no') {
+                //add the class first.
+                $el.addClass('blockInteractActive');
+                $moreInfo.velocity('transition.slideDownIn', 200, function(el) {
+                    //now toggle to hide.
+                    $moreInfo.attr('data-shown', 'yes');
+                });
+            }
+            //intermediate cases where button is depressed/undepressed, but animation is not complete.
+            //will fall through.
+            return false;
         }
-
-        //button is not depressed, and moreInfo not shown
-        if(!$(this).hasClass('blockInteractActive') && $moreInfo.attr('data-shown') === 'no') {
-            //add the class first.
-            $(this).addClass('blockInteractActive');
-            $moreInfo.velocity('transition.slideDownIn', 200, function(el) {
-                //now toggle to hide.
-                $(el).attr('data-shown', 'yes');
-            });
-        }
-
-        //intermediate cases where button is depressed/undepressed, but animation is not complete.
-        //will fall through.
-        return false;
     });
-}
-streamFactory.append.moreInfoImg = function($stream, post, moreInfo) {
-    if(!moreInfo.hasAddTag) { return false; }
-
-    var $imgCont = $stream.find('.postItemAddTagImg');
-
-    var ajaxGetImg = $.post(printHead.p.absPath + '/api/getimage', {username: moreInfo.addTag});
-    ajaxGetImg.done(function(data) {
-        if(!data.success) { return $imgCont.remove(); }
-        //console.log(data.imgUUID)
-        //console.log(VV.utils.imageGetter(data.imgUUID, "thumb"));
-        var src = VV.utils.imageGetter(data.imgUUID, "thumb");
-        var html;
-        html  = '<a href="' + printHead.p.absPath + '/' + moreInfo.addTag + '">';
-        html += '<img src="' + src + '"></a>';
-        return $imgCont.append(html);
-    });
-    ajaxGetImg.fail(function() { return $imgCont.remove(); });
-}
+};
 streamFactory.append.blockVia = function($stream, post) {
     var link = D.get(post, 'dataMeta.isInstagram');
     if(link) {
@@ -760,7 +804,36 @@ streamFactory.append.blockVia = function($stream, post) {
 }
 
 /* Product appends */
+streamFactory.append.productAbstract = function($stream, post) {
+    var self = this;
+    var viewer = printHead.userHeaders.userId;
+    var postOwner = post.User_userId;
+    var showInfo = true;
+    if (viewer !== postOwner) {
+        if (post.user.shopStatus !== 'active') {
+            showInfo = false;
+            $stream
+                .find('.blockProductInfo')
+                .append('<h1 class="productInfoHeading" style="color: #ef4549;"><i>Seller do not have complete shipping or purchase settings.</i></h1>');
+        }
+    } else {
+        if (post.user.shopStatus !== 'active') {
+            $stream
+                .find('.blockProductInfo')
+                .append('<h1 class="productInfoHeading" style="color: #ef4549;"><i>Your shop settings are incomplete. User will not be able to add item to cart.</i></h1>');
+        }
+    }
 
+    if (showInfo) {
+        this.productInfoShipping($stream, post);
+        this.productInfoSize($stream, post);
+    }
+    this.productImageThumbs($stream, post);
+    this.productName($stream, post);
+    this.productPrice($stream, post);
+    this.productLikes($stream, post);
+    $stream.find('.blockProductInfo').show();
+};
 streamFactory.append.productName = function($stream, post) {
     var $nameFull = $stream.find('.blockProductNameFull');
     var $name = $stream.find('.blockProductName');
@@ -778,8 +851,9 @@ streamFactory.append.productName = function($stream, post) {
 
 streamFactory.append.productPrice = function($stream, post) {
     var $price = $stream.find('.spanPrice');
-    var curr = '<span class="priceUpperCase">' + this.parent.renderJSON.dataShop.currency + '</span>'; //get currency from user details;
-    $price.html(curr + ' ' + post.dataProduct.price);
+    var currency = D.get(this.parent.renderJSON, 'dataShop.currency') || D.get(post, 'user.dataMeta.dataShop.currency');
+    var currHTML = '<span class="priceUpperCase">' + currency + '</span>'; //get currency from user details;
+    $price.html(currHTML + ' ' + post.dataProduct.price);
 };
 streamFactory.append.productLikes = function($stream, post) {
     var $productLikes = $stream.find('.spanLikes'),
@@ -797,4 +871,231 @@ streamFactory.append.productLikes = function($stream, post) {
         $likesCount.attr('data-count', post.totalLikes);
     }
 
+};
+
+streamFactory.append.productInfoShipping = function($stream, post) {
+    var self = this;
+    var currency = D.get(self.parent.renderJSON, 'dataShop.currency') || D.get(post, 'user.dataMeta.dataShop.currency');
+    var currencyHTML = '<span style="text-transform: uppercase">' + currency + '</span>';
+
+    var $info = $stream.find('.blockProductInfo');
+    var html = '';
+
+    html += '<h1 class="productInfoHeading">Delivery Info ';
+
+    if (D.get(post, 'dataProduct.shipping.shippingType') === "light") {
+        var shippingMeta = D.get(self.parent, 'renderJSON.dataShop.shipping') || D.get(post, 'user.dataMeta.dataShop.shipping');
+        if (!shippingMeta || shippingMeta === 'undefined') return;
+
+
+        html += '(up to ' + D.get(shippingMeta, 'stepQty') + ' items/order):</h1>';
+
+        var shipping = D.get(shippingMeta, 'light');
+        var shippingDay = shipping;
+
+        var keys = this.productTryGetKeys(shipping);
+        if (!keys) { return false; }
+
+        for(var i in keys) {
+            var key = keys[i],
+               cost = D.get(shipping, key + '.cost'),
+               day = D.get(shippingDay, key + '.day');
+
+            if (cost && day) {
+               html += _formatHTML({key: key, cost: cost, day: day});
+            }
+        }
+
+    } else {
+        //HEAVY SHIPPING
+        html += '(PER ITEM):</h1>';
+
+        var shipping = D.get(post, 'dataProduct.shipping.list');
+        //estimated number of shipping days is in dataShop shipping details.
+        //gotcha: although it is accessing .light, its the same for heavy.
+        var shippingDay = D.get(self.parent, 'renderJSON.dataShop.shipping.light') || D.get(post, 'user.dataMeta.dataShop.shipping.light');
+
+        var keys = this.productTryGetKeys(shipping);
+        if (!keys) { return false; }
+
+        for(var i in keys) {
+            var key = keys[i],
+                cost = D.get(shipping, key),
+                day = D.get(shippingDay, key + '.day');
+
+            if (cost && day) {
+                html += _formatHTML({key: key, cost: cost, day: day});
+            }
+        }
+    }
+
+    $info.append(html);
+
+
+    /* ===== private functions */
+    function _regionName(code) {
+        if (!code) { return ''; }
+
+        var name = VV.g.regionNames;
+
+        if (name[code]) {
+            return name[code];
+        }
+        return code;
+    }
+
+    function _formatHTML(values) {
+        if (!values) { return values; }
+        var key = values.key,
+            cost = values.cost,
+            day = values.day,
+            _html = '';
+
+        _html += '<p class="productInfoDelivery">';
+        _html += '<span class="productInfoDeliveryRegion">' + _regionName(key) + "</span>";
+        _html += '<span class="productInfoDeliveryCost" data-value="' + cost + '" data-currency="' + currency + '">' + currencyHTML + cost + "</span> &nbsp;";
+        _html += '<span class="productInfoDeliveryDay" data-value="' + day + '">(ships in ' + day + " days)</span>";
+        _html += '</p>';
+
+        return _html;
+    }
+
+};
+
+streamFactory.append.productInfoSize = function($stream, post) {
+    var size = D.get(post, 'dataProduct.size');
+    //console.log(size);
+    if (!size) { return false; }
+    var $info = $stream.find('.blockProductInfo');
+    var html = '';
+
+    if (D.get(size, 'sizeType') === "hassize") {
+
+        var keys = this.productTryGetKeys(size.sizes);
+        if (!keys) { return false; }
+
+        var productHasStock = false; //product flag to toggle removal of add to cart.
+        for(var i in keys) {
+            var sizeKey = keys[i],
+                stock = size.sizes[sizeKey];
+                
+
+            if (stock === 'hasStock') {
+                stock = 'In stock';
+                productHasStock = true;
+
+                _populateSelect($stream, sizeKey);
+
+            } else {
+                stock = '<span style="color: #ef4549;">Out of stock</span>';
+            }
+
+            html += '<p class="productInfoSS">';
+            html += '<span class="productInfoSSSize">' + sizeKey + '</span>';
+            html += ' - <span class="productInfoSSStock"><em>' + stock + '</em></span>';
+            html += '</p>';
+        }
+
+    } else {
+        html += 'This item is a freesize';
+
+        //stock
+        var stock = D.get(size, 'nosizeQty');
+        if (stock === "hasStock") {
+            stock = 'In stock';
+            productHasStock = true;
+
+            //remove the select since there is no size selection.
+            $stream.find('.articlePurchaseSize').remove();
+        } else {
+            stock = '<span style="color: #ef4549;">Out of stock</span>';
+        }
+        html += '<br />';
+        html += 'Status: ';
+        html += '<em>' + stock + '</em>';
+        html = '<p class="productInfoSS">' + html + '</p>';
+
+    }
+    html = '<h1 class="productInfoHeading">Size and Stock Info:</h1>' + html;
+    $info.append(html);
+
+    //remove the purchase options if product has no stock at all.
+    if (!productHasStock) {
+        $stream.find('.articlePurchaseOptions').remove();
+    } else {
+        $stream.find('.articlePurchaseOptions').show();
+        this.productAddToCart($stream, post);
+    }
+
+    /* ===== private functions */
+    function _populateSelect($stream, size) {
+        var $select = $stream.find('.articlePurchaseSize');
+        $select.append('<option value="' + size + '">' + size + '</option>');
+    }
+
+};
+
+streamFactory.append.productAddToCart = function($stream, post) {
+    this.identifier($stream.find('.articleAddToCart'), post);
+};
+streamFactory.append.productTryGetKeys = function(keys) {
+    try {
+        var keys = Object.keys(keys);
+        return keys;
+    } catch(err) {
+        console.log(err);
+        return false;
+    }
+};
+streamFactory.append.productImageThumbs = function($stream, post) {
+    var $holder = $stream.find('.blockThumbHolder');
+    var thumbs = D.get(post, 'dataProduct.images');
+    if (!thumbs) { return false; }
+    if (thumbs.length === 0) { return false; }
+    //push the main picture into the thumbs array.
+    thumbs.push(post.imgUUID);
+    $holder.attr('data-thumbs', JSON.stringify(thumbs)); //instead of .data() because of DOM copying
+    for(var i in thumbs) {
+        $holder.append('<div class="productThumbs"><img src="' + printHead.f.imgLoaderHolder + '"></div>');
+    }
+};
+streamFactory.append.imageThumbsLoad = function($article) {
+    try {
+        var imgsArr = JSON.parse($article.find('.blockThumbHolder').attr('data-thumbs'));
+    } catch(err) { return false; }
+    if (!imgsArr) { return false; }
+    if (imgsArr < 2) { return false; } //if less than 2 means there is no need for thumbs.
+    var $thumbBrackets = $article.find('.productThumbs');
+    for(var i in imgsArr) {
+        var imgUUID = imgsArr[i];
+        var el_bracket = $thumbBrackets[i];
+        var img = new Image();
+        img.style['opacity'] = 0;
+        img.style['zIndex'] = 10;
+        img.onload = (function(img, el_bracket) {
+            return function() {
+                var $b = $(el_bracket),
+                    h = $b.height(),
+                    w = $b.width(),
+                    $holder = $b.find('img');
+
+                //hold the container size;
+                $b.css('height', h + 'px').css('width', w + 'px');
+                $holder.css({'position': 'absolute', 'z-index': '9', 'left': '0px', 'top': '0px'});
+
+                $b.prepend(img);
+                $(img)
+                    .attr('data-task', 'productThumbnail')
+                    .velocity('fadeIn', {
+                        duration: 200,
+                        display: 'block',
+                        complete: function() {
+                            $holder.remove();
+                            $b.css('height', '').css('width', '');
+                        }
+                    });
+            }
+        })(img, el_bracket);
+        img.src = VV.utils.imageGetter(imgUUID);
+    }
 };

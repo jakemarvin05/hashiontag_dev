@@ -225,18 +225,45 @@ header.profileHeader>div {
         overflow: hidden;
         position: relative;
     }
-    .profilePostsBlock .blockMoreInfo {
-        position: absolute;
-        top: 0px;
-        width: 100%;
-        height: 100%;
-    }
         .profilePostsBlock .blockMoreInfo>div {
             width: 100%; 
         }
         .profilePostsBlock . {
             width: 100%; 
         }
+
+    /* More Info Block */
+    .profilePostsBlock .blockMoreInfo {
+        position: absolute;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        font-size: 12.5px;
+    }
+    .profilePostsBlock .blockMoreInfoLower {
+        display: none !important;
+    }
+        .profilePostsBlock .postItemImg {
+            display: none !important;
+        }
+        .profilePostsBlock .postItemTextCont {
+            padding: 0px !important;
+        }
+            .profilePostsBlock .postItemName {
+                height: 17px;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+                padding-bottom: 0px;
+            }
+            .profilePostsBlock .postItemUserNameDiv {
+                display: none !important;
+            }
+            .profilePostsBlock .postPrice {
+                padding-top: 0px;
+            }
+
+
     
     /* the shop thumbnail */
     @media (min-width: 0px) and (max-width: 320px) {
@@ -442,7 +469,10 @@ header.profileHeader>div {
             display: none;
         }
         #shopBlock .blockProductInfo {
-            display: none;
+            display: none !important;
+        }
+        #shopBlock .articlePurchaseOptions {
+            display: none !important;
         }
         #shopBlock .spanPrice {
             font-weight: bold;
@@ -460,6 +490,9 @@ header.profileHeader>div {
     #shopBlock .blockBelowProductName {
         display: block !important;
     }
+#shopBlock .blockThumbHolder, .profilePostsBlock .blockThumbHolder {
+    display: none;
+}
 
 /* product fancybox posts */
 
@@ -479,13 +512,13 @@ header.profileHeader>div {
         padding-top: 10px;
     }
 
-    .productArticle .blockProductInfo {
-        display: block !important;
+    .productArticle .spanLikes {
+        display: none;
     }
-
+/*
     .productArticle .articlePurchaseOptions {
         display: block !important;
-    }
+    }*/
 
 
 
