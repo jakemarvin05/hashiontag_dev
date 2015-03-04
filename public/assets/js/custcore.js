@@ -597,7 +597,6 @@ VV.extend('buttonTasks', {
 
 
                 var $purchaseOptions = $el.closest('.articlePurchaseOptions');
-                console.log($purchaseOptions);
                 if ($purchaseOptions.length > -1) {
                     if (message) {
                         $purchaseOptions.html(message);

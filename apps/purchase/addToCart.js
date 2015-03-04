@@ -45,6 +45,7 @@ module.exports = function addToCart(req, res) {
             where: {
                 postId: req.body.postId,
                 isProduct: true,
+                //GOTCHA this will work with sequelize v2.0.3. Awaiting my PR to merge.
                 isNotPublished: {not: true},
                 softDeleted: {not: true}
             },
