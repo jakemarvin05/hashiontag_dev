@@ -3,13 +3,27 @@
  * 
  * Modifies the dataProduct in streams by setting "flags" depending on the quantity
  * of the stock. 
+ *
  */
+
+/*
+Use:
+
+   stockFilter([Array or Object])
+
+*/
+
 
 var D = require('dottie');
 
 module.exports = function stockFilter(streams) {
 
-    if (streams.length === 0) { return streams; }
+    if (Array.isArray(streams)) {
+        if (streams.length === 0) { return streams; }
+    } else {
+        //if object passed in is a single item, wrap it in array.
+        var streams = [streams];
+    }
 
     for(var i=0; i<streams.length; i++) {
         var stream = streams[i];

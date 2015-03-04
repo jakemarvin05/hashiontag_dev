@@ -587,7 +587,26 @@ VV.extend('buttonTasks', {
             });
 
             ajax.fail(function(err) {
-                console.log(err);
+                var message;
+                if ([400, 403].indexOf(err.status) > -1) {
+                    if (err.responseText.length > 0) {
+                        message = err.responseText;
+                    }
+                }
+                if (message) message = '<span style="color:#ef4549; ">' + message + '</span>';
+
+
+                var $purchaseOptions = $el.closest('.articlePurchaseOptions');
+                console.log($purchaseOptions);
+                if ($purchaseOptions.length > -1) {
+                    if (message) {
+                        $purchaseOptions.html(message);
+                    } else {
+                        $purchaseOptions.hide();
+                    }
+                } else {
+                    $el.after(message).hide();
+                }
             });
 
             ajax.always(function() {

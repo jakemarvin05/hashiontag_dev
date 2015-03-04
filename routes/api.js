@@ -14,7 +14,7 @@ router.get('/', function(req, res) {
   res.send('Nothing here...');
 });
 router.post('/', function(req, res) {
-  res.send('');
+  res.send('Welcome to VogueVerve. Plase refer to VogueVerve API documentation. Have fun :)');
 });
 
 router.post('/login', function(req, res) {

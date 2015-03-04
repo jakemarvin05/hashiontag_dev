@@ -1,6 +1,7 @@
 var db = global.db;
 var D = require('dottie');
 var checkSizesAndStock = require('./checkSizesAndStock.js');
+var shippingCalc = require('../shipping/shippingCalc.js');
 
 module.exports = function cartJSON(req, res, opts, render) {
 
@@ -10,7 +11,15 @@ module.exports = function cartJSON(req, res, opts, render) {
         return render(false, error);
     };
 
-    db.User.find().then(function() {
+    /*
+    1. Find all "carted" products of the user. Also Find user's dataMeta.
+    2. Re-arrange all the cart items by sellers. 
+    3. Recheck all the stock against DB.
+    4. Push those that are Out of Stock, or if seller has not completed their settings, to OOS array.
+    5. Calculate shipping.
+    */
+
+    Promise.resolve().then(function() {
 
         return [
             db.Purchase.findAll({
@@ -45,7 +54,7 @@ module.exports = function cartJSON(req, res, opts, render) {
             oos: []
         };
 
-        var address = D.get(user.dataMeta.address);
+        var address = D.get(user, 'dataMeta.address');
         rearranged.ownAddress = address ? address : false;
 
         if (cartItems.length === 0) { return render(rearranged); }
@@ -140,8 +149,8 @@ module.exports = function cartJSON(req, res, opts, render) {
 
         } //for(var i in cartItems) loop
 
-        //calculate shipping
-        render(rearranged);
+        var completeCartJSON = shippingCalc(rearranged);
+        render(completeCartJSON);
 
     }).catch(function(err) { 
         console.log(err);
