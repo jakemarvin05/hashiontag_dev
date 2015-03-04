@@ -1,5 +1,14 @@
 /* checkSizesAndStock.js
+ *
+ *     checkSizesAndStock({
+ *         req: req,
+ *         res: [res or null]
+ *         sizeData: [data],
+ *         showStock: [true/false]
+ *     }, callback);
  * 
+ *
+ *
  * Receives 'req' obj and optional 'res', 'sizeData' and 'callback'
  * Produces result:
  *  When errored: [ false, [statusCode], [msg (optional)] ] 
@@ -223,10 +232,10 @@ module.exports = function checkSizesAndStock(opts, callback) {
 
             //set the stock status
             //if there is stock but not enough, return the negative number
-            if (stock === 0 || stock < 0) { stock = "oos"; }
+            if (stock === 0 || stock < 0) { stock = 'oos'; }
             else if (stock - qty < 0) { stock = stock - qty; }
             else if (showStock) { stock = stock - qty; }
-            else { stock = true; }
+            else { stock = 'hasStock'; }
             return stock;
         }
     }
