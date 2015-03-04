@@ -1,8 +1,8 @@
-function CountryList() {
-    this.withRegion = function() {
+var countryList = {
+    withRegion: function() {
         return this.list;
     },
-    this.withoutRegion = function() {
+    withoutRegion: function() {
         var regions = Object.keys(this.list);
         var list = [];
         for(var i = 0 ; i < regions.length; i++) {
@@ -10,8 +10,15 @@ function CountryList() {
             list = list.concat(this.list[regions[i]]);
         }
         return list.sort();
-    }
-    this.list = {
+    },
+    getRegion: function(country) {
+        for(var region in this.list) {
+            if (this.list.hasOwnProperty(region)) {
+                if (this.list[region].indexOf(country) > -1) return region;
+            }
+        }
+    },
+    list: {
 
         usc: [ 
             "Canada",
@@ -267,7 +274,7 @@ function CountryList() {
   
     }
 }
-module.exports = CountryList;
+if (typeof module !== 'undefined') module.exports = countryList;
 
 function selectCountry(selectId, selection) {
     var i = 0,
@@ -279,7 +286,7 @@ function selectCountry(selectId, selection) {
     x.innerHTML = "-- select a country --";
     elem_select.appendChild(x);
 
-    var list = (new CountryList()).withoutRegion();
+    var list = countryList.withoutRegion();
     while(list[i]) {
         var o = document.createElement('option'),
         c = list[i];

@@ -89,7 +89,7 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING(100),
             allowNull: true,
             validate: {
-                isIn: [listOfCountries]
+                isIn: [countryList]
             }
         },
         isPrivate: {
@@ -288,8 +288,7 @@ folder: selectCode.js
 
 Remember to map the old country values over to the new on when you change it here,
 else the user will hit errors when updating their profile */
-var CountryList = require('../public/assets/js/commons/listOfCountries.js');
-var listOfCountries = (new CountryList()).withoutRegion();
+var countryList = require('../public/assets/js/commons/countryList.js').withoutRegion();
 
 var disallowedUsernames = [
 "assets",

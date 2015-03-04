@@ -150,7 +150,7 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
 
                 <div class="profileInputsCount">
                     <label> Country </label><select name="country" id="country" data-orgin="{renderJSONraw.country}"></select>
-                    <script src="{p.js}/commons/listOfCountries.js"></script>
+                    <script src="{p.js}/commons/countryList.js"></script>
                     <script>selectCountry('country', '{renderJSONraw.country}');</script>
                 </div>
                 <div class="profileInputsAbout">
