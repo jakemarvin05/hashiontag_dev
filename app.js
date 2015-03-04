@@ -13,6 +13,7 @@ global.db = db;
 
 var Promise = require('bluebird');
 global.Promise = Promise;
+global.PromiseStart = Promise.resolve();
 
 /* passport and session */
 var passport = require('passport');
