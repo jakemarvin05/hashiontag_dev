@@ -346,16 +346,7 @@ footer,
 }
 /* to make the borders of #main full height */
 html,
-body,
-.globalWrapper,
-#main {
-  min-height: 100%;
-}
-/* make sure these entities cannot have overflow hidden. else
-   all content below 100% will be cut off */
-html,
-body,
-.globalWrapper {
+body {
   height: 100%;
 }
 /* Loader studs */
@@ -391,6 +382,7 @@ textarea {
 @media (min-width: 0px) and (max-width: 320px) {
   .navWrapper {
     height: 60px;
+    bottom: 0px;
   }
 }
 @media (min-width: 321px) {
@@ -539,47 +531,62 @@ textarea {
   color: #d91639 !important;
   cursor: default !important;
 }
+.globalWrapper.headerCompensate {
+  display: table;
+  width: 100%;
+  min-height: 100%;
+}
 @media (min-width: 0px) and (max-width: 320px) {
-  .headerCompensate {
-    padding-top: 60px;
+  .globalWrapper.headerCompensate {
+    padding-bottom: 60px;
   }
 }
 @media (min-width: 321px) {
-  .headerCompensate {
+  .globalWrapper.headerCompensate {
     padding-top: 70px;
   }
 }
-#main {
-  margin: auto;
-  padding-top: 1px;
-  box-sizing: border-box;
-  padding-bottom: 10px;
-}
 @media (min-width: 541px) {
-  #main {
+  .globalWrapper.headerCompensate {
     border-left: 1px solid #ccc;
     border-right: 1px solid #ccc;
   }
+}
+#main {
+  display: table-cell;
+  vertical-align: middle;
+  box-sizing: border-box;
+  padding-bottom: 10px;
+  min-height: 100%;
 }
 /*-------------------------------------------------
 3. Block headings, blocks styles.
 -------------------------------------------------*/
 .mainColBlock {
-  padding-top: 1px;
-  /*padding hack for #main to be full height */
-
   margin: auto;
+  min-height: 100%;
   max-width: 540px;
 }
 .mainColBlock article,
 .mainColBlock li {
   background-color: #fff;
-  margin: 10px auto 10px auto;
   border-top: 1px solid #e0e0e0;
   -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
   -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
   -o-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.31);
+}
+@media (min-width: 0px) and (max-width: 320px) {
+  .mainColBlock article,
+  .mainColBlock li {
+    margin: 0px auto 20px auto;
+  }
+}
+@media (min-width: 321px) {
+  .mainColBlock article,
+  .mainColBlock li {
+    margin: 10px auto;
+  }
 }
 .mainColBlock article:after {
   content: "";

@@ -1,5 +1,5 @@
 {>blockHeader/}
-<link href="{p.css}/index.css" rel="stylesheet"> 
+{?showStream}{:else}<link href="{p.css}/index.css" rel="stylesheet"> {/showStream}
 {>blockHeaderAfterHook/}
 
 {?showStream}

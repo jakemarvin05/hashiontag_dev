@@ -3,6 +3,9 @@
 html, body, .globalWrapper, #loginCont, #resetPwdCont {
     height: 100%;
 }
+.globalWrapper.headerCompensate {
+    border: 0px !important;
+}
 img.bg {
     min-height: 100%;
     min-width: 1024px;
