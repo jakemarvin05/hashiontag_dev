@@ -2,6 +2,7 @@ var db = global.db;
 var D = require('dottie');
 var checkSizesAndStock = require('./checkSizesAndStock.js');
 var shippingCalc = require('../shipping/shippingCalc.js');
+var cartCalculator = require('./cartCalculator.js');
 
 module.exports = function cartJSON(req, res, opts, render) {
 
@@ -11,15 +12,28 @@ module.exports = function cartJSON(req, res, opts, render) {
         return render(false, error);
     };
 
+    /* ===== private functions */
+    function _updateQty(item) {
+        db.Purchase.update({
+            qty: item.qty
+        }, {
+            where: { purchaseId: item.purchaseId }
+        }).catch(function(err){
+            console.log(fname + ' neqQty update error: ' + err);
+        });
+    }
+
     /*
     1. Find all "carted" products of the user. Also Find user's dataMeta.
     2. Re-arrange all the cart items by sellers. 
     3. Recheck all the stock against DB.
     4. Push those that are Out of Stock, or if seller has not completed their settings, to OOS array.
     5. Calculate shipping.
+    6. Update or create the cart snapshot into Transaction.
     */
 
-    Promise.resolve().then(function() {
+    var COMPLETE_CART_JSON;
+    return Promise.resolve().then(function() {
 
         return [
             db.Purchase.findAll({
@@ -28,15 +42,18 @@ module.exports = function cartJSON(req, res, opts, render) {
                     stage: 'cart'
                 },
                 include:[{
-                    model: db.User,
-                    as: 'Seller',
-                    attributes: ['userId', 'userNameDisp', 'profilePicture', 'dataMeta']
-                }, {
                     model: db.Post,
-                    attributes: ['dataProduct']
+                    attributes: ['imgUUID', 'dataProduct'],
+                    where: {
+                        isProduct: true,
+                        softDeleted: {not: true}
+                    },
+                    include: [{
+                        model: db.User,
+                        attributes: ['userId', 'userNameDisp', 'profilePicture', 'dataMeta']
+                    }]
                 }],
-                order: [ ['updatedAt', 'DESC'] ],
-                raw: true
+                order: [ ['updatedAt', 'DESC'] ]
             }),
             db.User.find({
                 where: {
@@ -55,6 +72,8 @@ module.exports = function cartJSON(req, res, opts, render) {
         };
 
         var address = D.get(user, 'dataMeta.address');
+
+        //if address is false, don't calculate shipping and produce warning message for user.
         rearranged.ownAddress = address ? address : false;
 
         if (cartItems.length === 0) { return render(rearranged); }
@@ -68,10 +87,9 @@ module.exports = function cartJSON(req, res, opts, render) {
         for(var i in cartItems) {
             var item = cartItems[i];
 
-
             /*check the seller data. if data is incomplete, push things to oos. */
             /*also update the incompleteSellers array*/
-            var seller = D.get(item, 'Seller.userId');
+            var seller = D.get(item, 'post.user.userId');
             if (incompleteSellers.indexOf(seller) > -1) {
                 rearranged.oos.push(item);
                 continue;
@@ -89,13 +107,10 @@ module.exports = function cartJSON(req, res, opts, render) {
                 continue;
 
             } else {
+
                 var stock = checkSizesAndStock({
-                    req: {
-                        body: {
-                            qty: item.qty,
-                            size: item.size
-                        }
-                    },
+                    qty: item.qty,
+                    size: item.size,
                     sizeData: sizeData,
                     showStock: true
                 });
@@ -140,32 +155,50 @@ module.exports = function cartJSON(req, res, opts, render) {
                 sellerIds.push(seller);
 
                 //branch has not been created. create it.
-                idx = rearranged.inStock.push({seller: item.Seller}) - 1;
+                idx = rearranged.inStock.push({seller: item.post.user}) - 1;
                 rearranged.inStock[idx].items = [];
             }
-            delete item.Seller;
+            delete item.post.user;
 
             rearranged.inStock[idx].items.push(item);
 
         } //for(var i in cartItems) loop
 
-        var completeCartJSON = shippingCalc(rearranged);
-        render(completeCartJSON);
+        //shipping
+        COMPLETE_CART_JSON = shippingCalc(rearranged);
+
+        //tally cost
+        COMPLETE_CART_JSON = cartCalculator(COMPLETE_CART_JSON);
+
+        return db.Transaction.findOrCreate({
+            where: {
+                User_userId: req.user.userId,
+                status: 'cart'
+            },
+            defaults: {
+                dataMeta: {
+                    snapshot: COMPLETE_CART_JSON
+                }
+            }
+        });
+
+    }).spread(function(transaction, created) {
+
+        if (created) { 
+            COMPLETE_CART_JSON.transactionId = transaction.transactionId;
+            return true; 
+        }
+
+        transaction.dataMeta.snapshot = COMPLETE_CART_JSON;
+        COMPLETE_CART_JSON.transactionId = transaction.transactionId
+        return transaction.save({fields: ['dataMeta']});
+
+    }).then(function() {
+
+        render(COMPLETE_CART_JSON);
 
     }).catch(function(err) { 
         console.log(err);
         return render(false);
     });
-
-    
-    /* ===== private functions */
-    function _updateQty(item) {
-        db.Purchase.update({
-            qty: item.qty
-        }, {
-            where: { purchaseId: item.purchaseId }
-        }).catch(function(err){
-            console.log(fname + ' neqQty update error: ' + err);
-        });
-    }
 }

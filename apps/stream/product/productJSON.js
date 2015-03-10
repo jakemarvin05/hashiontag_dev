@@ -33,7 +33,7 @@ module.exports = function productJSON(req, res, render, opts) {
     
     var include = [{   
         model: db.User,
-        attributes: [ 'userNameDisp', 'userId', 'profilePicture' ]
+        attributes: [ 'userNameDisp', 'userId', 'profilePicture', 'shopStatus' ]
     }, { 
         model: db.Comment,
         attributes: ['commentId', 'comment', 'createdAt'],

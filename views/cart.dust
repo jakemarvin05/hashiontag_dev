@@ -1,36 +1,431 @@
 {>blockHeader/}
+<style>
+.cartLayout {
+    margin-bottom: 40px;
+}
+.cartItemLayout {
+    position: relative;
+}
+.cartBlockTop {
+    text-align: center;
+    background: #f7f7f7;
+    padding: 10px;
+}
+    .cartBlockSellerUsername a {
+        font-weight: bold;
+    }
+    .cartBlockSellerPicture img {
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+    }
+    .cartBlockShipsIn {
+        font-style: italic;
+    }
+.cartBlocksWrap>article:first-child {
+    margin-top: 0px;
+}
+.cartLeftCol {
+    width: 100px;
+    float: left;
+}
+    .cartLeftCol img {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    .cartName {
+        max-height: 28px;
+        overflow: hidden;
+    }
+    .cartSize {
+        margin-top: 2px;
+    }
+.cartCenterCol {
+    float: left;
+    padding: 10px;
+}
+@media (min-width: 0px) and (max-width: 480px) {
+    .cartCenterCol {
+        width: 40%;
+    }
+}
+@media (min-width: 481px) {
+    .cartCenterCol {
+        width: 60%;
+    }
+}
+.cartRightCol {
+    text-align: right;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+    .cartShipping {
+        font-size: 14px;
+        border-top: 1px dotted #ccc;
+        margin-top: 3px;
+        padding-top: 3px;
+    }
+    .cartSecondRow {
+        position: absolute;
+        left: 100px;
+        bottom: 0px;
+    }
+        .cartActionBlock {
+            display: inline-block;
+            vertical-align: middle;
+            padding: 5px;
+        }
+        .cartSaveForLater {
+            border-left: 1px solid #ccc;
+        }
+
+.cartSubTotalWrap {
+    display: inline-block;
+    float: right;
+    margin-right: 10px;
+    font-size: 16px;
+}
+    .cartSubTotalText {
+        font-weight: bold;
+    }
+
+.cartFinalAmountWrap {
+    text-align: right;
+    padding: 10px;
+    margin-top: 30px;
+    background: #ccc;
+    font-size: 17px;
+}
+.cartCheckoutWrap {
+    text-align: center;
+    margin-top: 20px;
+}
+.oosColBlock {
+    margin-top: 20px;
+}
+    .oosHeader {
+        text-align: center;
+    }
+    .oosHeaderNumber {
+        font-weight: bold;
+    }
+    button[data-task='hideOOS'] {
+        display: block;
+        margin: auto;
+    }
+</style>
 {>blockHeaderAfterHook/}
 
 <section id="main">
     <div class="mainColBlock">
-        {>layouts/cartLayout.dust/}
+        <div class="cartOuterWrap">
+            {>"layouts/cartLayout.dust"/}
+        </div>
+        <div class="cartFinalAmountWrap"><b>Grand total: </b><span class="cartFinalAmount"></span></div>
+        <div class="cartCheckoutWrap">
+            <button class="darkButton" type="button" data-task='cartcheckout'>Checkout</button>
+        </div>
     </div>
 
-    <div class="oosBlockWrap" style="display:none;">
-        <section class="ossMainBlock">
-            <div class="ossHeader">
-                <h1>This items have gone out-of-stock.</h1>
-                <h2>You may remove them or wait for them to re-stock.</h2>
-            </div>
-            <article class="ossBlock" id="layoutId3">
-                <div class="oosLeftCol"></div>
-                <div class="oosCenterCol">
-                    <div class="cartNameSize">
-                        <span class="cartName"></span>
-                        <span class="cartSize"></span>
-                    </div>
-                    <div class="cartActions">
-                        <div class="cartRemove">
-                            <span class="glyphicon glyphicon-circle-remove"></span>&nbsp;Remove
-                        </div>
-                    </div>
+    <div class="oosColBlock mainColBlock">
+        <div class="oosHeader" style="display:none; padding: 10px;">
+            There are <span class="oosHeaderNumber"></span> items that went out-of-stock. They will be removed after 20 days.
+            <br>
+            <a href="javascript:void(0);" id="seeOOS">See items</a>.
+        </div>
+        <div class="oosBlockWrap" style="display:none;">
+            <section class="ossMainBlock">
+                <div class="ossHeader">
+                    <h2 style="padding: 10px;">These items have gone out-of-stock.</h2>
                 </div>
-            </article>
-        </section>
+                <div id="ossStreamWrap">
+                    {>"layouts/extend/cartLayout_cartItemLayout.dust"/}
+                </div>
+            </section>
+            <button type="button" data-task="hideOOS"><span class="glyphicon glyphicon-arrow-up"></span>hide</button>
+        </div>
+        
     </div>
     <!-- end your stream -->
 </section><!-- main -->
 
 {>blockFooter/}
+<script src="{p.js}/streamFactory.js"></script>
+<script>
+/* cartGroup */
+var cartGroupFactory = Object.create(streamFactory);
+cartGroupFactory.append = Object.create(streamFactory.append);
+cartGroupFactory.currency = printHead.userHeaders.currency || 'SGD';
+cartGroupFactory.append.identifier = function($el, post) {
+    return $el.attr('data-sellerid', post.seller.userId);
+};
+cartGroupFactory.append.layers = function($stream, i, post) {
+    var self = this;
+
+    this.sellerHeaders($stream, post);
+    this.subtotal($stream, post);
+
+    cartItemsFactory.init(this.parent.renderJSON, {
+        postAssessor: 'inStock.' + i + '.items',
+        streamContClass: '#' + $stream.attr('id') + ' .cartBlocksWrap',
+        streamPrefix: 'cartItem_',
+        idAssessor: 'purchaseId',
+        layoutClass: 'cartItemLayout',
+        flushLayout: true
+    });
+
+    /* any other custom appending functions */
+    for(var i = 0; i < this.custom.length; i++) {
+        this.custom[i].call(this, $stream, post);
+    }
+};
+cartGroupFactory.append.sellerHeaders = function($stream, post) {
+    //var $picture = $stream.find('.cartBlockSellerPicture');
+    var $username = $stream.find('.cartBlockSellerUsername');
+    var $shipsIn = $stream.find('.cartBlockShipsIn');
+
+    var anchor = '<a href="' + printHead.p.absPath + '/' + post.seller.userNameDisp + '" target="_blank"></a>'; 
+
+    /*disable profile picture cause it looks nicer? */
+
+    //profile picture
+    // var image = new Image();
+    // var imageHref = VV.utils.imageGetter(post.seller.profilePicture, 'thumb');
+    // image.onload = (function() {
+    //     return function() {
+    //         $picture.html('<img src="' + imageHref + '">');
+    //         $picture.wrapInner(anchor);
+    //     }
+    // })($picture, imageHref, anchor);
+    // image.src = imageHref;
+
+    //username
+    $username.html('@' + post.seller.userNameDisp);
+    $username.wrapInner(anchor);
+
+    var shipsIn = D.get(post, 'seller.relevantShipping.day');
+    if (shipsIn) $shipsIn.html('ships in ' + shipsIn + ' days');
+
+};
+cartGroupFactory.append.subtotal = function($stream, post) {
+    var self = this;
+    $stream.find('.cartSubTotalPrice').html(self.parent.currency + numeral(post.subtotal).format('0,0.00'));
+};
+cartGroupFactory.append.callbacks = [];
+cartGroupFactory.append.callbacks.push(function($cont) {
+    var self = this;
+    var finalAmount = this.parent.renderJSON.total;
+    finalAmount = numeral(finalAmount).format('0,0.00');
+    $cont.parent().find('.cartFinalAmount').html(self.parent.currency + finalAmount);
+});
+
+/* cartItems */
+var cartItemsFactory = Object.create(streamFactory);
+cartItemsFactory.append = Object.create(streamFactory.append);
+cartItemsFactory.append.identifier = function($el, post) {
+    var self = this;
+    return $el
+        .attr('data-sellerid', post.User_userId)
+        .attr('data-postid', post.Post_postId)
+        .attr('data-purchaseid', post.purchaseId)
+        .attr('data-transactionid', self.parent.renderJSON.transactionId);
+};
+cartItemsFactory.append.layers = function($stream, i, post) {
+
+    /* insert layers here */
+    var layers = [
+        'cartName',
+        'cartPicture',
+        'cartSize',
+        'cartPrice',
+        'cartShipping',
+        'cartQuantity',
+        'cartButtons'
+    ];
+
+    /* call the layers */
+    for(var i in layers) {
+        this[layers[i]]($stream, post);
+    }
+
+    /* any other custom appending functions */
+    for(var i = 0; i < this.custom.length; i++) {
+        this.custom[i].call(this, $stream, post);
+    }
+};
+cartItemsFactory.append.cartName = function($stream, post) {
+    var $cartName = $stream.find('.cartName');
+    var name = D.get(post, 'post.dataProduct.name');
+    var anchor = '<a href="' + printHead.p.absPath + '/p/' + post.Post_postId + '" target="_blank"></a>';
+    $cartName.html(name);
+    $cartName.wrapInner(anchor);
+};
+cartItemsFactory.append.cartPicture = function($stream, post) {
+    var $leftCol = $stream.find('.cartLeftCol');
+    var image = new Image();
+    image.onload = (function($leftCol, image) {
+        return function() {
+            $leftCol.find('img').attr('src', image.src);
+        }
+    })($leftCol, image);
+    image.src = printHead.p.absPath + VV.utils.imageGetter(post.post.imgUUID, 'small');
+};
+cartItemsFactory.append.cartSize = function($stream, post) {
+    var $cartSize = $stream.find('.cartSize');
+    $cartSize.html('Size: ' + post.size);
+};
+cartItemsFactory.append.cartPrice = function($stream, post) {
+    var $cartPrice = $stream.find('.cartPrice');
+    var price = post.convertedUnitPrice;
+    totalPrice = numeral(price * post.qty).format('0,0.00');
+    var currency = this._getCurrency();
+    $cartPrice.html('<b>' + currency + totalPrice + '</b>');
+};
+cartItemsFactory.append.cartShipping = function($stream, post) {
+    var $cartShipping = $stream.find('.cartShippingSpan');
+    var shippingCharge = post.convertedShippingCharge;
+
+    var html;
+    if (['waived', 'free'].indexOf(shippingCharge) > -1) {
+        html = shippingCharge;
+    } else {
+        shippingCharge = numeral(shippingCharge).format('0,0.00');
+        html = '+' + this._getCurrency() + shippingCharge;
+    } 
+    $cartShipping.html(html);
+};
+cartItemsFactory.append._getCurrency = function() {
+    return cartGroupFactory.currency;
+};
+cartItemsFactory.append.cartQuantity = function($stream, post) {
+    var $cartQuantity = $stream.find('.cartQty');
+    var qty = post.qty;
+    $cartQuantity.html('Qty: ' + qty);
+};
+cartItemsFactory.append.cartButtons = function($stream, post) {
+    var self = this;
+    $stream.find('.cartActionBlock').each(function(i, el) {
+        self.identifier($(el), post);
+    });
+};
+cartItemsFactory.append._serializeCheckoutButton = function() {
+    var self = this;
+    $('button[data-task="cartcheckout"]').attr('data-transactionid', this.parent.renderJSON.transactionId);
+};
+cartItemsFactory.append.callbacks = [];
+cartItemsFactory.append.callbacks.push(cartItemsFactory.append._serializeCheckoutButton);
+
+var cartOOSFactory = Object.create(cartItemsFactory);
+cartOOSFactory.append = Object.create(cartItemsFactory.append);
+cartOOSFactory.append.layers = function($stream, i, post) {
+
+    /* insert layers here */
+    var layers = [
+        'cartName',
+        'cartPicture',
+        'cartSize',
+        'cartButtons'
+    ];
+
+    /* call the layers */
+    for(var i in layers) {
+        this[layers[i]]($stream, post);
+    }
+
+    /* any other custom appending functions */
+    for(var i = 0; i < this.custom.length; i++) {
+        this.custom[i].call(this, $stream, post);
+    }
+};
+cartOOSFactory.append.cartButtons = function($stream, post) {
+    var self = this;
+    $stream.find('.cartActionBlock').each(function(i, el) {
+        var $el = $(el);
+        $el.attr('data-category', 'oos');
+        self.identifier($el, post);
+    });
+};
+
+/* run the factory */
+function runFactory(renderJSON, flushContainer) {
+    cartGroupFactory.init(renderJSON, {
+        postAssessor: 'inStock',
+        streamContClass: 'cartOuterWrap',
+        streamPrefix: 'merchantGroup_',
+        idAssessor: 'seller.userId',
+        layoutClass: 'cartLayout',
+        flushContainer: flushContainer
+    }, function(self) {
+        try {
+            var oosLength = self.renderJSON.oos.length
+            if (oosLength > 0) {
+                $('.oosHeaderNumber').html(oosLength).parent().show();
+            }
+        } catch (err) { null; }
+        
+    });
+}
+runFactory(renderJSON);
+
+
+$('#seeOOS').on('click.oos', function(e) {
+    e.preventDefault();
+    $(this).off('click.oos');
+    cartOOSFactory.init(renderJSON, {
+        postAssessor: 'oos',
+        streamContClass: '#ossStreamWrap',
+        streamPrefix: 'oosBlock_',
+        idAssessor: 'Post_postId',
+        layoutClass: 'cartItemLayout',
+        flushLayout: true
+    }, function(self) {
+        $('.oosBlockWrap').velocity('transition.slideDownIn', 200);
+    });
+});
+
+var BLOCK_BUTTONS = false;
+VV.extend('buttonTasks', {
+    hideOOS: function($el) {
+        $('.oosBlockWrap').velocity('transition.slideUpOut', 200, function() {
+            $('#seeOOS').on('click.oos2', function(e) {
+                e.preventDefault();
+                $(this).off('click.oos2');
+                $('.oosBlockWrap').velocity('transition.slideDownIn', 200);
+            });
+        });
+    },
+    removeFromCart: function($el) {
+        if (BLOCK_BUTTONS) { return; }
+        BLOCK_BUTTONS = true;
+
+        $el.closest('article').velocity('transition.slideRightOut', 200);
+        $el.closest('.cartBlocksWrap').find('.cartShippingSpan').each(function(i, el) {
+            $(el).html('<span style="color: #ef4549;">recalculating...</span>').velocity({
+                opacity: 0.5
+            }, {
+                loop: true
+            });
+        });
+
+
+        var data = {
+            purchaseId: $el.attr('data-purchaseid'),
+            transactionId: $el.attr('data-transactionid')
+        };
+
+        var removeAjax = $.post('api/cart/remove', data);
+
+        removeAjax.done(function(cartJSON) {
+            runFactory(cartJSON, true);
+        });
+
+        removeAjax.fail(function(err) {
+            console.log(err);
+        });
+    }
+});
+</script>
 </body>
 </html>

@@ -530,20 +530,20 @@ router.get('/cart', function(req, res) {
    
     var gJSON = globalJSON(req);
 
-    /* require('../apps/settings.js')(req, res, "render", gJSON, thenRender); */
+    require('../apps/purchase/cartJSON.js')(req, res, null, thenRender);
 
     //bind the final callback first
     function thenRender(renderJSON) {
-        res.render('settings', {
+        res.render('cart', {
             title: meta(),
             isLoggedIn: isLoggedIn(req),
             gJSON: gJSON,
             p: gJSON.pathsJSON.paths,
             f: gJSON.pathsJSON.files,
             printHead: JSON.stringify(gJSON.printHead),
-            //renderJSON: JSON.stringify(renderJSON),
+            renderJSON: JSON.stringify(renderJSON),
             renderJSONraw: renderJSON,
-            page: 'settings'
+            page: 'cart'
         });
 
     }

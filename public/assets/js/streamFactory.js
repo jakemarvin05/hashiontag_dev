@@ -3,6 +3,7 @@ var streamFactory = {
     streamContClass: 'mainColBlock',
     $cont: '',
     streamPrefix: 'mainStream_',
+    idAssessor: 'postId',
     layoutClass: 'streamLayout',
     layoutHTML: false,
     stream: '',
@@ -23,7 +24,7 @@ streamFactory.getLayoutHTML = function() {
         this.layoutHTML = $layout[0].outerHTML;
         $layout.remove();
     }
-}
+};
 streamFactory.noObjMsg = false;
 streamFactory.noObj = function() {
     if (!this.noObjMsg) { return; }
@@ -39,26 +40,40 @@ streamFactory.noObj = function() {
 
     this.$cont.append(html);
 }
-streamFactory.init = function(renderJSON, options) {
+streamFactory.init = function(renderJSON, options, callback) {
     /* callback and function call arrays */
+    if (typeof callback === 'function') { this.finalCallback = callback; }
     if (!this.append.hasOwnProperty('callbacks')) { this.append.callbacks = []; }
     if (!this.append.hasOwnProperty('custom')) { this.append.custom = []; }
+
+    if (typeof options !== 'undefined') {
+        if (options.burst !== 'undefined') { this.burst = options.burst; }
+        if (options.streamContClass) { this.streamContClass = options.streamContClass; }
+        if (options.streamPrefix) { this.streamPrefix =  options.streamPrefix }
+        if (options.idAssessor) { this.idAssessor = options.idAssessor }
+        if (options.layoutClass) { this.layoutClass = options.layoutClass }
+        if (options.streamType) { this.streamType = options.streamType; }
+        if (options.pinchZoom === true) { this.pinchZoom = options.pinchZoom; }
+        if (options.imageType) { this.imageType = options.imageType; }
+        if (options.flushLayout === true)  { this.layoutHTML = null; }
+        if (options.flushContainer === true) { this.flushContainer = options.flushContainer; }
+        if (options.postAssessor) { this.postAssessor = options.postAssessor; }
+    }
 
     if (!this.layoutHTML) { this.getLayoutHTML(); }
     if (!renderJSON) { return false; }
     
-    var posts = renderJSON.posts || renderJSON.results;
+    var posts;
+    if (this.postAssessor === 'SELF') {
+        posts = renderJSON;
+    } else if (this.postAssessor) {
+        posts = D.get(renderJSON, this.postAssessor);
+    } else {
+        posts = renderJSON.posts || renderJSON.results;
+    }
     if (!posts) { return false; }
 
     this.uid = renderJSON.userId || printHead.userHeaders.userId;
-
-    if (options) {
-        if (options.burst !== 'undefined') { this.burst = options.burst; }
-        if (options.streamContClass) { this.streamContClass = options.streamContClass; }
-        if (options.streamType) { this.streamType = options.streamType; }
-        if (options.pinchZoom) { this.pinchZoom = true; }
-        if (options.imageType) { this.imageType = options.imageType; }
-    }
 
     //running streamFactory.init after instantiating the whole factory function
     //will set the "parent" pseudo property of .append back to the parent branch
@@ -67,18 +82,19 @@ streamFactory.init = function(renderJSON, options) {
 
     this.posts = posts;
     this.renderJSON = renderJSON;
-    var postCount = VV.utils.objCount(this.posts);
-    this.postCount = postCount;
+    this.postCount = this.posts.length;
 
     //allow streamContClass to use id `#` selector
     if (this.streamContClass.indexOf('#') === 0 ) { this.$cont = $(this.streamContClass); }
     else { this.$cont = $('.' + this.streamContClass); }
 
-    if(postCount < 1) { 
+    if (this.flushContainer === true) { this.$cont.html(''); }
+
+    if(this.postCount < 1) { 
         this.noObj();
         return this.$cont;
     }
-    this.buildBlocks(postCount);
+    this.buildBlocks(this.postCount);
     return this.$cont;
 }
 streamFactory.buildBlocks = function(postCount) {
@@ -88,32 +104,33 @@ streamFactory.buildBlocks = function(postCount) {
     for(var i=0; i<postCount; i++) {
 
         var post = this.posts[i];
-        var streamId = this.streamPrefix + post.postId;
+        var streamId = this.streamPrefix + D.get(post, this.idAssessor);
 
         //make stream factory resistant to duplicates
         var $stream = $('#' + streamId);
-        if($stream.length > 0) { continue; }
+        if ($stream.length > 0) { continue; }
 
         //else create the block
-        var newBlock = this.layoutHTML.replace('layoutId', streamId);
-        this.$cont.append(newBlock);
-        var $stream = $('#' + streamId);
-        this.append.init($stream, i);
+        var $newBlock = $(this.layoutHTML).attr('id', streamId);
+        this.$cont.append($newBlock);
+        this.append.init($newBlock, i);
 
     }//for loop
 
     for(var i in this.append.callbacks) {
-        this.append.callbacks[i].call(this.append);
+        this.append.callbacks[i].call(this.append, this.$cont);
     }
+    if (this.hasOwnProperty('finalCallback') && typeof this.finalCallback === 'function') { this.finalCallback(this); }
 
-}
-
-streamFactory.append = {}
-
+};
+streamFactory.append = {};
 streamFactory.append.init = function($stream, i) {
     var post = this.parent.posts[i];
     //set the data attributes
     this.identifier($stream, post);
+    return this.layers($stream, i, post);
+};
+streamFactory.append.layers = function($stream, i, post) {
 
     /*
     * Image. Also triggers chain fading.
@@ -198,8 +215,7 @@ streamFactory.append.init = function($stream, i) {
     for(var i = 0; i < this.custom.length; i++) {
         this.custom[i].call(this, $stream, post);
     }
-}
-
+};
 streamFactory.append.profileThumb = function(user) {
 
     var theParent = this.parent;
@@ -208,17 +224,18 @@ streamFactory.append.profileThumb = function(user) {
         blockProfileThumbHTML += '<img src="' + pp + '"></a>';
 
     return blockProfileThumbHTML;
-}
-
+};
 streamFactory.append.userName = function(user) {
     var blockUserNameHTML  = '<a href="/' + user.userNameDisp + '">';
         blockUserNameHTML += user.userNameDisp + '</a>';
     return blockUserNameHTML;
-}
+};
 
 streamFactory.append.identifier = function($el, post) {
-    return $el.attr('data-uid', post.user.userId).attr('data-pid', post.postId);
-}
+    var uid = D.get(post, 'user.userId') || post.User_userId;
+    var pid = post.postId || post.Post_postId;
+    return $el.attr('data-uid', uid).attr('data-pid', pid);
+};
 streamFactory.append.effect = function($el, callback) {
     var hasUA = VV.utils.checkNested(printHead, "userHeader", "ua");
 
@@ -810,6 +827,7 @@ streamFactory.append.productAbstract = function($stream, post) {
     var postOwner = post.User_userId;
     var showInfo = true;
     if (viewer !== postOwner) {
+        console.log(post.user)
         if (post.user.shopStatus !== 'active') {
             showInfo = false;
             $stream
@@ -853,7 +871,7 @@ streamFactory.append.productPrice = function($stream, post) {
     var $price = $stream.find('.spanPrice');
     var currency = D.get(this.parent.renderJSON, 'dataShop.currency') || D.get(post, 'user.dataMeta.dataShop.currency');
     var currHTML = '<span class="priceUpperCase">' + currency + '</span>'; //get currency from user details;
-    $price.html(currHTML + ' ' + post.dataProduct.price);
+    $price.html(currHTML + ' ' + post.dataProduct.price).parent().show();
 };
 streamFactory.append.productLikes = function($stream, post) {
     var $productLikes = $stream.find('.spanLikes'),

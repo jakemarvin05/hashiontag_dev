@@ -17,6 +17,11 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
     <header class="profileHeader">
         {?renderJSONraw.isOwnProfile}
         <div data-vel="normalDisplay">
+            <a href="{p.absPath}/cart">
+                <div class="profileSettingsWrap" id="profileSettingsStar" class="clickable">
+                    <div class="glyphicon glyphicon-star"></div>
+                </div>
+            </a>
             {?renderJSONraw.hasStarTag}
             <a href="{p.absPath}/startag">
                 <div class="profileSettingsWrap" id="profileSettingsStar" class="clickable">

@@ -3,10 +3,25 @@ var D = require('dottie');
 var checkSizesAndStock = require('./checkSizesAndStock.js');
 
 module.exports = function addToCart(req, res) {
+
+    var QUANTITY_LIMIT = 10;
+    var ENDED = false;
+    //true if qty is brimmed. used to inform customer that
+    //quantity is not what they requested for
+    var BRIMMED = false; 
+
+
     if (!req.isAuthenticated()) { return res.status(403).send('You are not logged in.'); }
     if (!req.body.qty || !req.body.postId) { return res.status(400).send(); }
 
     var qty = parseInt(req.body.qty);
+
+    //don't allow user to add more than 10.
+    if (qty > QUANTITY_LIMIT) {
+        qty = QUANTITY_LIMIT;
+        BRIMMED = true;
+        req.body.qty = qty;
+    }
     if (qty < 1) { return res.status(400).send(); }
 
     return checkSizesAndStock({
@@ -16,18 +31,16 @@ module.exports = function addToCart(req, res) {
         showStock: true
     }, _addToCart);
 
+
     function _addToCart(result) {
         //if no result is passed in, or if result[0] is false
         if (!result) { return res.status(500).send(); }
         if (!result[0] && result[0] !== 0) { return res.status(result[1]).send(result[2]); }
 
-        //First attempt to find if this has been added before.
-        //If yes, increment the quantity
-        var ENDED = false;
-        var BRIMMED = false; //true if qty is brimmed
 
         var newQty = qty;
 
+        //if result[1] is negative, means the request quantity exceeds available stock
         if (result[1] < 0) {
             newQty = qty + result[1]; // setting the qty to available stock
             BRIMMED = true;
@@ -68,7 +81,7 @@ module.exports = function addToCart(req, res) {
 
             return db.Purchase.findOrCreate({
                 where: {
-                    Post_postId: req.body.postId,
+                    Post_postId: post.postId,
                     stage: "cart",
                     size: result[0]
                 },
@@ -78,23 +91,32 @@ module.exports = function addToCart(req, res) {
                 }
             });
         }).spread(function(purchase, created) {
-            if(ENDED) { return; }
-
+            if(ENDED) { return false; }
+            console.log('after find or create');
             //if purchase record found, increment the qty
             if (!created) {
                 if (BRIMMED) { 
                     //if qty is already brimmed, there is no need to check.
                     purchase.qty = qty; 
+                    console.log('order was brimmed. qty is ' + qty);
                 } else {
+                    console.log('order was not brimmed.')
 
                     //GOTCHA: stock that is in cart is not accounted for in stock count/
                     //if remaining stock (after accounting for the new request)
                     //minus the already ordered stock is negative, brim the order
                     if (result[1] - purchase.qty < 0) {
+                        console.log('result[1] - purchase.qty < 0', result[1] - purchase.qty < 0);
                         newQty = result[1] + qty; // this represents all the stock there is
+                        newQty = (newQty > QUANTITY_LIMIT) ? QUANTITY_LIMIT : newQty;
                         BRIMMED = true;
                     } else {
+                        console.log('enough qty to fulfil stock.')
                         newQty = purchase.qty + qty;
+                        if (newQty > QUANTITY_LIMIT) {
+                            newQty = QUANTITY_LIMIT;
+                            BRIMMED = true;
+                        }
                     }
                 }
 
@@ -102,18 +124,22 @@ module.exports = function addToCart(req, res) {
                 return purchase.save();
 
             } else {
+                console.log('created new record')
                 // new purchase record created
-                ENDED = true;
                 var resValues = { success: true, newAddition: true };
 
                 //if order numbers has been brimmed
                 if (BRIMMED) { resValues.brimmed = true; resValues.updatedQty = newQty }
-                return res.json(resValues);
+                res.json(resValues);
+                ENDED = true;
+                return false;
             }
 
         }).then(function(purchase) {
-            if (ENDED) { return; }
+            console.log('last then');
+            if (ENDED) { return false; }
 
+            console.log('under this branch, existing record was found and updated.');
             //under this branch, existing record was found and updated.
             var resValues = { success: true, newAddition: false, updatedQty: purchase.qty };
 

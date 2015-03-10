@@ -1,10 +1,23 @@
 /* checkSizesAndStock.js
  *
  *     checkSizesAndStock({
- *         req: req,
+ *
+ *
+ *         req: req, 
  *         res: [res or null]
  *         sizeData: [data],
  *         showStock: [true/false]
+ *
+ *         ***OR***
+ *
+ *         qty: [value],
+ *         size: [value],
+ *         res: [res or null]
+ *         sizeData: [data],
+ *         showStock: [true/false]
+ *
+ *
+ *
  *     }, callback);
  * 
  *
@@ -65,6 +78,10 @@ module.exports = function checkSizesAndStock(opts, callback) {
         res = opts.res,
         sizeData = opts.sizeData,
         showStock = opts.showStock;
+
+    req = req || {body: {}};
+    if (opts.qty) { req.body.qty = opts.qty; }
+    if (opts.size) { req.body.size = opts.size; }
 
     function response(array) {
 
@@ -127,22 +144,17 @@ module.exports = function checkSizesAndStock(opts, callback) {
     function findProduct(req, res, showStock) {
         
         return db.Post.find({
-            where: db.Sequelize.and(
-                    { postId: req.body.postId },
-                    { isProduct: true },
-
-                    //select a post where it has not been softDeleted (or softDeleted != true)
-                    //GOTCHA sequelize rc8 {ne: true} cannot pick up null values.
-                    db.Sequelize.or(
-                        {softDeleted: {ne: true} },
-                        {softDeleted: null}
-                    )
-            ),
+            where: { 
+                postId: req.body.postId,
+                isProduct: true,
+                softDeleted: {not: true}
+            },
             attributes: ['dataProduct']
         }).then(function(data) {
 
+            if (!data) { return response([false, 404, 'Product not found']); }
+            
             var dataProduct = data.dataProduct;
-
             //not found
             if (!dataProduct) { 
                 return response([false, 404, 'Product not found']);
@@ -160,15 +172,19 @@ module.exports = function checkSizesAndStock(opts, callback) {
         var sizeType = D.get(sizeData, 'sizeType');
         if (!sizeType) { return response([false, 500, 'Record is not reliable (2)']); }
 
-        //if there is sizeType, but did not receive size, reject.
-        if (sizeType === "hassize" && !req.body.size) { return response([false, 400, 'Did not provide size']); }
+        //if there is sizeType, but did not receive size or is nosize/freesize, reject.
+        if (sizeType === "hassize" && (!req.body.size || ['nosize', 'freesize'].indexOf(req.body.size) > -1)) { 
+            return response([false, 400, 'Did not provide size']); 
+        }
         //vice versa
-        else if (sizeType === "nosize" && req.body.size) { return response([false, 400, 'Item is freesize but provided size']); }
+        else if (sizeType === "nosize" && req.body.size && ['nosize', 'freesize'].indexOf(req.body.size) < 0 ) {
+            return response([false, 400, 'Item is freesize but provided size']);
+        }
 
         var stockCheck;
         if (sizeType === "hassize") {
             return _hasSizeCheck(req, sizeData, showStock); 
-        } else if (sizeType === "nosize") {
+        } else if (['nosize', 'freesize'].indexOf(sizeType) > -1) {
             return _noSizeCheck(req.body.qty, sizeData, showStock);
         } else {
             //something is wrong

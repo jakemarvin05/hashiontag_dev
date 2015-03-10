@@ -13,40 +13,73 @@ module.exports = function(cartJSON) {
 
     var cartGroups = cartJSON.inStock;
 
-    var stepQtyCounter = 0;
     for(var i in cartGroups) {
         var group = cartGroups[i];
         var currency = D.get(group, 'seller.dataMeta.dataShop.currency');
         var stepQty = D.get(group, 'seller.dataMeta.dataShop.shipping.stepQty');
         var lightShipping = D.get(group, 'seller.dataMeta.dataShop.shipping.light.' + shipToRegion);
-        //handle cases where the seller do not ship to that region.
+        //TODO: handle cases where the seller do not ship to that region.
 
         //set the relevantShipping branch for semantic access.
         D.set(group, 'seller.relevantShipping', lightShipping);
         D.set(group, 'seller.relevantShipping.region', shipToRegion);
 
+        var waivedShippingCounter = 0; //update this counter for every shipping waived.
         for(var j in group.items) {
             var item = group.items[j];
             var shippingType = D.get(item, 'post.dataProduct.shipping.shippingType');
+
             if (shippingType === 'light') {
-                //charge shipping for the first of a batch of "step quantiy"
-                if (stepQtyCounter === 0) {
-                    D.set(item, 'shippingCharge', lightShipping.cost);
-                    stepQtyCounter += 1;
-                } else if (stepQtyCounter < stepQty) {
-                    D.set(item, 'shippingCharge', 'waived');
-                    stepQtyCounter += 1;
+
+                var qty = item.qty;
+                var lightShippingCost = lightShipping.cost;
+                var chargeableQty, waivedShippingCounter, multiplier, remainder, shippingCharge;
+
+                if (lightShippingCost === 0) {
+                    D.set(item, 'shippingCharge', 'free');
+                } else if (waivedShippingCounter === 0 ) {
+
+                    /* charge shipping and reset counter. */
+                    chargeableQty = qty;
+
+                    //apply shipping part thereof.
+                    multiplier = Math.ceil(chargeableQty / stepQty);
+                    remainder = chargeableQty % stepQty;
+
+                    D.set(item, 'shippingCharge', lightShippingCost * multiplier);
+
+                    //set the remaining waived shipping counts.
+                    waivedShippingCounter = stepQty - remainder;
+
                 } else {
-                    D.set(item, 'shippingCharge', 'waived');
-                    stepQtyCounter = 0;
+
+                    //chargeableQty is the quantity offsetted with "free/waived rollover quantity"
+                    chargeableQty = qty - waivedShippingCounter;
+
+                    if (chargeableQty <= 0) {
+                        //if it is < 0, we have more waived shipping left after using it on this.
+                        D.set(item, 'shippingCharge', 'waived');
+                        waivedShippingCounter = Math.abs(chargeableQty);
+
+                    } else {
+                        //apply shipping part thereof
+                        multiplier = Math.ceil(chargeableQty / stepQty);
+                        remainder = chargeableQty % stepQty;
+
+                        D.set(item, 'shippingCharge', lightShippingCost * multiplier);
+                        waivedShippingCounter = stepQty - remainder;
+                    }
+                    
                 }
+
+                
             } else {
                 //heavy shipping
                 var relevantShipping = D.get(item, 'post.dataProduct.shipping.list.' + shipToRegion);
-                D.set(item, 'shippingCharge', relevantShipping);
+                D.set(item, 'shippingCharge', relevantShipping * item.qty);
             }
             //conceal the stock
-            item.post = stockFilter(item.post);
+            item.post = stockFilter(item.post)[0];
         }
 
     }

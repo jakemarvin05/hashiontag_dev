@@ -373,7 +373,7 @@ router.post('/cart', function(req, res) {
     require('../apps/purchase/cartJSON.js')(req, res, null, render);
     function render(results, error) {
         if (!results) {
-            return res.status(500).send(error? error : '');
+            return res.status(500).send(error ? error : '');
         }
         return res.json(results);
     }
@@ -381,6 +381,14 @@ router.post('/cart', function(req, res) {
 
 router.post('/cart/add', function(req, res) {
     require('../apps/purchase/addToCart.js')(req, res);
+});
+router.post('/cart/remove', function(req, res) {
+    if (!req.isAuthenticated()) { return res.status(403).send('Not signed in'); }
+    if (!req.body.purchaseId || !req.body.transactionId) { 
+        return res.status(400).send('Missing parameters. Please provide both purchaseId and transactionId.'); 
+    }
+    
+    require('../apps/purchase/removeFromCart.js')(req, res);
 });
 
 router.post('/cart/checkstock', function(req, res) {

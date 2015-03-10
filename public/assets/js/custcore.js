@@ -534,7 +534,7 @@ VV.extend('buttonTasks', {
         var self = this;
         $value = $el.closest('div').find('.articlePurchaseQty');
         var qty = parseInt($value.val());
-        if (qty > 98) { return $value.val(99); }
+        if (qty > 9) { return $value.val(10); }
         $value.val(parseInt($value.val()) + 1); 
     },
     purchaseMinusQty: function($el) {
@@ -588,7 +588,7 @@ VV.extend('buttonTasks', {
 
             ajax.fail(function(err) {
                 var message;
-                if ([400, 403].indexOf(err.status) > -1) {
+                if ([400, 403, 404].indexOf(err.status) > -1) {
                     if (err.responseText.length > 0) {
                         message = err.responseText;
                     }

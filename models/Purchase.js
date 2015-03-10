@@ -23,7 +23,11 @@ module.exports = function(sequelize, DataTypes) {
         },
         qty: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+            defaultValue: 1,
+            validate: {
+                min: 1
+            }
         },
         size: {
             type: DataTypes.STRING,
@@ -40,9 +44,6 @@ module.exports = function(sequelize, DataTypes) {
             associate: function(models) {
                 Purchase.belongsTo(models.Post, {foreignKey: 'Post_postId', onDelete: 'RESTRICT', onUpdate: 'CASCADE'});
                 Purchase.belongsTo(models.User, {foreignKey: 'User_userId'});
-
-                //Seller
-                Purchase.belongsTo(models.User, {as: 'Seller', foreignKey: 'User_userId_seller'});
 
                 //Transaction
                 Purchase.belongsTo(models.Transaction, {foreignKey: 'Transaction_transactionId', onDelete: 'RESTRICT', onUpdate: 'CASCADE'});
