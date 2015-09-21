@@ -91,7 +91,7 @@
                     </div>
                 </a>
 
-                <a href="{p.absPath}/cart">
+                <a href="{p.absPath}/logout">
                     <div class="navButtons">
                         <div class="icon-logout"></div>
                         <span>Logout</span>

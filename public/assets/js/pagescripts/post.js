@@ -546,7 +546,9 @@ var URLForm = {
             //fire the ajax function to search for the user tagged.
             this.ajax($newTemplate, username);
         } else {
-            $newTemplate.find('.merchantUsername').append('No User Defined');
+            //$newTemplate.find('.merchantUsername').append('No User Defined');
+            $newTemplate.find('.merchantUsername').hide();
+            $newTemplate.find('.merchantName').hide();
         }
 
         //price
