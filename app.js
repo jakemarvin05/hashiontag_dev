@@ -4,8 +4,15 @@ var path = require('path'),
     favicon = require('serve-favicon'),
     logger = require('morgan'),
     cookieParser = require('cookie-parser'),
-    bodyParser = require('body-parser'),
-    cons = require('consolidate');
+    bodyParser = require('body-parser');
+
+// adaro dust
+var adaro = require('adaro').dust({
+    helpers: [
+        'dustjs-helpers',
+        function(dust) { dust.config.whitespace = true; }
+    ]
+});
 
 /* sequelize */
 var db = require('./models');
@@ -45,7 +52,7 @@ app.use(favicon(__dirname + '/public/assets/favicon/favicon-160x160.png'));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.engine('dust', cons.dust);
+app.engine('dust', adaro);
 app.set('view engine', 'dust');
 //app.enable('view cache');
 

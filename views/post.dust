@@ -89,6 +89,7 @@ socket.on('uploadProgress', function(data){
             $(function() { $("#desc").hashtags('newpost'); });
             </script>
 
+            {! 220915 commented away VV items
             <!-- tag VV items -->
             <div class="tagToVVItems">
                 <div id="merchantInputDiv">
@@ -126,10 +127,11 @@ socket.on('uploadProgress', function(data){
                     </div>
                 </div><!-- end merchantInputDiv -->
             </div>
+            !}
 
             <div class="postWhereDidYou">
                 <div id="postWhereText">
-                    <p><span class="glyphicon glyphicon-chevron-right"></span>Not on VV? Share via URL.</p>
+                    <p><span class="glyphicon glyphicon-chevron-right"></span>Share URLs on where you got it from.</p>
                 </div>
 
                 <div class="URLItemsCont">
@@ -138,15 +140,17 @@ socket.on('uploadProgress', function(data){
                         <div class="merchantTextHolder">
                             <div class="merchantUsername"></div>
                             <div class="merchantName"></div>
+                            
+                            <div class="productTextHolder">
+                                <div class="productName"><span class="glyphicon glyphicon-text-color"></span>&nbsp;</div>
+                                <div class="productURL"><span class="glyphicon glyphicon-link"></span>&nbsp;</div>
+                                <div class="productPrice"><span class="glyphicon glyphicon-usd"></span>&nbsp;</div>
+                            </div>
                         </div>
                         <div class="merchantSelect"><span data-task="URLRemove" class="glyphicon glyphicon-remove-circle"></span></div>
                         <div class="clearfix"></div>
 
-                        <div class="productTextHolder">
-                            <div class="productName"><span class="glyphicon glyphicon-text-color"></span>&nbsp;</div>
-                            <div class="productURL"><span class="glyphicon glyphicon-link"></span>&nbsp;</div>
-                            <div class="productPrice"><span class="glyphicon glyphicon-usd"></span>&nbsp;</div>
-                        </div>
+                        
 
                         <div class="clearfix"></div>
                     </div>
@@ -156,8 +160,9 @@ socket.on('uploadProgress', function(data){
                     <div class="addURLForm">
                         <p><span class="glyphicon glyphicon-text-color"></span><input type="text" name="itemname" id="itemname" placeholder="name"></p>
                         <p><span class="glyphicon glyphicon-link"></span><input type="text" name="itemlink" id="itemlink" placeholder="http://"></p>
-                        <p><span class="glyphicon glyphicon-tag"></span><input  type="text" name="itemaddtag" id="itemaddtag" placeholder="@shopname (optional)"></p>
                         <p><span class="glyphicon glyphicon-usd"></span><input  type="text" name="itemprice" id="itemprice" placeholder="price (optional)"></p>
+                        <p>Tag to a user if she/he is on VV...</p>
+                        <p><span class="glyphicon glyphicon-tag"></span><input  type="text" name="itemaddtag" id="itemaddtag" placeholder="@shopname (optional)"></p>
                         <p>
                             <button type="button" data-task="postProductURLCancel">Cancel</button>&nbsp;
                             <button type="button" data-task="postProductURLDone">Done</button>

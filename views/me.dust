@@ -17,11 +17,14 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
     <header class="profileHeader">
         {?renderJSONraw.isOwnProfile}
         <div data-vel="normalDisplay">
+
+            {! 220915 commented out cart and startag feature
             <a href="{p.absPath}/cart">
                 <div class="profileSettingsWrap" id="profileSettingsStar" class="clickable">
                     <div class="glyphicon glyphicon-star"></div>
                 </div>
             </a>
+
             {?renderJSONraw.hasStarTag}
             <a href="{p.absPath}/startag">
                 <div class="profileSettingsWrap" id="profileSettingsStar" class="clickable">
@@ -29,6 +32,8 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
                 </div>
             </a>
             {/renderJSONraw.hasStarTag}
+            !}
+
             <a href="{p.absPath}/settings">
                 <div class="profileSettingsWrap" id="profileSettingsCog" class="clickable">
                     <div class="icon-cog"></div>
@@ -194,7 +199,8 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
                 </div>
             </div>
 
-            
+
+            {! 220915 commented out shop
             {?hasShop}
             <div class="profileFollowBlock profileFollowBlockClickable" data-action="shop" data-bindto="shopBlock">
                 <div class="vaDiv"></div>
@@ -212,6 +218,7 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
                 </div>
             </div>
             {/hasShop}
+            !}
 
             <div class="profileFollowBlock{@if cond="{renderJSONraw.followerCount} > 0"}  profileFollowBlockClickable{/if}" data-action="findFollowers" data-bindto="followerList">
                 <div class="vaDiv"></div>
