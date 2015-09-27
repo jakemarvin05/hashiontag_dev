@@ -223,7 +223,7 @@ module.exports = function profileJSON(req, res, thenRender, isSelf) {
                 user,
 
                 (function() {
-                    if(user.shopStatus.indexOf('active') > -1) {
+                    if(user.shopStatus && user.shopStatus.indexOf('active') > -1) {
                         return db.Post.count({
                             where: {
                                 User_userId: user.userId,
@@ -231,6 +231,7 @@ module.exports = function profileJSON(req, res, thenRender, isSelf) {
                             }
                         });
                     }
+                    return false;
                 })()
             ];
         }).spread(function(user, productCount) {
