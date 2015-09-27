@@ -47,7 +47,8 @@ module.exports = function(sequelize, DataTypes) {
         },
         isProduct: {
             type: DataTypes.BOOLEAN,
-            allowNull: true
+            allowNull: false,
+            defaultValue: false
         },
         showInMainFeed: {
             type: DataTypes.BOOLEAN,

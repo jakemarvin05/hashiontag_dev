@@ -260,10 +260,7 @@ module.exports = function streamJSON(req, res, render, opts) {
 
         db.Post.findAll({
             where: {
-                $or: {
-                    isProduct: {ne: true},
-                    isProduct: null
-                },
+                isProduct: false,
                 showInMainFeed: true
             },
             include: include, 
