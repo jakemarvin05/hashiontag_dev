@@ -14,7 +14,7 @@ module.exports = function profileJSON(req, res, thenRender, isSelf) {
     }
 
     var throwErr = function(error) {
-        console.log(error);
+        console.log(error.stack);
         return thenRender(false);
     }
     //to store the returned results
@@ -234,7 +234,6 @@ module.exports = function profileJSON(req, res, thenRender, isSelf) {
                 })()
             ];
         }).spread(function(user, productCount) {
-            console.log('######', productCount);
 
             if(productCount > 0) { PRODUCTCOUNT = productCount; }
 
