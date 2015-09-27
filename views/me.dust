@@ -194,7 +194,7 @@ if ( window.location.href.substring(window.location.href.lastIndexOf('/')).index
                     </div>
                     <div class="profileFollowCount" id="profileFollowersCount">
                         {! TODO!! change this to post count. !}
-                        {renderJSONraw.followerCount}
+                        {renderJSONraw.postCount}
                     </div>
                 </div>
             </div>

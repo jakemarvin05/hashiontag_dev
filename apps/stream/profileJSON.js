@@ -334,6 +334,8 @@ module.exports = function profileJSON(req, res, thenRender, isSelf) {
 
             returnedUser.followingCount = followingCount.count;
             returnedUser.followerCount = followerCount.count;
+            returnedUser.postCount = returnedUser.posts.length;
+            
             if(PRODUCTCOUNT) { returnedUser.productCount = PRODUCTCOUNT; }
 
             //so many booleans because of damned Dust template!
