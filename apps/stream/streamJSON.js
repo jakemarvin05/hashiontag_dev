@@ -18,7 +18,7 @@ module.exports = function streamJSON(req, res, render, opts) {
 
     /* Error handling */
     var throwErr = function(error) {
-        console.log(error);
+        console.log(error.stack);
         return render(false);
     }
 
@@ -259,10 +259,13 @@ module.exports = function streamJSON(req, res, render, opts) {
         /* DEAL WITH LOAD MORE */
 
         db.Post.findAll({
-            where: db.Sequelize.or(
-                {isProduct: {ne: true}},
-                {isProduct: null}
-            ),
+            where: {
+                $or: {
+                    isProduct: {ne: true},
+                    isProduct: null
+                },
+                showInMainFeed: true
+            },
             include: include, 
             order: order,
             limit: 20

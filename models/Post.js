@@ -49,6 +49,11 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.BOOLEAN,
             allowNull: true
         },
+        showInMainFeed: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
+        },
         dataProduct: {
             type: DataTypes.JSON,
             allowNull: true
